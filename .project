@@ -3,6 +3,7 @@
 	<name>avr_DF4IAH_10MHz_Reference</name>
 	<comment></comment>
 	<projects>
+		<project>avr_Bootloader_0v85</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
