@@ -4,14 +4,12 @@
 		<cconfiguration id="de.innot.avreclipse.configuration.app.debug.517072529">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.debug.517072529" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<macros>
-					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
+					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="MT_Firmware_ClkPullPwm" type="VALUE_TEXT" value="0x6F00"/>
 					<stringMacro name="MT_Firmware_Usb" type="VALUE_TEXT" value="0x6700"/>
-					<stringMacro name="MT_FIRMWARE_Serial" type="VALUE_TEXT" value="0x5000"/>
-					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x5000"/>
-					<stringMacro name="MT_Firmware_Probe" type="VALUE_TEXT" value="0x6F80"/>
 					<stringMacro name="DEBUG" type="VALUE_TEXT" value="1"/>
+					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x5000"/>
 				</macros>
 				<externalSettings/>
 				<extensions>
@@ -47,6 +45,7 @@
 								<option id="de.innot.avreclipse.cppcompiler.option.optimize.1925673957" name="Optimization Level" superClass="de.innot.avreclipse.cppcompiler.option.optimize"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.linker.winavr.app.debug.1395468119" name="AVR C Linker" superClass="de.innot.avreclipse.tool.linker.winavr.app.debug">
+								<option id="de.innot.avreclipse.linker.option.otherlinkargs.1188564720" name="Other Arguments" superClass="de.innot.avreclipse.linker.option.otherlinkargs" value="-Wl,--section-start=.text=${MT_Firmware_Address}" valueType="string"/>
 								<inputType id="de.innot.avreclipse.tool.linker.input.1318658597" name="OBJ Files" superClass="de.innot.avreclipse.tool.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -71,13 +70,12 @@
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.1034531880">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.1034531880" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<macros>
-					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
+					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="MT_Firmware_ClkPullPwm" type="VALUE_TEXT" value="0x6F00"/>
+					<stringMacro name="RELEASE" type="VALUE_TEXT" value="1"/>
 					<stringMacro name="MT_Firmware_Usb" type="VALUE_TEXT" value="0x6700"/>
 					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x6000"/>
-					<stringMacro name="MT_Firmware_Probe" type="VALUE_TEXT" value="0x6F80"/>
-					<stringMacro name="DEBUG" type="VALUE_TEXT" value="0"/>
 				</macros>
 				<externalSettings/>
 				<extensions>
@@ -101,6 +99,9 @@
 							<builder buildPath="${workspace_loc:/avr_DF4IAH_10MHz_Reference}/Release" id="de.innot.avreclipse.target.builder.winavr.app.release.914095199" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="AVR GNU Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="de.innot.avreclipse.target.builder.winavr.app.release"/>
 							<tool id="de.innot.avreclipse.tool.assembler.winavr.app.release.352360106" name="AVR Assembler" superClass="de.innot.avreclipse.tool.assembler.winavr.app.release">
 								<option id="de.innot.avreclipse.assembler.option.debug.level.871823844" name="Generate Debugging Info" superClass="de.innot.avreclipse.assembler.option.debug.level" value="de.innot.avreclipse.assembler.option.debug.level.none" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.asm.option.include.paths.1189105529" name="#include paths for preprocessor(-I)" superClass="de.innot.avreclipse.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_Bootloader/Src}&quot;"/>
+								</option>
 								<inputType id="de.innot.avreclipse.tool.assembler.input.1129203091" superClass="de.innot.avreclipse.tool.assembler.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.compiler.winavr.app.release.2040620041" name="AVR Compiler" superClass="de.innot.avreclipse.tool.compiler.winavr.app.release">
@@ -115,6 +116,9 @@
 									<listOptionValue builtIn="false" value="MT_FIRMWARE_USB=${MT_Firmware_Usb}"/>
 									<listOptionValue builtIn="false" value="MT_FIRMWARE_CLKPULLPWM=${MT_Firmware_ClkPullPwm}"/>
 								</option>
+								<option id="de.innot.avreclipse.compiler.option.incpath.1385247018" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_Bootloader/Src}&quot;"/>
+								</option>
 								<inputType id="de.innot.avreclipse.compiler.winavr.input.1597913616" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.cppcompiler.app.release.1486633910" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.release">
@@ -122,7 +126,7 @@
 								<option id="de.innot.avreclipse.cppcompiler.option.optimize.394757116" name="Optimization Level" superClass="de.innot.avreclipse.cppcompiler.option.optimize" value="de.innot.avreclipse.cppcompiler.optimize.size" valueType="enumerated"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.linker.winavr.app.release.132280847" name="AVR C Linker" superClass="de.innot.avreclipse.tool.linker.winavr.app.release">
-								<option id="de.innot.avreclipse.linker.option.otherlinkargs.1923160745" name="Other Arguments" superClass="de.innot.avreclipse.linker.option.otherlinkargs" value="-Wl,--section-start=.text=${MT_Firmware_Address}  -Wl,--section-start=.df4iah_probe=${MT_Firmware_Probe}  -Wl,--section-start=.df4iah_usb=${MT_Firmware_Usb} -Wl,--section-start=.df4iah_clkpullpwm=${MT_Firmware_ClkPullPwm}  -Wl,--section-start=.df4iah_serial=${MT_Firmware_Serial}" valueType="string"/>
+								<option id="de.innot.avreclipse.linker.option.otherlinkargs.1923160745" name="Other Arguments" superClass="de.innot.avreclipse.linker.option.otherlinkargs" value="-Wl,--section-start=.text=${MT_Firmware_Address}  -Wl,--section-start=.df4iah_fw_usb=${MT_Firmware_Usb} -Wl,--section-start=.df4iah_fw_clkpullpwm=${MT_Firmware_ClkPullPwm}  -Wl,--section-start=.df4iah_fw_serial=${MT_Firmware_Serial}" valueType="string"/>
 								<inputType id="de.innot.avreclipse.tool.linker.input.124312367" name="OBJ Files" superClass="de.innot.avreclipse.tool.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>

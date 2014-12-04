@@ -47,11 +47,11 @@
 
 #include "chipdef.h"
 #include "main.h"
-#include "df4iah_probe.h"
-#include "df4iah_usb.h"
-#include "df4iah_memory.h"
-#include "df4iah_clkPullPwm.h"
-#include "usbdrv/usbdrv.h"
+#include "df4iah_fw_usb.h"
+#include "df4iah_bl_memory.h"
+#include "df4iah_fw_clkPullPwm.h"
+#include "df4iah_fw_serial.h"
+#include "usbdrv_fw/usbdrv.h"
 
 
 
@@ -174,20 +174,11 @@ static inline void init_wdt() {
 #endif
 }
 
-static inline void app_startup_check()
-{
-	// check for jumper-setting and for a valid jump-table entry
-	if ((!check_jumper()) && (*((unsigned short*) 0x0000) == 0x0c94)) {
-		close_probe();
-		jump_to_app();								// jump to application sector
-	}
-}
-
 void give_away(void)
 {
     wdt_reset();
 	usbPoll();
-	debug_togglePin();							// XXX DEBUGGING
+	debug_togglePin2();							// XXX DEBUGGING
 }
 
 
@@ -195,13 +186,11 @@ int main(void)
 {
 	vectortable_to_bootloader();
 	init_wdt();
-	init_probe();
- 	app_startup_check();
 
-	init_usb();										// starts at 67 ms after power-up, ends at 316 ms after power-up
+	init_fw_usb();										// starts at 67 ms after power-up, ends at 316 ms after power-up
     sei();											// ENABLE interrupt
 
-	init_clkPullPwm();
+	init_clkPullPwm2();
 
     for(;;) {
     	give_away();

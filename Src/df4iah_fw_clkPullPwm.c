@@ -11,16 +11,16 @@
 #include <util/delay.h>
 
 #include "chipdef.h"
-#include "df4iah_clkPullPwm.h"
+#include "df4iah_fw_clkPullPwm.h"
 
 
 #define DEFAULT_PWM_COUNT  0x8000
 
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_clkpullpwm"), aligned(2)))
+__attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
 #endif
-void init_clkPullPwm()
+void init_clkPullPwm2()
 {
 	// set the timer-1 counter to zero.
 	TCNT1L = TCNT1H = 0x00;
@@ -52,9 +52,9 @@ void init_clkPullPwm()
 }
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_clkpullpwm"), aligned(2)))
+__attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
 #endif
-void close_clkPullPwm()
+void close_clkPullPwm2()
 {
 	// reset timer-1 PWM-A compare output port
 	DDR_OC1A_REG &= ~(_BV(DDR_OC1A));
@@ -72,18 +72,18 @@ void close_clkPullPwm()
 	TCNT1L = TCNT1H = 0x00;
 }
 
-inline void debug_togglePin()
+inline void debug_togglePin2()
 {
 	PWMTOGGLEPIN_PIN = _BV(PWMTOGGLEPIN_PNUM);
 }
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_clkpullpwm"), aligned(2)))
+__attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
 #endif
-void debug_endlessTogglePin()
+void debug_endlessTogglePin2()
 {
 	for(;;)	{
-		debug_togglePin();
+		debug_togglePin2();
 		_delay_ms(1);
 		wdt_reset();
 	}

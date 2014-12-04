@@ -11,39 +11,16 @@
 #include <avr/boot.h>
 #include <util/delay.h>
 
-#include "df4iah_memory.h"
-#include "df4iah_usbAsp.h"
-#include "df4iah_usb.h"
+#include "df4iah_fw_usb.h"
 
 
 static uchar replyBuffer[8];
 
-static uchar prog_connected = PROG_UNCONNECTED;
-static uchar prog_state = PROG_STATE_IDLE;
-
-static uchar prog_address_newmode = 0;
-static unsigned long prog_address;
-static unsigned int prog_nbytes = 0;
-static unsigned int prog_pagesize;
-static uchar prog_blockflags;
-static uchar prog_pagecounter;
-
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_usb"), aligned(2)))
+__attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
-void replyContent(uchar replyBuffer[], uchar data[])
-{
-	replyBuffer[0] = data[2];
-	replyBuffer[1] = data[3];
-	replyBuffer[2] = data[4];
-	// replyBuffer[3] = 0;
-}
-
-#ifdef RELEASE
-__attribute__((section(".df4iah_usb"), aligned(2)))
-#endif
-void init_usb()
+void init_fw_usb()
 {
 	usbInit();
 	USB_INTR_ENABLE &= ~(_BV(USB_INTR_ENABLE_BIT));
@@ -60,17 +37,16 @@ void init_usb()
 }
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_usb"), aligned(2)))
+__attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
-void close_usb()
+void close_fw_usb()
 {
 	USB_INTR_ENABLE &= ~(_BV(USB_INTR_ENABLE_BIT));
 	usbDeviceDisconnect();
 }
 
-#if 0
 #ifdef RELEASE
-__attribute__((section(".df4iah_usb"), aligned(2)))
+__attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 uint8_t recvchar_usb(void)
 {
@@ -78,7 +54,7 @@ uint8_t recvchar_usb(void)
 }
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_usb"), aligned(2)))
+__attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 void sendchar_usb(uint8_t data)
 {
@@ -86,7 +62,7 @@ void sendchar_usb(uint8_t data)
 }
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_usb"), aligned(2)))
+__attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 void recvBuffer_usb(uint16_t addr, uint8_t* dptr, uint8_t len)
 {
@@ -102,18 +78,17 @@ void recvBuffer_usb(uint16_t addr, uint8_t* dptr, uint8_t len)
 }
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_usb"), aligned(2)))
+__attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 void sendBuffer_usb(uint16_t addr, const uint8_t* sptr, uint8_t len)
 {
 }
-#endif
 
 // -- 8< --
 
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_usb"), aligned(2)))
+__attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
 {
@@ -121,6 +96,7 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
 
 	replyBuffer[3] = replyBuffer[2] = replyBuffer[1] = replyBuffer[0] = 0;
 
+#if 0
 	if (data[1] == USBASP_FUNC_CONNECT) {
 		prog_connected = PROG_CONNECTED;
 
@@ -251,14 +227,16 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
 	}
 
 	usbMsgPtr = (usbMsgPtr_t) replyBuffer;
+#endif
 	return len;
 }
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_usb"), aligned(2)))
+__attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 {
+#if 0
 	/* check if programmer is in correct read state */
 	if ((prog_state != PROG_STATE_READFLASH) &&
 		(prog_state	!= PROG_STATE_READEEPROM)) {
@@ -276,15 +254,16 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 	if (len < 8) {
 		prog_state = PROG_STATE_IDLE;
 	}
-
+#endif
 	return len;
 }
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_usb"), aligned(2)))
+__attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 {
+#if 0
 	/* check if programmer is in correct write state */
 	if ((prog_state != PROG_STATE_WRITEFLASH) &&
 		(prog_state	!= PROG_STATE_WRITEEEPROM)) {
@@ -303,13 +282,13 @@ USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 		prog_state = PROG_STATE_IDLE;
 		return 1;
 	}
-
+#endif
 	return 0;
 }
 
 #if USB_CFG_IMPLEMENT_FN_WRITEOUT
 # ifdef RELEASE
-__attribute__((section(".df4iah_usb"), aligned(2)))
+__attribute__((section(".df4iah_fw_usb"), aligned(2)))
 # endif
 USB_PUBLIC void usbFunctionWriteOut(uchar *data, uchar len)
 {

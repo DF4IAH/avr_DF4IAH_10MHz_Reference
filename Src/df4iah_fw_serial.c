@@ -8,13 +8,13 @@
 #include <stdint.h>
 #include <avr/interrupt.h>
 
-#include "df4iah_serial.h"
+#include "df4iah_fw_serial.h"
 
 #include "main.h"
 
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_serial"), aligned(2)))
+__attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
 void init_serial()
 {
@@ -31,7 +31,7 @@ void init_serial()
 }
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_serial"), aligned(2)))
+__attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
 void close_serial()
 {
@@ -41,7 +41,7 @@ void close_serial()
 }
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_serial"), aligned(2)))
+__attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
 void sendchar_serial(uint8_t data)
 {
@@ -50,7 +50,7 @@ void sendchar_serial(uint8_t data)
 }
 
 #ifdef RELEASE
-__attribute__((section(".df4iah_serial"), aligned(2)))
+__attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
 uint8_t recvchar_serial(void)
 {
