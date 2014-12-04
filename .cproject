@@ -3,6 +3,16 @@
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="de.innot.avreclipse.configuration.app.debug.517072529">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.debug.517072529" moduleId="org.eclipse.cdt.core.settings" name="Debug">
+				<macros>
+					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
+					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
+					<stringMacro name="MT_Firmware_ClkPullPwm" type="VALUE_TEXT" value="0x6F00"/>
+					<stringMacro name="MT_Firmware_Usb" type="VALUE_TEXT" value="0x6700"/>
+					<stringMacro name="MT_FIRMWARE_Serial" type="VALUE_TEXT" value="0x5000"/>
+					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x5000"/>
+					<stringMacro name="MT_Firmware_Probe" type="VALUE_TEXT" value="0x6F80"/>
+					<stringMacro name="DEBUG" type="VALUE_TEXT" value="1"/>
+				</macros>
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
@@ -60,6 +70,15 @@
 		</cconfiguration>
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.1034531880">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.1034531880" moduleId="org.eclipse.cdt.core.settings" name="Release">
+				<macros>
+					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
+					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
+					<stringMacro name="MT_Firmware_ClkPullPwm" type="VALUE_TEXT" value="0x6F00"/>
+					<stringMacro name="MT_Firmware_Usb" type="VALUE_TEXT" value="0x6700"/>
+					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x6000"/>
+					<stringMacro name="MT_Firmware_Probe" type="VALUE_TEXT" value="0x6F80"/>
+					<stringMacro name="DEBUG" type="VALUE_TEXT" value="0"/>
+				</macros>
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
@@ -87,6 +106,15 @@
 							<tool id="de.innot.avreclipse.tool.compiler.winavr.app.release.2040620041" name="AVR Compiler" superClass="de.innot.avreclipse.tool.compiler.winavr.app.release">
 								<option id="de.innot.avreclipse.compiler.option.debug.level.661934771" name="Generate Debugging Info" superClass="de.innot.avreclipse.compiler.option.debug.level" value="de.innot.avreclipse.compiler.option.debug.level.none" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.optimize.1658354402" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.size" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.compiler.option.def.413283625" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
+									<listOptionValue builtIn="false" value="BOOTSIZE=${Bootsize}"/>
+									<listOptionValue builtIn="false" value="MT_FIRMWARE_ADDRESS=${MT_Firmware_Address}"/>
+									<listOptionValue builtIn="false" value="MT_FIRMWARE_PROBE=${MT_Firmware_Probe}"/>
+									<listOptionValue builtIn="false" value="MT_FIRMWARE_SERIAL=${MT_Firmware_Serial}"/>
+									<listOptionValue builtIn="false" value="MT_FIRMWARE_USB=${MT_Firmware_Usb}"/>
+									<listOptionValue builtIn="false" value="MT_FIRMWARE_CLKPULLPWM=${MT_Firmware_ClkPullPwm}"/>
+								</option>
 								<inputType id="de.innot.avreclipse.compiler.winavr.input.1597913616" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.cppcompiler.app.release.1486633910" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.release">
@@ -94,6 +122,7 @@
 								<option id="de.innot.avreclipse.cppcompiler.option.optimize.394757116" name="Optimization Level" superClass="de.innot.avreclipse.cppcompiler.option.optimize" value="de.innot.avreclipse.cppcompiler.optimize.size" valueType="enumerated"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.linker.winavr.app.release.132280847" name="AVR C Linker" superClass="de.innot.avreclipse.tool.linker.winavr.app.release">
+								<option id="de.innot.avreclipse.linker.option.otherlinkargs.1923160745" name="Other Arguments" superClass="de.innot.avreclipse.linker.option.otherlinkargs" value="-Wl,--section-start=.text=${MT_Firmware_Address}  -Wl,--section-start=.df4iah_probe=${MT_Firmware_Probe}  -Wl,--section-start=.df4iah_usb=${MT_Firmware_Usb} -Wl,--section-start=.df4iah_clkpullpwm=${MT_Firmware_ClkPullPwm}  -Wl,--section-start=.df4iah_serial=${MT_Firmware_Serial}" valueType="string"/>
 								<inputType id="de.innot.avreclipse.tool.linker.input.124312367" name="OBJ Files" superClass="de.innot.avreclipse.tool.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -113,7 +142,9 @@
 					</sourceEntries>
 				</configuration>
 			</storageModule>
-			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
+				<externalSettings containerId="avr_DF4IAH_Bootloader;de.innot.avreclipse.configuration.app.release.1223594858" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
+			</storageModule>
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">

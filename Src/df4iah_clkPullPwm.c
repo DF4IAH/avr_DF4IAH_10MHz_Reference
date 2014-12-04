@@ -10,7 +10,7 @@
 #include <avr/wdt.h>
 #include <util/delay.h>
 
-chipdef.h
+#include "chipdef.h"
 #include "df4iah_clkPullPwm.h"
 
 
