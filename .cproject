@@ -38,6 +38,16 @@
 							<tool id="de.innot.avreclipse.tool.compiler.winavr.app.debug.124041017" name="AVR Compiler" superClass="de.innot.avreclipse.tool.compiler.winavr.app.debug">
 								<option id="de.innot.avreclipse.compiler.option.debug.level.1828049118" name="Generate Debugging Info" superClass="de.innot.avreclipse.compiler.option.debug.level"/>
 								<option id="de.innot.avreclipse.compiler.option.optimize.864993557" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize"/>
+								<option id="de.innot.avreclipse.compiler.option.def.353330143" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="DEBUG"/>
+									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
+									<listOptionValue builtIn="false" value="BOOTSIZE=${Bootsize}"/>
+									<listOptionValue builtIn="false" value="MT_FIRMWARE_ADDRESS=${MT_Firmware_Address}"/>
+									<listOptionValue builtIn="false" value="MT_FIRMWARE_CLKPULLPWM=${MT_Firmware_ClkPullPwm}"/>
+									<listOptionValue builtIn="false" value="MT_FIRMWARE_PROBE=${MT_Firmware_Probe}"/>
+									<listOptionValue builtIn="false" value="MT_FIRMWARE_SERIAL=${MT_Firmware_Serial}"/>
+									<listOptionValue builtIn="false" value="MT_FIRMWARE_USB=${MT_Firmware_Usb}"/>
+								</option>
 								<inputType id="de.innot.avreclipse.compiler.winavr.input.666493999" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.cppcompiler.app.debug.1150448628" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.debug">
@@ -108,13 +118,14 @@
 								<option id="de.innot.avreclipse.compiler.option.debug.level.661934771" name="Generate Debugging Info" superClass="de.innot.avreclipse.compiler.option.debug.level" value="de.innot.avreclipse.compiler.option.debug.level.none" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.optimize.1658354402" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.size" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.def.413283625" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="RELEASE"/>
 									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="BOOTSIZE=${Bootsize}"/>
 									<listOptionValue builtIn="false" value="MT_FIRMWARE_ADDRESS=${MT_Firmware_Address}"/>
+									<listOptionValue builtIn="false" value="MT_FIRMWARE_CLKPULLPWM=${MT_Firmware_ClkPullPwm}"/>
 									<listOptionValue builtIn="false" value="MT_FIRMWARE_PROBE=${MT_Firmware_Probe}"/>
 									<listOptionValue builtIn="false" value="MT_FIRMWARE_SERIAL=${MT_Firmware_Serial}"/>
 									<listOptionValue builtIn="false" value="MT_FIRMWARE_USB=${MT_Firmware_Usb}"/>
-									<listOptionValue builtIn="false" value="MT_FIRMWARE_CLKPULLPWM=${MT_Firmware_ClkPullPwm}"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.incpath.1385247018" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_Bootloader/Src}&quot;"/>
