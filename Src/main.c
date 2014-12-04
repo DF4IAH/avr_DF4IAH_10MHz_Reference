@@ -46,13 +46,13 @@
 #include <util/delay.h>
 
 #include "chipdef.h"
+#include "usbdrv_fw/usbdrv.h"
 #include "main.h"
-#include "df4iah_fw_usb.h"
 #include "df4iah_bl_memory.h"
 #include "df4iah_bl_clkPullPwm.h"
+#include "df4iah_fw_usb.h"
 #include "df4iah_fw_clkPullPwm.h"
 #include "df4iah_fw_serial.h"
-#include "usbdrv_fw/usbdrv.h"
 
 
 
@@ -132,7 +132,7 @@ void give_away(void)
 {
     wdt_reset();
 	usbPoll();
-	debug_bl_togglePin();								// XXX DEBUGGING
+	clkPullPwm_bl_togglePin();
 }
 
 
@@ -140,10 +140,10 @@ int main(void)
 {
 	init_wdt();
 
-	init_fw_usb();
+	usb_fw_init();
     sei();											// ENABLE interrupt
 
-	init_fw_clkPullPwm();
+    clkPullPwm_fw_init();
 
     for(;;) {
     	give_away();

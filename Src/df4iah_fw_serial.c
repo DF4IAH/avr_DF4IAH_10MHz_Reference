@@ -16,7 +16,7 @@
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
-void init_serial()
+void serial_fw_init()
 {
 	// set baud rate
 	UART_BAUD_HIGH = ((UART_CALC_BAUDRATE(BAUDRATE)>>8) & 0xFF);
@@ -33,7 +33,7 @@ void init_serial()
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
-void close_serial()
+void serial_fw_close()
 {
 #ifdef UART_DOUBLESPEED
 		UART_STATUS &= ~(_BV(UART_DOUBLE));
@@ -43,7 +43,7 @@ void close_serial()
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
-void sendchar_serial(uint8_t data)
+void serial_fw_sendchar(uint8_t data)
 {
 	while (!(UART_STATUS & _BV(UART_TXREADY)));
 	UART_DATA = data;
@@ -52,7 +52,7 @@ void sendchar_serial(uint8_t data)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
-uint8_t recvchar_serial(void)
+uint8_t serial_fw_recvchar(void)
 {
 	while (!(UART_STATUS & _BV(UART_RXREADY)));
 	return UART_DATA;

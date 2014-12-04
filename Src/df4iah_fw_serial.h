@@ -5,8 +5,8 @@
  *      Author: espero
  */
 
-#ifndef DF4IAH_SERIAL_H_
-#define DF4IAH_SERIAL_H_
+#ifndef DF4IAH_FW_SERIAL_H_
+#define DF4IAH_FW_SERIAL_H_
 
 
 /* UART Baudrate */
@@ -39,9 +39,9 @@
 #include "chipdef.h"
 
 
-void init_serial();
-void close_serial();
-void sendchar_serial(uint8_t data);
-uint8_t recvchar_serial(void);
+void serial_fw_init();
+void serial_fw_close();
+void serial_fw_sendchar(uint8_t data);
+uint8_t serial_fw_recvchar(void);
 
-#endif /* DF4IAH_SERIAL_H_ */
+#endif /* DF4IAH_FW_SERIAL_H_ */

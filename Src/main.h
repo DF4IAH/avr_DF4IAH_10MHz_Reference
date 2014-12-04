@@ -5,8 +5,8 @@
  *      Author: espero
  */
 
-#ifndef MAIN_H_
-#define MAIN_H_
+#ifndef FW_MAIN_H_
+#define FW_MAIN_H_
 
 /* MCU frequency */
 #ifndef F_CPU
@@ -32,4 +32,4 @@
 
 int main(void);
 
-#endif /* MAIN_H_ */
+#endif /* FW_MAIN_H_ */

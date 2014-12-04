@@ -5,11 +5,11 @@
  *      Author: espero
  */
 
-#ifndef DF4IAH_CLKPULLPWM_H_
-#define DF4IAH_CLKPULLPWM_H_
+#ifndef DF4IAH_FW_CLKPULLPWM_H_
+#define DF4IAH_FW_CLKPULLPWM_H_
 
 
-void init_fw_clkPullPwm();
-void close_fw_clkPullPwm();
+void clkPullPwm_fw_init();
+void clkPullPwm_fw_close();
 
-#endif /* DF4IAH_CLKPULLPWM_H_ */
+#endif /* DF4IAH_FW_CLKPULLPWM_H_ */
