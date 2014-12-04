@@ -9,9 +9,7 @@
 #define DF4IAH_CLKPULLPWM_H_
 
 
-void init_clkPullPwm2();
-void close_clkPullPwm2();
-void debug_togglePin2();
-void debug_endlessTogglePin2();
+void init_fw_clkPullPwm();
+void close_fw_clkPullPwm();
 
 #endif /* DF4IAH_CLKPULLPWM_H_ */

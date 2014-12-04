@@ -49,6 +49,7 @@
 #include "main.h"
 #include "df4iah_fw_usb.h"
 #include "df4iah_bl_memory.h"
+#include "df4iah_bl_clkPullPwm.h"
 #include "df4iah_fw_clkPullPwm.h"
 #include "df4iah_fw_serial.h"
 #include "usbdrv_fw/usbdrv.h"
@@ -113,53 +114,6 @@ void __vector_default(void) { ; }
  *
  */
 
-//EMPTY_INTERRUPT(INT0_vect);
-//EMPTY_INTERRUPT(INT1_vect);
-//EMPTY_INTERRUPT(PCINT0_vect);
-//EMPTY_INTERRUPT(PCINT1_vect);
-//EMPTY_INTERRUPT(PCINT2_vect);
-//EMPTY_INTERRUPT(WDT_vect);
-//EMPTY_INTERRUPT(TIMER2_COMPA_vect);
-//EMPTY_INTERRUPT(TIMER2_COMPB_vect);
-//EMPTY_INTERRUPT(TIMER2_OVF_vect);
-//EMPTY_INTERRUPT(TIMER1_CAPT_vect);
-//EMPTY_INTERRUPT(TIMER1_COMPA_vect);
-//EMPTY_INTERRUPT(TIMER1_COMPB_vect);
-//EMPTY_INTERRUPT(TIMER1_OVF_vect);
-//EMPTY_INTERRUPT(TIMER0_COMPA_vect);
-//EMPTY_INTERRUPT(TIMER0_COMPB_vect);
-//EMPTY_INTERRUPT(TIMER0_OVF_vect);
-//EMPTY_INTERRUPT(SPI_STC_vect);
-//EMPTY_INTERRUPT(USART_RX_vect);
-//EMPTY_INTERRUPT(USART_UDRE_vect);
-//EMPTY_INTERRUPT(USART_TX_vect);
-//ISR(USART_TX_vect, ISR_ALIASOF(USART_RX_vect));
-//EMPTY_INTERRUPT(ADC_vect);
-//EMPTY_INTERRUPT(EE_READY_vect);
-//EMPTY_INTERRUPT(ANALOG_COMP_vect);
-//EMPTY_INTERRUPT(TWI_vect);
-//EMPTY_INTERRUPT(SPM_READY_vect);
-
-//ISR(INT1_vect) {
-//	send_error_msg();
-//}
-
-
-static inline void vectortable_to_bootloader(void) {
-	asm volatile									// set active vector table into the Bootloader section
-	(
-		"ldi r24, %1\n\t"
-		"out %0, r24\n\t"
-		"ldi r24, %2\n\t"
-		"out %0, r24\n\t"
-		:
-		: "i" (_SFR_IO_ADDR(MCUCR)),
-		  "i" (1<<IVCE),
-		  "i" (1<<IVSEL)
-		: "r24"
-	);
-}
-
 static inline void init_wdt() {
 #ifdef DISABLE_WDT_AT_STARTUP
 # ifdef WDT_OFF_SPECIAL
@@ -178,19 +132,18 @@ void give_away(void)
 {
     wdt_reset();
 	usbPoll();
-	debug_togglePin2();							// XXX DEBUGGING
+	debug_bl_togglePin();								// XXX DEBUGGING
 }
 
 
 int main(void)
 {
-	vectortable_to_bootloader();
 	init_wdt();
 
-	init_fw_usb();										// starts at 67 ms after power-up, ends at 316 ms after power-up
+	init_fw_usb();
     sei();											// ENABLE interrupt
 
-	init_clkPullPwm2();
+	init_fw_clkPullPwm();
 
     for(;;) {
     	give_away();

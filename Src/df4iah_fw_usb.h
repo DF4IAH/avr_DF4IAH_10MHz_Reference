@@ -13,8 +13,8 @@
 #include "usbdrv_fw/usbdrv.h"
 
 
-void init_usb();
-void close_usb();
+void init_fw_usb();
+void close_fw_usb();
 
 uint8_t recvchar_usb(void);
 void sendchar_usb(uint8_t data);
