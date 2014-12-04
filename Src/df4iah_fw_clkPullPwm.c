@@ -29,7 +29,7 @@ void clkPullPwm_fw_init()
 	clkPullPwm_bl_init();
 
 	if (memory_fw_isEepromValid()) {
-		uint8_t dfltPwmValue[2] = { 0x00, 0x80 };
+		uint8_t dfltPwmValue[2] = { 0 };
 
 		memory_bl_readEEpromPage(&(dfltPwmValue[0]), sizeof(dfltPwmValue), (uint16_t) &(eeprom_content.pwm_pull_avg));
 		clkPullPwm_bl_setRatio(dfltPwmValue[0] | (((uint16_t) dfltPwmValue[1]) << 8));
