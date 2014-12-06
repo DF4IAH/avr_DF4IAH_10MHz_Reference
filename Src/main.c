@@ -141,7 +141,7 @@ int main(void)
 	init_wdt();
 
 	usb_fw_init();
-    sei();											// ENABLE interrupt
+    sei();
 
     clkPullPwm_fw_init();
 
@@ -149,5 +149,7 @@ int main(void)
     	give_away();
     }
 
+    cli();
+    usb_fw_close();
 	return 0;
 }

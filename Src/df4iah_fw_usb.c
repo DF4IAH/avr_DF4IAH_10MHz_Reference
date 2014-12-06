@@ -20,6 +20,15 @@
 /* ----------------------------- USB interface ----------------------------- */
 /* ------------------------------------------------------------------------- */
 
+//PROGMEM const char usbDescriptorDevice[];
+//PROGMEM const char usbDescriptorConfiguration[];
+//PROGMEM const char usbDescriptorHidReport[];
+//PROGMEM const char usbDescriptorString0[];
+//PROGMEM const int usbDescriptorStringVendor[];
+//PROGMEM const int usbDescriptorStringDevice[];
+//PROGMEM const int usbDescriptorStringSerialNumber[];
+
+#if 0
 PROGMEM const char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {    /* USB report descriptor */
     0x06, 0x00, 0xff,              // USAGE_PAGE (Generic Desktop)
     0x09, 0x01,                    // USAGE (Vendor Usage 1)
@@ -32,11 +41,11 @@ PROGMEM const char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] 
     0xb2, 0x02, 0x01,              //   FEATURE (Data,Var,Abs,Buf)
     0xc0                           // END_COLLECTION
 };
+#endif
 /* Since we define only one feature report, we don't use report-IDs (which
  * would be the first byte of the report). The entire report consists of 128
  * opaque data bytes.
  */
-
 
 
 #ifdef RELEASE
@@ -161,7 +170,8 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 #else
 	data[0] = 0x12;
 	data[1] = 0x34;
-	len = 2;
+//	len = 2;
+	len = 0;
 #endif
 	return len;
 }
@@ -191,6 +201,7 @@ USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 		return 1;
 	}
 #else
+//	return 1;
 	return 0;
 #endif
 }
