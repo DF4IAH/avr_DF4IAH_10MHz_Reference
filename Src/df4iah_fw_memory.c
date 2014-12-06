@@ -20,6 +20,57 @@ uint8_t memory_fw_isEepromValid(void)
 	return 1;			// TODO calculate CRC32
 }
 
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+void memory_fw_eraseFlash(void)
+{
+	memory_bl_eraseFlash();
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+void memory_fw_readFlashPage(uint8_t target[], pagebuf_t size, uint32_t baddr)
+{
+	memory_bl_readFlashPage(target, size, baddr);
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+void memory_fw_readEEpromPage(uint8_t target[], pagebuf_t size, uint16_t baddr)
+{
+	uint8_t idx = 0;
+
+	while (size) {
+		target[idx++] = eeprom_read_byte((uint8_t*) baddr++);
+		--size;										// decrease number of bytes to read, repeat until block has been read
+	}
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+void memory_fw_writeFlashPage(uint8_t source[], pagebuf_t size, uint32_t baddr)
+{
+	memory_bl_writeFlashPage(source, size, baddr);
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+void memory_fw_writeEEpromPage(uint8_t source[], pagebuf_t size, uint16_t baddr)
+{
+	uint8_t idx = 0;
+
+	while (size--) {								// decrease number of bytes to write
+		eeprom_write_byte((uint8_t*) baddr, source[idx++]);
+		baddr++;									// select next byte
+	}												// loop until all bytes written
+
+	// eeprom_busy_wait();
+}
 
 // -- 8< --
 

@@ -16,10 +16,8 @@
 
 
 uchar replyBuffer[8];
-
-uchar prog_connected = 0;  // PROG_UNCONNECTED;
-uchar prog_state = 0;  // PROG_STATE_IDLE;
-
+uchar prog_connected = 0;
+uchar prog_state = 0;
 uchar prog_address_newmode = 0;
 unsigned int prog_nbytes = 0;
 

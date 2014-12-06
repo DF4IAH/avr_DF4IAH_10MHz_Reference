@@ -26,4 +26,10 @@ typedef struct eeprom_layout {
 
 uint8_t memory_fw_isEepromValid(void);
 
+void memory_fw_eraseFlash(void);
+void memory_fw_readFlashPage(uint8_t target[], pagebuf_t size, uint32_t baddr);
+void memory_fw_readEEpromPage(uint8_t target[], pagebuf_t size, uint16_t baddr);
+void memory_fw_writeFlashPage(uint8_t source[], pagebuf_t size, uint32_t baddr);
+void memory_fw_writeEEpromPage(uint8_t source[], pagebuf_t size, uint16_t baddr);
+
 #endif /* DF4IAH_FW_MEMORY_H_ */
