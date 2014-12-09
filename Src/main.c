@@ -59,7 +59,7 @@
 // DATA SECTION
 
 uint8_t timer0Snapshot = 0x00;
-usbTxStatus_t usbTxStatus1, usbTxStatus3;
+usbTxStatus_t usbTxStatus1 = { 0 }, usbTxStatus3 = { 0 };
 void (*jump_to_app)(void) = 0x0000;
 
 
@@ -114,6 +114,22 @@ void __vector_default(void) { ; }
  *
  */
 
+
+static inline void vectortable_to_firmware(void) {
+	asm volatile									// set active vector table into the Firmware section
+	(
+		"ldi r24, %1\n\t"
+		"out %0, r24\n\t"
+		"ldi r24, %2\n\t"
+		"out %0, r24\n\t"
+		:
+		: "i" (_SFR_IO_ADDR(MCUCR)),
+		  "i" (1<<IVCE),
+		  "i" (0)
+		: "r24"
+	);
+}
+
 static inline void init_wdt() {
 #ifdef DISABLE_WDT_AT_STARTUP
 # ifdef WDT_OFF_SPECIAL
@@ -132,18 +148,19 @@ void give_away(void)
 {
     wdt_reset();
 	usbPoll();
-	clkPullPwm_bl_togglePin();
+	clkPullPwm_fw_togglePin();
 }
 
 
 int main(void)
 {
+	vectortable_to_firmware();
 	init_wdt();
 
-	usb_fw_init();
-    sei();
-
     clkPullPwm_fw_init();
+
+    usb_fw_init();
+    sei();
 
     for(;;) {
     	give_away();
