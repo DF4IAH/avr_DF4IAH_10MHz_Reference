@@ -106,24 +106,25 @@ PROGMEM const int usbDescriptorStringSerialNumber[] = {
 #if USB_CFG_DESCR_PROPS_DEVICE == 0
 #undef USB_CFG_DESCR_PROPS_DEVICE
 #define USB_CFG_DESCR_PROPS_DEVICE  sizeof(usbDescriptorDevice)
-PROGMEM const char usbDescriptorDevice[] = {    /* USB device descriptor */
-    18,         /* sizeof(usbDescriptorDevice): length of descriptor in bytes */
-    USBDESCR_DEVICE,        /* descriptor type */
-    0x10, 0x01,             /* USB version supported */
-    USB_CFG_DEVICE_CLASS,
-    USB_CFG_DEVICE_SUBCLASS,
-    0,                      /* protocol */
-    8,                      /* max packet size */
-    /* the following two casts affect the first byte of the constant only, but
-     * that's sufficient to avoid a warning with the default values.
-     */
-    (char)USB_CFG_VENDOR_ID,/* 2 bytes */
-    (char)USB_CFG_DEVICE_ID,/* 2 bytes */
-    USB_CFG_DEVICE_VERSION, /* 2 bytes */
-    USB_CFG_DESCR_PROPS_STRING_VENDOR != 0 ? 1 : 0,         /* manufacturer string index */
-    USB_CFG_DESCR_PROPS_STRING_PRODUCT != 0 ? 2 : 0,        /* product string index */
-    USB_CFG_DESCR_PROPS_STRING_SERIAL_NUMBER != 0 ? 3 : 0,  /* serial number string index */
-    1,          /* number of configurations */
+PROGMEM const char usbDescriptorDevice[] = {
+		/* USB device descriptor */
+	18,														/* sizeof(usbDescriptorDevice): length of descriptor in bytes */
+	USBDESCR_DEVICE,										/* descriptor type */
+	0x10, 0x01,												/* USB version supported */
+	USB_CFG_DEVICE_CLASS,
+	USB_CFG_DEVICE_SUBCLASS,
+	0,														/* protocol */
+	8,														/* max packet size */
+	/* the following two casts affect the first byte of the constant only, but
+	 * that's sufficient to avoid a warning with the default values.
+	 */
+	(char)USB_CFG_VENDOR_ID,								/* 2 bytes */
+	(char)USB_CFG_DEVICE_ID,								/* 2 bytes */
+	USB_CFG_DEVICE_VERSION,									/* 2 bytes */
+	USB_CFG_DESCR_PROPS_STRING_VENDOR != 0 ? 1 : 0,			/* manufacturer string index */
+	USB_CFG_DESCR_PROPS_STRING_PRODUCT != 0 ? 2 : 0,		/* product string index */
+	USB_CFG_DESCR_PROPS_STRING_SERIAL_NUMBER != 0 ? 3 : 0,	/* serial number string index */
+	1,														/* number of configurations */
 };
 #endif
 
@@ -131,61 +132,80 @@ PROGMEM const char usbDescriptorDevice[] = {    /* USB device descriptor */
 
 #if USB_CFG_DESCR_PROPS_HID_REPORT != 0 && USB_CFG_DESCR_PROPS_HID == 0
 #undef USB_CFG_DESCR_PROPS_HID
-#define USB_CFG_DESCR_PROPS_HID     9   /* length of HID descriptor in config descriptor below */
+#define USB_CFG_DESCR_PROPS_HID     9						/* length of HID descriptor in config descriptor below */
 #endif
 
 #if USB_CFG_DESCR_PROPS_CONFIGURATION == 0
 #undef USB_CFG_DESCR_PROPS_CONFIGURATION
 #define USB_CFG_DESCR_PROPS_CONFIGURATION   sizeof(usbDescriptorConfiguration)
-PROGMEM const char usbDescriptorConfiguration[] = {    /* USB configuration descriptor */
-    9,          /* sizeof(usbDescriptorConfiguration): length of descriptor in bytes */
-    USBDESCR_CONFIG,    /* descriptor type */
-    18 + 7 * USB_CFG_HAVE_INTRIN_ENDPOINT + 7 * USB_CFG_HAVE_INTRIN_ENDPOINT3 +
-                (USB_CFG_DESCR_PROPS_HID & 0xff), 0,
-                /* total length of data returned (including inlined descriptors) */
-    1,          /* number of interfaces in this configuration */
-    1,          /* index of this configuration */
-    0,          /* configuration name string index */
+PROGMEM const char usbDescriptorConfiguration[] = {
+		/* USB configuration descriptor */
+    9,														/* sizeof(usbDescriptorConfiguration): length of descriptor in bytes */
+    USBDESCR_CONFIG,										/* descriptor type */
+    18
+    + 7 * USB_CFG_HAVE_INTRIN_ENDPOINT
+    + 7 * USB_CFG_HAVE_INTRIN_ENDPOINT3
+    + (USB_CFG_DESCR_PROPS_HID & 0xff)
+    + 7 * USB_CFG_HAVE_INTROUT_ENDPOINT, 0,
+															/* total length of data returned (including inlined descriptors) */
+    1,														/* number of interfaces in this configuration */
+    1,														/* index of this configuration */
+    0,														/* configuration name string index */
 #if USB_CFG_IS_SELF_POWERED
-    (1 << 7) | USBATTR_SELFPOWER,       /* attributes */
+    (1 << 7) | USBATTR_SELFPOWER,							/* attributes */
 #else
-    (1 << 7),                           /* attributes */
+    (1 << 7),												/* attributes */
 #endif
-    USB_CFG_MAX_BUS_POWER/2,            /* max USB current in 2mA units */
-/* interface descriptor follows inline: */
-    9,          /* sizeof(usbDescrInterface): length of descriptor in bytes */
-    USBDESCR_INTERFACE, /* descriptor type */
-    0,          /* index of this interface */
-    0,          /* alternate setting for this interface */
-    USB_CFG_HAVE_INTRIN_ENDPOINT + USB_CFG_HAVE_INTRIN_ENDPOINT3, /* endpoints excl 0: number of endpoint descriptors to follow */
+    USB_CFG_MAX_BUS_POWER / 2,								/* max USB current in 2mA units */
+
+    /* interface descriptor follows inline: */
+    9,														/* sizeof(usbDescrInterface): length of descriptor in bytes */
+    USBDESCR_INTERFACE,										/* descriptor type */
+    0,														/* index of this interface */
+    0,														/* alternate setting for this interface */
+    USB_CFG_HAVE_INTRIN_ENDPOINT
+    + USB_CFG_HAVE_INTRIN_ENDPOINT3
+    + USB_CFG_HAVE_INTROUT_ENDPOINT,						/* endpoints excl 0: number of endpoint descriptors to follow */
     USB_CFG_INTERFACE_CLASS,
     USB_CFG_INTERFACE_SUBCLASS,
     USB_CFG_INTERFACE_PROTOCOL,
-    0,          /* string index for interface */
-#if (USB_CFG_DESCR_PROPS_HID & 0xff)    /* HID descriptor */
-    9,          /* sizeof(usbDescrHID): length of descriptor in bytes */
-    USBDESCR_HID,   /* descriptor type: HID */
-    0x01, 0x01, /* BCD representation of HID version */
-    0x00,       /* target country code */
-    0x01,       /* number of HID Report (or other HID class) Descriptor infos to follow */
-    0x22,       /* descriptor type: report */
-    USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH, 0,  /* total length of report descriptor */
+    0,														/* string index for interface */
+
+#if (USB_CFG_DESCR_PROPS_HID & 0xff)						/* HID descriptor */
+    9,														/* sizeof(usbDescrHID): length of descriptor in bytes */
+    USBDESCR_HID,											/* descriptor type: HID     0x21 */
+    0x01, 0x01,												/* BCD representation of HID version */
+    0x00,													/* target country code */
+    0x01,													/* number of HID Report (or other HID class) Descriptor infos to follow */
+    USBDESCR_HID_REPORT,									/* descriptor type: report  0x22 */
+    USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH, 0,				/* total length of report descriptor */
 #endif
-#if USB_CFG_HAVE_INTRIN_ENDPOINT    /* endpoint descriptor for endpoint 1 */
-    7,          /* sizeof(usbDescrEndpoint) */
-    USBDESCR_ENDPOINT,  /* descriptor type = endpoint */
-    (char)0x81, /* IN endpoint number 1 */
-    0x03,       /* attrib: Interrupt endpoint */
-    8, 0,       /* maximum packet size */
-    USB_CFG_INTR_POLL_INTERVAL, /* in ms */
+
+#if USB_CFG_HAVE_INTRIN_ENDPOINT							/* endpoint descriptor for endpoint 1 */
+    7,														/* sizeof(usbDescrEndpoint) */
+    USBDESCR_ENDPOINT,										/* descriptor type = endpoint */
+    (char)0x81,												/* IN endpoint number 1 */
+    0x03,													/* attrib: Interrupt endpoint */
+    8, 0,													/* maximum packet size */
+    USB_CFG_INTR_POLL_INTERVAL,								/* in ms */
 #endif
-#if USB_CFG_HAVE_INTRIN_ENDPOINT3   /* endpoint descriptor for endpoint 3 */
-    7,          /* sizeof(usbDescrEndpoint) */
-    USBDESCR_ENDPOINT,  /* descriptor type = endpoint */
-    (char)(0x80 | USB_CFG_EP3_NUMBER), /* IN endpoint number 3 */
-    0x03,       /* attrib: Interrupt endpoint */
-    8, 0,       /* maximum packet size */
-    USB_CFG_INTR_POLL_INTERVAL, /* in ms */
+
+#if USB_CFG_HAVE_INTRIN_ENDPOINT3							/* endpoint descriptor for endpoint 3 */
+    7,														/* sizeof(usbDescrEndpoint) */
+    USBDESCR_ENDPOINT,										/* descriptor type = endpoint */
+    (char)(0x80 | USB_CFG_EP3_NUMBER),						/* IN endpoint number 3 */
+    0x03,													/* attrib: Interrupt endpoint */
+    8, 0,													/* maximum packet size */
+    USB_CFG_INTR_POLL_INTERVAL,								/* in ms */
+#endif
+
+#if USB_CFG_HAVE_INTROUT_ENDPOINT							/* endpoint descriptor for endpoint 2 */
+    7,														/* sizeof(usbDescrEndpoint) */
+    USBDESCR_ENDPOINT,										/* descriptor type = endpoint */
+    0x02,													/* OUT endpoint number 2 */
+    0x03,													/* attrib: Interrupt endpoint */
+    8, 0,													/* maximum packet size */
+    USB_CFG_INTR_POLL_INTERVAL,								/* in ms */
 #endif
 };
 #endif
@@ -337,10 +357,10 @@ uchar       flags = USB_FLG_MSGPTR_IS_ROM;
             }
         SWITCH_END
 #endif  /* USB_CFG_DESCR_PROPS_STRINGS & USB_PROP_IS_DYNAMIC */
-#if USB_CFG_DESCR_PROPS_HID_REPORT  /* only support HID descriptors if enabled */
-    SWITCH_CASE(USBDESCR_HID)       /* 0x21 */
+#if USB_CFG_DESCR_PROPS_HID_REPORT							/* only support HID descriptors if enabled */
+    SWITCH_CASE(USBDESCR_HID)								/* 0x21 */
         GET_DESCRIPTOR(USB_CFG_DESCR_PROPS_HID, usbDescriptorConfiguration + 18)
-    SWITCH_CASE(USBDESCR_HID_REPORT)/* 0x22 */
+    SWITCH_CASE(USBDESCR_HID_REPORT)						/* 0x22 */
         GET_DESCRIPTOR(USB_CFG_DESCR_PROPS_HID_REPORT, usbDescriptorHidReport)
 #endif
     SWITCH_DEFAULT

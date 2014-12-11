@@ -18,4 +18,9 @@ enum ENUM_CLKOUT_t {
 void clkPullPwm_fw_init();
 void clkPullPwm_fw_close();
 
+void clkPullPwm_fw_setRatio(uint16_t ratio);
+
+void clkPullPwm_fw_togglePin();
+void clkPullPwm_fw_endlessTogglePin();
+
 #endif /* DF4IAH_FW_CLKPULLPWM_H_ */

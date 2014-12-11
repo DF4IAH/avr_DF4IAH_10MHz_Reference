@@ -8,9 +8,11 @@
 #ifndef DF4IAH_FW_USB_H_
 #define DF4IAH_FW_USB_H_
 
-
 #include "chipdef.h"
 #include "usbdrv_fw/usbdrv.h"
+
+
+#define HIDSERIAL_INBUFFER_SIZE 32
 
 
 void usb_fw_replyContent(uchar replyBuffer[], uchar data[]);
