@@ -12,7 +12,9 @@
 #include "usbdrv_fw/usbdrv.h"
 
 
-#define HIDSERIAL_INBUFFER_SIZE 32
+#define HIDSERIAL_INBUFFER_SIZE 8
+#define HIDSERIAL_OUTBUFFER_SIZE 8
+#define HIDSERIAL_FEATUREBUFFER_SIZE 32
 
 
 void usb_fw_replyContent(uchar replyBuffer[], uchar data[]);

@@ -27,17 +27,18 @@ PROGMEM const char usbDescriptorHidReport[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] 
 	/* USB report descriptor */
 	0x06, 0x00, 0xff,										// USAGE_PAGE (Generic Desktop)					- Data 2 Bytes, Global, Function: Usage Page, Size 2 Bytes: 0xff00 (vendor-defined)
 	0x09, 0x01,												// USAGE (Vendor 0xff00 - Usage 1)				- Data 1 Byte, Local, Function: Usage, Size 1 Byte: Usage 1 of vendor-defined page 0xff00
-	0xa1, 0x02,												// COLLECTION (Application)						- Data 1 Byte, Main, Function: Collection --> Application
+	0xa1, 0x01,												// COLLECTION (Application)						- Data 1 Byte, Main, Function: Collection --> Application
 	0x15, 0x00,												//   LOGICAL_MINIMUM (0)						- Data 1 Byte, Global, Function: Logical Minimum, Size 1 Byte: 0
 	0x26, 0xff, 0x00,										//   LOGICAL_MAXIMUM (255)						- Data 2 Bytes, Global, Function: Logical Maximum, Size 2 Bytes: 255
 	0x75, 0x08,												//   REPORT_SIZE (8)							- Data 1 Byte, Global, Function: Report Size, Size 1 Byte: uint value 8
-	0x95, 0x08,												//   REPORT_COUNT (8)							- Data 1 Byte, Global, Function: Report Count, Size 1 Byte: uint value 8
-	0x09, 0x01,												//   USAGE (Counted Buffer)						- Data 1 Byte, Local, Function: Usage, Size 1 Byte:
+	0x95, HIDSERIAL_INBUFFER_SIZE,							//   REPORT_COUNT (8)							- Data 1 Byte, Global, Function: Report Count, Size 1 Byte: uint value 8
+	0x09, 0x01,												//   USAGE (vendor 1)							- Data 1 Byte, Local, Function: Usage, Size 1 Byte: Usage 1 of vendor-defined page 0xff00
 	0x82, 0x32, 0x01,										//   INPUT (Data,Var,Abs,Buf)					- Data 2 Bytes, Main, Function: Input --> data, Variable, absolute, no wrap, Non-linear, Non-preferred, no null position, non volatile, (reserved), Buffered Bytes
-	0x09, 0x02,												//   USAGE (Counted Buffer)						- Data 1 Byte, Local, Function: Usage, Size 1 Byte:
+	0x95, HIDSERIAL_OUTBUFFER_SIZE,							//   REPORT_COUNT (8)							- Data 1 Byte, Global, Function: Report Count, Size 1 Byte: uint value 8
+	0x09, 0x02,												//   USAGE (vendor 2)							- Data 1 Byte, Local, Function: Usage, Size 1 Byte: Usage 2 of vendor-defined page 0xff00
 	0x92, 0x32, 0x01,										//   OUTPUT (Data,Var,Abs,Buf)					- Data 2 Bytes, Main, Function: Input --> data, Variable, absolute, no wrap, Non-linear, Non-preferred, no null position, non volatile, (reserved), Buffered Bytes
-	0x95, HIDSERIAL_INBUFFER_SIZE,							//   REPORT_COUNT (32)							- Data 1 Byte, Global, Function: Report Count, Size 1 Byte: uint value 8
-	0x09, 0x03,												//   USAGE (Counted Buffer)						- Data 1 Byte, Local, Function: Usage, Size 1 Byte:
+	0x95, HIDSERIAL_FEATUREBUFFER_SIZE,						//   REPORT_COUNT (32)							- Data 1 Byte, Global, Function: Report Count, Size 1 Byte: uint value 32
+	0x09, 0x03,												//   USAGE (vendor 3)							- Data 1 Byte, Local, Function: Usage, Size 1 Byte: Usage 3 of vendor-defined page 0xff00
 	0xb2, 0x32, 0x01,										//   FEATURE (Data,Var,Abs,Buf)					- Data 2 Byte, Main, Function: Feature --> data, Variable, absolute, no wrap, Non-linear, Non-preferred, no null position, non volatile, (reserved), Buffered Bytes
 	0xc0													// END_COLLECTION								- Data 0 Bytes, Main, Function: End Collection
 };
