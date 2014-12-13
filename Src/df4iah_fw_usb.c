@@ -13,6 +13,7 @@
 
 #include "df4iah_fw_memory.h"
 #include "df4iah_fw_usb.h"
+#include "df4iah_fw_usb_requests.h"
 
 
 static uchar reportId = 0;
@@ -23,6 +24,8 @@ static uchar inBuffer[HIDSERIAL_INBUFFER_SIZE] = { 0 };
 static uchar replyBuffer[8] = { 0 };
 
 
+#if USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH
+# if 1
 PROGMEM const char usbDescriptorHidReport[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
 	/* USB report descriptor */
 	0x06, 0x00, 0xff,										// USAGE_PAGE (Generic Desktop)					- Data 2 Bytes, Global, Function: Usage Page, Size 2 Bytes: 0xff00 (vendor-defined)
@@ -43,7 +46,8 @@ PROGMEM const char usbDescriptorHidReport[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] 
 	0xc0													// END_COLLECTION								- Data 0 Bytes, Main, Function: End Collection
 };
 
-#if 0
+# else
+
 PROGMEM const char usbDescriptorHidReport[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
 	/* OLD but BAD */
 	/* USB report descriptor */
@@ -61,10 +65,8 @@ PROGMEM const char usbDescriptorHidReport[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] 
     0xb2, 0x02, 0x01,										//   FEATURE (Data,Var,Abs,Buf)
     0xc0													// END_COLLECTION
 };
+# endif
 #endif
-
-// if (usbInterruptIsReady())
-// usbSetInterrupt(uchar *data, uchar len);
 
 
 #ifdef RELEASE
@@ -77,6 +79,32 @@ void usb_fw_replyContent(uchar replyBuffer[], uchar data[])
 	replyBuffer[2] = data[4];
 	// replyBuffer[3] = 0;
 }
+
+/* Send IN-Interrupts to the host regular in case
+ * any data is to be sent.
+ */
+# ifdef RELEASE
+__attribute__((section(".df4iah_fw_usb"), aligned(2)))
+# endif
+void usb_fw_sendInInterrupt()
+{
+	/* send next packet if a new time-slot is ready to send */
+	if (usbInterruptIsReady()) {
+		//uchar* data = 0;
+		uchar len = 0;
+
+		/* TEST */
+		inBuffer[0] = 0x56;
+		inBuffer[1] = 0x78;
+		len = 2;
+
+		if (len) {
+			usbSetInterrupt(inBuffer, len);
+		}
+	}
+}
+
+/*  -- 8< -- */
 
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_usb"), aligned(2)))
@@ -108,7 +136,6 @@ void usb_fw_close()
 
 /*  -- 8< -- */
 
-
 /* usbFunctionSetup() is called when the host does a setup of the USB function. For more
  * information see the documentation in usbdrv/usbdrv.h.
  */
@@ -121,6 +148,7 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
     // const int reportId = rq->wValue.bytes[0];
     uchar len = 0;
 
+#if 0
     if ((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS) {	// HID class request
     	if (rq->bRequest == USBRQ_HID_GET_REPORT) {
         	/* wValue: ReportType (highbyte), ReportID (lowbyte) */
@@ -144,7 +172,19 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
 
     	usb_fw_replyContent(replyBuffer, data);
     }
+#else
+    if ((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_STANDARD) {
+    	if (rq->bRequest == USBCUSTOMRQ_ECHO) {							// echo -- used for reliability tests
+    		replyBuffer[0] = rq->wValue.bytes[0];
+    		replyBuffer[1] = rq->wValue.bytes[1];
+    		replyBuffer[2] = 0x12;
+    		replyBuffer[3] = 0x34;
+    		len = 4;
+    	}
+    }
+#endif
 
+	usbMsgPtr = (usbMsgPtr_t) replyBuffer;
     return len;
 }
 

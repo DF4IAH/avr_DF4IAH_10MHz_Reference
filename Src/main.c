@@ -148,6 +148,7 @@ void give_away(void)
 {
     wdt_reset();
 	usbPoll();
+	usb_fw_sendInInterrupt();
 	clkPullPwm_fw_togglePin();
 }
 

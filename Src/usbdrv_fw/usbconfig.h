@@ -89,7 +89,7 @@ section at the end of this file).
 /* If the so-called endpoint 3 is used, it can now be configured to any other
  * endpoint number (except 0) with this macro. Default if undefined is 3.
  */
-#define USB_CFG_HAVE_INTROUT_ENDPOINT	1
+#define USB_CFG_HAVE_INTROUT_ENDPOINT	0
 /* This endpoint is experimental by DF4IAH. */
 /* #define USB_INITIAL_DATATOKEN           USBPID_DATA1 */
 /* The above macro defines the startup condition for data toggling on the
@@ -125,12 +125,12 @@ section at the end of this file).
  * The value is in milliamperes. [It will be divided by two since USB
  * communicates power requirements in units of 2 mA.]
  */
-#define USB_CFG_IMPLEMENT_FN_WRITE      1
+#define USB_CFG_IMPLEMENT_FN_WRITE      0
 /* Set this to 1 if you want usbFunctionWrite() to be called for control-out
  * transfers. Set it to 0 if you don't need it and want to save a couple of
  * bytes.
  */
-#define USB_CFG_IMPLEMENT_FN_READ       1
+#define USB_CFG_IMPLEMENT_FN_READ       0
 /* Set this to 1 if you need to send control replies which are generated
  * "on the fly" when usbFunctionRead() is called. If you only want to send
  * data from a static buffer, set it to 0 and return the data from
@@ -222,9 +222,7 @@ section at the end of this file).
 
 /* -------------------------- Device Description --------------------------- */
 
-//#define  USB_CFG_VENDOR_ID       0xc0, 0x16 /* = 0x16c0 = 5824 = voti.nl */
-//#define  USB_CFG_VENDOR_ID       0xfa, 0x04 /* = 0x04fa = 1274 = Dallas Semiconductor */
-#define  USB_CFG_VENDOR_ID       0x46, 0x0d /* = 0x0d46 =  = KOBIL Systems GmbH - http://www.kobil.com */
+#define  USB_CFG_VENDOR_ID       0xc0, 0x16 /* = 0x16c0 = 5824 = voti.nl */
 /* USB vendor ID for the device, low byte first. If you have registered your
  * own Vendor ID, define it here. Otherwise you may use one of obdev's free
  * shared VID/PID pairs. Be sure to read USB-IDs-for-free.txt for rules!
@@ -233,9 +231,8 @@ section at the end of this file).
  * with libusb: 0x16c0/0x5dc.  Use this VID/PID pair ONLY if you understand
  * the implications!
  */
+#define  USB_CFG_DEVICE_ID       0xdc, 0x05 /* = 0x05df = 1500 = obdev's shared PID for Vendor Class devices with libusb */
 //#define  USB_CFG_DEVICE_ID       0xdf, 0x05 /* = 0x05df = 1503 = obdev's shared PID for HIDs */
-//#define  USB_CFG_DEVICE_ID       0x90, 0x24 /* = 0x2490 = 9360 = S1490F 2-in-1 Fob, 1-Wire adapter */
-#define  USB_CFG_DEVICE_ID       0x11, 0x20 /* = 0x2011 =  = KOBIL B1 PRO / KAAN PRO */
 /* This is the ID of the product, low byte first. It is interpreted in the
  * scope of the vendor ID. If you have registered your own VID with usb.org
  * or if you have licensed a PID from somebody else, define it here. Otherwise
@@ -246,7 +243,7 @@ section at the end of this file).
  * with libusb: 0x16c0/0x5dc.  Use this VID/PID pair ONLY if you understand
  * the implications!
  */
-#define USB_CFG_DEVICE_VERSION  0x00, 0x00
+#define USB_CFG_DEVICE_VERSION  0x00, 0x01
 /* Version number of the device: Minor number first, then major number.
  */
 #define USB_CFG_VENDOR_NAME     'D', 'F', '4', 'I', 'A', 'H'
@@ -280,7 +277,7 @@ section at the end of this file).
 /* See USB specification if you want to conform to an existing device class.
  * Class 0xff is "vendor specific".
  */
-#define USB_CFG_INTERFACE_CLASS     3   /* define class here if not at device level */
+#define USB_CFG_INTERFACE_CLASS     0xff /* define class here if not at device level */
 #define USB_CFG_INTERFACE_SUBCLASS  0
 #define USB_CFG_INTERFACE_PROTOCOL  0
 /* See USB specification if you want to conform to an existing device class or
@@ -288,8 +285,9 @@ section at the end of this file).
  * HID class is 3, no subclass and protocol required (but may be useful!)
  * CDC class is 2, use subclass 2 and protocol 1 for ACM
  */
-//#define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH    29
-#define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH    36
+#define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH		0
+//#define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH		29
+//#define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH		36
 /* Define this to the length of the HID report descriptor, if you implement
  * an HID device. Otherwise don't define it or define it to 0.
  * If you use this define, you must add a PROGMEM character array named
@@ -354,18 +352,18 @@ section at the end of this file).
  * };
  */
 
-#define USB_CFG_DESCR_PROPS_DEVICE                  0
-#define USB_CFG_DESCR_PROPS_CONFIGURATION           0
-#define USB_CFG_DESCR_PROPS_STRINGS                 0
-#define USB_CFG_DESCR_PROPS_STRING_0                0
-#define USB_CFG_DESCR_PROPS_STRING_VENDOR           0
-#define USB_CFG_DESCR_PROPS_STRING_PRODUCT          0
-#define USB_CFG_DESCR_PROPS_STRING_SERIAL_NUMBER    0
-//#define USB_CFG_DESCR_PROPS_HID                     0
-#define USB_CFG_DESCR_PROPS_HID                     USB_PROP_LENGTH(9)
-//#define USB_CFG_DESCR_PROPS_HID_REPORT              0
-#define USB_CFG_DESCR_PROPS_HID_REPORT              USB_PROP_LENGTH(USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH)
-#define USB_CFG_DESCR_PROPS_UNKNOWN                 0
+#define USB_CFG_DESCR_PROPS_DEVICE					0
+#define USB_CFG_DESCR_PROPS_CONFIGURATION			0
+#define USB_CFG_DESCR_PROPS_STRINGS					0
+#define USB_CFG_DESCR_PROPS_STRING_0				0
+#define USB_CFG_DESCR_PROPS_STRING_VENDOR			0
+#define USB_CFG_DESCR_PROPS_STRING_PRODUCT			0
+#define USB_CFG_DESCR_PROPS_STRING_SERIAL_NUMBER	0
+#define USB_CFG_DESCR_PROPS_HID						0
+//#define USB_CFG_DESCR_PROPS_HID					USB_PROP_LENGTH(9)
+#define USB_CFG_DESCR_PROPS_HID_REPORT				0
+//#define USB_CFG_DESCR_PROPS_HID_REPORT			USB_PROP_LENGTH(USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH)
+#define USB_CFG_DESCR_PROPS_UNKNOWN					0
 
 
 #define usbMsgPtr_t unsigned short
