@@ -94,8 +94,8 @@ void usb_fw_sendInInterrupt()
 		uchar len = 0;
 
 		/* TEST */
-		inBuffer[0] = 0x56;
-		inBuffer[1] = 0x78;
+		inBuffer[0] = 0x34;
+		inBuffer[1] = 0x12;
 		len = 2;
 
 		if (len) {
@@ -177,8 +177,8 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
     	if (rq->bRequest == USBCUSTOMRQ_ECHO) {							// echo -- used for reliability tests
     		replyBuffer[0] = rq->wValue.bytes[0];
     		replyBuffer[1] = rq->wValue.bytes[1];
-    		replyBuffer[2] = 0x12;
-    		replyBuffer[3] = 0x34;
+    		replyBuffer[2] = rq->wLength.bytes[0];
+    		replyBuffer[3] = rq->wLength.bytes[1];
     		len = 4;
     	}
     }
