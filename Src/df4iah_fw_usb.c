@@ -145,44 +145,24 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
 {
 	const usbRequest_t* rq = (usbRequest_t*) data;
-    // const int reportId = rq->wValue.bytes[0];
-    uchar len = 0;
+	usbMsgLen_t len = 0;
 
-#if 0
-    if ((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS) {	// HID class request
-    	if (rq->bRequest == USBRQ_HID_GET_REPORT) {
-        	/* wValue: ReportType (highbyte), ReportID (lowbyte) */
-        	/* since we have only one report type, we can ignore
-        	 *  the report-ID */
-        	return USB_NO_MSG;											// use usbFunctionRead() to obtain the data
-
-        } else if (rq->bRequest == USBRQ_HID_SET_REPORT) {
-        	/* since we have only one report type, we can ignore
-        	 * the report-ID */
-        	pos = inBuffer;
-            bytesRemaining = rq->wLength.word;
-            if (bytesRemaining > sizeof(inBuffer)) {
-            	bytesRemaining = sizeof(inBuffer);
-            }
-            return USB_NO_MSG;											// use usbFunctionWrite() to receive data from host
-        }
-
-    } else {
-    	/* ignore vendor type requests, we don't use any */
-
-    	usb_fw_replyContent(replyBuffer, data);
-    }
-#else
-    if ((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_STANDARD) {
+    if (((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_VENDOR) &&
+    	((rq->bmRequestType & USBRQ_RCPT_MASK) == USBRQ_RCPT_DEVICE)) {
     	if (rq->bRequest == USBCUSTOMRQ_ECHO) {							// echo -- used for reliability tests
     		replyBuffer[0] = rq->wValue.bytes[0];
     		replyBuffer[1] = rq->wValue.bytes[1];
     		replyBuffer[2] = rq->wLength.bytes[0];
     		replyBuffer[3] = rq->wLength.bytes[1];
     		len = 4;
+
+    	} else if (rq->bRequest == USBCUSTOMRQ_RECV) {					// receive data from this USB function
+        	return USB_NO_MSG;											// use usbFunctionRead() to obtain the data
+
+    	} else if (rq->bRequest == USBCUSTOMRQ_SEND) {					// send data from host to this USB function
+            return USB_NO_MSG;											// use usbFunctionWrite() to receive data from host
     	}
     }
-#endif
 
 	usbMsgPtr = (usbMsgPtr_t) replyBuffer;
     return len;
