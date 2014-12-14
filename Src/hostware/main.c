@@ -25,6 +25,10 @@ respectively.
 #include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
 #include "firmware/usbconfig.h"								/* device's VID/PID and names */
 
+
+#define ENABLE_TEST 1
+
+
 static void usage(char *name)
 {
     fprintf(stderr, "usage:\n");
@@ -33,6 +37,7 @@ static void usage(char *name)
     fprintf(stderr, "  %s off ...... turn off LED\n", name);
     fprintf(stderr, "  %s status ... ask current status of LED\n", name);
 #endif
+    fprintf(stderr, "  %s terminal.. activates terminal transfer\n", name);
 #if ENABLE_TEST
     fprintf(stderr, "  %s test ..... run driver reliability test\n", name);
 #endif /* ENABLE_TEST */
@@ -46,9 +51,11 @@ int main(int argc, char **argv)
 	char vendor[] 					= { USB_CFG_VENDOR_NAME, 0 };
 	char product[] 					= { USB_CFG_DEVICE_NAME, 0 };
 	char buffer[4];
-	int cnt, vid, pid, isOn;
+	int cnt, vid, pid;
+//	int isOn;
+//	int showWarnings 				= 1;
 
-    if(argc < 2){   /* we need at least one argument */
+    if (argc < 2) {											// we need at least one argument
         usage(argv[0]);
         exit(1);
     }
@@ -56,8 +63,8 @@ int main(int argc, char **argv)
     usb_init();
 
     /* compute VID/PID from usbconfig.h so that there is a central source of information */
-    vid = (rawVid[1] << 8) + rawVid[0];
-    pid = (rawPid[1] << 8) + rawPid[0];
+    vid = rawVid[0] | (rawVid[1] << 8);
+    pid = rawPid[0] | (rawPid[1] << 8);
 
     /* The following function is in opendevice.c: */
     if (usbOpenDevice(&handle, vid, vendor, pid, product, NULL, NULL, NULL) != 0) {
@@ -66,7 +73,7 @@ int main(int argc, char **argv)
     }
 
     /* Since we use only control endpoint 0, we don't need to choose a
-     * configuration and interface. Reading device descriptor and setting a
+     * configuration and interface. Reading the device descriptor and setting a
      * configuration and interface is done through endpoint 0 after all.
      * However, newer versions of Linux require that we claim an interface
      * even for endpoint 0. Enable the following code if your operating system
@@ -107,23 +114,24 @@ int main(int argc, char **argv)
             fprintf(stderr, "USB error: %s\n", usb_strerror());
         }
 #else  // TODO DF4IAH below
-   if (strcasecmp(argv[1], "echo") == 0) {
+   if (strcasecmp(argv[1], "terminal") == 0) {
 
 
 
 #endif
 #if ENABLE_TEST
     } else if (strcasecmp(argv[1], "test") == 0) {
-        int i;
         srandomdev();
-        for (i = 0; i < 50000; i++) {
+        for (int i = 0; i < 50000; i++) {
             int value = random() & 0xffff, index = random() & 0xffff;
             int rxValue, rxIndex;
+
             if ((i+1) % 100 == 0) {
                 fprintf(stderr, "\r%05d", i+1);
                 fflush(stderr);
             }
-            cnt = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, CUSTOM_RQ_ECHO, value, index, buffer, sizeof(buffer), 5000);
+
+            cnt = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_ECHO, value, index, buffer, sizeof(buffer), 5000);
             if (cnt < 0) {
                 fprintf(stderr, "\nUSB error in iteration %d: %s\n", i, usb_strerror());
                 break;
@@ -143,8 +151,9 @@ int main(int argc, char **argv)
 #endif /* ENABLE_TEST */
     } else {
         usage(argv[0]);
-        exit(1);
+        exit (1);
     }
+
     usb_close(handle);
     return 0;
 }
