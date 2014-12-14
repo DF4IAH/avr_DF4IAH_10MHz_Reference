@@ -22,8 +22,8 @@ respectively.
 #include <usb.h>											/* this is libusb */
 #include "opendevice.h"										/* common code moved to separate module */
 
-#include "../firmware/requests.h"							/* custom request numbers */
-#include "../firmware/usbconfig.h"							/* device's VID/PID and names */
+#include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
+#include "firmware/usbconfig.h"								/* device's VID/PID and names */
 
 static void usage(char *name)
 {
@@ -89,6 +89,7 @@ int main(int argc, char **argv)
     }
 #endif
 
+#if 0
     if (strcasecmp(argv[1], "status") == 0) {
         cnt = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, CUSTOM_RQ_GET_STATUS, 0, 0, buffer, sizeof(buffer), 5000);
         if (cnt < 1) {
@@ -105,6 +106,12 @@ int main(int argc, char **argv)
         if (cnt < 0) {
             fprintf(stderr, "USB error: %s\n", usb_strerror());
         }
+#else  // TODO DF4IAH below
+   if (strcasecmp(argv[1], "echo") == 0) {
+
+
+
+#endif
 #if ENABLE_TEST
     } else if (strcasecmp(argv[1], "test") == 0) {
         int i;

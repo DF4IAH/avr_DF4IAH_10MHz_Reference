@@ -47,14 +47,14 @@ int usbOpenDevice(usb_dev_handle **device, int vendorID, char *vendorNamePattern
  * a string, pass NULL for the pattern. Patterns are Unix shell style pattern:
  * '*' stands for 0 or more characters, '?' for one single character, a list
  * of characters in square brackets for a single character from the list
- * (dashes are allowed to specify a range) and if the lis of characters begins
+ * (dashes are allowed to specify a range) and if the list of characters begins
  * with a caret ('^'), it matches one character which is NOT in the list.
  * Other parameters to the function: If 'warningsFp' is not NULL, warning
  * messages are printed to this file descriptor with fprintf(). If
  * 'printMatchingDevicesFp' is not NULL, no device is opened but matching
  * devices are printed to the given file descriptor with fprintf().
  * If a device is opened, the resulting USB handle is stored in '*device'. A
- * pointer to a "usb_dev_handle *" type variable must be passed here.
+ * pointer to a "usb_dev_handle*" type variable must be passed here.
  * Returns: 0 on success, an error code (see defines below) on failure.
  */
 
