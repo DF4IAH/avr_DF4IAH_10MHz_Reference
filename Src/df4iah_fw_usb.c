@@ -152,8 +152,8 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
     	if (rq->bRequest == USBCUSTOMRQ_ECHO) {							// echo -- used for reliability tests
     		replyBuffer[0] = rq->wValue.bytes[0];
     		replyBuffer[1] = rq->wValue.bytes[1];
-    		replyBuffer[2] = rq->wLength.bytes[0];
-    		replyBuffer[3] = rq->wLength.bytes[1];
+    		replyBuffer[2] = rq->wIndex.bytes[0];
+    		replyBuffer[3] = rq->wIndex.bytes[1];
     		len = 4;
 
     	} else if (rq->bRequest == USBCUSTOMRQ_RECV) {					// receive data from this USB function
