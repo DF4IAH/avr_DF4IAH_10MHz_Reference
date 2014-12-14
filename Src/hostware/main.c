@@ -139,8 +139,8 @@ int main(int argc, char **argv)
                 fprintf(stderr, "\nerror in iteration %d: %d bytes received instead of 4\n", i, cnt);
                 break;
             }
-            rxValue = ((int) buffer[0] & 0xff) | (((int) buffer[1] & 0xff) << 8);
-            rxIndex = ((int) buffer[2] & 0xff) | (((int) buffer[3] & 0xff) << 8);
+            rxValue = (buffer[0] & 0xff) | (((int) buffer[1] & 0xff) << 8);
+            rxIndex = (buffer[2] & 0xff) | (((int) buffer[3] & 0xff) << 8);
             if (rxValue != value || rxIndex != index) {
                 fprintf(stderr, "\ndata error in iteration %d:\n", i);
                 fprintf(stderr, "rxValue = 0x%04x value = 0x%04x\n", rxValue, value);
