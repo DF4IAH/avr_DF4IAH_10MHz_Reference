@@ -16,62 +16,17 @@ See http://libusb.sourceforge.net/ or http://libusb-win32.sourceforge.net/
 respectively.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/time.h>
-#include <string.h>
+#include <strings.h>
 #include <usb.h>											/* this is libusb */
 #include "opendevice.h"										/* common code moved to separate module */
 
+#include "terminal.h"										/* the terminal mimic is inside */
 #include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
 #include "firmware/usbconfig.h"								/* device's VID/PID and names */
 
 
 #define ENABLE_TEST 1
 
-#define TERM_TOP_ROW		1
-#define TERM_RX_FIRST_ROW	1
-#define TERM_RX_LAST_ROW	30
-#define	TERM_TX_EDIT_ROW	35
-#define TERM_BOTTOM_ROW		37
-
-
-static int stdinHasChar()
-{
-	struct timeval tv;
-	fd_set fds;
-	tv.tv_sec = 0;
-	tv.tv_usec = 0;
-	FD_ZERO(&fds);
-
-	FD_SET(STDIN_FILENO, &fds);
-	select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv);
-	return (FD_ISSET(0, &fds));
-}
-
-static void clearTermInLine()
-{
-	printf("%c[%d;%df", 0x1b, TERM_TX_EDIT_ROW, 1);			// set cursor to TERM_TX_EDIT_ROW
-	printf("%c[2K", 0x1b);									// delete line
-}
-
-static void printTermInLine(char inLine[])
-{
-	printf("%c[%d;%df", 0x1b, TERM_TX_EDIT_ROW, 1);			// set cursor to TERM_TX_EDIT_ROW
-	printf("%s", inLine);
-//	printf("%s", "TEST");
-}
-
-static void printUpdate()
-{
-	printf("\n%c[1A", 0x1b);
-}
-
-static void sendInLine(char inLine[])
-{
-
-}
 
 static void usage(char *name)
 {
@@ -103,6 +58,7 @@ int main(int argc, char **argv)
         usage(argv[0]);
         exit(1);
     }
+    terminal();  // XXX REMOVE ME!
 
     usb_init();
 
@@ -157,84 +113,9 @@ int main(int argc, char **argv)
         if (cnt < 0) {
             fprintf(stderr, "USB error: %s\n", usb_strerror());
         }
-#else  // TODO DF4IAH below
-   if (strcasecmp(argv[1], "terminal") == 0) {
-	   char inLine[1024] = { 0 };
-	   int inLineCnt = 0;
-	   struct timeval nowTime;
-	   gettimeofday(&nowTime, NULL);
-	   long long nextTime = nowTime.tv_sec * 1000000 + nowTime.tv_usec + ((USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000);
-	   int line = 0, cnt = 0, idleCnt = 0;
-
-	   /* clear screen */
-	   printf("%cc", 0x1b);
-	   printf("%c[%d;%dr", 0x1b, TERM_TOP_ROW, TERM_BOTTOM_ROW);	// set top and bottom line of the window
-	   //printf("%c[2J", 0x1b);										// clear entire screen
-	   //printf("%c[H", 0x1b);										// move cursor to upper left corner (home)
-	   line = TERM_RX_FIRST_ROW;
-
-	   for (;;) {
-		   /* output field */
-		   if (++idleCnt > 5) {
-			   idleCnt = 0;
-
-			   printf("%c[%d;%df", 0x1b, line, 1);					// set cursor to position
-			   printf("cnt=%d", ++cnt);
-			   if (++line <= TERM_RX_LAST_ROW) {
-				   clearTermInLine();
-				   printTermInLine(inLine);
-			   } else {
-				   --line;
-				   clearTermInLine();
-				   printf("%c[%d;%df", 0x1b, TERM_BOTTOM_ROW, 1);	// set cursor to bottom
-				   printf("%cD", 0x1b);								// scroll window one line up
-				   printTermInLine(inLine);
-			   }
-		   }
-
-		   /* input field */
-		   if (stdinHasChar()) {
-			   printf("*");
-			   int c = getchar();
-			   switch (c) {
-			   case 0x0d:
-				   continue;
-
-			   case 0x0a:
-				   sendInLine(inLine);
-				   inLineCnt = 0;
-				   inLine[inLineCnt] = 0;
-				   //clearTermInLine();
-				   break;
-
-			   default:
-				   if ((inLineCnt + 1) < sizeof(inLine)) {
-					   inLine[inLineCnt++] = (char) (c & 0xff);
-					   inLine[inLineCnt] = 0;
-					   //printTermInLine(inLine);
-				   }
-			   }
-		   }
-
-		   /* update terminal window */
-		   printUpdate();
-
-
-		   /* timer */
-		   gettimeofday(&nowTime, NULL);
-		   time_t deltaTime = (time_t) (nextTime - nowTime.tv_sec * 1000000 - nowTime.tv_usec);
-#ifdef __APPLE_CC__
-		   if (deltaTime > 0) {
-			   usleep(deltaTime);
-		   }
 #else
-		   if (deltaTime > 0) {
-			   unsigned int usSleepTime = deltaTime * (1000000 / CLOCKS_PER_SEC);
-			   nanosleep(usSleepTime * 1000);
-		   }
-#endif
-		   nextTime += (USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000;
-	   }
+   if (strcasecmp(argv[1], "terminal") == 0) {
+	   terminal();
 #endif
 #if ENABLE_TEST
     } else if (strcasecmp(argv[1], "test") == 0) {

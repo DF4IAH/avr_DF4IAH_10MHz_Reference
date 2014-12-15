@@ -25,6 +25,7 @@
 								</option>
 								<option id="macosx.c.link.option.libs.1669740028" name="Libraries (-l)" superClass="macosx.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="usb"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="ncurses"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.macosx.c.linker.input.1693349365" superClass="cdt.managedbuild.tool.macosx.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -79,6 +80,7 @@
 								</option>
 								<option id="macosx.c.link.option.libs.361386896" name="Libraries (-l)" superClass="macosx.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="usb"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="ncurses"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.macosx.c.linker.input.1390627157" superClass="cdt.managedbuild.tool.macosx.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
