@@ -23,11 +23,12 @@
 
 #define RINGBUFFER_SEND_SIZE	1024
 #define RINGBUFFER_RCV_SIZE		1024
-#define MSGBUFFER_SIZE			256
-#define USB_MSG_MAX_LEN			8
+#define MSGBUFFER_SIZE			254
 
 
-//#define TEST_DATARANSFER 1
+// #define TEST_DATATRANSFER_PANEL	1
+// #define TEST_DATATRANSFER_USB	1
+
 
 
 /* the color pair index */
@@ -50,8 +51,10 @@ static int usbRingBufferRcvPushIdx = 0;
 static int usbRingBufferRcvPullIdx = 0;
 static int usbRingBufferSendPushIdx = 0;
 static int usbRingBufferSendPullIdx = 0;
-static int errLine = 0;
 
+#ifdef TEST_DATATRANSFER_USB
+static int errLine = 0;
+#endif
 
 /* -- 8< --  RINGBUFFERS */
 
@@ -140,7 +143,8 @@ void usb_yield()
 {
 	/* USB OUT */
 	if (usbRingBufferSendPushIdx != usbRingBufferSendPullIdx) {
-		int lenTx = ringBufferPull(true, usbMsg, min(sizeof(usbMsg), USB_MSG_MAX_LEN));
+		int lenTx = ringBufferPull(true, usbMsg, sizeof(usbMsg));
+#if TEST_DATATRANSFER_USB
 		int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, usbMsg, lenTx, 500);
 		mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 		if (usbRetLen >= 0) {
@@ -148,17 +152,32 @@ void usb_yield()
 		} else if (usbRetLen < 0) {
         	mvprintw(LINES - 7 + (errLine++ % 7), 20, "USB error - OUT: %s\n", usb_strerror());
         }
+#else
+		usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, usbMsg, lenTx, 500);
+#endif
 	}
 
 	/* USB IN */
 	if (!(((usbRingBufferRcvPushIdx + 1) == usbRingBufferRcvPullIdx) || (((usbRingBufferRcvPushIdx + 1) == RINGBUFFER_RCV_SIZE) && !usbRingBufferRcvPullIdx))) {
         int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_RECV, 0, 0, usbMsg, sizeof(usbMsg), 500);
-		mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
-		if (usbRetLen >= 0) {
-			mvprintw(LINES - 7 + (errLine++ % 7), 20, "IN  Data: usbRetLen=%d .   ", usbRetLen);
+#if TEST_DATATRANSFER_USB
+        mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
+#endif
+        if (usbRetLen > 0) {
+			for (int idx = usbRetLen - 1; idx; --idx) {
+				if ((usbMsg[idx] == '\n') || (usbMsg[idx] == '\r')) {
+					usbMsg[idx] = 0;
+					usbRetLen = idx;
+				}
+			}
+#if TEST_DATATRANSFER_USB
+			mvprintw(LINES - 7 + (errLine++ % 7), 20, "IN  Data: usbRetLen=%d msg=%s.   ", usbRetLen, usbMsg);
+#endif
         	ringBufferPush(false, usbMsg, usbRetLen);
 		} else if (usbRetLen < 0) {
+#if TEST_DATATRANSFER_USB
         	mvprintw(LINES - 7 + (errLine++ % 7), 20, "USB error -  IN: %s\n", usb_strerror());
+#endif
         }
 	}
 }
@@ -285,7 +304,7 @@ void terminal()
 	char outLine[1024] = { 0 };
 	int inLineCnt = 0;
 	int outLineCnt = 0;
-#if TEST_DATARANSFER
+#if TEST_DATATRANSFER_PANEL
 	int idleCnt = 0;
 #endif
 
@@ -298,7 +317,7 @@ void terminal()
 	char loop = 1;
 	do {
 		/* transfer field */
-#if TEST_DATARANSFER
+#if TEST_DATATRANSFER_PANEL
 		if (++idleCnt > 5) {
 			static char toggle = 0;
 			toggle = !toggle;
@@ -338,7 +357,7 @@ void terminal()
 
 		case 0x0a:
 			if (outLineCnt > 0) {
-				if (!strcmp("exit", outLine) || !strcmp("quit", outLine)) {
+				if (!strcmp("EXIT", outLine) || !strcmp("QUIT", outLine)) {
 				   loop = 0;
 				   continue;
 				}
@@ -395,8 +414,13 @@ void terminal()
 		   nanosleep(usSleepTime * 1000);
 		}
 #endif
-//	   nextTime += (USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000;
-	   nextTime += 250000;
+
+#if TEST_DATATRANSFER_USB
+		nextTime += 250000;
+#else
+		nextTime += (USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000;
+#endif
+		mvprintw(LINES - 1, COLS - 30, "INFO: deltaTime=%06d", deltaTime);
 	} while (loop);
 
 	ncurses_finish(&win_rxborder, &win_rx, &win_tx);
