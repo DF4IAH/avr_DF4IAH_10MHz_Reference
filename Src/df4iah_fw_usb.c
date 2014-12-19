@@ -6,6 +6,7 @@
  */
 
 #include <stdint.h>
+#include <string.h>
 #include <avr/pgmspace.h>   /* required by usbdrv.h */
 #include <avr/wdt.h>
 #include <avr/boot.h>
@@ -16,9 +17,10 @@
 #include "df4iah_fw_usb_requests.h"
 
 
-static uchar reportId = 0;
-static uchar doSend = 0;
-static uchar doReceive = 0;
+static uint16_t cntRcv = 0;
+static uint16_t cntSend = 0;
+static uchar doEcho = 0;
+static uchar cntr = 0;
 // static uchar received = 0;
 // static uchar bytesRemaining = 0;
 // static uchar* pos = 0;
@@ -159,13 +161,11 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
     		len = 4;
 
     	} else if (rq->bRequest == USBCUSTOMRQ_RECV) {					// receive data from this USB function
-//    		replyBuffer[0] = '*';
-//    		len = 1;
-    		doReceive = 1;
+    		cntRcv = rq->wLength.word;
         	return USB_NO_MSG;											// use usbFunctionRead() to obtain the data
 
     	} else if (rq->bRequest == USBCUSTOMRQ_SEND) {					// send data from host to this USB function
-    		doSend = 1;
+    		cntSend = rq->wLength.word;
             return USB_NO_MSG;											// use usbFunctionWrite() to receive data from host
     	}
     }
@@ -183,14 +183,15 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 {
 	// at the moment there is test data to be sent
-	len = 0;
-	if (doReceive) {
-		data[len++] = '$';
-		data[len++] = '\r';
-		data[len++] = '\n';
-		doReceive = 0;
+	int retLen = 0;
+	if (cntRcv && doEcho) {
+		data[retLen++] = '0' + (cntr++ % 10);
+//		data[retLen++] = '0' + (uchar) len;
+		data[retLen++] = '\r';
+		data[retLen++] = '\n';
+		cntRcv = 0;
 	}
-	return len;
+	return retLen;
 }
 
 /* usbFunctionWrite() is called when the host sends a chunk of data to the
@@ -201,36 +202,21 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 {
-    if (reportId == 0) {
-#if 0
-    	if (len > bytesRemaining) {
-            len = bytesRemaining;
-        }
-        bytesRemaining -= len;
+	if (cntSend && (len >= 4) && (!strncmp((char*) data, "TEST", cntSend))) {
+		doEcho = !doEcho;
+	}
 
-        // int start = (pos == inBuffer) ?  1 : 0;
+	if (cntSend > len) {
+		cntSend -= len;
+		return 0;
 
-        for (int i = 0; i < len; i++) {
-            if (data[i] != 0) {
-                *pos++ = data[i];
-             }
-        }
+	} else {
+		cntSend = 0;
+		return 1;
+	}
 
-        if (!bytesRemaining) {
-            received = 1;
-            *pos++ = 0;
-            return 1;	// no more space available
-
-        } else {
-            return 0;	// go ahead with more transfer requests
-        }
-#endif
-        doSend = 0;
-        return 1;  // XXX Remove me!
-
-    } else {
-        return 1;	// stop data transfer due to unsupported Report-ID
-    }
+//    return 0;	// go ahead with more transfer requests
+//    return 1;	// no more space available
 }
 
 #if USB_CFG_IMPLEMENT_FN_WRITEOUT
