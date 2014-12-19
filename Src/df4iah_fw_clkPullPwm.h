@@ -2,7 +2,7 @@
  * df4iah_clkPullPwm.h
  *
  *  Created on: 24.11.2014
- *      Author: espero
+ *      Author: DF4IAH, Ulrich Habel
  */
 
 #ifndef DF4IAH_FW_CLKPULLPWM_H_

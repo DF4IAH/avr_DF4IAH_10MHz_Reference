@@ -2,7 +2,7 @@
  * df4iah_commands.h
  *
  *  Created on: 01.11.2014
- *      Author: espero
+ *      Author: DF4IAH, Ulrich Habel
  */
 
 #ifndef DF4IAH_FW_MEMORY_H_

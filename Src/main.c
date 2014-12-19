@@ -10,6 +10,7 @@
 *           - Uwe Bonnes
 *           - Bjoern Riemer
 *           - Olaf Rempel
+*           - DF4IAH, Ulrich Habel
 *
 * License  : Copyright (c) 2006-2008 M. Thomas, U. Bonnes, O. Rempel
 *            Free to use. You have to mention the copyright

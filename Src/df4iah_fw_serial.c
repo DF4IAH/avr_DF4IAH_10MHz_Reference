@@ -2,7 +2,7 @@
  * df4iah_serial.c
  *
  *  Created on: 01.11.2014
- *      Author: espero
+ *      Author: DF4IAH, Ulrich Habel
  */
 
 #include <stdint.h>

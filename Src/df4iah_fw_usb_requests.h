@@ -2,7 +2,7 @@
  * df4iah_usb.h
  *
  *  Created on: 01.11.2014
- *      Author: espero
+ *      Author: DF4IAH, Ulrich Habel
  */
 
 #ifndef DF4IAH_FW_USB_REQUESTS_H_

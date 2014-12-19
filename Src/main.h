@@ -2,7 +2,7 @@
  * main.h
  *
  *  Created on: 01.11.2014
- *      Author: espero
+ *      Author: DF4IAH, Ulrich Habel
  */
 
 #ifndef FW_MAIN_H_
@@ -27,7 +27,7 @@
 
 
 #define VERSION_HIGH '141'
-#define VERSION_LOW  '204'
+#define VERSION_LOW  '219'
 
 
 int main(void);
