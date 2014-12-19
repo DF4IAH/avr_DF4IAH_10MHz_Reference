@@ -16,7 +16,27 @@
 #include "firmware/usbconfig.h"								/* USB_CFG_INTR_POLL_INTERVAL */
 
 
-static void sendInLine(char inLine[])
+//#define TEST_DATARANSFER 1
+
+
+/* the color pair index */
+enum E_COLOR_PAIRS_t {
+	E_COLOR_PAIR_TITLE = 1,
+	E_COLOR_PAIR_SEND_MAIN,
+	E_COLOR_PAIR_SEND_GPS,
+	E_COLOR_PAIR_RCV_MAIN,
+	E_COLOR_PAIR_RCV_GPS,
+};
+
+
+static int usbControlIn(char outLine[], int size)
+{
+	int len = 0;
+
+	return len;
+}
+
+static void usbControlOut(char inLine[], int len)
 {
 
 }
@@ -26,20 +46,24 @@ static void ncurses_init(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_tx
 	/* ncurses init */
 	initscr();
 
+	/* Color handling */
 	if (has_colors()) {
 		start_color();
 		use_default_colors();
-		init_pair(1, COLOR_BLUE, 252);  // 15, 252
-		init_pair(2, COLOR_RED, 252);
+		init_pair(E_COLOR_PAIR_TITLE, COLOR_WHITE, COLOR_RED);
+		init_pair(E_COLOR_PAIR_SEND_MAIN, COLOR_YELLOW, COLOR_RED);
+		init_pair(E_COLOR_PAIR_SEND_GPS, COLOR_WHITE, COLOR_RED);
+		init_pair(E_COLOR_PAIR_RCV_MAIN, COLOR_BLUE, 252);	// 15, 252
+		init_pair(E_COLOR_PAIR_RCV_GPS, COLOR_BLUE, COLOR_WHITE);
 	}
 
-	/* key input */
+	/* Key input */
 	cbreak();
 	noecho();
 	keypad(stdscr, TRUE);
 	timeout(0);
 
-	/* windows */
+	/* Window creation */
 	*win_rxborder = newwin(LINES - 14, COLS - 1, 2, 0);
 	box(*win_rxborder, 0 , 0);
 	*win_rx = newwin(LINES - 16, COLS - 3, 3, 1);
@@ -49,18 +73,23 @@ static void ncurses_init(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_tx
 	box(*win_tx, 0 , 0);
 	scrollok(*win_tx, false);
 
+	/* Titles */
 	attron(A_BOLD);
-//	attron(COLOR_PAIR(1));
+	attron(COLOR_PAIR(E_COLOR_PAIR_TITLE));
+	mvprintw(1, (COLS >> 1 ) - 30, "       DF4IAH  10 MHz  Reference Oscillator  -  Terminal       ");
+	attroff(COLOR_PAIR(E_COLOR_PAIR_TITLE));
+
 	mvprintw(1, 1, " Transfer window ");
-//	attroff(COLOR_PAIR(1));
 	mvprintw(LINES - 10, 1, " Send edit field ");
 	attron(A_REVERSE);
 	mvprintw(LINES - 2, COLS / 2 - 6, " Press F1 to exit ");
 	attroff(A_BOLD | A_REVERSE);
 
+	/* Cursor positioning */
 	wmove(*win_tx, 1, 2);
 	wclrtoeol(*win_tx);
 
+	/* Updating */
 	refresh();
 	wrefresh(*win_rxborder);
 	wrefresh(*win_rx);
@@ -124,27 +153,52 @@ void terminal()
 	WINDOW* win_rxborder = NULL;
 	WINDOW* win_rx = NULL;
 	WINDOW* win_tx = NULL;
-	char inLine[1024] = { 0 };
-	int inLineCnt = 0;
 	struct timeval nowTime;
+	char inLine[1024] = { 0 };
+	char outLine[1024] = { 0 };
+	int inLineCnt = 0;
+	int outLineCnt = 0;
+#if TEST_DATARANSFER
+	int idleCnt = 0;
+#endif
+
+	/* timing init */
 	gettimeofday(&nowTime, NULL);
 	long long nextTime = nowTime.tv_sec * 1000000 + nowTime.tv_usec + ((USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000);
-	int idleCnt = 0;
 
 	ncurses_init(&win_rxborder, &win_rx, &win_tx);
 
 	char loop = 1;
 	do {
-		/* output field */
+		/* transfer field */
+#if TEST_DATARANSFER
 		if (++idleCnt > 5) {
+			static char toggle = 0;
+			toggle = !toggle;
+			strcpy(inLine, toggle ?  "test" : "$test");
+			inLineCnt = strlen(inLine);
 			idleCnt = 0;
-			ncurses_rx_print(&win_rx, "test", 1, A_BOLD);
+		} else {
+			inLineCnt = 0;
+		}
+#else
+		inLineCnt = usbControlIn(inLine, sizeof(inLine));
+#endif
+		if (inLineCnt) {
+			enum E_COLOR_PAIRS_t thisColor = E_COLOR_PAIR_RCV_MAIN;
+			int thisAttribute = A_BOLD;
+
+			if (inLine[0] == '$') {							// NMEA messages are o be marked special
+				thisColor = E_COLOR_PAIR_RCV_GPS;
+				thisAttribute = 0;
+			}
+			ncurses_rx_print(&win_rx, inLine, thisColor, thisAttribute);
 		}
 
 		/* update terminal window */
 		ncurses_update(&win_rxborder, &win_rx, &win_tx);
 
-		/* input field */
+		/* edit field */
 		int c = getch();
 		switch (c) {
 		case KEY_F(1):
@@ -156,16 +210,26 @@ void terminal()
 			break;
 
 		   case 0x0a:
-			   if (inLineCnt > 0) {
-				   if (!strcmp("exit", inLine) || !strcmp("quit", inLine)) {
+			   if (outLineCnt > 0) {
+				   if (!strcmp("exit", outLine) || !strcmp("quit", outLine)) {
 					   loop = 0;
 					   continue;
 				   }
 
-//			   	   sendInLine(inLine);
-				   ncurses_rx_print(&win_rx, inLine, 2, A_REVERSE | A_BOLD);
-				   inLineCnt = 0;
-				   inLine[inLineCnt] = 0;
+			   	   usbControlOut(outLine, outLineCnt);
+
+				   {
+						enum E_COLOR_PAIRS_t thisColor = E_COLOR_PAIR_SEND_MAIN;
+						int thisAttribute = A_BOLD;
+
+						if (outLine[0] == '$') {							// NMEA messages are o be marked special
+							thisColor = E_COLOR_PAIR_SEND_GPS;
+							thisAttribute = 0;
+						}
+						ncurses_rx_print(&win_rx, outLine, thisColor, thisAttribute);
+				   }
+				   outLineCnt = 0;
+				   outLine[outLineCnt] = 0;
 				   ncurses_tx_clear(&win_tx);
 			   }
 			   break;
@@ -173,18 +237,18 @@ void terminal()
 		   case 0x08:
 		   case 0x7f:
 		   case KEY_DC:
-			   if (inLineCnt > 0) {
-				   inLine[--inLineCnt] = 0;
+			   if (outLineCnt > 0) {
+				   outLine[--outLineCnt] = 0;
 				   ncurses_tx_clear(&win_tx);
-				   ncurses_tx_print(&win_tx, inLine);
+				   ncurses_tx_print(&win_tx, outLine);
 			   }
 			   break;
 
 		   default:
-			   if ((inLineCnt + 1) < sizeof(inLine) && (c <= 255)) {
-				   inLine[inLineCnt++] = (char) c;
-				   inLine[inLineCnt] = 0;
-				   ncurses_tx_print(&win_tx, inLine);
+			   if ((outLineCnt + 1) < sizeof(outLine) && (c < 128)) {
+				   outLine[outLineCnt++] = (char) (c >= 'a' && c <= 'z' ?  (c & ~0x20) : c);
+				   outLine[outLineCnt] = 0;
+				   ncurses_tx_print(&win_tx, outLine);
 			   }
 		   }
 
