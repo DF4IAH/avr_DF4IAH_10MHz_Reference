@@ -28,6 +28,7 @@
 
 // #define TEST_DATATRANSFER_PANEL	1
 // #define TEST_DATATRANSFER_USB	1
+// #define TEST_DATATRANSFER_SLOW	1
 
 
 
@@ -145,7 +146,7 @@ void usb_yield()
 	if (usbRingBufferSendPushIdx != usbRingBufferSendPullIdx) {
 		int lenTx = ringBufferPull(true, usbMsg, sizeof(usbMsg));
 #if TEST_DATATRANSFER_USB
-		int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, usbMsg, lenTx, 500);
+		int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
 		mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 		if (usbRetLen >= 0) {
 			mvprintw(LINES - 7 + (errLine++ % 7), 20, "OUT Data: usbRetLen=%d of lenTx=%d .   ", usbRetLen, lenTx);
@@ -153,13 +154,13 @@ void usb_yield()
         	mvprintw(LINES - 7 + (errLine++ % 7), 20, "USB error - OUT: %s\n", usb_strerror());
         }
 #else
-		usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, usbMsg, lenTx, 500);
+		usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
 #endif
 	}
 
 	/* USB IN */
 	if (!(((usbRingBufferRcvPushIdx + 1) == usbRingBufferRcvPullIdx) || (((usbRingBufferRcvPushIdx + 1) == RINGBUFFER_RCV_SIZE) && !usbRingBufferRcvPullIdx))) {
-        int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_RECV, 0, 0, usbMsg, sizeof(usbMsg), 500);
+        int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_RECV, 0, 0, usbMsg, sizeof(usbMsg), USB_CFG_INTR_POLL_INTERVAL - 5);
 #if TEST_DATATRANSFER_USB
         mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 #endif
@@ -415,7 +416,7 @@ void terminal()
 		}
 #endif
 
-#if TEST_DATATRANSFER_USB
+#if TEST_DATATRANSFER_SLOW
 		nextTime += 250000;
 #else
 		nextTime += (USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000;
