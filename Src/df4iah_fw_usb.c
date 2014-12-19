@@ -17,9 +17,11 @@
 
 
 static uchar reportId = 0;
-static uchar received = 0;
-static uchar bytesRemaining = 0;
-static uchar* pos = 0;
+static uchar doSend = 0;
+static uchar doReceive = 0;
+// static uchar received = 0;
+// static uchar bytesRemaining = 0;
+// static uchar* pos = 0;
 static uchar inBuffer[HIDSERIAL_INBUFFER_SIZE] = { 0 };
 static uchar replyBuffer[8] = { 0 };
 
@@ -157,9 +159,13 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
     		len = 4;
 
     	} else if (rq->bRequest == USBCUSTOMRQ_RECV) {					// receive data from this USB function
+//    		replyBuffer[0] = '*';
+//    		len = 1;
+    		doReceive = 1;
         	return USB_NO_MSG;											// use usbFunctionRead() to obtain the data
 
     	} else if (rq->bRequest == USBCUSTOMRQ_SEND) {					// send data from host to this USB function
+    		doSend = 1;
             return USB_NO_MSG;											// use usbFunctionWrite() to receive data from host
     	}
     }
@@ -178,11 +184,12 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 {
 	// at the moment there is test data to be sent
 	len = 0;
-
-	data[len++] = '#';
-	data[len++] = '\r';
-	data[len++] = '\n';
-
+	if (doReceive) {
+		data[len++] = '$';
+		data[len++] = '\r';
+		data[len++] = '\n';
+		doReceive = 0;
+	}
 	return len;
 }
 
@@ -195,7 +202,8 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 {
     if (reportId == 0) {
-        if (len > bytesRemaining) {
+#if 0
+    	if (len > bytesRemaining) {
             len = bytesRemaining;
         }
         bytesRemaining -= len;
@@ -216,6 +224,9 @@ USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
         } else {
             return 0;	// go ahead with more transfer requests
         }
+#endif
+        doSend = 0;
+        return 1;  // XXX Remove me!
 
     } else {
         return 1;	// stop data transfer due to unsupported Report-ID
