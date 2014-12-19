@@ -12,7 +12,7 @@
 #include <string.h>
 #include <usb.h>											/* this is libusb */
 
-//#include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
+#include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
 #include "firmware/usbconfig.h"								/* USB_CFG_INTR_POLL_INTERVAL */
 
 #include "terminal.h"
@@ -21,8 +21,11 @@
 #define min(a,b) ((a) < (b) ?  (a) : (b))
 
 
-#define RINGBUFFER_RCV_SIZE		5
-#define RINGBUFFER_SEND_SIZE	5
+#define RINGBUFFER_SEND_SIZE	1024
+#define RINGBUFFER_RCV_SIZE		1024
+#define MSGBUFFER_SIZE			256
+#define USB_MSG_MAX_LEN			8
+
 
 //#define TEST_DATARANSFER 1
 
@@ -37,8 +40,12 @@ enum E_COLOR_PAIRS_t {
 };
 
 
-static char usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
+extern usb_dev_handle* handle;
+
+
 static char usbRingBufferSend[RINGBUFFER_SEND_SIZE];
+static char usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
+static char usbMsg[MSGBUFFER_SIZE];
 static int usbRingBufferRcvPushIdx = 0;
 static int usbRingBufferRcvPullIdx = 0;
 static int usbRingBufferSendPushIdx = 0;
@@ -128,6 +135,29 @@ static int usb_controlIn(char outLine[], int size)
 	return ringBufferPull(false, outLine, size);
 }
 
+void usb_yield()
+{
+	/* USB OUT */
+	if (usbRingBufferSendPushIdx != usbRingBufferSendPullIdx) {
+		int lenTx = ringBufferPull(true, usbMsg, min(sizeof(usbMsg), USB_MSG_MAX_LEN));
+		int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, usbMsg, lenTx, 500);
+        if (usbRetLen < 0) {
+            fprintf(stderr, "USB error - OUT: %s\n", usb_strerror());
+        } else if (usbRetLen != lenTx) {
+            fprintf(stderr, "USB info - OUT: %d / %d bytes sent\n", usbRetLen, lenTx);
+        }
+	}
+
+	/* USB IN */
+	if (((usbRingBufferRcvPushIdx + 1) == usbRingBufferRcvPullIdx) || (((usbRingBufferRcvPushIdx + 1) == RINGBUFFER_RCV_SIZE) && !usbRingBufferRcvPullIdx)) {
+        int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_RECV, 0, 0, usbMsg, sizeof(usbMsg), 500);
+        if (usbRetLen < 0) {
+            fprintf(stderr, "USB error - IN: %s\n", usb_strerror());
+        } else if (usbRetLen > 0) {
+        	ringBufferPush(false, usbMsg, usbRetLen);
+        }
+	}
+}
 
 /* -- 8< --  NCURSES */
 
@@ -298,68 +328,71 @@ void terminal()
 			loop = 0;
 			break;
 
+		case ERR:											// no key hit
 		case 0x0d:
-		case ERR:
 			break;
 
-		   case 0x0a:
-			   if (outLineCnt > 0) {
-				   if (!strcmp("exit", outLine) || !strcmp("quit", outLine)) {
-					   loop = 0;
-					   continue;
-				   }
+		case 0x0a:
+			if (outLineCnt > 0) {
+				if (!strcmp("exit", outLine) || !strcmp("quit", outLine)) {
+				   loop = 0;
+				   continue;
+				}
 
-			   	   usb_controlOut(outLine, outLineCnt);
+				usb_controlOut(outLine, outLineCnt);
 
-				   {
-						enum E_COLOR_PAIRS_t thisColor = E_COLOR_PAIR_SEND_MAIN;
-						int thisAttribute = A_BOLD;
+				{
+					enum E_COLOR_PAIRS_t thisColor = E_COLOR_PAIR_SEND_MAIN;
+					int thisAttribute = A_BOLD;
 
-						if (outLine[0] == '$') {							// NMEA messages are o be marked special
-							thisColor = E_COLOR_PAIR_SEND_GPS;
-							thisAttribute = 0;
-						}
-						ncurses_rx_print(&win_rx, outLine, thisColor, thisAttribute);
-				   }
-				   outLineCnt = 0;
-				   outLine[outLineCnt] = 0;
-				   ncurses_tx_clear(&win_tx);
-			   }
-			   break;
+					if (outLine[0] == '$') {				// NMEA messages are o be marked special
+						thisColor = E_COLOR_PAIR_SEND_GPS;
+						thisAttribute = 0;
+					}
+					ncurses_rx_print(&win_rx, outLine, thisColor, thisAttribute);
+				}
+				outLineCnt = 0;
+				outLine[outLineCnt] = 0;
+				ncurses_tx_clear(&win_tx);
+		    }
+			break;
 
-		   case 0x08:
-		   case 0x7f:
-		   case KEY_DC:
-			   if (outLineCnt > 0) {
-				   outLine[--outLineCnt] = 0;
-				   ncurses_tx_clear(&win_tx);
-				   ncurses_tx_print(&win_tx, outLine);
-			   }
-			   break;
+		case 0x08:
+		case 0x7f:
+		case KEY_DC:
+			if (outLineCnt > 0) {
+				outLine[--outLineCnt] = 0;
+				ncurses_tx_clear(&win_tx);
+				ncurses_tx_print(&win_tx, outLine);
+			}
+			break;
 
-		   default:
-			   if ((outLineCnt + 1) < sizeof(outLine) && (c < 128)) {
-				   outLine[outLineCnt++] = (char) (c >= 'a' && c <= 'z' ?  (c & ~0x20) : c);
-				   outLine[outLineCnt] = 0;
-				   ncurses_tx_print(&win_tx, outLine);
-			   }
-		   }
+		default:
+			if ((outLineCnt + 1) < sizeof(outLine) && (c < 128)) {
+				outLine[outLineCnt++] = (char) (c >= 'a' && c <= 'z' ?  (c & ~0x20) : c);
+				outLine[outLineCnt] = 0;
+				ncurses_tx_print(&win_tx, outLine);
+			}
+		}
 
-		   /* timer */
-		   gettimeofday(&nowTime, NULL);
-		   time_t deltaTime = (time_t) (nextTime - nowTime.tv_sec * 1000000 - nowTime.tv_usec);
+		/* spare time for USB jobs to be done */
+		usb_yield();
+
+		/* timer */
+		gettimeofday(&nowTime, NULL);
+		time_t deltaTime = (time_t) (nextTime - nowTime.tv_sec * 1000000 - nowTime.tv_usec);
 #ifdef __APPLE_CC__
-		   if (deltaTime > 0) {
-			   usleep(deltaTime);
-		   }
+		if (deltaTime > 0) {
+			usleep(deltaTime);
+		}
 #else
-		   if (deltaTime > 0) {
-			   unsigned int usSleepTime = deltaTime * (1000000 / CLOCKS_PER_SEC);
-			   nanosleep(usSleepTime * 1000);
-		   }
+		if (deltaTime > 0) {
+		   unsigned int usSleepTime = deltaTime * (1000000 / CLOCKS_PER_SEC);
+		   nanosleep(usSleepTime * 1000);
+		}
 #endif
-		   nextTime += (USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000;
-	   } while (loop);
+	   nextTime += (USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000;
+	} while (loop);
 
-	   ncurses_finish(&win_rxborder, &win_rx, &win_tx);
+	ncurses_finish(&win_rxborder, &win_rx, &win_tx);
 }
