@@ -7,14 +7,22 @@
 
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <sys/time.h>
 #include <string.h>
-#include <ncurses.h>
 #include <usb.h>											/* this is libusb */
 
 //#include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
 #include "firmware/usbconfig.h"								/* USB_CFG_INTR_POLL_INTERVAL */
 
+#include "terminal.h"
+
+
+#define min(a,b) ((a) < (b) ?  (a) : (b))
+
+
+#define RINGBUFFER_RCV_SIZE		5
+#define RINGBUFFER_SEND_SIZE	5
 
 //#define TEST_DATARANSFER 1
 
@@ -29,17 +37,99 @@ enum E_COLOR_PAIRS_t {
 };
 
 
-static int usbControlIn(char outLine[], int size)
+static char usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
+static char usbRingBufferSend[RINGBUFFER_SEND_SIZE];
+static int usbRingBufferRcvPushIdx = 0;
+static int usbRingBufferRcvPullIdx = 0;
+static int usbRingBufferSendPushIdx = 0;
+static int usbRingBufferSendPullIdx = 0;
+
+
+/* -- 8< --  RINGBUFFERS */
+
+int ringBufferPush(char isSend, char inData[], int len)
+{
+	int retLen = 0;
+	int bufferSize = (isSend ?  RINGBUFFER_SEND_SIZE : RINGBUFFER_RCV_SIZE);
+	int pushIdx = (isSend ?  usbRingBufferSendPushIdx : usbRingBufferRcvPushIdx);
+	int pullIdx = (isSend ?  usbRingBufferSendPullIdx : usbRingBufferRcvPullIdx);
+
+	if (!(((pushIdx + 1) == pullIdx) || (((pushIdx + 1) == bufferSize) && !pullIdx))) {
+		char* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
+		int lenTop = min((pullIdx > pushIdx ?  (pullIdx - pushIdx - 1) : bufferSize - pushIdx - (!pullIdx ?  1 : 0)), len);
+		int lenBot = min((pullIdx > pushIdx ?  0 : pullIdx - 1), len - lenTop);
+
+		if (lenTop > 0) {
+			memcpy(&(ringBuffer[pushIdx]), inData, lenTop);
+			retLen += lenTop;
+		}
+
+		if (lenBot > 0) {
+			memcpy(&(ringBuffer[0]), &(inData[lenTop]), lenBot);
+			retLen += lenBot;
+		}
+
+		// advance the index
+		if (isSend) {
+			usbRingBufferSendPushIdx += retLen;
+			usbRingBufferSendPushIdx %= bufferSize;
+		} else {
+			usbRingBufferRcvPushIdx += retLen;
+			usbRingBufferRcvPushIdx %= bufferSize;
+		}
+	}
+	return retLen;
+}
+
+int ringBufferPull(char isSend, char outData[], int size)
 {
 	int len = 0;
+	int pushIdx = (isSend ?  usbRingBufferSendPushIdx : usbRingBufferRcvPushIdx);
+	int pullIdx = (isSend ?  usbRingBufferSendPullIdx : usbRingBufferRcvPullIdx);
 
+	if (pushIdx != pullIdx) {
+		char* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
+		int bufferSize = (isSend ?  RINGBUFFER_SEND_SIZE : RINGBUFFER_RCV_SIZE);
+		int lenTop = min((pushIdx > pullIdx ?  (pushIdx - pullIdx) : bufferSize - pullIdx), size);
+		int lenBot = min((pushIdx > pullIdx ?  0 : pushIdx), size - lenTop);
+
+		if (lenTop > 0) {
+			memcpy(outData, &(ringBuffer[pullIdx]), lenTop);
+			len += lenTop;
+		}
+
+		if (lenBot > 0) {
+			memcpy(&(outData[lenTop]), &(ringBuffer[0]), lenBot);
+			len += lenBot;
+		}
+
+		// advance the index
+		if (isSend) {
+			usbRingBufferSendPullIdx += len;
+			usbRingBufferSendPullIdx %= bufferSize;
+		} else {
+			usbRingBufferRcvPullIdx += len;
+			usbRingBufferRcvPullIdx %= bufferSize;
+		}
+	}
 	return len;
 }
 
-static void usbControlOut(char inLine[], int len)
-{
 
+/* -- 8< --  USB */
+
+static void usb_controlOut(char inLine[], int len)
+{
+	ringBufferPush(true, inLine, len);
 }
+
+static int usb_controlIn(char outLine[], int size)
+{
+	return ringBufferPull(false, outLine, size);
+}
+
+
+/* -- 8< --  NCURSES */
 
 static void ncurses_init(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_tx)
 {
@@ -148,6 +238,9 @@ static void ncurses_update(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_
 	wrefresh(*win_tx);
 }
 
+
+/* -- 8< --  TERMINAL - LOOP */
+
 void terminal()
 {
 	WINDOW* win_rxborder = NULL;
@@ -182,7 +275,7 @@ void terminal()
 			inLineCnt = 0;
 		}
 #else
-		inLineCnt = usbControlIn(inLine, sizeof(inLine));
+		inLineCnt = usb_controlIn(inLine, sizeof(inLine));
 #endif
 		if (inLineCnt) {
 			enum E_COLOR_PAIRS_t thisColor = E_COLOR_PAIR_RCV_MAIN;
@@ -216,7 +309,7 @@ void terminal()
 					   continue;
 				   }
 
-			   	   usbControlOut(outLine, outLineCnt);
+			   	   usb_controlOut(outLine, outLineCnt);
 
 				   {
 						enum E_COLOR_PAIRS_t thisColor = E_COLOR_PAIR_SEND_MAIN;

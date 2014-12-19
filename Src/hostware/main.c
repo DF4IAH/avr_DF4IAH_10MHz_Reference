@@ -58,6 +58,7 @@ int main(int argc, char **argv)
         usage(argv[0]);
         exit(1);
     }
+#if 0
     terminal();  // XXX REMOVE ME!
 
     usb_init();
@@ -95,6 +96,7 @@ int main(int argc, char **argv)
 #endif
     }
 #endif
+#endif
 
 #if 0
     if (strcasecmp(argv[1], "status") == 0) {
@@ -118,7 +120,7 @@ int main(int argc, char **argv)
 	   terminal();
 #endif
 #if ENABLE_TEST
-    } else if (strcasecmp(argv[1], "test") == 0) {
+    } else if (strcasecmp(argv[1], "test1") == 0) {  /* testing USB messaging */
         srandomdev();
         for (int i = 0; i < 50000; i++) {
             int value = random() & 0xffff, index = random() & 0xffff;
@@ -146,6 +148,16 @@ int main(int argc, char **argv)
             }
         }
         fprintf(stderr, "\nTest completed.\n");
+
+    } else if (strcasecmp(argv[1], "test2") == 0) {  /* testing ringbuffers */
+    	for (;;) {
+    		char c[8] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 };
+    		char d[8] = { 0 };
+
+    		ringBufferPush(false, (char*) &c, 3);
+    		ringBufferPull(false, (char*) &d, 2);
+    	}
+
 #endif /* ENABLE_TEST */
     } else {
         usage(argv[0]);
