@@ -171,10 +171,10 @@ void usb_yield()
         if (usbRetLen > 0) {
 			for (int idx = usbRetLen - 1; idx; --idx) {
 				if ((usbMsg[idx] == '\n') || (usbMsg[idx] == '\r')) {
-					usbMsg[idx] = 0;
 					usbRetLen = idx;
 				}
 			}
+			usbMsg[usbRetLen] = 0;
 #if TEST_DATATRANSFER_USB
 			mvprintw(LINES - 7 + (errLine++ % 7), 20, "IN  Data: usbRetLen=%d msg=%s.   ", usbRetLen, usbMsg);
 #endif
@@ -235,7 +235,7 @@ static void ncurses_init(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_tx
 
 	/* Cursor positioning */
 	wmove(*win_tx, 1, 2);
-	wclrtoeol(*win_tx);
+	mvwhline(*win_tx, 1, 2, ' ', COLS - 4);
 
 	/* Updating */
 	refresh();
@@ -280,7 +280,7 @@ static void ncurses_rx_print(WINDOW** win_rx, const char string[], int colorPair
 static void ncurses_tx_clear(WINDOW** win_tx)
 {
 	wmove(*win_tx, 1, 2);
-	wclrtoeol(*win_tx);
+	mvwhline(*win_tx, 1, 2, ' ', COLS - 4);
 }
 
 static void ncurses_tx_print(WINDOW** win_tx, const char string[])
