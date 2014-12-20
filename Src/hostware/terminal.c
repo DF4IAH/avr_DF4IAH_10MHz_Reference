@@ -115,6 +115,8 @@ int ringBufferPull(char isSend, char outData[], int size)
 			len += lenBot;
 		}
 
+		outData[len] = 0;
+
 		// advance the index
 		if (isSend) {
 			usbRingBufferSendPullIdx += len;
@@ -123,6 +125,8 @@ int ringBufferPull(char isSend, char outData[], int size)
 			usbRingBufferRcvPullIdx += len;
 			usbRingBufferRcvPullIdx %= bufferSize;
 		}
+	} else {
+		outData[0] = 0;
 	}
 	return len;
 }
