@@ -15,17 +15,17 @@
 #include "df4iah_fw_memory.h"
 #include "df4iah_fw_usb.h"
 #include "df4iah_fw_usb_requests.h"
+#include "df4iah_fw_ringbuffer.h"
 
 
-static uint16_t cntRcv = 0;
-static uint16_t cntSend = 0;
-static uchar doEcho = 0;
-static uchar cntr = 0;
-// static uchar received = 0;
-// static uchar bytesRemaining = 0;
-// static uchar* pos = 0;
-static uchar inBuffer[HIDSERIAL_INBUFFER_SIZE] = { 0 };
-static uchar replyBuffer[8] = { 0 };
+extern uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE];
+extern uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE];
+extern uint16_t cntRcv;
+extern uint16_t cntSend;
+extern uint8_t usbIsrCtxtBufferIdx;
+
+static uint8_t doTest = 0;
+static uint8_t doTestCntr = 0;
 
 
 #if USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH
@@ -76,6 +76,24 @@ PROGMEM const char usbDescriptorHidReport[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] 
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
+uint8_t setTestOn(uint8_t isTest)
+{
+	uint8_t ret = doTest;
+	doTest = isTest;
+	return ret;
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_usb"), aligned(2)))
+#endif
+uint8_t getTestOn(void)
+{
+	return doTest;
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_usb"), aligned(2)))
+#endif
 void usb_fw_replyContent(uchar replyBuffer[], uchar data[])
 {
 	replyBuffer[0] = data[2];
@@ -97,13 +115,15 @@ void usb_fw_sendInInterrupt()
 		//uchar* data = 0;
 		uchar len = 0;
 
+#if 0
 		/* TEST */
-		inBuffer[0] = 0x34;
-		inBuffer[1] = 0x12;
+		usbIsrCtxtBuffer[0] = 0x34;
+		usbIsrCtxtBuffer[1] = 0x12;
 		len = 2;
+#endif
 
 		if (len) {
-			usbSetInterrupt(inBuffer, len);
+			usbSetInterrupt(usbIsrCtxtBuffer, len);
 		}
 	}
 }
@@ -154,10 +174,10 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
     if (((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_VENDOR) &&
     	((rq->bmRequestType & USBRQ_RCPT_MASK) == USBRQ_RCPT_DEVICE)) {
     	if (rq->bRequest == USBCUSTOMRQ_ECHO) {							// echo -- used for reliability tests
-    		replyBuffer[0] = rq->wValue.bytes[0];
-    		replyBuffer[1] = rq->wValue.bytes[1];
-    		replyBuffer[2] = rq->wIndex.bytes[0];
-    		replyBuffer[3] = rq->wIndex.bytes[1];
+    		usbCtxtSetupReplyBuffer[0] = rq->wValue.bytes[0];
+    		usbCtxtSetupReplyBuffer[1] = rq->wValue.bytes[1];
+    		usbCtxtSetupReplyBuffer[2] = rq->wIndex.bytes[0];
+    		usbCtxtSetupReplyBuffer[3] = rq->wIndex.bytes[1];
     		len = 4;
 
     	} else if (rq->bRequest == USBCUSTOMRQ_RECV) {					// receive data from this USB function
@@ -170,7 +190,7 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
     	}
     }
 
-	usbMsgPtr = (usbMsgPtr_t) replyBuffer;
+	usbMsgPtr = (usbMsgPtr_t) usbCtxtSetupReplyBuffer;
     return len;
 }
 
@@ -182,16 +202,18 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 {
-	// at the moment there is test data to be sent
-	int retLen = 0;
-	if (cntRcv && doEcho) {
-		data[retLen++] = '0' + (cntr++ % 10);
-//		data[retLen++] = '0' + (uchar) len;
-		data[retLen++] = '\r';
-		data[retLen++] = '\n';
-		cntRcv = 0;
+	/* special communication TEST */
+	if (doTest) {
+		if (cntRcv) {
+			data[0] = '0' + (doTestCntr++ % 10);
+			data[1] = 0;
+			cntRcv = 0;
+		}
+		return 1;
 	}
-	return retLen;
+
+	/* pull next message from the ring buffer and send it to the host IN */
+	return ringBufferPull(false, data, len);
 }
 
 /* usbFunctionWrite() is called when the host sends a chunk of data to the
@@ -202,21 +224,27 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 {
-	if (cntSend && (len >= 4) && (!strncmp((char*) data, "TEST", cntSend))) {
-		doEcho = !doEcho;
-	}
-
+	/* append first or any substring to the inBuffer */
 	if (cntSend > len) {
 		cntSend -= len;
-		return 0;
+		memcpy(&(usbIsrCtxtBuffer[usbIsrCtxtBufferIdx]), data, len);
+		usbIsrCtxtBufferIdx += len;
+		return 0;											// go ahead with more transfer requests
 
+	/* append last substring to the inBuffer and push it to the ring buffer */
 	} else {
-		cntSend = 0;
-		return 1;
-	}
+		if (cntSend > 0) {
+			memcpy(&(usbIsrCtxtBuffer[usbIsrCtxtBufferIdx]), data, cntSend);
+			usbIsrCtxtBufferIdx += cntSend;
+		}
+		usbIsrCtxtBuffer[usbIsrCtxtBufferIdx] = 0;
 
-//    return 0;	// go ahead with more transfer requests
-//    return 1;	// no more space available
+		/* push OUT string (send) from host to the USB function's ring buffer */
+		ringBufferPush(true, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
+
+		usbIsrCtxtBufferIdx = cntSend = 0;
+		return 1;											// no more data needed
+	}
 }
 
 #if USB_CFG_IMPLEMENT_FN_WRITEOUT

@@ -44,6 +44,7 @@
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 #include <avr/sleep.h>
+#include <string.h>
 #include <util/delay.h>
 
 #include "chipdef.h"
@@ -53,15 +54,37 @@
 #include "df4iah_bl_clkPullPwm.h"
 #include "df4iah_fw_usb.h"
 #include "df4iah_fw_clkPullPwm.h"
+#include "df4iah_fw_ringbuffer.h"
 #include "df4iah_fw_serial.h"
 
+
+#define MAINCTXT_BUFFER_SIZE			128
 
 
 // DATA SECTION
 
+/* main */
+void (*jump_to_app)(void) = 0x0000;
 uint8_t timer0Snapshot = 0x00;
 usbTxStatus_t usbTxStatus1 = { 0 }, usbTxStatus3 = { 0 };
-void (*jump_to_app)(void) = 0x0000;
+uint8_t isUsbCommTest = 0;
+uchar mainCtxtBuffer[MAINCTXT_BUFFER_SIZE] = { 0 };
+uint8_t mainCtxtBufferIdx = 0;
+
+/* df4iah_fw_usb */
+uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE] = { 0 };
+uint8_t usbIsrCtxtBufferIdx = 0;
+uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] = { 0 };
+uint16_t cntRcv = 0;
+uint16_t cntSend = 0;
+
+/* df4iah_fw_ringbuffer */
+uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE] = { 0 };
+uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE] = { 0 };
+uint8_t usbRingBufferSendPushIdx = 0;
+uint8_t usbRingBufferSendPullIdx = 0;
+uint8_t usbRingBufferRcvPushIdx = 0;
+uint8_t usbRingBufferRcvPullIdx = 0;
 
 
 // STRINGS IN CODE SECTION
@@ -145,11 +168,52 @@ static inline void init_wdt() {
 #endif
 }
 
-void give_away(void)
+static void doInterpret(uchar msg[], uint8_t len)
+{
+	/* special communication TEST */
+	if (!strncmp((char*) msg, "TEST", 4)) {
+		isUsbCommTest = !setTestOn(!isUsbCommTest);
+	}
+
+	if (len > 0) {
+		msg[len] = '#';
+		msg[len + 1] = '0' + len;
+		msg[len + 2] = 0;
+		ringBufferPush(false, msg, len + 2);
+	}
+}
+
+static void workInQueue()
+{
+	static uint32_t cntr = 0;
+
+#if 1  // XXX REMOVE ME!
+	if (cntr++ > 100000) {
+		cntr = 0;
+		ringBufferPush(false, (uchar*) "*", 1);
+	}
+#endif
+
+	enum RINGBUFFER_MSG_STATUS_t status = getStatusNextMsg(true);
+	if (status & RINGBUFFER_MSG_STATUS_AVAIL) {
+		if (status & RINGBUFFER_MSG_STATUS_IS_NMEA) {
+			serial_pullAndSendNmea(true);
+
+		} else if ((status & RINGBUFFER_MSG_STATUS_IS_MASK) == 0) {
+			mainCtxtBufferIdx = ringBufferPull(true, mainCtxtBuffer, (uint8_t) sizeof(mainCtxtBuffer));
+			doInterpret(mainCtxtBuffer, mainCtxtBufferIdx);
+		}
+	}
+}
+
+static void give_away(void)
 {
     wdt_reset();
-	usbPoll();
+
+    usbPoll();
 	usb_fw_sendInInterrupt();
+	workInQueue();
+
 	clkPullPwm_fw_togglePin();
 }
 

@@ -41,7 +41,10 @@
 
 void serial_fw_init();
 void serial_fw_close();
+
 void serial_fw_sendchar(uint8_t data);
 uint8_t serial_fw_recvchar(void);
+
+void serial_pullAndSendNmea(uint8_t isSend);
 
 #endif /* DF4IAH_FW_SERIAL_H_ */

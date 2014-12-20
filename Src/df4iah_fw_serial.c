@@ -57,3 +57,11 @@ uint8_t serial_fw_recvchar(void)
 	while (!(UART_STATUS & _BV(UART_RXREADY)));
 	return UART_DATA;
 }
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_serial"), aligned(2)))
+#endif
+void serial_pullAndSendNmea(uint8_t isSend)
+{
+
+}
