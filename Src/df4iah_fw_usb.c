@@ -202,18 +202,19 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 {
+	uchar retLen = 0;
+
 	/* special communication TEST */
 	if (doTest) {
 		if (cntRcv) {
-			data[0] = '0' + (doTestCntr++ % 10);
-			data[1] = 0;
+			data[retLen++] = '0' + (doTestCntr++ % 10);
+			data[retLen] = 0;
 			cntRcv = 0;
 		}
-		return 1;
 	}
 
 	/* pull next message from the ring buffer and send it to the host IN */
-	return ringBufferPull(false, data, len);
+	return retLen + ringBufferPull(false, data + retLen, len);
 }
 
 /* usbFunctionWrite() is called when the host sends a chunk of data to the
@@ -236,11 +237,11 @@ USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 		if (cntSend > 0) {
 			memcpy(&(usbIsrCtxtBuffer[usbIsrCtxtBufferIdx]), data, cntSend);
 			usbIsrCtxtBufferIdx += cntSend;
-		}
-		usbIsrCtxtBuffer[usbIsrCtxtBufferIdx] = 0;
+			usbIsrCtxtBuffer[usbIsrCtxtBufferIdx] = 0;
 
-		/* push OUT string (send) from host to the USB function's ring buffer */
-		ringBufferPush(true, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
+			/* push OUT string (send) from host to the USB function's ring buffer */
+			ringBufferPush(true, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
+		}
 
 		usbIsrCtxtBufferIdx = cntSend = 0;
 		return 1;											// no more data needed
