@@ -137,16 +137,19 @@ void usb_fw_init()
 {
 	usbInit();
 	USB_INTR_ENABLE &= ~(_BV(USB_INTR_ENABLE_BIT));
-	usbDeviceDisconnect();			/* enforce re-enumeration, do this while interrupts are disabled! */
+	usbDeviceDisconnect();									// enforce re-enumeration, do this while interrupts are disabled!
 
     uint8_t i = 250;
-    while (--i) {					/* fake USB disconnect for > 250 ms */
+    while (--i) {											// fake USB disconnect for > 250 ms
         _delay_ms(1);
         wdt_reset();
     }
 
     usbDeviceConnect();
 	USB_INTR_ENABLE |= _BV(USB_INTR_ENABLE_BIT);
+
+	ringBufferPush(false, (uchar*) "  ", 2);				// TODO unknown why two characters are needed to work properly
+	ringBufferPush(true,  (uchar*) "  ", 2);				// TODO unknown why two characters are needed to work properly
 }
 
 #ifdef RELEASE
@@ -173,20 +176,20 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
 
     if (((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_VENDOR) &&
     	((rq->bmRequestType & USBRQ_RCPT_MASK) == USBRQ_RCPT_DEVICE)) {
-    	if (rq->bRequest == USBCUSTOMRQ_ECHO) {							// echo -- used for reliability tests
+    	if (rq->bRequest == USBCUSTOMRQ_ECHO) {				// echo -- used for reliability tests
     		usbCtxtSetupReplyBuffer[0] = rq->wValue.bytes[0];
     		usbCtxtSetupReplyBuffer[1] = rq->wValue.bytes[1];
     		usbCtxtSetupReplyBuffer[2] = rq->wIndex.bytes[0];
     		usbCtxtSetupReplyBuffer[3] = rq->wIndex.bytes[1];
     		len = 4;
 
-    	} else if (rq->bRequest == USBCUSTOMRQ_RECV) {					// receive data from this USB function
+    	} else if (rq->bRequest == USBCUSTOMRQ_RECV) {		// receive data from this USB function
     		cntRcv = rq->wLength.word;
-        	return USB_NO_MSG;											// use usbFunctionRead() to obtain the data
+        	return USB_NO_MSG;								// use usbFunctionRead() to obtain the data
 
-    	} else if (rq->bRequest == USBCUSTOMRQ_SEND) {					// send data from host to this USB function
+    	} else if (rq->bRequest == USBCUSTOMRQ_SEND) {		// send data from host to this USB function
     		cntSend = rq->wLength.word;
-            return USB_NO_MSG;											// use usbFunctionWrite() to receive data from host
+            return USB_NO_MSG;								// use usbFunctionWrite() to receive data from host
     	}
     }
 
