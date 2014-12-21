@@ -134,11 +134,11 @@ uint8_t ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size)
 	uint8_t pushIdx = (isSend ?  usbRingBufferSendPushIdx : usbRingBufferRcvPushIdx);
 	uint8_t pullIdx = (isSend ?  usbRingBufferSendPullIdx : usbRingBufferRcvPullIdx);
 
-	if (pushIdx != pullIdx) {
+	if ((pushIdx != pullIdx) && (size > 1)) {
 		uchar* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
 		uint8_t bufferSize = (isSend ?  RINGBUFFER_SEND_SIZE : RINGBUFFER_RCV_SIZE);
-		uint8_t lenTop = min((pushIdx > pullIdx ?  (pushIdx - pullIdx) : bufferSize - pullIdx), size);
-		uint8_t lenBot = min((pushIdx > pullIdx ?  0 : pushIdx), size - lenTop);
+		uint8_t lenTop = min((pushIdx > pullIdx ?  (pushIdx - pullIdx) : bufferSize - pullIdx), size - 1);
+		uint8_t lenBot = min((pushIdx > pullIdx ?  0 : pushIdx), size - 1 - lenTop);
 
 		if (lenTop) {
 			memcpy(outData, &(ringBuffer[pullIdx]), lenTop);
@@ -160,7 +160,7 @@ uint8_t ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size)
 			usbRingBufferRcvPullIdx += len;
 			usbRingBufferRcvPullIdx %= bufferSize;
 		}
-	} else {
+	} else if (!size) {
 		outData[0] = 0;
 	}
 	return len;
