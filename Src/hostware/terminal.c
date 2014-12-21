@@ -64,6 +64,7 @@ static int errLine = 0;
 /* -- 8< --  RINGBUFFERS */
 
 // vv  DEBUGGING SECTION FOR THE FIRMWARE
+#ifdef DEBUG
 inline uint8_t fw_getSemaphore(uint8_t isSend)
 {
 	uint8_t isLocked;
@@ -217,6 +218,7 @@ enum RINGBUFFER_MSG_STATUS_t fw_getStatusNextMsg(uint8_t isSend)
 	}
 	return status;
 }
+#endif
 // ^^  DEBUGGING SECTION FOR THE FIRMWARE
 
 int ringBufferPush(char isSend, char inData[], int len)

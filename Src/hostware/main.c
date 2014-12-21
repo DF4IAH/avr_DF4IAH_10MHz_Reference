@@ -25,9 +25,12 @@ respectively.
 #include "firmware/usbconfig.h"								/* device's VID/PID and names */
 
 
-#define ENABLE_TEST
-//#define TEST_RINGBUFFER
-#define TEST_SEMAPHORE
+#define ENABLE_TEST											// activate on request
+
+#ifdef DEBUG
+//# define TEST_RINGBUFFER									// DEBUG only: activate on request
+//# define TEST_SEMAPHORE									// DEBUG only: activate on request
+#endif
 
 
 usb_dev_handle* handle 			= NULL;
@@ -45,6 +48,9 @@ static void usage(char *name)
 int main(int argc, char **argv)
 {
 #ifdef DEBUG
+	/*
+	 * debugging FIRMWARE code only
+	 */
 	{
 		const uint8_t isSend = false;
 		const uchar bufferTestIn[3] = { '1', '2', '3' };
@@ -121,19 +127,23 @@ int main(int argc, char **argv)
 	return 0;
 #endif
 
+	/*
+	 * the main application starts here
+	 */
 	const unsigned char rawVid[2] 	= { USB_CFG_VENDOR_ID };
 	const unsigned char rawPid[2]	= { USB_CFG_DEVICE_ID };
 	char vendor[] 					= { USB_CFG_VENDOR_NAME, 0 };
 	char product[] 					= { USB_CFG_DEVICE_NAME, 0 };
 	char buffer[4];
 	int cnt, vid, pid;
-//	int isOn;
 //	int showWarnings 				= 1;
 
     if (argc < 2) {											// we need at least one argument
         usage(argv[0]);
         exit(1);
     }
+
+    /* fire up the USB engine */
     usb_init();
 
     /* compute VID/PID from usbconfig.h so that there is a central source of information */
@@ -174,7 +184,8 @@ int main(int argc, char **argv)
 		terminal();
 
 #ifdef ENABLE_TEST
-	} else if (strcasecmp(argv[1], "test1") == 0) {  /* testing USB messaging */
+	} else if (strcasecmp(argv[1], "test") == 0) {
+		/* testing USB messaging */
 		srandomdev();
 		for (int i = 0; i < 50000; i++) {
 			int value = random() & 0xffff, index = random() & 0xffff;
@@ -202,17 +213,8 @@ int main(int argc, char **argv)
 			}
 		}
 		fprintf(stderr, "\nTest completed.\n");
-
-	} else if (strcasecmp(argv[1], "test2") == 0) {  /* testing ringbuffers */
-		for (;;) {
-			char c[8] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 };
-			char d[8] = { 0 };
-
-			ringBufferPush(false, (char*) &c, 3);
-			ringBufferPull(false, (char*) &d, 2);
-		}
-
 #endif /* ENABLE_TEST */
+
 	} else {
 		usage(argv[0]);
 		exit (1);

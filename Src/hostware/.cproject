@@ -48,7 +48,7 @@
 									<listOptionValue builtIn="false" value="/opt/local/include"/>
 									<listOptionValue builtIn="false" value="/opt/local/include/libusb-1.0"/>
 								</option>
-								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1615921262" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1615921262" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1327463486" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
@@ -106,7 +106,7 @@
 									<listOptionValue builtIn="false" value="/opt/local/include"/>
 									<listOptionValue builtIn="false" value="/opt/local/include/libusb-1.0"/>
 								</option>
-								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1572543161" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1572543161" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="RELEASE"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.853942936" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
