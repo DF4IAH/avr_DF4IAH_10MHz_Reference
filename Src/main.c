@@ -81,10 +81,15 @@ uint16_t cntSend = 0;
 /* df4iah_fw_ringbuffer */
 uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE] = { 0 };
 uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE] = { 0 };
+uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE] = { 0 };
 uint8_t usbRingBufferSendPushIdx = 0;
 uint8_t usbRingBufferSendPullIdx = 0;
 uint8_t usbRingBufferRcvPushIdx = 0;
 uint8_t usbRingBufferRcvPullIdx = 0;
+uint8_t usbRingBufferSendSemaphore = 0;
+uint8_t usbRingBufferRcvSemaphore = 0;
+uint8_t usbRingBufferHookLen = 0;
+uint8_t usbRingBufferHookIsSend = 0;
 
 
 // STRINGS IN CODE SECTION
@@ -170,38 +175,57 @@ static inline void init_wdt() {
 
 static void doInterpret(uchar msg[], uint8_t len)
 {
+	const uint8_t isSend = true;
+
 	/* special communication TEST */
 	if (!strncmp((char*) msg, "TEST", 4)) {
 		isUsbCommTest = !setTestOn(!isUsbCommTest);
 	}
 
+#if 1  // XXX REMOVE ME!
 	if (len > 0) {
 		msg[len] = '#';
 		msg[len + 1] = '0' + len;
 		msg[len + 2] = 0;
-		ringBufferPush(false, msg, len + 2);
+		if (getSemaphore(!isSend)) {
+			ringBufferPush(!isSend, msg, len + 2);
+			freeSemaphore(!isSend);
+		} else {
+			ringBufferPushAddHook(!isSend, msg, len + 2);
+		}
 	}
+#endif
 }
 
 static void workInQueue()
 {
+	const uchar starString[] = "*";
+	const uint8_t isSend = true;
 	static uint32_t cntr = 0;
 
 #if 1  // XXX REMOVE ME!
 	if (cntr++ > 100000) {
 		cntr = 0;
-		ringBufferPush(false, (uchar*) "*", 1);
+		if (getSemaphore(!isSend)) {
+			ringBufferPush(!isSend, starString, sizeof(starString));
+			freeSemaphore(!isSend);
+		} else {
+			ringBufferPushAddHook(!isSend, starString, sizeof(starString));
+		}
 	}
 #endif
 
-	enum RINGBUFFER_MSG_STATUS_t status = getStatusNextMsg(true);
-	if (status & RINGBUFFER_MSG_STATUS_AVAIL) {
-		if (status & RINGBUFFER_MSG_STATUS_IS_NMEA) {
-			serial_pullAndSendNmea(true);
+	if (getSemaphore(isSend)) {
+		enum RINGBUFFER_MSG_STATUS_t status = getStatusNextMsg(isSend);
+		if (status & RINGBUFFER_MSG_STATUS_AVAIL) {
+			if (status & RINGBUFFER_MSG_STATUS_IS_NMEA) {
+				serial_pullAndSendNmea_havingSemaphore(isSend);
 
-		} else if ((status & RINGBUFFER_MSG_STATUS_IS_MASK) == 0) {
-			mainCtxtBufferIdx = ringBufferPull(true, mainCtxtBuffer, (uint8_t) sizeof(mainCtxtBuffer));
-			doInterpret(mainCtxtBuffer, mainCtxtBufferIdx);
+			} else if ((status & RINGBUFFER_MSG_STATUS_IS_MASK) == 0) {
+				mainCtxtBufferIdx = ringBufferPull(isSend, mainCtxtBuffer, (uint8_t) sizeof(mainCtxtBuffer));
+				freeSemaphore(isSend);
+				doInterpret(mainCtxtBuffer, mainCtxtBufferIdx);
+			}
 		}
 	}
 }

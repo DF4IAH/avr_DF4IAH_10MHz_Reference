@@ -14,8 +14,17 @@
 #include "usbdrv_fw/usbdrv.h"
 
 
-#define RINGBUFFER_SEND_SIZE	254
-#define RINGBUFFER_RCV_SIZE		254
+#ifndef true
+# define true 1
+#endif
+#ifndef false
+# define false 0
+#endif
+
+
+#define RINGBUFFER_SEND_SIZE	128
+#define RINGBUFFER_RCV_SIZE		128
+#define RINGBUFFER_HOOK_SIZE	128
 
 #define MSG_PATTERN_NMEA		'$'
 
@@ -27,7 +36,11 @@ enum RINGBUFFER_MSG_STATUS_t {
 };
 
 
-uint8_t ringBufferPush(uint8_t isSend, uchar inData[], uint8_t len);
+uint8_t getSemaphore(uint8_t isSend);
+void freeSemaphore(uint8_t isSend);
+
+uint8_t ringBufferPush(uint8_t isSend, const uchar inData[], uint8_t len);
+void ringBufferPushAddHook(uint8_t isSend, const uchar inData[], uint8_t len);
 uint8_t ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size);
 enum RINGBUFFER_MSG_STATUS_t getStatusNextMsg(uint8_t isSend);
 

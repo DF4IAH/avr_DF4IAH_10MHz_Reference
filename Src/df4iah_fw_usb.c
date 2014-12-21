@@ -7,10 +7,10 @@
 
 #include <stdint.h>
 #include <string.h>
-#include <avr/pgmspace.h>   /* required by usbdrv.h */
+#include <util/delay.h>
+#include <avr/pgmspace.h>									// required by usbdrv.h
 #include <avr/wdt.h>
 #include <avr/boot.h>
-#include <util/delay.h>
 
 #include "df4iah_fw_memory.h"
 #include "df4iah_fw_usb.h"
@@ -148,8 +148,8 @@ void usb_fw_init()
     usbDeviceConnect();
 	USB_INTR_ENABLE |= _BV(USB_INTR_ENABLE_BIT);
 
-	ringBufferPush(false, (uchar*) "  ", 2);				// TODO unknown why two characters are needed to work properly
-	ringBufferPush(true,  (uchar*) "  ", 2);				// TODO unknown why two characters are needed to work properly
+	//ringBufferPush(false, (uchar*) "  ", 2);				// TODO unknown why two characters are needed to work properly
+	//ringBufferPush(true,  (uchar*) "  ", 2);				// TODO unknown why two characters are needed to work properly
 }
 
 #ifdef RELEASE
@@ -205,6 +205,7 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 {
+	const uint8_t isSend = false;
 	uchar retLen = 0;
 
 	/* special communication TEST */
@@ -216,8 +217,14 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 		}
 	}
 
-	/* pull next message from the ring buffer and send it to the host IN */
-	return retLen + ringBufferPull(false, data + retLen, len);
+	if (getSemaphore(isSend)) {
+		/* pull next message from the ring buffer and send it to the host IN */
+		uint8_t pullLen = ringBufferPull(isSend, data + retLen, len);
+		freeSemaphore(isSend);
+		return retLen + pullLen;
+	} else {
+		return retLen;
+	}
 }
 
 /* usbFunctionWrite() is called when the host sends a chunk of data to the
@@ -228,6 +235,8 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 {
+	const uint8_t isSend = true;
+
 	/* append first or any substring to the inBuffer */
 	if (cntSend > len) {
 		cntSend -= len;
@@ -243,7 +252,13 @@ USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 			usbIsrCtxtBuffer[usbIsrCtxtBufferIdx] = 0;
 
 			/* push OUT string (send) from host to the USB function's ring buffer */
-			ringBufferPush(true, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
+			if (getSemaphore(isSend)) {
+				ringBufferPush(isSend, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
+				freeSemaphore(isSend);
+
+			} else {
+				ringBufferPushAddHook(isSend, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
+			}
 		}
 
 		usbIsrCtxtBufferIdx = cntSend = 0;

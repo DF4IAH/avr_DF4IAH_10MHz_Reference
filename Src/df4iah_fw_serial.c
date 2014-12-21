@@ -61,7 +61,7 @@ uint8_t serial_fw_recvchar(void)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
-void serial_pullAndSendNmea(uint8_t isSend)
+void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 {
 
 }
