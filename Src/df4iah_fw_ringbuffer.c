@@ -90,12 +90,12 @@ uint8_t ringBufferPush(uint8_t isSend, const uchar inData[], uint8_t len)
 		uint8_t lenTop = min((pullIdx > pushIdx ?  (pullIdx - pushIdx - 1) : bufferSize - pushIdx - (!pullIdx ?  1 : 0)), len);
 		uint8_t lenBot = min((pullIdx > pushIdx ?  0 : pullIdx - 1), len - lenTop);
 
-		if (lenTop > 0) {
+		if (lenTop) {
 			memcpy(&(ringBuffer[pushIdx]), inData, lenTop);
 			retLen += lenTop;
 		}
 
-		if (lenBot > 0) {
+		if ((lenBot > 0) && (lenBot < 254)) {
 			memcpy(&(ringBuffer[0]), &(inData[lenTop]), lenBot);
 			retLen += lenBot;
 		}
@@ -140,12 +140,12 @@ uint8_t ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size)
 		uint8_t lenTop = min((pushIdx > pullIdx ?  (pushIdx - pullIdx) : bufferSize - pullIdx), size);
 		uint8_t lenBot = min((pushIdx > pullIdx ?  0 : pushIdx), size - lenTop);
 
-		if (lenTop > 0) {
+		if (lenTop) {
 			memcpy(outData, &(ringBuffer[pullIdx]), lenTop);
 			len += lenTop;
 		}
 
-		if (lenBot > 0) {
+		if ((lenBot > 0) && (lenBot < 254)) {
 			memcpy(&(outData[lenTop]), &(ringBuffer[0]), lenBot);
 			len += lenBot;
 		}

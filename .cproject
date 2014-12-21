@@ -4,14 +4,14 @@
 		<cconfiguration id="de.innot.avreclipse.configuration.app.debug.517072529">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.debug.517072529" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<macros>
-					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
-					<stringMacro name="MT_Firmware_ClkPullPwm" type="VALUE_TEXT" value="0x6F00"/>
+					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="MT_Bootloader_Memory" type="VALUE_TEXT" value="0x7B00"/>
+					<stringMacro name="MT_Firmware_ClkPullPwm" type="VALUE_TEXT" value="0x6F00"/>
 					<stringMacro name="MT_Firmware_Memory" type="VALUE_TEXT" value="0x6B00"/>
 					<stringMacro name="MT_Firmware_Usb" type="VALUE_TEXT" value="0x6700"/>
-					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x5000"/>
 					<stringMacro name="MT_Bootloader_ClkPullPwm" type="VALUE_TEXT" value="0x7F00"/>
+					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x5000"/>
 					<stringMacro name="MT_Bootloader_Probe" type="VALUE_TEXT" value="0x7F80"/>
 					<stringMacro name="DEBUG" type="VALUE_TEXT" value="1"/>
 				</macros>
@@ -86,7 +86,7 @@
 							<tool id="de.innot.avreclipse.tool.archiver.winavr.base.1339947040" name="AVR Archiver" superClass="de.innot.avreclipse.tool.archiver.winavr.base"/>
 							<tool id="de.innot.avreclipse.tool.objdump.winavr.app.debug.877528072" name="AVR Create Extended Listing" superClass="de.innot.avreclipse.tool.objdump.winavr.app.debug"/>
 							<tool id="de.innot.avreclipse.tool.objcopy.flash.winavr.app.debug.259484130" name="AVR Create Flash image" superClass="de.innot.avreclipse.tool.objcopy.flash.winavr.app.debug">
-								<option id="de.innot.avreclipse.objcopy.option.flash.addopts.1859865126" name="Additional Options for objcopy" superClass="de.innot.avreclipse.objcopy.option.flash.addopts" value="-b 28672" valueType="string"/>
+								<option id="de.innot.avreclipse.objcopy.option.flash.addopts.1859865126" name="Additional Options for objcopy" superClass="de.innot.avreclipse.objcopy.option.flash.addopts" value="" valueType="string"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.objcopy.eeprom.winavr.app.debug.1867168016" name="AVR Create EEPROM image" superClass="de.innot.avreclipse.tool.objcopy.eeprom.winavr.app.debug"/>
 							<tool id="de.innot.avreclipse.tool.size.winavr.app.debug.712380076" name="Print Size" superClass="de.innot.avreclipse.tool.size.winavr.app.debug"/>
@@ -105,14 +105,14 @@
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.1034531880">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.1034531880" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<macros>
-					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
-					<stringMacro name="MT_Firmware_ClkPullPwm" type="VALUE_TEXT" value="0x6F00"/>
+					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="MT_Bootloader_Memory" type="VALUE_TEXT" value="0x7B00"/>
+					<stringMacro name="MT_Firmware_ClkPullPwm" type="VALUE_TEXT" value="0x6F00"/>
 					<stringMacro name="MT_Firmware_Memory" type="VALUE_TEXT" value="0x6B00"/>
 					<stringMacro name="MT_Firmware_Usb" type="VALUE_TEXT" value="0x6700"/>
-					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x6000"/>
 					<stringMacro name="MT_Bootloader_ClkPullPwm" type="VALUE_TEXT" value="0x7F00"/>
+					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x6000"/>
 					<stringMacro name="MT_Bootloader_Probe" type="VALUE_TEXT" value="0x7F80"/>
 					<stringMacro name="RELEASE" type="VALUE_TEXT" value="1"/>
 				</macros>
