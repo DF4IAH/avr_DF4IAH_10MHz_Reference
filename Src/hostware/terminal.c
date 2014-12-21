@@ -136,6 +136,7 @@ uint8_t fw_ringBufferPush(uint8_t isSend, const uchar inData[], uint8_t len)
 			retLen += lenBot;
 		}
 
+		printf("Push1: before usbRingBufferSendPushIdx=%d\tusbRingBufferRcvPushIdx=%d\tlenTop=%d\tlenBot=%d\n", usbRingBufferSendPushIdx, usbRingBufferRcvPushIdx, lenTop, lenBot);	// XXX REMOVE ME!
 		// advance the index
 		if (isSend) {
 			usbRingBufferSendPushIdx += retLen;
@@ -144,6 +145,7 @@ uint8_t fw_ringBufferPush(uint8_t isSend, const uchar inData[], uint8_t len)
 			usbRingBufferRcvPushIdx += retLen;
 			usbRingBufferRcvPushIdx %= bufferSize;
 		}
+		printf("Push2: after  usbRingBufferSendPushIdx=%d\tusbRingBufferRcvPushIdx=%d\n\n", usbRingBufferSendPushIdx, usbRingBufferRcvPushIdx);										// XXX REMOVE ME!
 	}
 	return retLen;
 }
@@ -182,6 +184,7 @@ uint8_t fw_ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size)
 
 		outData[len] = 0;									// due to the security ending 0, we have to reduce the usable len by one
 
+		printf("Pull1: before usbRingBufferSendPullIdx=%d\tusbRingBufferRcvPullIdx=%d\tlenTop=%d\tlenBot=%d\n", usbRingBufferSendPullIdx, usbRingBufferRcvPullIdx, lenTop, lenBot);	// XXX REMOVE ME!
 		// advance the index
 		if (isSend) {
 			usbRingBufferSendPullIdx += len;
@@ -190,6 +193,7 @@ uint8_t fw_ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size)
 			usbRingBufferRcvPullIdx += len;
 			usbRingBufferRcvPullIdx %= bufferSize;
 		}
+		printf("Pull2: after  usbRingBufferSendPullIdx=%d\tusbRingBufferRcvPullIdx=%d\t\t\t\t\tstring=%s\n\n", usbRingBufferSendPullIdx, usbRingBufferRcvPullIdx, outData);			// XXX REMOVE ME!
 	} else if (!size) {
 		outData[0] = 0;
 	}

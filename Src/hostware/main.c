@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 #ifdef DEBUG
 	{
 		const uint8_t isSend = false;
-		const uchar bufferTestIn[3] = { 0x01, 0x02, 0x03 };
+		const uchar bufferTestIn[3] = { '1', '2', '3' };
 		uchar bufferTestOut[3] = { 0 };
 
 		for (;;) {
