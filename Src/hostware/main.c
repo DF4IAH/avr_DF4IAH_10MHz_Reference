@@ -47,6 +47,29 @@ static void usage(char *name)
 
 int main(int argc, char **argv)
 {
+#ifdef DEBUG
+	{
+		const uint8_t isSend = false;
+		const uchar bufferTestIn[3] = { 0x01, 0x02, 0x03 };
+		uchar bufferTestOut[RINGBUFFER_SEND_SIZE] = { 0 };
+
+		for (;;) {
+			/* pull data */
+			if (fw_getSemaphore(isSend)) {
+				uint8_t retLen = fw_ringBufferPull(isSend, bufferTestOut, sizeof(bufferTestOut));
+				fw_freeSemaphore(isSend);
+			}
+
+			/* push data */
+			if (fw_getSemaphore(isSend)) {
+				uint8_t retLen = fw_ringBufferPush(isSend, bufferTestIn, sizeof(bufferTestIn));
+				fw_freeSemaphore(isSend);
+			}
+		}
+	}
+	return 0;
+#endif
+
 	const unsigned char rawVid[2] 	= { USB_CFG_VENDOR_ID };
 	const unsigned char rawPid[2]	= { USB_CFG_DEVICE_ID };
 	char vendor[] 					= { USB_CFG_VENDOR_NAME, 0 };
