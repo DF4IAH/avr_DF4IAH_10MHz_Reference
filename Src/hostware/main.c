@@ -25,7 +25,9 @@ respectively.
 #include "firmware/usbconfig.h"								/* device's VID/PID and names */
 
 
-#define ENABLE_TEST 1
+#define ENABLE_TEST
+//#define TEST_RINGBUFFER
+#define TEST_SEMAPHORE
 
 
 usb_dev_handle* handle 			= NULL;
@@ -34,13 +36,8 @@ usb_dev_handle* handle 			= NULL;
 static void usage(char *name)
 {
     fprintf(stderr, "usage:\n");
-#if 0
-    fprintf(stderr, "  %s on ....... turn on LED\n", name);
-    fprintf(stderr, "  %s off ...... turn off LED\n", name);
-    fprintf(stderr, "  %s status ... ask current status of LED\n", name);
-#endif
     fprintf(stderr, "  %s terminal.. activates terminal transfer\n", name);
-#if ENABLE_TEST
+#ifdef ENABLE_TEST
     fprintf(stderr, "  %s test ..... run driver reliability test\n", name);
 #endif /* ENABLE_TEST */
 }
@@ -51,21 +48,75 @@ int main(int argc, char **argv)
 	{
 		const uint8_t isSend = false;
 		const uchar bufferTestIn[3] = { '1', '2', '3' };
-		uchar bufferTestOut[3] = { 0 };
 
-		for (;;) {
-			/* pull data */
-			if (fw_getSemaphore(isSend)) {
-				uint8_t retLen = fw_ringBufferPull(isSend, bufferTestOut, sizeof(bufferTestOut));
-				fw_freeSemaphore(isSend);
-			}
+#ifdef TEST_RINGBUFFER
+		{
+			uchar bufferTestOut1[3] = { 0 };
 
-			/* push data */
-			if (fw_getSemaphore(isSend)) {
-				uint8_t retLen = fw_ringBufferPush(isSend, bufferTestIn, sizeof(bufferTestIn));
-				fw_freeSemaphore(isSend);
+			for (;;) {
+				/* pull data */
+				if (fw_getSemaphore(isSend)) {
+					uint8_t retLen = fw_ringBufferPull(isSend, bufferTestOut1, (uint8_t) sizeof(bufferTestOut1));
+					fw_freeSemaphore(isSend);
+				}
+
+				/* push data */
+				if (fw_getSemaphore(isSend)) {
+					uint8_t retLen = fw_ringBufferPush(isSend, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
+					fw_freeSemaphore(isSend);
+				}
 			}
 		}
+#endif
+
+#ifdef TEST_SEMAPHORE
+		{
+			uchar bufferTestOut2[128] = { 0 };
+			uint8_t retLen = 0;
+
+			/* STEP 1 */
+			/* push */
+			if (fw_getSemaphore(isSend)) {
+				retLen = fw_ringBufferPush(isSend, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
+				fw_freeSemaphore(isSend);
+			}
+
+			/* pull */
+			if (fw_getSemaphore(isSend)) {
+				retLen = fw_ringBufferPull(isSend, bufferTestOut2, (uint8_t) sizeof(bufferTestOut2));
+				fw_freeSemaphore(isSend);
+			}
+			printf("TEST_SEMAPHORE - STEP1 - RESULT: retLen=%d, '%s'\n", retLen, bufferTestOut2);
+
+			/* STEP 2 */
+			/* pushing ... */
+			if (fw_getSemaphore(isSend)) {
+				retLen = fw_ringBufferPush(isSend, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
+			// fw_freeSemaphore(isSend);	// <-- "FUNCTION ABOVE NOT FINISHED YET"
+			}
+
+			/* ... during second instance tries to push */
+			if (fw_getSemaphore(isSend)) {
+				retLen = fw_ringBufferPush(isSend, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
+				fw_freeSemaphore(isSend);
+			} else {
+				fw_ringBufferPushAddHook(isSend, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
+			}
+
+			/* ... now the first instances completes */
+			// if (fw_getSemaphore(isSend)) {
+			//	retLen = fw_ringBufferPush(isSend, bufferTestIn, sizeof(bufferTestIn));
+				fw_freeSemaphore(isSend);	// <-- this completes the function now
+			// }
+
+			/* ... look, what we get in return */
+			if (fw_getSemaphore(isSend)) {
+				retLen = fw_ringBufferPull(isSend, bufferTestOut2, (uint8_t) sizeof(bufferTestOut2));
+				fw_freeSemaphore(isSend);
+			}
+			printf("TEST_SEMAPHORE - STEP2 - RESULT: retLen=%d, '%s'\n", retLen, bufferTestOut2);
+		}
+#endif
 	}
 	return 0;
 #endif
@@ -122,7 +173,7 @@ int main(int argc, char **argv)
 	if (strcasecmp(argv[1], "terminal") == 0) {
 		terminal();
 
-#if ENABLE_TEST
+#ifdef ENABLE_TEST
 	} else if (strcasecmp(argv[1], "test1") == 0) {  /* testing USB messaging */
 		srandomdev();
 		for (int i = 0; i < 50000; i++) {
