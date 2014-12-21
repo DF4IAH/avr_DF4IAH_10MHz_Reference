@@ -312,7 +312,7 @@ void usb_yield()
 	/* USB OUT */
 	if (usbRingBufferSendPushIdx != usbRingBufferSendPullIdx) {
 		int lenTx = ringBufferPull(true, usbMsg, sizeof(usbMsg));
-#if TEST_DATATRANSFER_USB
+#ifdef TEST_DATATRANSFER_USB
 		int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
 		mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 		if (usbRetLen >= 0) {
@@ -328,7 +328,7 @@ void usb_yield()
 	/* USB IN */
 	if (!(((usbRingBufferRcvPushIdx + 1) == usbRingBufferRcvPullIdx) || (((usbRingBufferRcvPushIdx + 1) == RINGBUFFER_RCV_SIZE) && !usbRingBufferRcvPullIdx))) {
         int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_RECV, 0, 0, usbMsg, sizeof(usbMsg), USB_CFG_INTR_POLL_INTERVAL - 5);
-#if TEST_DATATRANSFER_USB
+#ifdef TEST_DATATRANSFER_USB
         mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 #endif
         if (usbRetLen > 0) {
@@ -338,12 +338,12 @@ void usb_yield()
 				}
 			}
 			usbMsg[usbRetLen] = 0;
-#if TEST_DATATRANSFER_USB
+#ifdef TEST_DATATRANSFER_USB
 			mvprintw(LINES - 7 + (errLine++ % 7), 20, "IN  Data: usbRetLen=%d msg=%s.   ", usbRetLen, usbMsg);
 #endif
         	ringBufferPush(false, usbMsg, usbRetLen);
 		} else if (usbRetLen < 0) {
-#if TEST_DATATRANSFER_USB
+#ifdef TEST_DATATRANSFER_USB
         	mvprintw(LINES - 7 + (errLine++ % 7), 20, "USB error -  IN: %s\n", usb_strerror());
 #endif
         }
@@ -473,7 +473,7 @@ void terminal()
 	char outLine[MSGBUFFER_SIZE] = { 0 };
 	int inLineCnt = 0;
 	int outLineCnt = 0;
-#if TEST_DATATRANSFER_PANEL
+#ifdef TEST_DATATRANSFER_PANEL
 	int idleCnt = 0;
 #endif
 
@@ -486,7 +486,7 @@ void terminal()
 	char loop = 1;
 	do {
 		/* transfer field */
-#if TEST_DATATRANSFER_PANEL
+#ifdef TEST_DATATRANSFER_PANEL
 		if (++idleCnt > 5) {
 			static char toggle = 0;
 			toggle = !toggle;
@@ -589,7 +589,7 @@ void terminal()
 		}
 #endif
 
-#if TEST_DATATRANSFER_SLOW
+#ifdef TEST_DATATRANSFER_SLOW
 		nextTime += 250000;
 #else
 		nextTime += (USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000;
