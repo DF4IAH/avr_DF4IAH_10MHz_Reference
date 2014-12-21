@@ -31,7 +31,10 @@ enum RINGBUFFER_MSG_STATUS_t {
 
 #endif
 
-#define MSGBUFFER_SIZE			254
+#define MSGBUFFER_SIZE			128
+
+
+#define TEST_DATATRANSFER_USB_TEST2							// activate on request
 
 
 /* -- 8< --  RINGBUFFERS */

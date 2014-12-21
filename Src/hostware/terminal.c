@@ -43,6 +43,7 @@ enum E_COLOR_PAIRS_t {
 	E_COLOR_PAIR_SEND_GPS,
 	E_COLOR_PAIR_RCV_MAIN,
 	E_COLOR_PAIR_RCV_GPS,
+	E_COLOR_PAIR_DEBUGGING
 };
 
 
@@ -365,6 +366,7 @@ static void ncurses_init(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_tx
 		init_pair(E_COLOR_PAIR_SEND_GPS, COLOR_WHITE, COLOR_RED);
 		init_pair(E_COLOR_PAIR_RCV_MAIN, COLOR_BLUE, 252);	// 15, 252
 		init_pair(E_COLOR_PAIR_RCV_GPS, COLOR_BLUE, COLOR_WHITE);
+		init_pair(E_COLOR_PAIR_DEBUGGING, COLOR_YELLOW, COLOR_BLACK);
 	}
 
 	/* Key input */
@@ -467,8 +469,8 @@ void terminal()
 	WINDOW* win_rx = NULL;
 	WINDOW* win_tx = NULL;
 	struct timeval nowTime;
-	char inLine[1024] = { 0 };
-	char outLine[1024] = { 0 };
+	char inLine[MSGBUFFER_SIZE] = { 0 };
+	char outLine[MSGBUFFER_SIZE] = { 0 };
 	int inLineCnt = 0;
 	int outLineCnt = 0;
 #if TEST_DATATRANSFER_PANEL
@@ -496,6 +498,11 @@ void terminal()
 		}
 #else
 		inLineCnt = usb_controlIn(inLine, sizeof(inLine));
+# ifdef TEST_DATATRANSFER_USB_TEST2
+			char debugBuffer[MSGBUFFER_SIZE] = { 0 };
+			sprintf(debugBuffer, " usb_controlIn: inLineCnt=%d ", inLineCnt);
+			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_DEBUGGING, 0);
+# endif
 #endif
 		if (inLineCnt) {
 			enum E_COLOR_PAIRS_t thisColor = E_COLOR_PAIR_RCV_MAIN;
