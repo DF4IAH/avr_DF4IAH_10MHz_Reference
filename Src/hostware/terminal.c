@@ -43,7 +43,8 @@ enum E_COLOR_PAIRS_t {
 	E_COLOR_PAIR_SEND_GPS,
 	E_COLOR_PAIR_RCV_MAIN,
 	E_COLOR_PAIR_RCV_GPS,
-	E_COLOR_PAIR_DEBUGGING
+	E_COLOR_PAIR_DEBUGGING_IN,
+	E_COLOR_PAIR_DEBUGGING_OUT
 };
 
 
@@ -361,12 +362,13 @@ static void ncurses_init(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_tx
 	if (has_colors()) {
 		start_color();
 		use_default_colors();
-		init_pair(E_COLOR_PAIR_TITLE, COLOR_WHITE, COLOR_RED);
-		init_pair(E_COLOR_PAIR_SEND_MAIN, COLOR_YELLOW, COLOR_RED);
-		init_pair(E_COLOR_PAIR_SEND_GPS, COLOR_WHITE, COLOR_RED);
-		init_pair(E_COLOR_PAIR_RCV_MAIN, COLOR_BLUE, 252);	// 15, 252
-		init_pair(E_COLOR_PAIR_RCV_GPS, COLOR_BLUE, COLOR_WHITE);
-		init_pair(E_COLOR_PAIR_DEBUGGING, COLOR_YELLOW, COLOR_BLACK);
+		init_pair(E_COLOR_PAIR_TITLE,			COLOR_WHITE, COLOR_RED);
+		init_pair(E_COLOR_PAIR_SEND_MAIN,		COLOR_YELLOW, COLOR_RED);
+		init_pair(E_COLOR_PAIR_SEND_GPS,		COLOR_WHITE, COLOR_RED);
+		init_pair(E_COLOR_PAIR_RCV_MAIN,		COLOR_BLUE, 252);	// 15, 252
+		init_pair(E_COLOR_PAIR_RCV_GPS,			COLOR_BLUE, COLOR_WHITE);
+		init_pair(E_COLOR_PAIR_DEBUGGING_IN,	COLOR_YELLOW, COLOR_BLACK);
+		init_pair(E_COLOR_PAIR_DEBUGGING_OUT,	COLOR_WHITE, COLOR_BLACK);
 	}
 
 	/* Key input */
@@ -500,8 +502,8 @@ void terminal()
 		inLineCnt = usb_controlIn(inLine, sizeof(inLine));
 # ifdef TEST_DATATRANSFER_USB_TEST2
 			char debugBuffer[MSGBUFFER_SIZE] = { 0 };
-			sprintf(debugBuffer, " usb_controlIn: inLineCnt=%03d ", inLineCnt);
-			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_DEBUGGING, 0);
+			sprintf(debugBuffer, " usb_controlIn:   inLineCnt=%03d ", inLineCnt);
+			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_DEBUGGING_IN, 0);
 # endif
 #endif
 		if (inLineCnt) {
@@ -541,6 +543,11 @@ void terminal()
 				   continue;
 				}
 
+# ifdef TEST_DATATRANSFER_USB_TEST2
+			char debugBuffer[MSGBUFFER_SIZE] = { 0 };
+			sprintf(debugBuffer, " usb_controlOut: outLineCnt=%03d ", outLineCnt);
+			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_DEBUGGING_OUT, 0);
+# endif
 				usb_controlOut(outLine, outLineCnt);
 
 				{
