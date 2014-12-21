@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 	{
 		const uint8_t isSend = false;
 		const uchar bufferTestIn[3] = { 0x01, 0x02, 0x03 };
-		uchar bufferTestOut[RINGBUFFER_SEND_SIZE] = { 0 };
+		uchar bufferTestOut[3] = { 0 };
 
 		for (;;) {
 			/* pull data */
