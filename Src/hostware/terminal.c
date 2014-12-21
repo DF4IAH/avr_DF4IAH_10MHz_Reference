@@ -394,7 +394,7 @@ static void ncurses_init(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_tx
 	mvprintw(1, 1, " Transfer window ");
 	mvprintw(LINES - 10, 1, " Send edit field ");
 	attron(A_REVERSE);
-	mvprintw(LINES - 2, COLS / 2 - 6, " Press F1 to exit ");
+	mvprintw(LINES - 2, COLS / 2 - 16, " Press F1 to exit, F2 to exit delayed ");
 	attroff(A_BOLD | A_REVERSE);
 
 	/* Cursor positioning */
@@ -500,7 +500,7 @@ void terminal()
 		inLineCnt = usb_controlIn(inLine, sizeof(inLine));
 # ifdef TEST_DATATRANSFER_USB_TEST2
 			char debugBuffer[MSGBUFFER_SIZE] = { 0 };
-			sprintf(debugBuffer, " usb_controlIn: inLineCnt=%d ", inLineCnt);
+			sprintf(debugBuffer, " usb_controlIn: inLineCnt=%03d ", inLineCnt);
 			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_DEBUGGING, 0);
 # endif
 #endif
@@ -522,6 +522,11 @@ void terminal()
 		int c = getch();
 		switch (c) {
 		case KEY_F(1):
+			loop = 0;
+			break;
+
+		case KEY_F(2):
+			sleep(30);
 			loop = 0;
 			break;
 
