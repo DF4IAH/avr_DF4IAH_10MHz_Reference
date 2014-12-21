@@ -30,12 +30,6 @@ uint8_t usbRingBufferHookIsSend = 0;
 #endif
 
 
-// #define TEST_DATATRANSFER_PANEL	1
-// #define TEST_DATATRANSFER_USB	1
-// #define TEST_DATATRANSFER_SLOW	1
-
-
-
 /* the color pair index */
 enum E_COLOR_PAIRS_t {
 	E_COLOR_PAIR_TITLE = 1,
