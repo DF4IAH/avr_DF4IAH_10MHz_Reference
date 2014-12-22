@@ -20,8 +20,8 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 void serial_fw_init()
 {
 	// set baud rate
-	UART_BAUD_HIGH = ((UART_CALC_BAUDRATE(BAUDRATE)>>8) & 0xFF);
-	UART_BAUD_LOW  = ( UART_CALC_BAUDRATE(BAUDRATE)     & 0xFF);
+	UART_BAUD_HIGH = ((UART_CALC_BAUDRATE(DEFAULT_BAUDRATE)>>8) & 0xFF);
+	UART_BAUD_LOW  = ( UART_CALC_BAUDRATE(DEFAULT_BAUDRATE)     & 0xFF);
 
 #ifdef UART_DOUBLESPEED
 	UART_STATUS = (1<<UART_DOUBLE);

@@ -10,7 +10,7 @@
 
 
 enum ENUM_CLKOUT_t {
-	ENUM_CLKOUT_OFF = 0,
+	ENUM_CLKOUT_OFF 										= 0,
 	ENUM_CLKOUT_ON
 };
 

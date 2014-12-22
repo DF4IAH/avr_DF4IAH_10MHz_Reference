@@ -15,9 +15,6 @@
 #define min(a,b) ((a) < (b) ?  (a) : (b))
 
 
-extern uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE];
-extern uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
-extern uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE];
 extern uint8_t usbRingBufferSendPushIdx;
 extern uint8_t usbRingBufferSendPullIdx;
 extern uint8_t usbRingBufferRcvPushIdx;
@@ -26,6 +23,10 @@ extern uint8_t usbRingBufferSendSemaphore;
 extern uint8_t usbRingBufferRcvSemaphore;
 extern uint8_t usbRingBufferHookLen;
 extern uint8_t usbRingBufferHookIsSend;
+
+extern uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE];
+extern uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
+extern uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE];
 
 
 #ifdef RELEASE
@@ -95,14 +96,14 @@ uint8_t ringBufferPush(uint8_t isSend, const uchar inData[], uint8_t len)
 	if (!(((pushIdx + 1) == pullIdx) || (((pushIdx + 1) == bufferSize) && !pullIdx))) {
 		uchar* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
 		uint8_t lenTop = min((pullIdx > pushIdx ?  (pullIdx - pushIdx - 1) : bufferSize - pushIdx - (!pullIdx ?  1 : 0)), len);
-		uint8_t lenBot = min((pullIdx > pushIdx ?  0 : pullIdx - 1), len - lenTop);
+		uint8_t lenBot = min((((pullIdx > pushIdx) && !pullIdx) ?  0 : pullIdx - 1), len - lenTop);
 
 		if (lenTop) {
 			memcpy(&(ringBuffer[pushIdx]), inData, lenTop);
 			retLen += lenTop;
 		}
 
-		if ((lenBot > 0) && (lenBot < 254)) {
+		if (lenBot) {
 			memcpy(&(ringBuffer[0]), &(inData[lenTop]), lenBot);
 			retLen += lenBot;
 		}
@@ -152,7 +153,7 @@ uint8_t ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size)
 			len += lenTop;
 		}
 
-		if ((lenBot > 0) && (lenBot < 254)) {
+		if (lenBot) {
 			memcpy(&(outData[lenTop]), &(ringBuffer[0]), lenBot);
 			len += lenBot;
 		}

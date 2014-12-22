@@ -23,11 +23,11 @@
  * Watchdog-reset is issued at exit
  * define the timeout-value here (see avr-libc manual)
  */
-#define EXIT_WDT_TIME	WDTO_250MS
+#define EXIT_WDT_TIME										WDTO_250MS
 
 
-#define VERSION_HIGH '141'
-#define VERSION_LOW  '219'
+#define VERSION_HIGH										'141'
+#define VERSION_LOW											'222'
 
 
 int main(void);

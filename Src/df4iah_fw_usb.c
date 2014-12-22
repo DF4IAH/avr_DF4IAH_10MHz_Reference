@@ -21,14 +21,14 @@
 #define min(a,b) ((a) < (b) ?  (a) : (b))
 
 
-extern uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE];
-extern uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE];
 extern uint16_t cntRcv;
 extern uint16_t cntSend;
 extern uint8_t usbIsrCtxtBufferIdx;
+extern uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE];
+extern uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE];
 
-static uint8_t doTest = 0;
-static uint8_t doTestCntr = 0;
+static uint8_t doTest 										= 0;
+static uint8_t doTestCntr 									= 0;
 
 
 #if USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH

@@ -14,13 +14,31 @@
 
 
 typedef struct eeprom_layout {
-	uint16_t		reserved[8];
+	/* BLOCK_00:    HEADER-INFO */
+	uint8_t			b00_header[16];
+	uint16_t		b00_version;
+	uint16_t		b00_reserved[6];
+	uint16_t		b00_crc;
 
-	uint16_t		crc_df4iah;
-	uint16_t		version;
-	uint16_t		pwm_pull_avg;
+	/* BLOCK_01:    REFERENCE OSCILLATOR */
+	uint16_t		b01_temp_25c_adc_offset;
+	uint16_t		b01_temp_25c_adc_factor;
+	uint16_t		b01_temp_drift_factor;
+	uint16_t		b01_pwm_25c_pull;
+	uint16_t		b01_pwm_pull_ppm_factor;
+	uint16_t		b01_reserved[10];
+	uint16_t		b01_crc;
 
-	uint16_t		reserved_df4iah[512 - 8 - 3];
+	/* BLOCK_02:    GPS */
+	uint16_t		b02_serial_baud;
+	uint16_t		b02_serial_bitsParityStopbits;
+	uint16_t		b02_gps_comm_mode;
+	uint16_t		b02_last_fix;
+	uint16_t		b02_reserved[11];
+	uint16_t		b02_crc;
+
+	/* unassigned BLOCKS */
+	uint16_t		bxx_reserved[512 - 48];
 } eeprom_layout_t;
 
 

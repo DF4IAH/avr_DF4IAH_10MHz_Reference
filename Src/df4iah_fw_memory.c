@@ -80,12 +80,45 @@ void memory_fw_writeEEpromPage(uint8_t source[], pagebuf_t size, uint16_t baddr)
 #ifdef RELEASE
 __attribute__((section(".eeprom"), aligned(2)))
 #endif
-eeprom_layout_t eeprom_content = { 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,	// reserved
-		0xabcd,										// crc_df4iah
-		((141 << 8) | (204)),						// version	MSB: yr*10 + month / 10,  LSB: month % 10 + day
-		0x8000,										// pwm_pull_avg
+eeprom_layout_t eeprom_content = {
+		'D', 'F',									// b00_header
+		'4', 'I',
+		'A', 'H',
+		' ', '1',
+		'0', 'M',
+		'h', 'z',
+		'-', 'R',
+		'e', 'f',
+		((141 << 8) | (222)),						// b00_version	MSB: yr*10 + month / 10,  LSB: month % 10 + day
+		0xffff,
+		0xffff,
+		0xffff,
+		0xffff,
+		0xffff,
+		0xffff,
+		0xffff,										// b00_crc
 
-		0xffff,										// unused
+		0xffff,										// b01_temp_25c_adc_offset
+		0xffff,										// b01_temp_25c_adc_factor
+		0xffff,										// b01_temp_drift_factor
+		0xffff,										// b01_pwm_25c_pull
+		0xffff,										// b01_pwm_pull_ppm_factor
+		0xffff,
+		0xffff,
+		0xffff,
+		0xffff,
+		0xffff,
+		0xffff,
+		0xffff,
+		0xffff,
+		0xffff,
+		0xffff,
+		0xffff,										// b01_crc
+
+		0xffff,										// b02_serial_baud
+		0xffff,										// b02_serial_bitsParityStopbits
+		0xffff,										// b02_gps_comm_mode
+		0xffff,										// b02_last_fix
 		0xffff,
 		0xffff,
 		0xffff,
@@ -97,31 +130,8 @@ eeprom_layout_t eeprom_content = { 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xfff
 		0xffff,
 		0xffff,
 		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
+		0xffff,										// b02_crc
+
 		0xffff,
 		0xffff,
 		0xffff,

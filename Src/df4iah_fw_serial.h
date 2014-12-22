@@ -12,7 +12,10 @@
 /* UART Baudrate */
 // #define BAUDRATE 9600
 // #define BAUDRATE 19200
-#define BAUDRATE 115200
+#define DEFAULT_BAUDRATE											115200
+#define DEFAULT_BITS												8
+#define DEFAULT_PARITY_N0_O1_E2										0
+#define DEFAULT_STOPBITS											1
 
 /* use "Double Speed Operation" */
 //#define UART_DOUBLESPEED

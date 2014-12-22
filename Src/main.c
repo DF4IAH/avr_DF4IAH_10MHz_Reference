@@ -39,7 +39,7 @@
 
 
 #include <stdint.h>
-#include <avr/pgmspace.h>   /* required by usbdrv.h */
+#include <avr/pgmspace.h>   								// required by usbdrv.h
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
@@ -58,38 +58,48 @@
 #include "df4iah_fw_serial.h"
 
 
-#define MAINCTXT_BUFFER_SIZE			128
+#define MAINCTXT_BUFFER_SIZE								128
 
 
 // DATA SECTION
 
 /* main */
 void (*jump_to_app)(void) = 0x0000;
-uint8_t timer0Snapshot = 0x00;
-usbTxStatus_t usbTxStatus1 = { 0 }, usbTxStatus3 = { 0 };
-uint8_t isUsbCommTest = 0;
-uchar mainCtxtBuffer[MAINCTXT_BUFFER_SIZE] = { 0 };
-uint8_t mainCtxtBufferIdx = 0;
+volatile uint8_t timer0Snapshot 							= 0x00;
+uint8_t isUsbCommTest 										= false;
+volatile uint8_t mainCtxtBufferIdx 							= 0;
+usbTxStatus_t usbTxStatus1 									= { 0 },
+			  usbTxStatus3 									= { 0 };
 
 /* df4iah_fw_usb */
-uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE] = { 0 };
-uint8_t usbIsrCtxtBufferIdx = 0;
-uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] = { 0 };
-uint16_t cntRcv = 0;
-uint16_t cntSend = 0;
+volatile uint16_t cntRcv 									= 0;
+volatile uint16_t cntSend 									= 0;
+volatile uint8_t usbIsrCtxtBufferIdx 						= 0;
 
 /* df4iah_fw_ringbuffer */
-uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE] = { 0 };
-uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE] = { 0 };
-uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE] = { 0 };
-uint8_t usbRingBufferSendPushIdx = 0;
-uint8_t usbRingBufferSendPullIdx = 0;
-uint8_t usbRingBufferRcvPushIdx = 0;
-uint8_t usbRingBufferRcvPullIdx = 0;
-uint8_t usbRingBufferSendSemaphore = 0;						// semaphore is free
-uint8_t usbRingBufferRcvSemaphore = 0;						// semaphore is free
-uint8_t usbRingBufferHookLen = 0;
-uint8_t usbRingBufferHookIsSend = 0;
+volatile uint8_t usbRingBufferSendPushIdx 					= 0;
+volatile uint8_t usbRingBufferSendPullIdx 					= 0;
+volatile uint8_t usbRingBufferRcvPushIdx 					= 0;
+volatile uint8_t usbRingBufferRcvPullIdx 					= 0;
+volatile uint8_t usbRingBufferSendSemaphore 				= 0;  // semaphore is free
+volatile uint8_t usbRingBufferRcvSemaphore 					= 0;  // semaphore is free
+volatile uint8_t usbRingBufferHookLen 						= 0;
+volatile uint8_t usbRingBufferHookIsSend 					= 0;
+
+
+// ARRAYS - due to overwriting hazards they are following the controlling variables
+
+/* main */
+uchar mainCtxtBuffer[MAINCTXT_BUFFER_SIZE] 					= { 0 };
+
+/* df4iah_fw_usb */
+uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE] 				= { 0 };
+uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] 	= { 0 };
+
+/* df4iah_fw_ringbuffer */
+uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE] 				= { 0 };
+uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE] 				= { 0 };
+uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE] 				= { 0 };
 
 
 // STRINGS IN CODE SECTION

@@ -20,9 +20,9 @@
 #endif
 
 
-#define USBISRCTXT_BUFFER_SIZE			128
-#define USBSETUPCTXT_BUFFER_SIZE		8
-//#define HIDSERIAL_FEATUREBUFFER_SIZE 	32
+#define USBISRCTXT_BUFFER_SIZE								128
+#define USBSETUPCTXT_BUFFER_SIZE							8
+//#define HIDSERIAL_FEATUREBUFFER_SIZE 						32
 
 
 /* Setters & Getters */
