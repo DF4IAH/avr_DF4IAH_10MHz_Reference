@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <avr/interrupt.h>
 
+#include "df4iah_fw_ringbuffer.h"
 #include "df4iah_fw_serial.h"
 
 #include "main.h"
@@ -63,5 +64,8 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
 void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 {
+	/* get message */
+	freeSemaphore(isSend);
 
+	/* transport to serial device */
 }

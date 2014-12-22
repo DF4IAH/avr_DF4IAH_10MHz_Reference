@@ -86,8 +86,8 @@ uint8_t usbRingBufferSendPushIdx = 0;
 uint8_t usbRingBufferSendPullIdx = 0;
 uint8_t usbRingBufferRcvPushIdx = 0;
 uint8_t usbRingBufferRcvPullIdx = 0;
-uint8_t usbRingBufferSendSemaphore = 0;
-uint8_t usbRingBufferRcvSemaphore = 0;
+uint8_t usbRingBufferSendSemaphore = 0;						// semaphore is free
+uint8_t usbRingBufferRcvSemaphore = 0;						// semaphore is free
 uint8_t usbRingBufferHookLen = 0;
 uint8_t usbRingBufferHookIsSend = 0;
 
@@ -185,13 +185,14 @@ static void doInterpret(uchar msg[], uint8_t len)
 #if 1  // XXX REMOVE ME!
 	if (len > 0) {
 		msg[len] = '#';
-		msg[len + 1] = '0' + len;
-		msg[len + 2] = 0;
+		msg[len + 1] = '0' + ((len / 10) % 10);
+		msg[len + 2] = '0' + ( len       % 10);
 		if (getSemaphore(!isSend)) {
-			ringBufferPush(!isSend, msg, len + 2);
+			ringBufferPush(!isSend, msg, len + 3);
 			freeSemaphore(!isSend);
 		} else {
-			ringBufferPushAddHook(!isSend, msg, len + 2);
+			msg[len] = '!';
+			ringBufferPushAddHook(!isSend, msg, len + 3);
 		}
 	}
 #endif
@@ -199,7 +200,10 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 static void workInQueue()
 {
-	const uchar starString[] = "*";
+	const uchar starString[3] = "<A>";
+	const uchar hookString[3] = "<$>";
+	const uchar noSemString[3] = "<S>";
+	const uchar noSemHookString[3] = "<s>";
 	const uint8_t isSend = true;
 	static uint32_t cntr = 0;
 
@@ -210,23 +214,33 @@ static void workInQueue()
 			ringBufferPush(!isSend, starString, sizeof(starString));
 			freeSemaphore(!isSend);
 		} else {
-			ringBufferPushAddHook(!isSend, starString, sizeof(starString));
+			ringBufferPushAddHook(!isSend, hookString, sizeof(hookString));
 		}
 	}
 #endif
 
-	if (getSemaphore(isSend)) {
+	if (getSemaphore(isSend)) {  // TODO where is the bug?
 		enum RINGBUFFER_MSG_STATUS_t status = getStatusNextMsg(isSend);
 		if (status & RINGBUFFER_MSG_STATUS_AVAIL) {
 			if (status & RINGBUFFER_MSG_STATUS_IS_NMEA) {
 				serial_pullAndSendNmea_havingSemaphore(isSend);
 
-			} else if ((status & RINGBUFFER_MSG_STATUS_IS_MASK) == 0) {
+			} else if ((status & RINGBUFFER_MSG_STATUS_IS_MASK) == 0) {  // message from firmware state machine
 				mainCtxtBufferIdx = ringBufferPull(isSend, mainCtxtBuffer, (uint8_t) sizeof(mainCtxtBuffer));
 				freeSemaphore(isSend);
 				doInterpret(mainCtxtBuffer, mainCtxtBufferIdx);
 			}
 		}
+
+#if 1
+	} else {
+		if (getSemaphore(!isSend)) {
+			ringBufferPush(!isSend, noSemString, sizeof(noSemString));
+			freeSemaphore(!isSend);
+		} else {
+			ringBufferPushAddHook(!isSend, noSemHookString, sizeof(noSemHookString));
+		}
+#endif
 	}
 }
 

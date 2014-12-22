@@ -18,6 +18,9 @@
 #include "df4iah_fw_ringbuffer.h"
 
 
+#define min(a,b) ((a) < (b) ?  (a) : (b))
+
+
 extern uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE];
 extern uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE];
 extern uint16_t cntRcv;
@@ -110,21 +113,10 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 # endif
 void usb_fw_sendInInterrupt()
 {
+	static uchar bufferInt[5] = "<INT>";
 	/* send next packet if a new time-slot is ready to send */
 	if (usbInterruptIsReady()) {
-		//uchar* data = 0;
-		uchar len = 0;
-
-#if 0
-		/* TEST */
-		usbIsrCtxtBuffer[0] = 0x34;
-		usbIsrCtxtBuffer[1] = 0x12;
-		len = 2;
-#endif
-
-		if (len) {
-			usbSetInterrupt(usbIsrCtxtBuffer, len);
-		}
+		usbSetInterrupt(bufferInt, sizeof(bufferInt));
 	}
 }
 
@@ -147,9 +139,6 @@ void usb_fw_init()
 
     usbDeviceConnect();
 	USB_INTR_ENABLE |= _BV(USB_INTR_ENABLE_BIT);
-
-	//ringBufferPush(false, (uchar*) "  ", 2);				// TODO unknown why two characters are needed to work properly
-	//ringBufferPush(true,  (uchar*) "  ", 2);				// TODO unknown why two characters are needed to work properly
 }
 
 #ifdef RELEASE
@@ -206,22 +195,38 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 {
 	const uint8_t isSend = false;
-	uchar retLen = 0;
+	uint8_t retLen = 0;
 
 	/* special communication TEST */
 	if (doTest) {
 		if (cntRcv) {
+#if 1
 			data[retLen++] = '0' + (doTestCntr++ % 10);
-			data[retLen] = 0;
-			cntRcv = 0;
+#elif 0
+			data[retLen++] = '0' +  (   len / 100)      ;
+			data[retLen++] = '0' + ((   len /  10) % 10);
+			data[retLen++] = '0' + (    len        % 10);
+#else
+			data[retLen++] = '0' +  (cntRcv / 100)      ;
+			data[retLen++] = '0' + ((cntRcv /  10) % 10);
+			data[retLen++] = '0' + ( cntRcv        % 10);
+#endif
+			data[retLen++] = ':';
 		}
 	}
 
-	if (getSemaphore(isSend)) {
-		/* pull next message from the ring buffer and send it to the host IN */
-		uint8_t pullLen = ringBufferPull(isSend, data + retLen, len);
-		freeSemaphore(isSend);
-		return retLen + pullLen;
+	signed int readCnt = min(cntRcv, len) - retLen + 1;
+	if (readCnt > 0) {
+		if (getSemaphore(isSend)) {
+			/* pull next message from the ring buffer and send it to the host IN */
+			uint8_t pullLen = ringBufferPull(isSend, data + retLen, min(cntRcv, len) - retLen + 1);	// we accept that the final null byte is written behind the buffer
+			freeSemaphore(isSend);
+			cntRcv -= retLen + pullLen;
+			return retLen + pullLen;
+		} else {
+			strcpy((char*) data, "SemInUse");
+			return min(len, 8);
+		}
 	} else {
 		return retLen;
 	}
@@ -244,25 +249,24 @@ USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 		usbIsrCtxtBufferIdx += len;
 		return 0;											// go ahead with more transfer requests
 
-	/* append last substring to the inBuffer and push it to the ring buffer */
+	/* append last substring to the inBuffer and push it to the OUT ring buffer (host --> USB function) */
 	} else {
 		if (cntSend > 0) {
 			memcpy(&(usbIsrCtxtBuffer[usbIsrCtxtBufferIdx]), data, cntSend);
 			usbIsrCtxtBufferIdx += cntSend;
-			usbIsrCtxtBuffer[usbIsrCtxtBufferIdx] = 0;
+		}
 
-			/* push OUT string (send) from host to the USB function's ring buffer */
-			if (getSemaphore(isSend)) {
-				ringBufferPush(isSend, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
-				freeSemaphore(isSend);
+		/* push OUT string (send) from host to the USB function's ring buffer */
+		if (getSemaphore(isSend)) {
+			ringBufferPush(isSend, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
+			freeSemaphore(isSend);
 
-			} else {
-				ringBufferPushAddHook(isSend, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
-			}
+		} else {
+			ringBufferPushAddHook(isSend, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
 		}
 
 		usbIsrCtxtBufferIdx = cntSend = 0;
-		return 1;											// no more data needed
+		return 1;											// no more data transfers accepted
 	}
 }
 

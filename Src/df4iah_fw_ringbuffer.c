@@ -31,12 +31,13 @@ extern uint8_t usbRingBufferHookIsSend;
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-inline uint8_t getSemaphore(uint8_t isSend)
+uint8_t getSemaphore(uint8_t isSend)
 {
 	uint8_t isLocked;
 	uint8_t* semPtr = (isSend ?  &usbRingBufferSendSemaphore : &usbRingBufferRcvSemaphore);
-	uint8_t sreg;
 
+#if 0
+	uint8_t sreg;
 	asm volatile
 	(
 		"ldi r19, 0x01\n\t"
@@ -50,17 +51,23 @@ inline uint8_t getSemaphore(uint8_t isSend)
 		: "p" (semPtr)
 		: "r19"
 	);
-
+#else
+	uint8_t sreg = SREG;
+	cli();
+	isLocked = *semPtr;
+	*semPtr = true;
+	SREG = sreg;
+#endif
 	return !isLocked;
 }
 
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-inline void freeSemaphore(uint8_t isSend)
+void freeSemaphore(uint8_t isSend)
 {
 	/* check if the hook has a job attached to it */
-	if (usbRingBufferHookLen) {
+	if (usbRingBufferHookLen && (usbRingBufferHookIsSend == isSend)) {
 		(void) ringBufferPush(usbRingBufferHookIsSend, usbRingBufferHook, usbRingBufferHookLen);
 		usbRingBufferHookLen = 0;
 	}
