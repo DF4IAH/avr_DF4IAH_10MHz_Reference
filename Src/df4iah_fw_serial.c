@@ -64,7 +64,10 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
 void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 {
+	uchar serialSendBuffer[2];
+
 	/* get message */
+	ringBufferPull(isSend, serialSendBuffer, (uint8_t) sizeof(serialSendBuffer));
 	freeSemaphore(isSend);
 
 	/* transport to serial device */
