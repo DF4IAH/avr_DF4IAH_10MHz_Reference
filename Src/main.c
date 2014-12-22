@@ -58,7 +58,7 @@
 #include "df4iah_fw_serial.h"
 
 
-#define MAINCTXT_BUFFER_SIZE								128
+#define MAINCTXT_BUFFER_SIZE								250
 
 
 // DATA SECTION
@@ -185,14 +185,14 @@ static inline void init_wdt() {
 
 static void doInterpret(uchar msg[], uint8_t len)
 {
-	const uint8_t isSend = true;
-
 	/* special communication TEST */
 	if (!strncmp((char*) msg, "TEST", 4)) {
 		isUsbCommTest = !setTestOn(!isUsbCommTest);
 	}
 
-#if 1  // XXX REMOVE ME!
+#if 0  // XXX REMOVE ME!
+	const uint8_t isSend = true;
+
 	if (len > 0) {
 		msg[len] = '#';
 		msg[len + 1] = '0' + ((len / 10) % 10);
@@ -210,14 +210,13 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 static void workInQueue()
 {
+	const uint8_t isSend = true;
+
+#if 0  // XXX REMOVE ME!
 	const uchar starString[3] = "<A>";
 	const uchar hookString[3] = "<$>";
-	const uchar noSemString[3] = "<S>";
-	const uchar noSemHookString[3] = "<s>";
-	const uint8_t isSend = true;
 	static uint32_t cntr = 0;
 
-#if 1  // XXX REMOVE ME!
 	if (cntr++ > 100000) {
 		cntr = 0;
 		if (getSemaphore(!isSend)) {
@@ -229,21 +228,28 @@ static void workInQueue()
 	}
 #endif
 
-	if (getSemaphore(isSend)) {  // TODO where is the bug?
+	if (getSemaphore(isSend)) {
+		uint8_t isLocked = 1;
 		enum RINGBUFFER_MSG_STATUS_t status = getStatusNextMsg(isSend);
 		if (status & RINGBUFFER_MSG_STATUS_AVAIL) {
 			if (status & RINGBUFFER_MSG_STATUS_IS_NMEA) {
-				serial_pullAndSendNmea_havingSemaphore(isSend);
+				serial_pullAndSendNmea_havingSemaphore(isSend); isLocked = 0;
 
 			} else if ((status & RINGBUFFER_MSG_STATUS_IS_MASK) == 0) {  // message from firmware state machine
 				mainCtxtBufferIdx = ringBufferPull(isSend, mainCtxtBuffer, (uint8_t) sizeof(mainCtxtBuffer));
-				freeSemaphore(isSend);
+				freeSemaphore(isSend); isLocked = 0;
 				doInterpret(mainCtxtBuffer, mainCtxtBufferIdx);
 			}
 		}
+		if (isLocked) {
+			freeSemaphore(isSend);
+		}
 
-#if 1
+#if 0
 	} else {
+		const uchar noSemString[3] = "<S>";
+		const uchar noSemHookString[3] = "<s>";
+
 		if (getSemaphore(!isSend)) {
 			ringBufferPush(!isSend, noSemString, sizeof(noSemString));
 			freeSemaphore(!isSend);
