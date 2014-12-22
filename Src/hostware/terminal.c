@@ -332,17 +332,12 @@ void usb_yield()
         mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 #endif
         if (usbRetLen > 0) {
-			for (int idx = usbRetLen - 1; idx; --idx) {
-				if ((usbMsg[idx] == '\n') || (usbMsg[idx] == '\r')) {
-					usbRetLen = idx;
-				}
-			}
-			usbMsg[usbRetLen] = 0;
+        	ringBufferPush(false, usbMsg, usbRetLen);
 #ifdef TEST_DATATRANSFER_USB
 			mvprintw(LINES - 7 + (errLine++ % 7), 20, "IN  Data: usbRetLen=%d msg=%s.   ", usbRetLen, usbMsg);
 #endif
-        	ringBufferPush(false, usbMsg, usbRetLen);
-		} else if (usbRetLen < 0) {
+
+        } else if (usbRetLen < 0) {
 #ifdef TEST_DATATRANSFER_USB
         	mvprintw(LINES - 7 + (errLine++ % 7), 20, "USB error -  IN: %s\n", usb_strerror());
 #endif
@@ -500,20 +495,32 @@ void terminal()
 #else
 		inLineCnt = usb_controlIn(inLine, sizeof(inLine));
 # ifdef TEST_DATATRANSFER_USB_TEST2
+		if (inLineCnt) {
 			char debugBuffer[MSGBUFFER_SIZE] = { 0 };
 			sprintf(debugBuffer, " usb_controlIn:   inLineCnt=%03d ", inLineCnt);
 			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_DEBUGGING_IN, 0);
+		}
 # endif
 #endif
 		if (inLineCnt) {
-			enum E_COLOR_PAIRS_t thisColor = E_COLOR_PAIR_RCV_MAIN;
-			int thisAttribute = A_BOLD;
+        	int oldIdx = 0;
+        	for (int idx = 0; idx < inLineCnt; ++idx) {
+        		if (inLine[idx] == '\r') {
+        			inLine[idx] = '*';
 
-			if (inLine[0] == '$') {							// NMEA messages are o be marked special
-				thisColor = E_COLOR_PAIR_RCV_GPS;
-				thisAttribute = 0;
-			}
-			ncurses_rx_print(&win_rx, (char*) inLine, thisColor, thisAttribute);
+        		} else if (inLine[idx] == '\n') {
+					enum E_COLOR_PAIRS_t thisColor = E_COLOR_PAIR_RCV_MAIN;
+					int thisAttribute = A_BOLD;
+
+        			inLine[idx] = 0;
+					if (inLine[oldIdx] == '$') {			// NMEA messages are o be marked special
+						thisColor = E_COLOR_PAIR_RCV_GPS;
+						thisAttribute = 0;
+					}
+					ncurses_rx_print(&win_rx, (char*) &(inLine[oldIdx]), thisColor, thisAttribute);
+					oldIdx = idx + 1;
+				}
+        	}
 		}
 
 		/* update terminal window */
