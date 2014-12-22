@@ -61,6 +61,7 @@ static int errLine = 0;
 
 // vv  DEBUGGING SECTION FOR THE FIRMWARE
 #ifdef DEBUG
+#if 0
 inline uint8_t fw_getSemaphore(uint8_t isSend)
 {
 	uint8_t isLocked;
@@ -217,6 +218,7 @@ enum RINGBUFFER_MSG_STATUS_t fw_getStatusNextMsg(uint8_t isSend)
 	return status;
 }
 #endif
+#endif
 // ^^  DEBUGGING SECTION FOR THE FIRMWARE
 
 int ringBufferPush(char isSend, uchar inData[], int len)
@@ -231,6 +233,7 @@ int ringBufferPush(char isSend, uchar inData[], int len)
 		int lenTop = min((pullIdx > pushIdx ?  (pullIdx - pushIdx - 1) : bufferSize - pushIdx - (!pullIdx ?  1 : 0)), len);
 		int lenBot = min((((pullIdx > pushIdx) || !pullIdx) ?  0 : pullIdx - 1), len - lenTop);
 
+		//printf("ringBufferPush: len=%d, lenTop=%d, lenBot=%d, pushIdx=%d, pullIdx=%d, bufferSize=%d, str='%s'\n", len, lenTop, lenBot, pushIdx, pullIdx, bufferSize, inData); sleep(1);
 		if (lenTop) {
 			memcpy(&(ringBuffer[pushIdx]), inData, lenTop);
 			retLen += lenTop;
