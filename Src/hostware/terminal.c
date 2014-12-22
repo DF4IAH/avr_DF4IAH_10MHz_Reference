@@ -121,14 +121,14 @@ uint8_t fw_ringBufferPush(uint8_t isSend, const uchar inData[], uint8_t len)
 	if (!(((pushIdx + 1) == pullIdx) || (((pushIdx + 1) == bufferSize) && !pullIdx))) {
 		uchar* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
 		uint8_t lenTop = min((pullIdx > pushIdx ?  (pullIdx - pushIdx - 1) : bufferSize - pushIdx - (!pullIdx ?  1 : 0)), len);
-		uint8_t lenBot = min((pullIdx > pushIdx ?  0 : pullIdx - 1), len - lenTop);
+		uint8_t lenBot = min((((pullIdx > pushIdx) && !pullIdx) ?  0 : pullIdx - 1), len - lenTop);
 
 		if (lenTop) {
 			memcpy(&(ringBuffer[pushIdx]), inData, lenTop);
 			retLen += lenTop;
 		}
 
-		if ((lenBot > 0) && (lenBot < 254)) {
+		if (lenBot) {
 			memcpy(&(ringBuffer[0]), &(inData[lenTop]), lenBot);
 			retLen += lenBot;
 		}
@@ -174,7 +174,7 @@ uint8_t fw_ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size)
 			len += lenTop;
 		}
 
-		if ((lenBot > 0) && (lenBot < 254)) {
+		if (lenBot) {
 			memcpy(&(outData[lenTop]), &(ringBuffer[0]), lenBot);
 			len += lenBot;
 		}
@@ -227,14 +227,14 @@ int ringBufferPush(char isSend, char inData[], int len)
 	if (!(((pushIdx + 1) == pullIdx) || (((pushIdx + 1) == bufferSize) && !pullIdx))) {
 		char* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
 		int lenTop = min((pullIdx > pushIdx ?  (pullIdx - pushIdx - 1) : bufferSize - pushIdx - (!pullIdx ?  1 : 0)), len);
-		int lenBot = min((pullIdx > pushIdx ?  0 : pullIdx - 1), len - lenTop);
+		int lenBot = min((((pullIdx > pushIdx) && !pullIdx) ?  0 : pullIdx - 1), len - lenTop);
 
 		if (lenTop) {
 			memcpy(&(ringBuffer[pushIdx]), inData, lenTop);
 			retLen += lenTop;
 		}
 
-		if (lenBot > 0) {
+		if (lenBot) {
 			memcpy(&(ringBuffer[0]), &(inData[lenTop]), lenBot);
 			retLen += lenBot;
 		}
@@ -268,7 +268,7 @@ int ringBufferPull(char isSend, char outData[], int size)
 			len += lenTop;
 		}
 
-		if (lenBot > 0) {
+		if (lenBot) {
 			memcpy(&(outData[lenTop]), &(ringBuffer[0]), lenBot);
 			len += lenBot;
 		}
