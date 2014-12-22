@@ -192,7 +192,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 		isUsbCommTest = !setTestOn(!isUsbCommTest);
 
 	} else if (!strncmp((char*) msg, "HELP", 4)) {
-		const uchar helpString[] = "DF4IAH 10MHz-Ref.-Oscillator\n \n$ <NMEA-Message>\t\tsends message to the GPS module.\nHELP\t\t\t\tthis message.\nTEST\t\t\t\tcounter test.\n";
+		const uchar helpString[] = "\n \nDF4IAH 10MHz-Ref.-Oscillator\n \n$ <NMEA-Message>\t\tsends message to the GPS module.\nHELP\t\t\t\tthis message.\nTEST\t\t\t\ttoggles counter test.\n \n";
 		/* help information */
 		if (getSemaphore(!isSend)) {
 			ringBufferPush(!isSend, helpString, sizeof(helpString));
