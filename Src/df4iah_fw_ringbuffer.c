@@ -96,7 +96,7 @@ uint8_t ringBufferPush(uint8_t isSend, const uchar inData[], uint8_t len)
 	if (!(((pushIdx + 1) == pullIdx) || (((pushIdx + 1) == bufferSize) && !pullIdx))) {
 		uchar* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
 		uint8_t lenTop = min((pullIdx > pushIdx ?  (pullIdx - pushIdx - 1) : bufferSize - pushIdx - (!pullIdx ?  1 : 0)), len);
-		uint8_t lenBot = min((((pullIdx > pushIdx) && !pullIdx) ?  0 : pullIdx - 1), len - lenTop);
+		uint8_t lenBot = min((((pullIdx > pushIdx) || !pullIdx) ?  0 : pullIdx - 1), len - lenTop);
 
 		if (lenTop) {
 			memcpy(&(ringBuffer[pushIdx]), inData, lenTop);
