@@ -185,14 +185,22 @@ static inline void init_wdt() {
 
 static void doInterpret(uchar msg[], uint8_t len)
 {
-	/* special communication TEST */
+	const uint8_t isSend = true;
+
 	if (!strncmp((char*) msg, "TEST", 4)) {
+		/* special communication TEST */
 		isUsbCommTest = !setTestOn(!isUsbCommTest);
+
+	} else if (!strncmp((char*) msg, "HELP", 4)) {
+		const uchar helpString[] = "DF4IAH 10MHz-Ref.-Oscillator\n \n$ <NMEA-Message>\t\tsends message to the GPS module.\nHELP\t\t\t\tthis message.\nTEST\t\t\t\tcounter test.\n";
+		/* help information */
+		if (getSemaphore(!isSend)) {
+			ringBufferPush(!isSend, helpString, sizeof(helpString));
+			freeSemaphore(!isSend);
+		}
 	}
 
 #if 0  // XXX REMOVE ME!
-	const uint8_t isSend = true;
-
 	if (len > 0) {
 		msg[len] = '#';
 		msg[len + 1] = '0' + ((len / 10) % 10);
