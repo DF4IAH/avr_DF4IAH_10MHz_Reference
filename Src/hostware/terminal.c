@@ -506,9 +506,9 @@ void terminal()
         	int oldIdx = 0;
         	for (int idx = 0; idx < inLineCnt; ++idx) {
         		if (inLine[idx] == '\r') {
-        			inLine[idx] = '*';
+        			inLine[idx] = ' ';
 
-        		} else if (inLine[idx] == '\n') {
+        		} else if ((inLine[idx] == '\n') || (idx == (inLineCnt - 1))) {
 					enum E_COLOR_PAIRS_t thisColor = E_COLOR_PAIR_RCV_MAIN;
 					int thisAttribute = A_BOLD;
 
