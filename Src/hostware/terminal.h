@@ -12,6 +12,7 @@
 
 
 #ifdef DEBUG
+
 # if 0
 #  define RINGBUFFER_SEND_SIZE	5
 #  define RINGBUFFER_RCV_SIZE	5
@@ -22,26 +23,32 @@
 #  define RINGBUFFER_HOOK_SIZE	1024
 # endif
 # define MSG_PATTERN_NMEA		'$'
-typedef unsigned char  uchar;
 
 enum RINGBUFFER_MSG_STATUS_t {
 	RINGBUFFER_MSG_STATUS_AVAIL			= 0x01,
 	RINGBUFFER_MSG_STATUS_IS_NMEA		= 0x10,
 	RINGBUFFER_MSG_STATUS_IS_MASK		= 0xF0
 };
+
 #else
+
 # define RINGBUFFER_SEND_SIZE	1024
 # define RINGBUFFER_RCV_SIZE	1024
 # define RINGBUFFER_HOOK_SIZE	1024
+
 #endif
+
 
 #define MSGBUFFER_SIZE			250
 
 
-#define TEST_DATATRANSFER_SLOW								// activate on request
-#define TEST_DATATRANSFER_USB_TEST2							// activate on request
+// #define TEST_DATATRANSFER_SLOW							// activate on request
+// #define TEST_DATATRANSFER_USB_TEST2						// activate on request
 // #define TEST_DATATRANSFER_PANEL							// activate on request
 // #define TEST_DATATRANSFER_USB							// activate on request
+
+
+typedef unsigned char  uchar;
 
 
 /* -- 8< --  RINGBUFFERS */
