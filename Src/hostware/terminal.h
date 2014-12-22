@@ -41,8 +41,8 @@ enum RINGBUFFER_MSG_STATUS_t {
 
 
 /* -- 8< --  RINGBUFFERS */
-int ringBufferPush(char isSend, char inData[], int len);
-int ringBufferPull(char isSend, char outData[], int size);
+int ringBufferPush(char isSend, uchar inData[], int len);
+int ringBufferPull(char isSend, uchar outData[], int size);
 
 // DEBUGGING
 #ifdef DEBUG

@@ -45,13 +45,13 @@ enum E_COLOR_PAIRS_t {
 extern usb_dev_handle* handle;
 
 
-static char usbRingBufferSend[RINGBUFFER_SEND_SIZE];
-static char usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
-static char usbMsg[MSGBUFFER_SIZE];
 static int usbRingBufferRcvPushIdx = 0;
 static int usbRingBufferRcvPullIdx = 0;
 static int usbRingBufferSendPushIdx = 0;
 static int usbRingBufferSendPullIdx = 0;
+static uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE];
+static uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
+static uchar usbMsg[MSGBUFFER_SIZE];
 
 #ifdef TEST_DATATRANSFER_USB
 static int errLine = 0;
@@ -65,9 +65,9 @@ inline uint8_t fw_getSemaphore(uint8_t isSend)
 {
 	uint8_t isLocked;
 	uint8_t* semPtr = (isSend ?  &usbRingBufferSendSemaphore : &usbRingBufferRcvSemaphore);
-	uint8_t sreg;
 
 #if 0
+	uint8_t sreg;
 	asm volatile
 	(
 		"ldi r19, 0x01\n\t"
@@ -82,10 +82,12 @@ inline uint8_t fw_getSemaphore(uint8_t isSend)
 		: "r19"
 	);
 #else
+//	uint8_t sreg = SREG;
+//	cli();
 	isLocked = *semPtr;
 	*semPtr = true;
+//	SREG = sreg;
 #endif
-
 	return !isLocked;
 }
 
@@ -121,7 +123,7 @@ uint8_t fw_ringBufferPush(uint8_t isSend, const uchar inData[], uint8_t len)
 	if (!(((pushIdx + 1) == pullIdx) || (((pushIdx + 1) == bufferSize) && !pullIdx))) {
 		uchar* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
 		uint8_t lenTop = min((pullIdx > pushIdx ?  (pullIdx - pushIdx - 1) : bufferSize - pushIdx - (!pullIdx ?  1 : 0)), len);
-		uint8_t lenBot = min((((pullIdx > pushIdx) && !pullIdx) ?  0 : pullIdx - 1), len - lenTop);
+		uint8_t lenBot = min((((pullIdx > pushIdx) || !pullIdx) ?  0 : pullIdx - 1), len - lenTop);
 
 		if (lenTop) {
 			memcpy(&(ringBuffer[pushIdx]), inData, lenTop);
@@ -217,7 +219,7 @@ enum RINGBUFFER_MSG_STATUS_t fw_getStatusNextMsg(uint8_t isSend)
 #endif
 // ^^  DEBUGGING SECTION FOR THE FIRMWARE
 
-int ringBufferPush(char isSend, char inData[], int len)
+int ringBufferPush(char isSend, uchar inData[], int len)
 {
 	int retLen = 0;
 	int bufferSize = (isSend ?  RINGBUFFER_SEND_SIZE : RINGBUFFER_RCV_SIZE);
@@ -225,9 +227,9 @@ int ringBufferPush(char isSend, char inData[], int len)
 	int pullIdx = (isSend ?  usbRingBufferSendPullIdx : usbRingBufferRcvPullIdx);
 
 	if (!(((pushIdx + 1) == pullIdx) || (((pushIdx + 1) == bufferSize) && !pullIdx))) {
-		char* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
+		uchar* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
 		int lenTop = min((pullIdx > pushIdx ?  (pullIdx - pushIdx - 1) : bufferSize - pushIdx - (!pullIdx ?  1 : 0)), len);
-		int lenBot = min((((pullIdx > pushIdx) && !pullIdx) ?  0 : pullIdx - 1), len - lenTop);
+		int lenBot = min((((pullIdx > pushIdx) || !pullIdx) ?  0 : pullIdx - 1), len - lenTop);
 
 		if (lenTop) {
 			memcpy(&(ringBuffer[pushIdx]), inData, lenTop);
@@ -251,14 +253,14 @@ int ringBufferPush(char isSend, char inData[], int len)
 	return retLen;
 }
 
-int ringBufferPull(char isSend, char outData[], int size)
+int ringBufferPull(char isSend, uchar outData[], int size)
 {
 	int len = 0;
 	int pushIdx = (isSend ?  usbRingBufferSendPushIdx : usbRingBufferRcvPushIdx);
 	int pullIdx = (isSend ?  usbRingBufferSendPullIdx : usbRingBufferRcvPullIdx);
 
 	if ((pushIdx != pullIdx) && (size > 1)) {
-		char* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
+		uchar* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
 		int bufferSize = (isSend ?  RINGBUFFER_SEND_SIZE : RINGBUFFER_RCV_SIZE);
 		int lenTop = min((pushIdx > pullIdx ?  (pushIdx - pullIdx) : bufferSize - pullIdx), size - 1);
 		int lenBot = min((pushIdx > pullIdx ?  0 : pushIdx), size - 1 - lenTop);
@@ -292,12 +294,12 @@ int ringBufferPull(char isSend, char outData[], int size)
 
 /* -- 8< --  USB */
 
-static void usb_controlOut(char inLine[], int len)
+static void usb_controlOut(uchar inLine[], int len)
 {
 	ringBufferPush(true, inLine, len);
 }
 
-static int usb_controlIn(char outLine[], int size)
+static int usb_controlIn(uchar outLine[], int size)
 {
 	return ringBufferPull(false, outLine, size);
 }
@@ -316,13 +318,13 @@ void usb_yield()
         	mvprintw(LINES - 7 + (errLine++ % 7), 20, "USB error - OUT: %s\n", usb_strerror());
         }
 #else
-		usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
+		usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, (char*) usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
 #endif
 	}
 
 	/* USB IN */
 	if (!(((usbRingBufferRcvPushIdx + 1) == usbRingBufferRcvPullIdx) || (((usbRingBufferRcvPushIdx + 1) == RINGBUFFER_RCV_SIZE) && !usbRingBufferRcvPullIdx))) {
-        int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_RECV, 0, 0, usbMsg, sizeof(usbMsg), USB_CFG_INTR_POLL_INTERVAL - 5);
+        int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_RECV, 0, 0, (char*) usbMsg, sizeof(usbMsg), USB_CFG_INTR_POLL_INTERVAL - 5);
 #ifdef TEST_DATATRANSFER_USB
         mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 #endif
@@ -465,8 +467,8 @@ void terminal()
 	WINDOW* win_rx = NULL;
 	WINDOW* win_tx = NULL;
 	struct timeval nowTime;
-	char inLine[MSGBUFFER_SIZE] = { 0 };
-	char outLine[MSGBUFFER_SIZE] = { 0 };
+	uchar inLine[MSGBUFFER_SIZE] = { 0 };
+	uchar outLine[MSGBUFFER_SIZE] = { 0 };
 	int inLineCnt = 0;
 	int outLineCnt = 0;
 #ifdef TEST_DATATRANSFER_PANEL
@@ -508,7 +510,7 @@ void terminal()
 				thisColor = E_COLOR_PAIR_RCV_GPS;
 				thisAttribute = 0;
 			}
-			ncurses_rx_print(&win_rx, inLine, thisColor, thisAttribute);
+			ncurses_rx_print(&win_rx, (char*) inLine, thisColor, thisAttribute);
 		}
 
 		/* update terminal window */
@@ -532,7 +534,7 @@ void terminal()
 
 		case 0x0a:
 			if (outLineCnt > 0) {
-				if (!strcmp("EXIT", outLine) || !strcmp("QUIT", outLine)) {
+				if (!strcmp("EXIT", (char*) outLine) || !strcmp("QUIT", (char*) outLine)) {
 				   loop = 0;
 				   continue;
 				}
@@ -552,7 +554,7 @@ void terminal()
 						thisColor = E_COLOR_PAIR_SEND_GPS;
 						thisAttribute = 0;
 					}
-					ncurses_rx_print(&win_rx, outLine, thisColor, thisAttribute);
+					ncurses_rx_print(&win_rx, (char*) outLine, thisColor, thisAttribute);
 				}
 				outLineCnt = 0;
 				outLine[outLineCnt] = 0;
@@ -566,7 +568,7 @@ void terminal()
 			if (outLineCnt > 0) {
 				outLine[--outLineCnt] = 0;
 				ncurses_tx_clear(&win_tx);
-				ncurses_tx_print(&win_tx, outLine);
+				ncurses_tx_print(&win_tx, (char*) outLine);
 			}
 			break;
 
@@ -574,7 +576,7 @@ void terminal()
 			if ((outLineCnt + 1) < sizeof(outLine) && (c < 128)) {
 				outLine[outLineCnt++] = (char) (c >= 'a' && c <= 'z' ?  (c & ~0x20) : c);
 				outLine[outLineCnt] = 0;
-				ncurses_tx_print(&win_tx, outLine);
+				ncurses_tx_print(&win_tx, (char*) outLine);
 			}
 		}
 

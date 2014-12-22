@@ -48,6 +48,7 @@ static void usage(char *name)
 int main(int argc, char **argv)
 {
 #ifdef DEBUG
+#if 0
 	/*
 	 * debugging FIRMWARE code only
 	 */
@@ -125,6 +126,7 @@ int main(int argc, char **argv)
 #endif
 	}
 	return 0;
+#endif
 #endif
 
 	/*
