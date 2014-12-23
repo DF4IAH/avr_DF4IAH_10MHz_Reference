@@ -90,7 +90,7 @@ eeprom_layout_t eeprom_content = {
 		'h', 'z',
 		'-', 'R',
 		'e', 'f',
-		((141 << 8) | (223)),						// b00_version	MSB: yr*10 + month / 10,  LSB: month % 10 + day
+		(VERSION_HIGH<<8) | VERSION_LOW,			// b00_version	MSB: yr*10 + month / 10,  LSB: month % 10 + day
 		0x0000,										// b00_device_serial
 		0xffff,
 		0xffff,

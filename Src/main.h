@@ -26,8 +26,8 @@
 #define EXIT_WDT_TIME										WDTO_250MS
 
 
-#define VERSION_HIGH										'141'
-#define VERSION_LOW											'222'
+#define VERSION_HIGH										141
+#define VERSION_LOW											224
 
 
 int main(void);

@@ -39,13 +39,13 @@
 
 
 #include <stdint.h>
-#include <avr/pgmspace.h>   								// required by usbdrv.h
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <avr/wdt.h>
-#include <avr/sleep.h>
 #include <string.h>
 #include <util/delay.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <avr/sleep.h>
+#include <avr/wdt.h>
+#include <avr/pgmspace.h>   								// required by usbdrv.h
 
 #include "chipdef.h"
 #include "usbdrv_fw/usbdrv.h"
@@ -67,6 +67,7 @@
 /* main */
 void (*jump_to_app)(void) = 0x0000;
 volatile uint8_t timer0Snapshot 							= 0x00;
+volatile uint8_t stopAvr		 							= 0;
 uint8_t isUsbCommTest 										= false;
 volatile uint8_t mainCtxtBufferIdx 							= 0;
 usbTxStatus_t usbTxStatus1 									= { 0 },
@@ -112,11 +113,17 @@ uchar serialCtxtRxBuffer[SERIALCTXT_RX_BUFFER_SIZE] 		= { 0 };
 uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE] 		= { 0 };
 
 
+// STRINGS IN MEMORY SECTION
+const uchar VM_COMMAND_ABORT[]								= "ABORT";
+const uchar VM_COMMAND_HELP[]								= "HELP";
+const uchar VM_COMMAND_TEST[]								= "TEST";
+
+
 // STRINGS IN CODE SECTION
 // PROGMEM const char PM_VENDOR[] 							= "DF4IAH";
 // const uint8_t PM_VENDOR_len = sizeof(PM_VENDOR);
 
-PROGMEM const char PM_INTERPRETER_HELP[] 					= "\n" \
+PROGMEM const uchar PM_INTERPRETER_HELP[] 					= "\n" \
 															  " \n" \
 															  "DF4IAH 10MHz-Ref.-Oscillator\n" \
 															  " \n" \
@@ -124,7 +131,7 @@ PROGMEM const char PM_INTERPRETER_HELP[] 					= "\n" \
 															  "HELP\t\t\t\tthis message.\n" \
 															  "TEST\t\t\t\ttoggles counter test.\n" \
 															  " \n";
-const uint8_t PM_INTERPRETER_HELP_len = sizeof(PM_INTERPRETER_HELP);
+const uint8_t PM_INTERPRETER_HELP_len 						= sizeof(PM_INTERPRETER_HELP);
 
 
 // CODE SECTION
@@ -244,16 +251,20 @@ static void doInterpret(uchar msg[], uint8_t len)
 {
 	const uint8_t isSend = true;
 
-	if (!strncmp((char*) msg, "TEST", 4)) {
-		/* special communication TEST */
-		isUsbCommTest = !setTestOn(!isUsbCommTest);
+	if (!strncmp((char*) msg, (char*) VM_COMMAND_ABORT, sizeof(VM_COMMAND_ABORT))) {
+		/* stop AVR controller and enter sleep state */
+		stopAvr = true;
 
-	} else if (!strncmp((char*) msg, "HELP", 4)) {
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP))) {
 		/* help information */
 		if (getSemaphore(!isSend)) {
 			ringBufferPush(!isSend, true, (uchar*) PM_INTERPRETER_HELP, PM_INTERPRETER_HELP_len);
 			freeSemaphore(!isSend);
 		}
+
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_TEST, sizeof(VM_COMMAND_TEST))) {
+		/* special communication TEST */
+		isUsbCommTest = !setTestOn(!isUsbCommTest);
 	}
 
 #if 0  // XXX REMOVE ME!
@@ -324,6 +335,18 @@ static void workInQueue()
 	}
 }
 
+static void sendInitialHelp()
+{
+	const uint8_t isSend = true;
+
+	if (getSemaphore(isSend)) {
+		ringBufferPush(isSend, false, VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP));
+		freeSemaphore(isSend);
+	} else {
+		ringBufferPushAddHook(isSend, false, VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP));
+	}
+}
+
 static void give_away(void)
 {
     wdt_reset();
@@ -338,23 +361,57 @@ static void give_away(void)
 
 int main(void)
 {
-	vectortable_to_firmware();
-	init_wdt();
+	/* init AVR */
+	{
+		vectortable_to_firmware();
+		init_wdt();
 
-    clkPullPwm_fw_init();
+		clkPullPwm_fw_init();
 
-    usb_fw_init();
-    sei();
+		usb_fw_init();
+		sei();
+	}
 
-    for(;;) {
+	/* enter HELP command in USB host OUT queue */
+	sendInitialHelp();
+
+	/* run the chip */
+    while (!stopAvr) {
     	give_away();
     }
 
-    cli();
-    usb_fw_close();
+    /* stop AVR */
+    {
+		cli();
+		usb_fw_close();
 
-    // switch off all pull-up
-	MCUCR = MCUCR & ~_BV(PUD);								// general deactivation of all pull-ups
+		// switch off all pull-up
+		MCUCR = MCUCR & ~_BV(PUD);								// general deactivation of all pull-ups
+
+		// all pins are set to be input
+		DDRB = 0x00;
+		DDRC = 0x00;
+		DDRD = 0x00;
+
+		// all pull-up are being switched off
+		PORTB = 0x00;
+		PORTC = 0x00;
+		PORTD = 0x00;
+
+		/* enter and keep in sleep mode */
+		for (;;) {
+			set_sleep_mode(SLEEP_MODE_EXT_STANDBY);
+			cli();
+			// if (some_condition) {
+				sleep_enable();
+		        sleep_bod_disable();
+				sei();
+				sleep_cpu();
+				sleep_disable();
+			// }
+			sei();
+		}
+    }
 
 	return 0;
 }
