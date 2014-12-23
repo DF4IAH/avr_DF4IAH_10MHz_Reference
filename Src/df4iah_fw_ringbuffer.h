@@ -36,11 +36,13 @@ enum RINGBUFFER_MSG_STATUS_t {
 };
 
 
+void* memcpy_rb(uint8_t isPgm, void* destPtr, const void* srcPtr, size_t len);
+
 uint8_t getSemaphore(uint8_t isSend);
 void freeSemaphore(uint8_t isSend);
 
-uint8_t ringBufferPush(uint8_t isSend, const uchar inData[], uint8_t len);
-void ringBufferPushAddHook(uint8_t isSend, const uchar inData[], uint8_t len);
+uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len);
+void ringBufferPushAddHook(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len);
 uint8_t ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size);
 enum RINGBUFFER_MSG_STATUS_t getStatusNextMsg(uint8_t isSend);
 

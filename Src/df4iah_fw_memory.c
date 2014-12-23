@@ -7,9 +7,10 @@
 
 #include <avr/eeprom.h>
 
+#include "main.h"
+
 #include "df4iah_bl_memory.h"
 #include "df4iah_fw_memory.h"
-#include "main.h"
 
 
 #ifdef RELEASE
@@ -89,20 +90,20 @@ eeprom_layout_t eeprom_content = {
 		'h', 'z',
 		'-', 'R',
 		'e', 'f',
-		((141 << 8) | (222)),						// b00_version	MSB: yr*10 + month / 10,  LSB: month % 10 + day
+		((141 << 8) | (223)),						// b00_version	MSB: yr*10 + month / 10,  LSB: month % 10 + day
+		0x0000,										// b00_device_serial
 		0xffff,
 		0xffff,
 		0xffff,
 		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,										// b00_crc
+		0x0000,										// b00_regen_ctr
+		0xb00c,										// b00_crc
 
-		0xffff,										// b01_temp_25c_adc_offset
-		0xffff,										// b01_temp_25c_adc_factor
-		0xffff,										// b01_temp_drift_factor
-		0xffff,										// b01_pwm_25c_pull
-		0xffff,										// b01_pwm_pull_ppm_factor
+		0x0000,										// b01_temp_25c_adc_offset
+		0x0000,										// b01_temp_25c_adc_factor
+		0x0000,										// b01_temp_drift_factor
+		0x0000,										// b01_pwm_25c_pull
+		0x0000,										// b01_pwm_pull_ppm_factor
 		0xffff,
 		0xffff,
 		0xffff,
@@ -112,13 +113,13 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
-		0xffff,
-		0xffff,										// b01_crc
+		0x0000,										// b01_regen_ctr
+		0xb01c,										// b01_crc
 
-		0xffff,										// b02_serial_baud
-		0xffff,										// b02_serial_bitsParityStopbits
-		0xffff,										// b02_gps_comm_mode
-		0xffff,										// b02_last_fix
+		0x0000,										// b02_serial_baud
+		0x0000,										// b02_serial_bitsParityStopbits
+		0x0000,										// b02_gps_comm_mode
+		0x0000,										// b02_last_fix
 		0xffff,
 		0xffff,
 		0xffff,
@@ -129,9 +130,11 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
-		0xffff,
-		0xffff,										// b02_crc
+		0x0000,										// b02_regen_ctr
+		0xb02c,										// b02_crc
 
+		0xffff,										// b03_device_key
+		0xffff,										// b03_device_activations
 		0xffff,
 		0xffff,
 		0xffff,
@@ -144,10 +147,9 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
+		0x0000,										// b03_regen_ctr
+		0xb03c,										// b03_crc
+
 		0xffff,
 		0xffff,
 		0xffff,

@@ -13,9 +13,10 @@
 #include <avr/boot.h>
 
 #include "df4iah_fw_memory.h"
-#include "df4iah_fw_usb.h"
 #include "df4iah_fw_usb_requests.h"
 #include "df4iah_fw_ringbuffer.h"
+
+#include "df4iah_fw_usb.h"
 
 
 #define min(a,b) ((a) < (b) ?  (a) : (b))
@@ -258,11 +259,11 @@ USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 
 		/* push OUT string (send) from host to the USB function's ring buffer */
 		if (getSemaphore(isSend)) {
-			ringBufferPush(isSend, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
+			ringBufferPush(isSend, false, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
 			freeSemaphore(isSend);
 
 		} else {
-			ringBufferPushAddHook(isSend, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
+			ringBufferPushAddHook(isSend, false, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
 		}
 
 		usbIsrCtxtBufferIdx = cntSend = 0;

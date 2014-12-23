@@ -8,6 +8,7 @@
 
 #include <string.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 
 #include "df4iah_fw_ringbuffer.h"
 
@@ -28,6 +29,22 @@ extern uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE];
 extern uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
 extern uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE];
 
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+void* memcpy_rb(uint8_t isPgm, void* destPtr, const void* srcPtr, size_t len)
+{
+	if (!isPgm) {
+		return memcpy(destPtr, srcPtr, len);
+
+	} else {
+		for (int idx = 0; idx < len; ++idx) {
+			usbRingBufferHook[idx] = pgm_read_byte_near(srcPtr + idx);
+		}
+		return destPtr;
+	}
+}
 
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
@@ -69,7 +86,7 @@ void freeSemaphore(uint8_t isSend)
 {
 	/* check if the hook has a job attached to it */
 	if (usbRingBufferHookLen && (usbRingBufferHookIsSend == isSend)) {
-		(void) ringBufferPush(usbRingBufferHookIsSend, usbRingBufferHook, usbRingBufferHookLen);
+		(void) ringBufferPush(usbRingBufferHookIsSend, false, usbRingBufferHook, usbRingBufferHookLen);
 		usbRingBufferHookLen = 0;
 	}
 
@@ -86,7 +103,7 @@ void freeSemaphore(uint8_t isSend)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-uint8_t ringBufferPush(uint8_t isSend, const uchar inData[], uint8_t len)
+uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
 {
 	uint8_t retLen = 0;
 	uint8_t bufferSize = (isSend ?  RINGBUFFER_SEND_SIZE : RINGBUFFER_RCV_SIZE);
@@ -99,12 +116,12 @@ uint8_t ringBufferPush(uint8_t isSend, const uchar inData[], uint8_t len)
 		uint8_t lenBot = min((((pullIdx > pushIdx) || !pullIdx) ?  0 : pullIdx - 1), len - lenTop);
 
 		if (lenTop) {
-			memcpy(&(ringBuffer[pushIdx]), inData, lenTop);
+			memcpy_rb(isPgm, &(ringBuffer[pushIdx]), inData, lenTop);
 			retLen += lenTop;
 		}
 
 		if (lenBot) {
-			memcpy(&(ringBuffer[0]), &(inData[lenTop]), lenBot);
+			memcpy_rb(isPgm, &(ringBuffer[0]), &(inData[lenTop]), lenBot);
 			retLen += lenBot;
 		}
 
@@ -123,12 +140,12 @@ uint8_t ringBufferPush(uint8_t isSend, const uchar inData[], uint8_t len)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-void ringBufferPushAddHook(uint8_t isSend, const uchar inData[], uint8_t len)
+void ringBufferPushAddHook(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
 {
 	/* copy data for the hooked job - hook needs to be unassigned before */
 	if (!usbRingBufferHookLen) {
 		usbRingBufferHookIsSend = isSend;
-		memcpy(usbRingBufferHook, inData, len);
+		memcpy_rb(isPgm, usbRingBufferHook, inData, len);
 		usbRingBufferHookLen = len;							// this assignment last - since now ready to process
 	}														// else: dismiss data - should not be the case anyway
 }

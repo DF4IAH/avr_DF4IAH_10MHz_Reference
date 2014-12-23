@@ -17,7 +17,9 @@ typedef struct eeprom_layout {
 	/* BLOCK_00:    HEADER-INFO */
 	uint8_t			b00_header[16];
 	uint16_t		b00_version;
-	uint16_t		b00_reserved[6];
+	uint16_t		b00_device_serial;
+	uint16_t		b00_reserved[4];
+	uint16_t		b00_regen_ctr;
 	uint16_t		b00_crc;
 
 	/* BLOCK_01:    REFERENCE OSCILLATOR */
@@ -26,7 +28,8 @@ typedef struct eeprom_layout {
 	uint16_t		b01_temp_drift_factor;
 	uint16_t		b01_pwm_25c_pull;
 	uint16_t		b01_pwm_pull_ppm_factor;
-	uint16_t		b01_reserved[10];
+	uint16_t		b01_reserved[9];
+	uint16_t		b01_regen_ctr;
 	uint16_t		b01_crc;
 
 	/* BLOCK_02:    GPS */
@@ -34,8 +37,16 @@ typedef struct eeprom_layout {
 	uint16_t		b02_serial_bitsParityStopbits;
 	uint16_t		b02_gps_comm_mode;
 	uint16_t		b02_last_fix;
-	uint16_t		b02_reserved[11];
+	uint16_t		b02_reserved[10];
+	uint16_t		b02_regen_ctr;
 	uint16_t		b02_crc;
+
+	/* BLOCK_03:    KEY */
+	uint16_t		b03_device_key;
+	uint16_t		b03_device_activations;
+	uint16_t		b03_reserved[12];
+	uint16_t		b03_regen_ctr;
+	uint16_t		b03_crc;
 
 	/* unassigned BLOCKS */
 	uint16_t		bxx_reserved[512 - 48];

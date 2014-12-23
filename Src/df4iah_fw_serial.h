@@ -9,12 +9,17 @@
 #define DF4IAH_FW_SERIAL_H_
 
 
+#define SERIALCTXT_TX_BUFFER_SIZE									128
+#define SERIALCTXT_RX_BUFFER_SIZE									128
+
+
 /* UART Baudrate */
-// #define BAUDRATE 9600
-// #define BAUDRATE 19200
-#define DEFAULT_BAUDRATE											115200
+// #define DEFAULT_BAUDRATE 										9600
+#define DEFAULT_BAUDRATE 											19200
+// #define DEFAULT_BAUDRATE 										38400
+//#define DEFAULT_BAUDRATE											115200
 #define DEFAULT_BITS												8
-#define DEFAULT_PARITY_N0_O1_E2										0
+#define DEFAULT_PARITY_N0_E2_O3										0
 #define DEFAULT_STOPBITS											1
 
 /* use "Double Speed Operation" */
@@ -45,9 +50,14 @@
 void serial_fw_init();
 void serial_fw_close();
 
+#if 0
 void serial_fw_sendchar(uint8_t data);
 uint8_t serial_fw_recvchar(void);
+#endif
 
 void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend);
+
+void serial_ISR_RXC0(void);
+void serial_ISR_TXC0(void);
 
 #endif /* DF4IAH_FW_SERIAL_H_ */

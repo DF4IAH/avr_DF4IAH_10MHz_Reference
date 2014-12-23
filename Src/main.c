@@ -49,13 +49,14 @@
 
 #include "chipdef.h"
 #include "usbdrv_fw/usbdrv.h"
-#include "main.h"
 #include "df4iah_bl_memory.h"
 #include "df4iah_bl_clkPullPwm.h"
 #include "df4iah_fw_usb.h"
 #include "df4iah_fw_clkPullPwm.h"
 #include "df4iah_fw_ringbuffer.h"
 #include "df4iah_fw_serial.h"
+
+#include "main.h"
 
 
 #define MAINCTXT_BUFFER_SIZE								250
@@ -86,6 +87,11 @@ volatile uint8_t usbRingBufferRcvSemaphore 					= 0;  // semaphore is free
 volatile uint8_t usbRingBufferHookLen 						= 0;
 volatile uint8_t usbRingBufferHookIsSend 					= 0;
 
+/* df4iah_fw_serial */
+volatile uint8_t serialCtxtRxBufferLen						= 0;
+volatile uint8_t serialCtxtTxBufferLen						= 0;
+volatile uint8_t serialCtxtTxBufferIdx						= 0;
+
 
 // ARRAYS - due to overwriting hazards they are following the controlling variables
 
@@ -101,9 +107,24 @@ uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE] 				= { 0 };
 uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE] 				= { 0 };
 uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE] 				= { 0 };
 
+/* df4iah_fw_serial */
+uchar serialCtxtRxBuffer[SERIALCTXT_RX_BUFFER_SIZE] 		= { 0 };
+uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE] 		= { 0 };
+
 
 // STRINGS IN CODE SECTION
-// PROGMEM const char VENDOR[VENDOR_len] = { 'D', 'F', '4', 'I', 'A', 'H' };
+// PROGMEM const char PM_VENDOR[] 							= "DF4IAH";
+// const uint8_t PM_VENDOR_len = sizeof(PM_VENDOR);
+
+PROGMEM const char PM_INTERPRETER_HELP[] 					= "\n" \
+															  " \n" \
+															  "DF4IAH 10MHz-Ref.-Oscillator\n" \
+															  " \n" \
+															  "$ <NMEA-Message>\t\tsends message to the GPS module.\n" \
+															  "HELP\t\t\t\tthis message.\n" \
+															  "TEST\t\t\t\ttoggles counter test.\n" \
+															  " \n";
+const uint8_t PM_INTERPRETER_HELP_len = sizeof(PM_INTERPRETER_HELP);
 
 
 // CODE SECTION
@@ -153,9 +174,45 @@ void __vector_default(void) { ; }
  *
  */
 
+//EMPTY_INTERRUPT(INT0_vect);
+//EMPTY_INTERRUPT(INT1_vect);
+//EMPTY_INTERRUPT(PCINT0_vect);
+//EMPTY_INTERRUPT(PCINT1_vect);
+//EMPTY_INTERRUPT(PCINT2_vect);
+//EMPTY_INTERRUPT(WDT_vect);
+//EMPTY_INTERRUPT(TIMER2_COMPA_vect);
+//EMPTY_INTERRUPT(TIMER2_COMPB_vect);
+//EMPTY_INTERRUPT(TIMER2_OVF_vect);
+//EMPTY_INTERRUPT(TIMER1_CAPT_vect);
+//EMPTY_INTERRUPT(TIMER1_COMPA_vect);
+//EMPTY_INTERRUPT(TIMER1_COMPB_vect);
+//EMPTY_INTERRUPT(TIMER1_OVF_vect);
+//EMPTY_INTERRUPT(TIMER0_COMPA_vect);
+//EMPTY_INTERRUPT(TIMER0_COMPB_vect);
+//EMPTY_INTERRUPT(TIMER0_OVF_vect);
+//EMPTY_INTERRUPT(SPI_STC_vect);
+//EMPTY_INTERRUPT(USART_RX_vect);
+//EMPTY_INTERRUPT(USART_UDRE_vect);
+//EMPTY_INTERRUPT(USART_TX_vect);
+//ISR(USART_TX_vect, ISR_ALIASOF(USART_RX_vect));
+//EMPTY_INTERRUPT(ADC_vect);
+//EMPTY_INTERRUPT(EE_READY_vect);
+//EMPTY_INTERRUPT(ANALOG_COMP_vect);
+//EMPTY_INTERRUPT(TWI_vect);
+//EMPTY_INTERRUPT(SPM_READY_vect);
+
+/* assign interrupt routines to vectors */
+ISR(USART_RX_vect) {
+	serial_ISR_RXC0();
+}
+
+ISR(USART_TX_vect) {
+	serial_ISR_TXC0();
+}
+
 
 static inline void vectortable_to_firmware(void) {
-	asm volatile									// set active vector table into the Firmware section
+	asm volatile											// set active vector table into the Firmware section
 	(
 		"ldi r24, %1\n\t"
 		"out %0, r24\n\t"
@@ -192,10 +249,9 @@ static void doInterpret(uchar msg[], uint8_t len)
 		isUsbCommTest = !setTestOn(!isUsbCommTest);
 
 	} else if (!strncmp((char*) msg, "HELP", 4)) {
-		const uchar helpString[] = "\n \nDF4IAH 10MHz-Ref.-Oscillator\n \n$ <NMEA-Message>\t\tsends message to the GPS module.\nHELP\t\t\t\tthis message.\nTEST\t\t\t\ttoggles counter test.\n \n";
 		/* help information */
 		if (getSemaphore(!isSend)) {
-			ringBufferPush(!isSend, helpString, sizeof(helpString));
+			ringBufferPush(!isSend, true, (uchar*) PM_INTERPRETER_HELP, PM_INTERPRETER_HELP_len);
 			freeSemaphore(!isSend);
 		}
 	}
@@ -206,11 +262,11 @@ static void doInterpret(uchar msg[], uint8_t len)
 		msg[len + 1] = '0' + ((len / 10) % 10);
 		msg[len + 2] = '0' + ( len       % 10);
 		if (getSemaphore(!isSend)) {
-			ringBufferPush(!isSend, msg, len + 3);
+			ringBufferPush(!isSend, false, msg, len + 3);
 			freeSemaphore(!isSend);
 		} else {
 			msg[len] = '!';
-			ringBufferPushAddHook(!isSend, msg, len + 3);
+			ringBufferPushAddHook(!isSend, false, msg, len + 3);
 		}
 	}
 #endif
@@ -228,10 +284,10 @@ static void workInQueue()
 	if (cntr++ > 100000) {
 		cntr = 0;
 		if (getSemaphore(!isSend)) {
-			ringBufferPush(!isSend, starString, sizeof(starString));
+			ringBufferPush(!isSend, false, starString, sizeof(starString));
 			freeSemaphore(!isSend);
 		} else {
-			ringBufferPushAddHook(!isSend, hookString, sizeof(hookString));
+			ringBufferPushAddHook(!isSend, false, hookString, sizeof(hookString));
 		}
 	}
 #endif
@@ -259,10 +315,10 @@ static void workInQueue()
 		const uchar noSemHookString[3] = "<s>";
 
 		if (getSemaphore(!isSend)) {
-			ringBufferPush(!isSend, noSemString, sizeof(noSemString));
+			ringBufferPush(!isSend, false, noSemString, sizeof(noSemString));
 			freeSemaphore(!isSend);
 		} else {
-			ringBufferPushAddHook(!isSend, noSemHookString, sizeof(noSemHookString));
+			ringBufferPushAddHook(!isSend, false, noSemHookString, sizeof(noSemHookString));
 		}
 #endif
 	}
@@ -296,5 +352,9 @@ int main(void)
 
     cli();
     usb_fw_close();
+
+    // switch off all pull-up
+	MCUCR = MCUCR & ~_BV(PUD);								// general deactivation of all pull-ups
+
 	return 0;
 }
