@@ -15,6 +15,21 @@
 #include "df4iah_fw_serial.h"
 
 
+/* to make the compiler happy - @see chipdef.h --> mega32.h */
+#ifndef UART_DDR
+# define UART_DDR	DDRD
+#endif
+#ifndef UART_PORT
+# define UART_PORT	PORTD
+#endif
+#ifndef UART_RX_PNUM
+# define UART_RX_PNUM	0
+#endif
+#ifndef UART_TX_PNUM
+# define UART_TX_PNUM	1
+#endif
+
+
 extern uint8_t serialCtxtRxBufferLen;
 extern uint8_t serialCtxtTxBufferLen;
 extern uint8_t serialCtxtTxBufferIdx;
