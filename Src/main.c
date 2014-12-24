@@ -446,7 +446,7 @@ int main(void)
 		clkPullPwm_fw_close();
 
 		// switch off all pull-up
-		MCUCR |= _BV(PUD);										// general deactivation of all pull-ups
+		//MCUCR |= _BV(PUD);										// general deactivation of all pull-ups
 
 		// all pins are set to be input
 		DDRB = 0x00;
