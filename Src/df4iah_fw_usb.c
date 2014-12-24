@@ -132,8 +132,8 @@ void usb_fw_init()
 	USB_INTR_ENABLE &= ~(_BV(USB_INTR_ENABLE_BIT));
 	usbDeviceDisconnect();									// enforce re-enumeration, do this while interrupts are disabled!
 
-    uint8_t i = 250;
-    while (--i) {											// fake USB disconnect for > 250 ms
+    uint16_t i = 500;
+    while (--i) {											// fake USB disconnect for > 500 ms
         _delay_ms(1);
         wdt_reset();
     }

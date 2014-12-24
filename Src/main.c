@@ -271,7 +271,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 		stopAvr = true;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_REBOOT, sizeof(VM_COMMAND_REBOOT))) {
-		/* enter firmware */
+		/* enter firmware (REBOOT) */
 		enterMode = ENTER_MODE_FW;
 		stopAvr = true;
 
@@ -288,42 +288,11 @@ static void doInterpret(uchar msg[], uint8_t len)
 			ringBufferPushAddHook(!isSend, true, (uchar*) PM_INTERPRETER_UNKNOWN, PM_INTERPRETER_UNKNOWN_len);
 		}
 	}
-
-#if 0  // XXX REMOVE ME!
-	if (len > 0) {
-		msg[len] = '#';
-		msg[len + 1] = '0' + ((len / 10) % 10);
-		msg[len + 2] = '0' + ( len       % 10);
-		if (getSemaphore(!isSend)) {
-			ringBufferPush(!isSend, false, msg, len + 3);
-			freeSemaphore(!isSend);
-		} else {
-			msg[len] = '!';
-			ringBufferPushAddHook(!isSend, false, msg, len + 3);
-		}
-	}
-#endif
 }
 
 static void workInQueue()
 {
 	const uint8_t isSend = true;
-
-#if 0  // XXX REMOVE ME!
-	const uchar starString[3] = "<A>";
-	const uchar hookString[3] = "<$>";
-	static uint32_t cntr = 0;
-
-	if (cntr++ > 100000) {
-		cntr = 0;
-		if (getSemaphore(!isSend)) {
-			ringBufferPush(!isSend, false, starString, sizeof(starString));
-			freeSemaphore(!isSend);
-		} else {
-			ringBufferPushAddHook(!isSend, false, hookString, sizeof(hookString));
-		}
-	}
-#endif
 
 	if (getSemaphore(isSend)) {
 		uint8_t isLocked = true;
@@ -355,19 +324,6 @@ static void workInQueue()
 		if (isLocked) {
 			freeSemaphore(isSend);
 		}
-
-#if 0
-	} else {
-		const uchar noSemString[3] = "<S>";
-		const uchar noSemHookString[3] = "<s>";
-
-		if (getSemaphore(!isSend)) {
-			ringBufferPush(!isSend, false, noSemString, sizeof(noSemString));
-			freeSemaphore(!isSend);
-		} else {
-			ringBufferPushAddHook(!isSend, false, noSemHookString, sizeof(noSemHookString));
-		}
-#endif
 	}
 }
 
@@ -449,8 +405,8 @@ int main(void)
 			} else if (enterMode == ENTER_MODE_FW) {
 				/* restart firmware */
 				jump_to_fw();										// jump to firmware section (REBOOT)
-
 			}
+
 		} else {
 			/* enter and keep in sleep mode */
 			for (;;) {
