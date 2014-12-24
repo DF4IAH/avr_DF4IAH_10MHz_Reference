@@ -60,15 +60,25 @@
 #include "main.h"
 
 
+#ifndef BOOT_TOKEN_LO										// should be included from chipdef.h --> mega32.h
+# define BOOT_TOKEN_LO										0xb0
+# define BOOT_TOKEN_LO_REG									GPIOR1
+# define BOOT_TOKEN_HI										0x0f
+# define BOOT_TOKEN_HI_REG									GPIOR2
+#endif
+
+
 #define MAINCTXT_BUFFER_SIZE								250
 
 
 // DATA SECTION
 
 /* main */
-void (*jump_to_app)(void) = 0x0000;
+void (*jump_to_bl)(void)	 								= (void*) 0x0000;
 volatile uint8_t timer0Snapshot 							= 0x00;
 volatile uint8_t stopAvr		 							= 0;
+volatile uint8_t enterBL		 							= 0;
+volatile uint8_t helpConcatNr								= 0;
 uint8_t isUsbCommTest 										= false;
 volatile uint8_t mainCtxtBufferIdx 							= 0;
 usbTxStatus_t usbTxStatus1 									= { 0 },
@@ -117,6 +127,7 @@ uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE] 		= { 0 };
 // STRINGS IN MEMORY SECTION
 const uchar VM_COMMAND_ABORT[]								= "ABORT";
 const uchar VM_COMMAND_HELP[]								= "HELP";
+const uchar VM_COMMAND_LOAD[]								= "LOAD";
 const uchar VM_COMMAND_TEST[]								= "TEST";
 
 
@@ -124,16 +135,30 @@ const uchar VM_COMMAND_TEST[]								= "TEST";
 // PROGMEM const char PM_VENDOR[] 							= "DF4IAH";
 // const uint8_t PM_VENDOR_len = sizeof(PM_VENDOR);
 
-PROGMEM const uchar PM_INTERPRETER_HELP[] 					= "\n" \
+PROGMEM const uchar PM_INTERPRETER_HELP1[] 					= "\n" \
 															  "\n" \
 															  "=== HELP ===\n" \
 															  "\n" \
 															  "$ <NMEA-Message>\t\tsends message to the GPS module.\n" \
-															  "ABORT\t\t\t\tpowers the device down (sleep mode).\n" \
-															  "HELP\t\t\t\tthis message.\n" \
+															  "\n" \
+															  "ABORT\t\t\t\tpowers the device down (sleep mode).\n";
+const uint8_t PM_INTERPRETER_HELP1_len 						= sizeof(PM_INTERPRETER_HELP1);
+
+PROGMEM const uchar PM_INTERPRETER_HELP2[] 					= "HELP\t\t\t\tthis message.\n" \
+															  "\n" \
+															  "LOAD\t\t\t\tenter bootloader.\n"
+															  "\n" \
 															  "TEST\t\t\t\ttoggles counter test.\n" \
-															  "\n";
-const uint8_t PM_INTERPRETER_HELP_len 						= sizeof(PM_INTERPRETER_HELP);
+															  "\n" \
+															  "===========\n" \
+															  "\n" \
+															  ">";
+const uint8_t PM_INTERPRETER_HELP2_len 						= sizeof(PM_INTERPRETER_HELP2);
+
+PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "*?* unknown command, try HELP.\n" \
+															  "\n" \
+															  ">";
+const uint8_t PM_INTERPRETER_UNKNOWN_len 					= sizeof(PM_INTERPRETER_UNKNOWN);
 
 
 // CODE SECTION
@@ -221,6 +246,7 @@ ISR(USART_TX_vect) {
 
 
 static inline void vectortable_to_firmware(void) {
+	cli();
 	asm volatile											// set active vector table into the Firmware section
 	(
 		"ldi r24, %1\n\t"
@@ -235,18 +261,16 @@ static inline void vectortable_to_firmware(void) {
 	);
 }
 
-static inline void init_wdt() {
-#ifdef DISABLE_WDT_AT_STARTUP
-# ifdef WDT_OFF_SPECIAL
-#   warning "using target specific watchdog_off"
-	bootloader_wdt_off();
-# else
+static inline void wdt_init() {
 	cli();
-
 	wdt_reset();
 	wdt_disable();
-# endif
-#endif
+}
+
+static inline void wdt_close() {
+	cli();
+	wdt_reset();
+	wdt_disable();
 }
 
 static void doInterpret(uchar msg[], uint8_t len)
@@ -262,13 +286,28 @@ static void doInterpret(uchar msg[], uint8_t len)
 		if (getSemaphore(!isSend)) {
 			int len = sprintf((char*) mainCtxtBuffer, "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: %03d%03d\n", VERSION_HIGH, VERSION_LOW);
 			ringBufferPush(!isSend, false, mainCtxtBuffer, len);
-			ringBufferPush(!isSend, true, (uchar*) PM_INTERPRETER_HELP, PM_INTERPRETER_HELP_len);
+			ringBufferPush(!isSend, true, (uchar*) PM_INTERPRETER_HELP1, PM_INTERPRETER_HELP1_len);
 			freeSemaphore(!isSend);
+			helpConcatNr = 1;
 		}
+
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_LOAD, sizeof(VM_COMMAND_LOAD))) {
+		/* enter bootloader */
+		enterBL = true;
+		stopAvr = true;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_TEST, sizeof(VM_COMMAND_TEST))) {
 		/* special communication TEST */
 		isUsbCommTest = !setTestOn(!isUsbCommTest);
+
+	} else {
+		/* unknown command */
+		if (getSemaphore(!isSend)) {
+			ringBufferPush(!isSend, true, (uchar*) PM_INTERPRETER_UNKNOWN, PM_INTERPRETER_UNKNOWN_len);
+			freeSemaphore(!isSend);
+		} else {
+			ringBufferPushAddHook(!isSend, true, (uchar*) PM_INTERPRETER_UNKNOWN, PM_INTERPRETER_UNKNOWN_len);
+		}
 	}
 
 #if 0  // XXX REMOVE ME!
@@ -308,18 +347,32 @@ static void workInQueue()
 #endif
 
 	if (getSemaphore(isSend)) {
-		uint8_t isLocked = 1;
-		enum RINGBUFFER_MSG_STATUS_t status = getStatusNextMsg(isSend);
-		if (status & RINGBUFFER_MSG_STATUS_AVAIL) {
-			if (status & RINGBUFFER_MSG_STATUS_IS_NMEA) {
-				serial_pullAndSendNmea_havingSemaphore(isSend); isLocked = 0;
+		uint8_t isLocked = true;
+		enum RINGBUFFER_MSG_STATUS_t statusSend = getStatusNextMsg(isSend);
+		enum RINGBUFFER_MSG_STATUS_t statusRcv  = getStatusNextMsg(!isSend);
 
-			} else if ((status & RINGBUFFER_MSG_STATUS_IS_MASK) == 0) {  // message from firmware state machine
+		if (!helpConcatNr && (statusSend & RINGBUFFER_MSG_STATUS_AVAIL)) {	// if any message is available and not during help printing
+			if (statusSend & RINGBUFFER_MSG_STATUS_IS_NMEA) {
+				serial_pullAndSendNmea_havingSemaphore(isSend); isLocked = false;
+
+			} else if ((statusSend & RINGBUFFER_MSG_STATUS_IS_MASK) == 0) {	// message from firmware state machine
 				mainCtxtBufferIdx = ringBufferPull(isSend, mainCtxtBuffer, (uint8_t) sizeof(mainCtxtBuffer));
-				freeSemaphore(isSend); isLocked = 0;
-				doInterpret(mainCtxtBuffer, mainCtxtBufferIdx);
+				freeSemaphore(isSend); isLocked = false;
+				doInterpret(mainCtxtBuffer, mainCtxtBufferIdx);				// message is clean to process
 			}
+
+		} else if (helpConcatNr && !(statusRcv & RINGBUFFER_MSG_STATUS_AVAIL)) {  // during help printing, go ahead when receive buffer is empty again
+			freeSemaphore(isSend); isLocked = false;
+
+			if (helpConcatNr == 1) {
+				if (getSemaphore(!isSend)) {
+					ringBufferPush(!isSend, true, (uchar*) PM_INTERPRETER_HELP2, PM_INTERPRETER_HELP2_len);
+					freeSemaphore(!isSend);
+				}
+			}
+			helpConcatNr = 0;
 		}
+
 		if (isLocked) {
 			freeSemaphore(isSend);
 		}
@@ -368,7 +421,7 @@ int main(void)
 	/* init AVR */
 	{
 		vectortable_to_firmware();
-		init_wdt();
+		wdt_init();
 
 		clkPullPwm_fw_init();
 
@@ -387,33 +440,46 @@ int main(void)
     /* stop AVR */
     {
 		cli();
+		wdt_close();
 		usb_fw_close();
+		serial_fw_close();
+		clkPullPwm_fw_close();
 
 		// switch off all pull-up
-		MCUCR = MCUCR & ~_BV(PUD);								// general deactivation of all pull-ups
+		MCUCR |= _BV(PUD);										// general deactivation of all pull-ups
 
 		// all pins are set to be input
 		DDRB = 0x00;
 		DDRC = 0x00;
 		DDRD = 0x00;
 
-		// all pull-up are being switched off
+		// all pull-ups are being switched off
 		PORTB = 0x00;
 		PORTC = 0x00;
 		PORTD = 0x00;
 
-		/* enter and keep in sleep mode */
-		for (;;) {
-			set_sleep_mode(SLEEP_MODE_EXT_STANDBY);
-			cli();
-			// if (some_condition) {
-				sleep_enable();
-		        sleep_bod_disable();
+		if (enterBL) {
+			/* write BOOT token to SRAM */
+			BOOT_TOKEN_LO_REG = BOOT_TOKEN_LO;
+			BOOT_TOKEN_HI_REG = BOOT_TOKEN_HI;
+
+			/* enter bootloader */
+			jump_to_bl();										// jump to bootloader section
+
+		} else {
+			/* enter and keep in sleep mode */
+			for (;;) {
+				set_sleep_mode(SLEEP_MODE_EXT_STANDBY);
+				cli();
+				// if (some_condition) {
+					sleep_enable();
+					sleep_bod_disable();
+					sei();
+					sleep_cpu();
+					sleep_disable();
+				// }
 				sei();
-				sleep_cpu();
-				sleep_disable();
-			// }
-			sei();
+			}
 		}
     }
 

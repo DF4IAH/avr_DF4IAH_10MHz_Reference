@@ -5,6 +5,7 @@
  *      Author: DF4IAH, Ulrich Habel
  */
 
+#include <stdio.h>
 #include <stdint.h>
 #include <avr/interrupt.h>
 
@@ -44,11 +45,11 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 void serial_fw_init()
 {
 	// setting IO pins: direction
-	UART_DDR  = (UART_DDR  & ~_BV(UART_RX_PNUM)) | _BV(UART_TX_PNUM);	// RX in, TX out
+	UART_DDR  = (UART_DDR  & ~(_BV(UART_RX_PNUM))) | _BV(UART_TX_PNUM);	// RX in, TX out
 
 	// setting IO pins: pull-up
-	UART_PORT = (UART_PORT & ~_BV(UART_TX_PNUM)) | _BV(UART_RX_PNUM);	// RX pull-up on, TX off
-	MCUCR |= _BV(PUD);													// general activation of all pull-ups, if not already done
+	UART_PORT = (UART_PORT & ~(_BV(UART_TX_PNUM))) | _BV(UART_RX_PNUM);	// RX pull-up on, TX off
+	MCUCR = MCUCR & ~(_BV(PUD));										// general activation of all pull-ups, if not already done
 
 	// setting baud rate
 	UART_BAUD_HIGH = ((UART_CALC_BAUDRATE(DEFAULT_BAUDRATE)>>8) & 0xff);
@@ -70,7 +71,7 @@ void serial_fw_init()
 
 	// interrupt: clearing Global Interrupt Flag when interrupts are changed
 	cli();
-	UART_CTRL |= _BV(RXCIE0) | _BV(UDRIE0);								// UCSR0B: enable interrupts for RX data received and TX data register is ready for next byte
+//	UART_CTRL |= _BV(RXCIE0);											// UCSR0B: enable interrupts for RX data received
 	sei();
 }
 
@@ -125,16 +126,32 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 {
 	/* check if serial TX buffer is clear and the USART0 is ready for a new character to be sent */
-	if (!serialCtxtTxBufferLen && !serialCtxtTxBufferIdx && (UCSR0A & UDRE0)) {
+	if (!serialCtxtTxBufferLen && !serialCtxtTxBufferIdx && (UCSR0A & _BV(UDRE0))) {
 		/* get message and free semaphore */
 		serialCtxtTxBufferLen = ringBufferPull(isSend, serialCtxtTxBuffer, (uint8_t) sizeof(serialCtxtTxBuffer));
 		freeSemaphore(isSend);
 
-		/* initial load of USART data register, after this the ISR will handle it until the serial TX buffer is done */
+		/* initial load of USART data register, after this the ISR will handle it until the serial TX buffer is completed */
 		UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
+
+		/* clear TRANSMIT COMPLETE */
+		UCSR0A = UCSR0A & ~(_BV(TXC0));
+
+		/* enable DATA REGISTER EMPTY INTERRUPT */
+		UCSR0B |= _BV(UDRIE0);
 
 	} else {  // now we are not ready yet, call us later again
 		freeSemaphore(isSend);
+
+#if 1
+		int len = sprintf((char*) serialCtxtTxBuffer, "E: can not enter SERIAL SEND - UCSR0A=0x%02x, serialCtxtTxBufferLen=%d, serialCtxtTxBufferIdx=%d\n", UCSR0A, serialCtxtTxBufferLen, serialCtxtTxBufferIdx);
+		if (getSemaphore(!isSend)) {
+			ringBufferPush(!isSend, false, serialCtxtTxBuffer, len);
+			freeSemaphore(!isSend);
+		} else {
+			ringBufferPushAddHook(!isSend, false, serialCtxtTxBuffer, len);
+		}
+#endif
 	}
 }
 
@@ -143,6 +160,7 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
 void serial_ISR_RXC0(void)
 {
+#if 0
 	const uint8_t isSend = false;
 
 	/* read the data byte received */
@@ -164,6 +182,7 @@ void serial_ISR_RXC0(void)
 		}
 		serialCtxtRxBufferLen = 0;
 	}
+#endif
 }
 
 #ifdef RELEASE
@@ -171,19 +190,24 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
 void serial_ISR_TXC0(void)
 {
+#if 1
 	/* first look if the serial buffer is filled */
 	if (serialCtxtTxBufferLen) {
 		UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
 
-		/* since here we can allow global interrupts again */
-		sei();
-
 		/* check if job is done */
 		if (serialCtxtTxBufferIdx == serialCtxtTxBufferLen) {
+			/* turn off data register empty interrupt */
+			UART_CTRL = UART_CTRL & ~(_BV(UDRIE0));									// UCSR0B: disable interrupt for register empty
+
+			/* since here we can allow global interrupts again */
+			sei();
+
 			serialCtxtTxBufferIdx = serialCtxtTxBufferLen = 0;
 		}
 
 	} else {
 		sei();
 	}
+#endif
 }
