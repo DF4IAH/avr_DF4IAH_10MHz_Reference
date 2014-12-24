@@ -1,40 +1,9 @@
 /*****************************************************************************
 *
-* AVRPROG compatible boot-loader
-* Version  : 0.85 (Dec. 2008)
-* Compiler : avr-gcc 4.1.2 / avr-libc 1.4.6
-* size     : depends on features and startup ( minmal features < 512 words)
-* by       : Martin Thomas, Kaiserslautern, Germany
-*            eversmith@heizung-thomas.de
-*            Additional code and improvements contributed by:
-*           - Uwe Bonnes
-*           - Bjoern Riemer
-*           - Olaf Rempel
-*           - DF4IAH, Ulrich Habel
+* DF4IAH     10 MHz Reference Oscillator
+* Version  : 141.224 (24. Dec. 2014)
 *
-* License  : Copyright (c) 2006-2008 M. Thomas, U. Bonnes, O. Rempel
-*            Free to use. You have to mention the copyright
-*            owners in source-code and documentation of derived
-*            work. No warranty! (Yes, you can insert the BSD
-*            license here)
-*
-* Tested with ATmega8, ATmega16, ATmega162, ATmega32, ATmega324P,
-*             ATmega644, ATmega644P, ATmega128, AT90CAN128
-*
-* - Initial versions have been based on the Butterfly bootloader-code
-*   by Atmel Corporation (Authors: BBrandal, PKastnes, ARodland, LHM)
-*
-****************************************************************************
-*
-*  See the makefile and readme.txt for information on how to adapt 
-*  the linker-settings to the selected Boot Size (BOOTSIZE=xxxx) and 
-*  the MCU-type. Other configurations futher down in this file.
-*
-*  With BOOT_SIMPLE, minimal features and discarded int-vectors
-*  this bootloader has should fit into a a 512 word (1024, 0x400 bytes) 
-*  bootloader-section. 
-*
-****************************************************************************/
+******************************************************************************/
 // tabsize: 4
 
 
@@ -74,7 +43,7 @@
 // DATA SECTION
 
 /* main */
-void (*jump_to_bl)(void)	 								= (void*) 0x0000;
+void (*jump_to_bl)(void)	 								= (void*) 0x7000;
 volatile uint8_t timer0Snapshot 							= 0x00;
 volatile uint8_t stopAvr		 							= 0;
 volatile uint8_t enterBL		 							= 0;
