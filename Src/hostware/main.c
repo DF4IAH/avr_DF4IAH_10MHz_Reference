@@ -24,6 +24,8 @@ respectively.
 #include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
 #include "firmware/usbconfig.h"								/* device's VID/PID and names */
 
+#include "main.h"
+
 
 #define ENABLE_TEST											// activate on request
 
@@ -33,8 +35,65 @@ respectively.
 #endif
 
 
-usb_dev_handle* handle 			= NULL;
+usb_dev_handle* handle 				= NULL;
 
+
+void openDevice(bool isReopening)
+{
+	const unsigned char rawVid[2] 	= { USB_CFG_VENDOR_ID };
+	const unsigned char rawPid[2]	= { USB_CFG_DEVICE_ID };
+	char vendor[] 					= { USB_CFG_VENDOR_NAME, 0 };
+	char product[] 					= { USB_CFG_DEVICE_NAME, 0 };
+	int vid, pid;
+	//	int showWarnings 			= 1;
+
+	/* fire up the USB engine */
+	if (!isReopening) {
+		usb_init();
+	}
+
+    /* compute VID/PID from usbconfig.h so that there is a central source of information */
+    vid = rawVid[0] | (rawVid[1] << 8);
+    pid = rawPid[0] | (rawPid[1] << 8);
+
+    /* The following function is in opendevice.c: */
+	if (usbOpenDevice(&handle, vid, vendor, pid, product, NULL, NULL, NULL) != 0) {
+		if (!isReopening) {
+			fprintf(stderr, "\nERROR: Could not find USB device \"%s\" with vid=0x%x pid=0x%x\n\n", product, vid, pid);
+			exit(1);
+		}
+	}
+
+	/* Since we use only control endpoint 0, we don't need to choose a
+	 * configuration and interface. Reading the device descriptor and setting a
+	 * configuration and interface is done through endpoint 0 after all.
+	 * However, newer versions of Linux require that we claim an interface
+	 * even for endpoint 0. Enable the following code if your operating system
+	 * needs it: */
+#if 0  /* SPECIAL USB HANDLING */
+	int retries = 1, usbConfiguration = 1, usbInterface = 0;
+
+	if (usb_set_configuration(handle, usbConfiguration) && showWarnings) {
+		fprintf(stderr, "Warning: could not set configuration: %s\n", usb_strerror());
+	}
+
+	/* now try to claim the interface and detach the kernel HID driver on
+	 * Linux and other operating systems which support the call. */
+	while ((len = usb_claim_interface(handle, usbInterface)) != 0 && retries-- > 0) {
+#ifdef LIBUSB_HAS_DETACH_KERNEL_DRIVER_NP
+		if (usb_detach_kernel_driver_np(handle, 0) < 0 && showWarnings) {
+			fprintf(stderr, "Warning: could not detach kernel driver: %s\n", usb_strerror());
+		}
+#endif
+	}
+#endif  /* SPECIAL USB HANDLING */
+}
+
+void closeDevice()
+{
+	usb_close(handle);
+	handle = NULL;
+}
 
 static void usage(char *name)
 {
@@ -132,55 +191,13 @@ int main(int argc, char **argv)
 	/*
 	 * the main application starts here
 	 */
-	const unsigned char rawVid[2] 	= { USB_CFG_VENDOR_ID };
-	const unsigned char rawPid[2]	= { USB_CFG_DEVICE_ID };
-	char vendor[] 					= { USB_CFG_VENDOR_NAME, 0 };
-	char product[] 					= { USB_CFG_DEVICE_NAME, 0 };
-	char buffer[4];
-	int cnt, vid, pid;
-//	int showWarnings 				= 1;
-
     if (argc < 2) {											// we need at least one argument
         usage(argv[0]);
         exit(1);
     }
 
-    /* fire up the USB engine */
-    usb_init();
-
-    /* compute VID/PID from usbconfig.h so that there is a central source of information */
-    vid = rawVid[0] | (rawVid[1] << 8);
-    pid = rawPid[0] | (rawPid[1] << 8);
-
-    /* The following function is in opendevice.c: */
-	if (usbOpenDevice(&handle, vid, vendor, pid, product, NULL, NULL, NULL) != 0) {
-		fprintf(stderr, "\nERROR: Could not find USB device \"%s\" with vid=0x%x pid=0x%x\n\n", product, vid, pid);
-		exit(1);
-	}
-
-	/* Since we use only control endpoint 0, we don't need to choose a
-	 * configuration and interface. Reading the device descriptor and setting a
-	 * configuration and interface is done through endpoint 0 after all.
-	 * However, newer versions of Linux require that we claim an interface
-	 * even for endpoint 0. Enable the following code if your operating system
-	 * needs it: */
-#if 0  /* SPECIAL USB HANDLING */
-	int retries = 1, usbConfiguration = 1, usbInterface = 0;
-
-	if (usb_set_configuration(handle, usbConfiguration) && showWarnings) {
-		fprintf(stderr, "Warning: could not set configuration: %s\n", usb_strerror());
-	}
-
-	/* now try to claim the interface and detach the kernel HID driver on
-	 * Linux and other operating systems which support the call. */
-	while ((len = usb_claim_interface(handle, usbInterface)) != 0 && retries-- > 0) {
-#ifdef LIBUSB_HAS_DETACH_KERNEL_DRIVER_NP
-		if (usb_detach_kernel_driver_np(handle, 0) < 0 && showWarnings) {
-			fprintf(stderr, "Warning: could not detach kernel driver: %s\n", usb_strerror());
-		}
-#endif
-	}
-#endif  /* SPECIAL USB HANDLING */
+    /* open the USB device */
+    openDevice(false);
 
 	if (strcasecmp(argv[1], "terminal") == 0) {
 		terminal();
@@ -192,13 +209,14 @@ int main(int argc, char **argv)
 		for (int i = 0; i < 50000; i++) {
 			int value = random() & 0xffff, index = random() & 0xffff;
 			int rxValue, rxIndex;
+			char buffer[4];
 
 			if ((i+1) % 100 == 0) {
 				fprintf(stderr, "\r%05d", i+1);
 				fflush(stderr);
 			}
 
-			cnt = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_ECHO, value, index, buffer, sizeof(buffer), 5000);
+			int cnt = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_ECHO, value, index, buffer, sizeof(buffer), 5000);
 			if (cnt < 0) {
 				fprintf(stderr, "\nUSB error in iteration %d: %s\n", i, usb_strerror());
 				break;
@@ -222,6 +240,8 @@ int main(int argc, char **argv)
 		exit (1);
 	}
 
-	usb_close(handle);
+	/* shut down the USB device */
+	closeDevice();
+
 	return 0;
 }

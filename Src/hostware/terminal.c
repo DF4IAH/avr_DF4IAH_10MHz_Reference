@@ -14,6 +14,7 @@
 
 #include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
 #include "firmware/usbconfig.h"								/* USB_CFG_INTR_POLL_INTERVAL */
+#include "main.h"
 
 #include "terminal.h"
 
@@ -310,7 +311,7 @@ static int usb_controlIn(uchar outLine[], int size)
 void usb_yield()
 {
 	/* USB OUT */
-	if (usbRingBufferSendPushIdx != usbRingBufferSendPullIdx) {
+	if (handle && usbRingBufferSendPushIdx != usbRingBufferSendPullIdx) {
 		int lenTx = ringBufferPull(true, usbMsg, sizeof(usbMsg));
 #ifdef TEST_DATATRANSFER_USB
 		int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
@@ -321,12 +322,15 @@ void usb_yield()
         	mvprintw(LINES - 7 + (errLine++ % 7), 20, "USB error - OUT: %s\n", usb_strerror());
         }
 #else
-		usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, (char*) usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
+		int err = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, (char*) usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
+		if (err < 0) {
+			closeDevice();
+		}
 #endif
 	}
 
 	/* USB IN */
-	if (!(((usbRingBufferRcvPushIdx + 1) == usbRingBufferRcvPullIdx) || (((usbRingBufferRcvPushIdx + 1) == RINGBUFFER_RCV_SIZE) && !usbRingBufferRcvPullIdx))) {
+	if (handle && !(((usbRingBufferRcvPushIdx + 1) == usbRingBufferRcvPullIdx) || (((usbRingBufferRcvPushIdx + 1) == RINGBUFFER_RCV_SIZE) && !usbRingBufferRcvPullIdx))) {
         int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_RECV, 0, 0, (char*) usbMsg, sizeof(usbMsg), USB_CFG_INTR_POLL_INTERVAL - 5);
 #ifdef TEST_DATATRANSFER_USB
         mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
@@ -341,6 +345,7 @@ void usb_yield()
 #ifdef TEST_DATATRANSFER_USB
         	mvprintw(LINES - 7 + (errLine++ % 7), 20, "USB error -  IN: %s\n", usb_strerror());
 #endif
+			closeDevice();
         }
 	}
 }
@@ -599,12 +604,20 @@ void terminal()
 		/* spare time for USB jobs to be done */
 		usb_yield();
 
+		if (!handle) {
+			sleep(2);
+			openDevice(true);
+		}
+
 		/* timer */
 		gettimeofday(&nowTime, NULL);
 		time_t deltaTime = (time_t) (nextTime - nowTime.tv_sec * 1000000 - nowTime.tv_usec);
 #ifdef __APPLE_CC__
 		if (deltaTime > 0) {
 			usleep(deltaTime);
+		} else if (deltaTime < -1000) {
+			/* adjust to now time */
+			nextTime += -deltaTime;
 		}
 #else
 		if (deltaTime > 0) {
@@ -618,7 +631,7 @@ void terminal()
 #else
 		nextTime += (USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000;
 #endif
-		mvprintw(LINES - 1, COLS - 30, "INFO: deltaTime=%06d", deltaTime);
+		mvprintw(LINES - 1, COLS - 30, "INFO: deltaTime=%09d", deltaTime);
 	} while (loop);
 
 	ncurses_finish(&win_rxborder, &win_rx, &win_tx);
