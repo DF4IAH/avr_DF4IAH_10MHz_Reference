@@ -28,8 +28,8 @@ extern uint8_t usbIsrCtxtBufferIdx;
 extern uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE];
 extern uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE];
 
+static uint16_t doTestCntr 									= 0;
 static uint8_t doTest 										= 0;
-static uint8_t doTestCntr 									= 0;
 
 
 #if USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH
@@ -202,25 +202,28 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 	if (doTest) {
 		if (cntRcv) {
 #if 1
-			data[retLen++] = '0' + (doTestCntr++ % 10);
+			data[retLen++] = '0' + ((doTestCntr / 1000) % 10);
+			data[retLen++] = '0' + ((doTestCntr /  100) % 10);
+			data[retLen++] = '0' + ((doTestCntr /   10) % 10);
+			data[retLen++] = '0' + ( doTestCntr++       % 10);
 #elif 0
-			data[retLen++] = '0' +  (   len / 100)      ;
-			data[retLen++] = '0' + ((   len /  10) % 10);
-			data[retLen++] = '0' + (    len        % 10);
+			data[retLen++] = '0' +  (       len /  100)      ;
+			data[retLen++] = '0' + ((       len /   10) % 10);
+			data[retLen++] = '0' + (        len         % 10);
 #else
-			data[retLen++] = '0' +  (cntRcv / 100)      ;
-			data[retLen++] = '0' + ((cntRcv /  10) % 10);
-			data[retLen++] = '0' + ( cntRcv        % 10);
+			data[retLen++] = '0' +  (    cntRcv /  100)      ;
+			data[retLen++] = '0' + ((    cntRcv /   10) % 10);
+			data[retLen++] = '0' + (     cntRcv         % 10);
 #endif
 			data[retLen++] = ':';
 		}
 	}
 
-	signed int readCnt = min(cntRcv, len) - retLen + 1;
+	signed int readCnt = min(cntRcv, len) + 1 - retLen;
 	if (readCnt > 0) {
 		if (getSemaphore(isSend)) {
 			/* pull next message from the ring buffer and send it to the host IN */
-			uint8_t pullLen = ringBufferPull(isSend, data + retLen, min(cntRcv, len) - retLen + 1);	// we accept that the final null byte is written behind the buffer
+			uint8_t pullLen = ringBufferPull(isSend, data + retLen, readCnt);	// we accept that the final null byte is written behind the buffer
 			freeSemaphore(isSend);
 			cntRcv -= retLen + pullLen;
 			return retLen + pullLen;

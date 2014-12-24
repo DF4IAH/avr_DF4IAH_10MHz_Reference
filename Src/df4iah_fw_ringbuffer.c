@@ -40,7 +40,7 @@ void* memcpy_rb(uint8_t isPgm, void* destPtr, const void* srcPtr, size_t len)
 
 	} else {
 		for (int idx = 0; idx < len; ++idx) {
-			usbRingBufferHook[idx] = pgm_read_byte_near(srcPtr + idx);
+			*((uchar*) destPtr + idx) = pgm_read_byte_near(srcPtr + idx);
 		}
 		return destPtr;
 	}

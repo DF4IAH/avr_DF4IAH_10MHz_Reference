@@ -39,6 +39,7 @@
 
 
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <util/delay.h>
 #include <avr/io.h>
@@ -124,13 +125,14 @@ const uchar VM_COMMAND_TEST[]								= "TEST";
 // const uint8_t PM_VENDOR_len = sizeof(PM_VENDOR);
 
 PROGMEM const uchar PM_INTERPRETER_HELP[] 					= "\n" \
-															  " \n" \
-															  "DF4IAH 10MHz-Ref.-Oscillator\n" \
-															  " \n" \
+															  "\n" \
+															  "=== HELP ===\n" \
+															  "\n" \
 															  "$ <NMEA-Message>\t\tsends message to the GPS module.\n" \
+															  "ABORT\t\t\t\tpowers the device down (sleep mode).\n" \
 															  "HELP\t\t\t\tthis message.\n" \
 															  "TEST\t\t\t\ttoggles counter test.\n" \
-															  " \n";
+															  "\n";
 const uint8_t PM_INTERPRETER_HELP_len 						= sizeof(PM_INTERPRETER_HELP);
 
 
@@ -258,6 +260,8 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP))) {
 		/* help information */
 		if (getSemaphore(!isSend)) {
+			int len = sprintf((char*) mainCtxtBuffer, "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: %03d%03d\n", VERSION_HIGH, VERSION_LOW);
+			ringBufferPush(!isSend, false, mainCtxtBuffer, len);
 			ringBufferPush(!isSend, true, (uchar*) PM_INTERPRETER_HELP, PM_INTERPRETER_HELP_len);
 			freeSemaphore(!isSend);
 		}
