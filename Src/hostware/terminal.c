@@ -508,11 +508,17 @@ void terminal()
         		if (inLine[idx] == '\r') {
         			inLine[idx] = ' ';
 
-        		} else if ((inLine[idx] == '\n') || (idx == (inLineCnt - 1))) {
+        		} else if ((inLine[idx] == '\n') || ((idx + 1) == inLineCnt)) {
 					enum E_COLOR_PAIRS_t thisColor = E_COLOR_PAIR_RCV_MAIN;
 					int thisAttribute = A_BOLD;
 
-        			inLine[idx] = 0;
+					if (inLine[idx] == '\n') {
+						inLine[idx] = 0;
+					} else {
+						// do not eat last character if it ends without a limiting character
+						inLine[idx + 1] = 0;
+					}
+
 					if (inLine[oldIdx] == '$') {			// NMEA messages are o be marked special
 						thisColor = E_COLOR_PAIR_RCV_GPS;
 						thisAttribute = 0;
