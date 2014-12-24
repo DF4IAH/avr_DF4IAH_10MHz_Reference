@@ -252,6 +252,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	if (!strncmp((char*) msg, (char*) VM_COMMAND_ABORT, sizeof(VM_COMMAND_ABORT))) {
 		/* stop AVR controller and enter sleep state */
+		enterMode = ENTER_MODE_SLEEP;
 		stopAvr = true;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP))) {
