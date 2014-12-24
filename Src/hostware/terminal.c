@@ -362,10 +362,10 @@ static void ncurses_init(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_tx
 		start_color();
 		use_default_colors();
 		init_pair(E_COLOR_PAIR_TITLE,			COLOR_WHITE,  COLOR_RED);
-		init_pair(E_COLOR_PAIR_SEND_MAIN,		COLOR_WHITE,  COLOR_RED);
-		init_pair(E_COLOR_PAIR_SEND_GPS,		COLOR_CYAN,   COLOR_RED);
-		init_pair(E_COLOR_PAIR_RCV_MAIN,		COLOR_WHITE,  COLOR_BLUE);	// 15, 252
-		init_pair(E_COLOR_PAIR_RCV_GPS,			COLOR_CYAN,   COLOR_BLUE);
+		init_pair(E_COLOR_PAIR_SEND_MAIN,		COLOR_BLUE,  511);
+		init_pair(E_COLOR_PAIR_SEND_GPS,		COLOR_BLUE,   15);
+		init_pair(E_COLOR_PAIR_RCV_MAIN,		COLOR_BLACK,  511);
+		init_pair(E_COLOR_PAIR_RCV_GPS,			COLOR_BLACK,   15);
 		init_pair(E_COLOR_PAIR_DEBUGGING_IN,	COLOR_YELLOW, COLOR_BLACK);
 		init_pair(E_COLOR_PAIR_DEBUGGING_OUT,	COLOR_WHITE,  COLOR_BLACK);
 	}
