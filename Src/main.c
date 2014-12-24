@@ -427,7 +427,7 @@ int main(void)
 		PORTD = 0x00;
 
 		if (enterBL) {
-			/* write BOOT token to GPIO registers */
+			/* write BOOT one time token to the EEPROM to INHIBIT restart into this Firmware again */
 			uint16_t tokenVal = BOOT_TOKEN;
 			memory_fw_writeEEpromPage((uint8_t*) &tokenVal, sizeof(tokenVal), BOOT_TOKEN_EE_ADR);
 
