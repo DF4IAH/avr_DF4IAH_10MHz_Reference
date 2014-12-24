@@ -21,6 +21,7 @@
 #include "usbdrv_fw/usbdrv.h"
 #include "df4iah_bl_memory.h"
 #include "df4iah_bl_clkPullPwm.h"
+#include "df4iah_fw_memory.h"
 #include "df4iah_fw_usb.h"
 #include "df4iah_fw_clkPullPwm.h"
 #include "df4iah_fw_ringbuffer.h"
@@ -29,11 +30,9 @@
 #include "main.h"
 
 
-#ifndef BOOT_TOKEN_LO										// should be included from chipdef.h --> mega32.h
-# define BOOT_TOKEN_LO										0xb0
-# define BOOT_TOKEN_LO_REG									GPIOR1
-# define BOOT_TOKEN_HI										0x0f
-# define BOOT_TOKEN_HI_REG									GPIOR2
+#ifndef BOOT_TOKEN											// should be included from chipdef.h --> mega32.h
+# define BOOT_TOKEN											0xb00f
+# define BOOT_TOKEN_EE_ADR									0x3fe
 #endif
 
 
@@ -428,9 +427,9 @@ int main(void)
 		PORTD = 0x00;
 
 		if (enterBL) {
-			/* write BOOT token to SRAM */
-			BOOT_TOKEN_LO_REG = BOOT_TOKEN_LO;
-			BOOT_TOKEN_HI_REG = BOOT_TOKEN_HI;
+			/* write BOOT token to GPIO registers */
+			uint16_t tokenVal = BOOT_TOKEN;
+			memory_fw_writeEEpromPage((uint8_t*) &tokenVal, sizeof(tokenVal), BOOT_TOKEN_EE_ADR);
 
 			/* enter bootloader */
 			jump_to_bl();										// jump to bootloader section
