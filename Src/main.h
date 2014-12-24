@@ -29,6 +29,12 @@
 #define VERSION_HIGH										141
 #define VERSION_LOW											224
 
+enum ENTER_MODE_t {
+	ENTER_MODE_SLEEP 										= 0,
+	ENTER_MODE_BL,
+	ENTER_MODE_FW
+};
+
 
 int main(void);
 

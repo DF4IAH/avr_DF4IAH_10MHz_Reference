@@ -42,10 +42,12 @@
 // DATA SECTION
 
 /* main */
+void (*jump_to_fw)(void)	 								= (void*) 0x0000;
 void (*jump_to_bl)(void)	 								= (void*) 0x7000;
 volatile uint8_t timer0Snapshot 							= 0x00;
+uint8_t jumperBlSet											= false;
 volatile uint8_t stopAvr		 							= 0;
-volatile uint8_t enterBL		 							= 0;
+volatile enum ENTER_MODE_t enterMode						= ENTER_MODE_SLEEP;
 volatile uint8_t helpConcatNr								= 0;
 uint8_t isUsbCommTest 										= false;
 volatile uint8_t mainCtxtBufferIdx 							= 0;
@@ -96,6 +98,7 @@ uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE] 		= { 0 };
 const uchar VM_COMMAND_ABORT[]								= "ABORT";
 const uchar VM_COMMAND_HELP[]								= "HELP";
 const uchar VM_COMMAND_LOAD[]								= "LOAD";
+const uchar VM_COMMAND_REBOOT[]								= "REBOOT";
 const uchar VM_COMMAND_TEST[]								= "TEST";
 
 
@@ -115,6 +118,8 @@ const uint8_t PM_INTERPRETER_HELP1_len 						= sizeof(PM_INTERPRETER_HELP1);
 PROGMEM const uchar PM_INTERPRETER_HELP2[] 					= "HELP\t\t\t\tthis message.\n" \
 															  "\n" \
 															  "LOAD\t\t\t\tenter bootloader.\n"
+															  "\n" \
+															  "REBOOT\t\t\t\treboot the firmware.\n" \
 															  "\n" \
 															  "TEST\t\t\t\ttoggles counter test.\n" \
 															  "\n" \
@@ -261,7 +266,12 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_LOAD, sizeof(VM_COMMAND_LOAD))) {
 		/* enter bootloader */
-		enterBL = true;
+		enterMode = ENTER_MODE_BL;
+		stopAvr = true;
+
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_REBOOT, sizeof(VM_COMMAND_REBOOT))) {
+		/* enter firmware */
+		enterMode = ENTER_MODE_FW;
 		stopAvr = true;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_TEST, sizeof(VM_COMMAND_TEST))) {
@@ -426,14 +436,20 @@ int main(void)
 		PORTC = 0x00;
 		PORTD = 0x00;
 
-		if (enterBL) {
-			/* write BOOT one time token to the EEPROM to INHIBIT restart into this Firmware again */
-			uint16_t tokenVal = BOOT_TOKEN;
-			memory_fw_writeEEpromPage((uint8_t*) &tokenVal, sizeof(tokenVal), BOOT_TOKEN_EE_ADR);
+		if (enterMode) {
+			if (enterMode == ENTER_MODE_BL) {
+				/* write BOOT one time token to the EEPROM to INHIBIT restart into this Firmware again */
+				uint16_t tokenVal = BOOT_TOKEN;
+				memory_fw_writeEEpromPage((uint8_t*) &tokenVal, sizeof(tokenVal), BOOT_TOKEN_EE_ADR);
 
-			/* enter bootloader */
-			jump_to_bl();										// jump to bootloader section
+				/* enter bootloader */
+				jump_to_bl();										// jump to bootloader section
 
+			} else if (enterMode == ENTER_MODE_FW) {
+				/* restart firmware */
+				jump_to_fw();										// jump to firmware section (REBOOT)
+
+			}
 		} else {
 			/* enter and keep in sleep mode */
 			for (;;) {

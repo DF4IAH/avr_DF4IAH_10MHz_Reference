@@ -138,7 +138,7 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 		UCSR0A = UCSR0A & ~(_BV(TXC0));
 
 		/* enable DATA REGISTER EMPTY INTERRUPT */
-		UCSR0B |= _BV(UDRIE0);
+		//UCSR0B |= _BV(UDRIE0);
 
 	} else {  // now we are not ready yet, call us later again
 		freeSemaphore(isSend);
