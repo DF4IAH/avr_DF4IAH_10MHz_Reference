@@ -57,8 +57,9 @@ uint8_t serial_fw_recvchar(void);
 
 void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend);
 
-void serial_ISR_RXC0(void);
-void serial_ISR_UDRE0(void);
-void serial_ISR_TXC0(void);
+/* the following functions are direct __vector_xx calls to reduce some clocks */
+//void serial_ISR_RXC0(void);
+//void serial_ISR_UDRE0(void);
+//void serial_ISR_TXC0(void);
 
 #endif /* DF4IAH_FW_SERIAL_H_ */

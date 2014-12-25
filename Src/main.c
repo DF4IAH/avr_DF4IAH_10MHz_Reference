@@ -72,7 +72,7 @@ volatile uint8_t usbRingBufferHookIsSend 					= 0;
 /* df4iah_fw_serial */
 volatile uint8_t serialCtxtRxBufferLen						= 0;
 volatile uint8_t serialCtxtTxBufferLen						= 0;
-volatile uint8_t serialCtxtTxBufferIdx						= 0;
+uint8_t serialCtxtTxBufferIdx								= 0;
 
 
 // ARRAYS - due to overwriting hazards they are following the controlling variables
@@ -209,17 +209,18 @@ void __vector_default(void) { ; }
 //EMPTY_INTERRUPT(SPM_READY_vect);
 
 /* assign interrupt routines to vectors */
-ISR(USART_RX_vect, ISR_BLOCK) {
-	serial_ISR_RXC0();
-}
+/* due to optimizations the ISR is set at the function block directly */
+//ISR(USART_RX_vect, ISR_BLOCK) {
+//	serial_ISR_RXC0();
+//}
 
-ISR(USART_UDRE_vect, ISR_NOBLOCK) {
-	serial_ISR_UDRE0();
-}
+//ISR(USART_UDRE_vect, ISR_BLOCK) {
+//	serial_ISR_UDRE0();
+//}
 
-ISR(USART_TX_vect, ISR_NOBLOCK) {
-	serial_ISR_TXC0();
-}
+//ISR(USART_TX_vect, ISR_NOBLOCK) {
+//	serial_ISR_TXC0();
+//}
 
 
 static inline void vectortable_to_firmware(void) {

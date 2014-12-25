@@ -164,7 +164,8 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
-void serial_ISR_RXC0(void)
+//void serial_ISR_RXC0(void)
+ISR(USART_RX_vect, ISR_BLOCK)
 {
 #if 0
 	const uint8_t isSend = false;
@@ -191,15 +192,35 @@ void serial_ISR_RXC0(void)
 #endif
 }
 
+/*
+ * x	Mnemonics	clocks	resulting clocks
+ * ------------------------------------------------
+ * 7	push		2		14
+ * 1	in			1		 1
+ * 1	eor			1		 1
+ * 2	lds			2		 4
+ * 1	cp			1		 1
+ * 1	brcc		1		 1
+ * 2	ldi			1		 2
+ * 1	add			1		 1
+ * 2	sts			2		 4
+ * 1	subi		1		 1
+ * 1	sbci		1		 1
+ * 1	ld (Z)		2		 2
+ *
+ * = 33 clocks --> 1.65 µs until sei() is done
+ */
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
-void serial_ISR_UDRE0(void)
+//void serial_ISR_UDRE0(void)
+ISR(USART_UDRE_vect, ISR_BLOCK)
 {
 	/* first look if the serial buffer is filled */
 	if (serialCtxtTxBufferIdx < serialCtxtTxBufferLen) {
 		UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
 	}
+	sei();																		// since here another interrupts are allowed, see table above
 
 	/* check if job is done */
 	if (serialCtxtTxBufferIdx >= serialCtxtTxBufferLen) {
@@ -214,7 +235,8 @@ void serial_ISR_UDRE0(void)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
-void serial_ISR_TXC0(void)
+//void serial_ISR_TXC0(void)
+ISR(USART_TX_vect, ISR_NOBLOCK)
 {
 	// not used yet
 }
