@@ -65,6 +65,9 @@ void serial_fw_init()
 				  ((DEFAULT_PARITY_N0_E2_O3 & 0b11)<<UPM00)	|			// parity 0=off, 2=even, 3=odd, 1=(do not use)
 				 (((DEFAULT_BITS - 5)       & 0b11)<<UCSZ00);			// bits 5..8
 
+	// this is a dummy operation to clear the RX ready bit
+	serialCtxtTxBufferIdx = UDR0;
+
 	// interrupt: clearing Global Interrupt Flag when interrupts are changed
 	cli();
 	UART_CTRL |= _BV(RXCIE0);											// UCSR0B: enable interrupts for RX data received
@@ -163,7 +166,7 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
-//void serial_ISR_RXC0(void)
+//void serial_ISR_RXC0(void) - __vector_18
 ISR(USART_RX_vect, ISR_BLOCK)
 {
 	/* read the data byte received */
@@ -208,7 +211,7 @@ ISR(USART_RX_vect, ISR_BLOCK)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
-//void serial_ISR_UDRE0(void)
+//void serial_ISR_UDRE0(void) - __vector_19
 ISR(USART_UDRE_vect, ISR_BLOCK)
 {
 	/* first look if the serial buffer is filled */
@@ -232,7 +235,7 @@ ISR(USART_UDRE_vect, ISR_BLOCK)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
-//void serial_ISR_TXC0(void)
+//void serial_ISR_TXC0(void) - __vector_20
 ISR(USART_TX_vect, ISR_NOBLOCK)
 {
 	// not used yet
