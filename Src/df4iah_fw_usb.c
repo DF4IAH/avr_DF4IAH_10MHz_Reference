@@ -149,6 +149,12 @@ void usb_fw_close()
 {
 	USB_INTR_ENABLE &= ~(_BV(USB_INTR_ENABLE_BIT));
 	usbDeviceDisconnect();
+
+	uint16_t i = 500;
+    while (--i) {											// fake USB disconnect for > 500 ms
+        _delay_ms(1);
+        wdt_reset();
+    }
 }
 
 /*  -- 8< -- */

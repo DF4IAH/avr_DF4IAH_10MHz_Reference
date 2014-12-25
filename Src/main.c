@@ -183,6 +183,7 @@ void __vector_default(void) { ; }
 
 //EMPTY_INTERRUPT(INT0_vect);
 //EMPTY_INTERRUPT(INT1_vect);
+//ISR(INT1_vect, ISR_ALIASOF(INT0_vect));
 //EMPTY_INTERRUPT(PCINT0_vect);
 //EMPTY_INTERRUPT(PCINT1_vect);
 //EMPTY_INTERRUPT(PCINT2_vect);
@@ -201,7 +202,6 @@ void __vector_default(void) { ; }
 //EMPTY_INTERRUPT(USART_RX_vect);
 //EMPTY_INTERRUPT(USART_UDRE_vect);
 //EMPTY_INTERRUPT(USART_TX_vect);
-//ISR(USART_TX_vect, ISR_ALIASOF(USART_RX_vect));
 //EMPTY_INTERRUPT(ADC_vect);
 //EMPTY_INTERRUPT(EE_READY_vect);
 //EMPTY_INTERRUPT(ANALOG_COMP_vect);
@@ -209,11 +209,15 @@ void __vector_default(void) { ; }
 //EMPTY_INTERRUPT(SPM_READY_vect);
 
 /* assign interrupt routines to vectors */
-ISR(USART_RX_vect) {
+ISR(USART_RX_vect, ISR_BLOCK) {
 	serial_ISR_RXC0();
 }
 
-ISR(USART_TX_vect) {
+ISR(USART_UDRE_vect, ISR_NOBLOCK) {
+	serial_ISR_UDRE0();
+}
+
+ISR(USART_TX_vect, ISR_NOBLOCK) {
 	serial_ISR_TXC0();
 }
 
@@ -347,10 +351,7 @@ static void give_away(void)
 	usb_fw_sendInInterrupt();
 	workInQueue();
 
-	if (UCSR0A & _BV(UDRE0)) {  // XXX remove me!
-		UDR0 = 0xa5;
-	}
-	clkPullPwm_fw_togglePin();
+	clkPullPwm_fw_togglePin();								// XXX for debugging purposes only
 }
 
 

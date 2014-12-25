@@ -124,15 +124,17 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 		/* get message and free semaphore */
 		serialCtxtTxBufferLen = ringBufferPull(isSend, serialCtxtTxBuffer, (uint8_t) sizeof(serialCtxtTxBuffer));
 		freeSemaphore(isSend);
-
-		/* initial load of USART data register, after this the ISR will handle it until the serial TX buffer is completed */
-		//UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
+		serialCtxtTxBuffer[serialCtxtTxBufferLen++] = '\r';	// obligatory NMEA message ends with CR LF
+		serialCtxtTxBuffer[serialCtxtTxBufferLen++] = '\n';
 
 		/* clear TRANSMIT COMPLETE */
 		UCSR0A = UCSR0A & ~(_BV(TXC0));
 
-		/* enable DATA REGISTER EMPTY INTERRUPT */
-		//UCSR0B |= _BV(UDRIE0);
+		/* initial load of USART data register, after this the ISR will handle it until the serial TX buffer is completed */
+		UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
+
+		/* enable DATA REGISTER EMPTY INTERRUPT - the interrupt will arrive after initial UDSR0 loading */
+		UCSR0B |= _BV(UDRIE0);								// this will shoot an interrupt because UDR0 is ready again to be filled (UDRE0 is true)
 
 	} else {  // now we are not ready yet, call us later again
 		freeSemaphore(isSend);
@@ -183,26 +185,29 @@ void serial_ISR_RXC0(void)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
-void serial_ISR_TXC0(void)
+void serial_ISR_UDRE0(void)
 {
-#if 1
 	/* first look if the serial buffer is filled */
 	if (serialCtxtTxBufferLen) {
-		UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
+		if (serialCtxtTxBufferIdx < serialCtxtTxBufferLen) {
+			UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
+		}
 
 		/* check if job is done */
 		if (serialCtxtTxBufferIdx == serialCtxtTxBufferLen) {
 			/* turn off data register empty interrupt */
 			UART_CTRL = UART_CTRL & ~(_BV(UDRIE0));									// UCSR0B: disable interrupt for register empty
 
-			/* since here we can allow global interrupts again */
-			sei();
-
+			/* mark buffer free */
 			serialCtxtTxBufferIdx = serialCtxtTxBufferLen = 0;
 		}
-
-	} else {
-		sei();
 	}
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
+void serial_ISR_TXC0(void)
+{
+	// not used yet
 }
