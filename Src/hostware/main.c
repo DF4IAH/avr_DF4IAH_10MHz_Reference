@@ -44,17 +44,19 @@ void openDevice(bool isReopening)
 	const unsigned char rawPid[2]	= { USB_CFG_DEVICE_ID };
 	char vendor[] 					= { USB_CFG_VENDOR_NAME, 0 };
 	char product[] 					= { USB_CFG_DEVICE_NAME, 0 };
-	int vid, pid;
-	//	int showWarnings 			= 1;
+	//int showWarnings	 			= 1;
 
-	/* fire up the USB engine */
 	if (!isReopening) {
+		/* fire up the USB engine */
 		usb_init();
+	} else if (handle) {
+		/* refuse before handle is nulled */
+		return;
 	}
 
     /* compute VID/PID from usbconfig.h so that there is a central source of information */
-    vid = rawVid[0] | (rawVid[1] << 8);
-    pid = rawPid[0] | (rawPid[1] << 8);
+    int vid = rawVid[0] | (rawVid[1] << 8);
+    int pid = rawPid[0] | (rawPid[1] << 8);
 
     /* The following function is in opendevice.c: */
 	if (usbOpenDevice(&handle, vid, vendor, pid, product, NULL, NULL, NULL) != 0) {
@@ -92,6 +94,7 @@ void openDevice(bool isReopening)
 void closeDevice()
 {
 	usb_close(handle);
+	usleep(500000);
 	handle = NULL;
 }
 
