@@ -166,8 +166,6 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 //void serial_ISR_RXC0(void)
 ISR(USART_RX_vect, ISR_BLOCK)
 {
-	const uint8_t isSend = false;
-
 	/* read the data byte received */
 	uint8_t rxData = UDR0;
 
@@ -179,11 +177,11 @@ ISR(USART_RX_vect, ISR_BLOCK)
 
 	/* if the end of a NMEA sentence is detected, send this serial RX buffer to the receive (IN) ring buffer */
 	if (rxData == '\n') {  // a NMEA sentence stops with:  <sentence...*checksum\r\n>
-		if (getSemaphore(!isSend)) {
-			ringBufferPush(!isSend, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
-			freeSemaphore(!isSend);
+		if (getSemaphore(false)) {
+			ringBufferPush(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
+			freeSemaphore(false);
 		} else {
-			ringBufferPushAddHook(!isSend, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
+			ringBufferPushAddHook(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
 		}
 		serialCtxtRxBufferLen = 0;
 	}
