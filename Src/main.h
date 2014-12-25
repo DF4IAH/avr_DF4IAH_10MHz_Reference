@@ -27,7 +27,7 @@
 
 
 #define VERSION_HIGH										141
-#define VERSION_LOW											224
+#define VERSION_LOW											225
 
 enum ENTER_MODE_t {
 	ENTER_MODE_SLEEP 										= 0,
