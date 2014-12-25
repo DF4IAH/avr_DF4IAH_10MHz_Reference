@@ -120,13 +120,15 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 {
 	/* check if serial TX buffer is clear and the USART0 is ready for a new character to be sent */
-	if (!serialCtxtTxBufferLen && !serialCtxtTxBufferIdx && (UCSR0A & _BV(UDRE0))) {
+	if (!serialCtxtTxBufferLen && (UCSR0A & _BV(UDRE0))) {
 		/* get message and free semaphore */
 		serialCtxtTxBufferLen = ringBufferPull(isSend, serialCtxtTxBuffer, (uint8_t) sizeof(serialCtxtTxBuffer));
 		freeSemaphore(isSend);
 
+		serialCtxtTxBufferIdx = 0;
+
 		if (serialCtxtTxBufferLen) {
-			int restoreIdx = serialCtxtTxBufferLen;
+			uint8_t restoreIdx = serialCtxtTxBufferLen;
 			if (serialCtxtTxBuffer[--serialCtxtTxBufferLen]) {  // chop off trailing NULL char
 				serialCtxtTxBufferLen = restoreIdx;				// restore index, if not NULL
 			}
@@ -195,19 +197,17 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 void serial_ISR_UDRE0(void)
 {
 	/* first look if the serial buffer is filled */
-	if (serialCtxtTxBufferLen) {
-		if (serialCtxtTxBufferIdx < serialCtxtTxBufferLen) {
-			UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
-		}
+	if (serialCtxtTxBufferIdx < serialCtxtTxBufferLen) {
+		UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
+	}
 
-		/* check if job is done */
-		if (serialCtxtTxBufferIdx == serialCtxtTxBufferLen) {
-			/* turn off data register empty interrupt */
-			UART_CTRL = UART_CTRL & ~(_BV(UDRIE0));									// UCSR0B: disable interrupt for register empty
+	/* check if job is done */
+	if (serialCtxtTxBufferIdx >= serialCtxtTxBufferLen) {
+		/* turn off data register empty interrupt */
+		UART_CTRL = UART_CTRL & ~(_BV(UDRIE0));									// UCSR0B: disable interrupt for register empty
 
-			/* mark buffer free */
-			serialCtxtTxBufferIdx = serialCtxtTxBufferLen = 0;
-		}
+		/* mark buffer as free */
+		serialCtxtTxBufferLen = 0;
 	}
 }
 
