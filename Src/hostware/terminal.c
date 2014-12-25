@@ -451,7 +451,7 @@ void terminal()
 		usb_do_transfers();
 
 		if (!handle) {
-			sleep(2);
+			sleep(1);
 			openDevice(true);
 		}
 
