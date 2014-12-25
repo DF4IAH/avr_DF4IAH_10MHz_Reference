@@ -97,7 +97,7 @@ uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE] 		= { 0 };
 // STRINGS IN MEMORY SECTION
 const uchar VM_COMMAND_ABORT[]								= "ABORT";
 const uchar VM_COMMAND_HELP[]								= "HELP";
-const uchar VM_COMMAND_LOAD[]								= "LOAD";
+const uchar VM_COMMAND_LOADER[]								= "LOADER";
 const uchar VM_COMMAND_REBOOT[]								= "REBOOT";
 const uchar VM_COMMAND_TEST[]								= "TEST";
 
@@ -117,7 +117,7 @@ const uint8_t PM_INTERPRETER_HELP1_len 						= sizeof(PM_INTERPRETER_HELP1);
 
 PROGMEM const uchar PM_INTERPRETER_HELP2[] 					= "HELP\t\t\t\tthis message.\n" \
 															  "\n" \
-															  "LOAD\t\t\t\tenter bootloader.\n"
+															  "LOADER\t\t\t\tenter bootloader.\n"
 															  "\n" \
 															  "REBOOT\t\t\t\treboot the firmware.\n" \
 															  "\n" \
@@ -270,7 +270,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			helpConcatNr = 1;
 		}
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_LOAD, sizeof(VM_COMMAND_LOAD))) {
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_LOADER, sizeof(VM_COMMAND_LOADER))) {
 		/* enter bootloader */
 		enterMode = ENTER_MODE_BL;
 		stopAvr = true;

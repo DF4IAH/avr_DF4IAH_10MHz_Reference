@@ -57,8 +57,7 @@ void serial_fw_init()
 #endif
 
 	// enabling the Transmitter and the Receiver
-	UART_CTRL  = (UART_CTRL & 0b11100000) 					|			// UCSR0B: keep interrupt state (RXCIE0 TXCIE0 RXCIE0),
-				  _BV(RXEN0) 								|			// RXEN0=1,
+	UART_CTRL  =  _BV(RXEN0) 								|			// RXEN0=1,
 				  _BV(TXEN0);											// TXEN0=1
 
 	// setting frame format
@@ -68,7 +67,7 @@ void serial_fw_init()
 
 	// interrupt: clearing Global Interrupt Flag when interrupts are changed
 	cli();
-//	UART_CTRL |= _BV(RXCIE0);											// UCSR0B: enable interrupts for RX data received
+	UART_CTRL |= _BV(RXCIE0);											// UCSR0B: enable interrupts for RX data received
 	sei();
 }
 
@@ -167,7 +166,6 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 //void serial_ISR_RXC0(void)
 ISR(USART_RX_vect, ISR_BLOCK)
 {
-#if 0
 	const uint8_t isSend = false;
 
 	/* read the data byte received */
@@ -189,7 +187,6 @@ ISR(USART_RX_vect, ISR_BLOCK)
 		}
 		serialCtxtRxBufferLen = 0;
 	}
-#endif
 }
 
 /*
@@ -220,7 +217,9 @@ ISR(USART_UDRE_vect, ISR_BLOCK)
 	if (serialCtxtTxBufferIdx < serialCtxtTxBufferLen) {
 		UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
 	}
-	sei();																		// since here another interrupts are allowed, see table above
+
+	/* since here we can allow global interrupts again, see table above */
+	sei();
 
 	/* check if job is done */
 	if (serialCtxtTxBufferIdx >= serialCtxtTxBufferLen) {
