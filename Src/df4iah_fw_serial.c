@@ -126,8 +126,9 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 		freeSemaphore(isSend);
 
 		if (serialCtxtTxBufferLen) {
+			int restoreIdx = serialCtxtTxBufferLen;
 			if (serialCtxtTxBuffer[--serialCtxtTxBufferLen]) {  // chop off trailing NULL char
-				serialCtxtTxBufferLen++;						// restore index, if not NULL
+				serialCtxtTxBufferLen = restoreIdx;				// restore index, if not NULL
 			}
 			serialCtxtTxBuffer[serialCtxtTxBufferLen++] = '\r';	// obligatory NMEA message ends with CR LF
 			serialCtxtTxBuffer[serialCtxtTxBufferLen++] = '\n';
