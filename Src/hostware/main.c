@@ -46,10 +46,9 @@ void openDevice(bool isReopening)
 	char product[] 					= { USB_CFG_DEVICE_NAME, 0 };
 	//int showWarnings	 			= 1;
 
-	if (!isReopening) {
-		/* fire up the USB engine */
-		usb_init();
-	} else if (handle) {
+	/* fire up the USB engine */
+	usb_init();
+	if (isReopening && handle) {
 		/* refuse before handle is nulled */
 		return;
 	}
@@ -94,7 +93,7 @@ void openDevice(bool isReopening)
 void closeDevice()
 {
 	usb_close(handle);
-	usleep(500000);
+	usleep(100000);
 	handle = NULL;
 }
 
