@@ -353,6 +353,9 @@ static void give_away(void)
 	workInQueue();
 
 	clkPullPwm_fw_togglePin();								// XXX for debugging purposes only
+
+	/* go into sleep mode */
+	// TODO sleep mode
 }
 
 

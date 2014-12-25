@@ -4,15 +4,8 @@
 		<cconfiguration id="de.innot.avreclipse.configuration.app.debug.517072529">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.debug.517072529" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<macros>
-					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
-					<stringMacro name="MT_Firmware_ClkPullPwm" type="VALUE_TEXT" value="0x6F00"/>
-					<stringMacro name="MT_Bootloader_Memory" type="VALUE_TEXT" value="0x7C00"/>
-					<stringMacro name="MT_Firmware_Memory" type="VALUE_TEXT" value="0x5C00"/>
-					<stringMacro name="MT_Firmware_Usb" type="VALUE_TEXT" value="0x6800"/>
-					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x6000"/>
-					<stringMacro name="MT_Bootloader_ClkPullPwm" type="VALUE_TEXT" value="0x7F00"/>
-					<stringMacro name="MT_Bootloader_Probe" type="VALUE_TEXT" value="0x7780"/>
+					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="DEBUG" type="VALUE_TEXT" value="1"/>
 				</macros>
 				<externalSettings/>
@@ -49,15 +42,6 @@
 									<listOptionValue builtIn="false" value="DEBUG"/>
 									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="BOOTSIZE=${Bootsize}"/>
-									<listOptionValue builtIn="false" value="MT_BOOTLOADER_CLKPULLPWM=${MT_Bootloader_ClkPullPwm}"/>
-									<listOptionValue builtIn="false" value="MT_BOOTLOADER_MEMORY=${MT_Bootloader_Memory}"/>
-									<listOptionValue builtIn="false" value="MT_BOOTLOADER_PROBE=${MT_Bootloader_Probe}"/>
-									<listOptionValue builtIn="false" value="MT_FIRMWARE_ADDRESS=${MT_Firmware_Address}"/>
-									<listOptionValue builtIn="false" value="MT_FIRMWARE_CLKPULLPWM=${MT_Firmware_ClkPullPwm}"/>
-									<listOptionValue builtIn="false" value="MT_FIRMWARE_MEMORY=${MT_Firmware_Memory}"/>
-									<listOptionValue builtIn="false" value="MT_FIRMWARE_PROBE=${MT_Firmware_Probe}"/>
-									<listOptionValue builtIn="false" value="MT_FIRMWARE_SERIAL=${MT_Firmware_Serial}"/>
-									<listOptionValue builtIn="false" value="MT_FIRMWARE_USB=${MT_Firmware_Usb}"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.incpath.1783088601" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_10MHz_Reference/Src}&quot;"/>
@@ -73,8 +57,8 @@
 								<option id="de.innot.avreclipse.linker.option.otherlinkargs.1188564720" name="Other Arguments" superClass="de.innot.avreclipse.linker.option.otherlinkargs" value="-Wl,--section-start=.text=${MT_Firmware_Address}" valueType="string"/>
 								<option id="de.innot.avreclipse.linker.option.libs.571593710" name="Libraries (-l)" superClass="de.innot.avreclipse.linker.option.libs"/>
 								<option id="de.innot.avreclipse.linker.option.otherobjs.433994915" name="Other Objects (*.o)" superClass="de.innot.avreclipse.linker.option.otherobjs" valueType="userObjs">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_Bootloader/Debug/Src/df4iah_bl_clkPullPwm.o}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_Bootloader/Debug/Src/df4iah_bl_memory.o}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_Bootloader/Debug/Src/df4iah_bl_clkPullPwm.o}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_Bootloader/Debug/Src/df4iah_bl_probe.o}&quot;"/>
 								</option>
 								<inputType id="de.innot.avreclipse.tool.linker.input.1318658597" name="OBJ Files" superClass="de.innot.avreclipse.tool.linker.input">
@@ -105,15 +89,15 @@
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.1034531880">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.1034531880" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<macros>
-					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
-					<stringMacro name="MT_Firmware_ClkPullPwm" type="VALUE_TEXT" value="0x6F00"/>
-					<stringMacro name="MT_Bootloader_Memory" type="VALUE_TEXT" value="0x7C00"/>
-					<stringMacro name="MT_Firmware_Memory" type="VALUE_TEXT" value="0x5C00"/>
-					<stringMacro name="MT_Firmware_Usb" type="VALUE_TEXT" value="0x6800"/>
+					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
+					<stringMacro name="MT_Bootloader_Memory" type="VALUE_TEXT" value="0x7900"/>
+					<stringMacro name="MT_Firmware_ClkPullPwm" type="VALUE_TEXT" value="0x6780"/>
+					<stringMacro name="MT_Firmware_Memory" type="VALUE_TEXT" value="0x5900"/>
+					<stringMacro name="MT_Firmware_Usb" type="VALUE_TEXT" value="0x6BE0"/>
+					<stringMacro name="MT_Bootloader_ClkPullPwm" type="VALUE_TEXT" value="0x7780"/>
 					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x6000"/>
-					<stringMacro name="MT_Bootloader_ClkPullPwm" type="VALUE_TEXT" value="0x7F00"/>
-					<stringMacro name="MT_Bootloader_Probe" type="VALUE_TEXT" value="0x7780"/>
+					<stringMacro name="MT_Bootloader_Probe" type="VALUE_TEXT" value="0x78C0"/>
 					<stringMacro name="RELEASE" type="VALUE_TEXT" value="1"/>
 				</macros>
 				<externalSettings/>
@@ -150,15 +134,6 @@
 									<listOptionValue builtIn="false" value="RELEASE"/>
 									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="BOOTSIZE=${Bootsize}"/>
-									<listOptionValue builtIn="false" value="MT_BOOTLOADER_CLKPULLPWM=${MT_Bootloader_ClkPullPwm}"/>
-									<listOptionValue builtIn="false" value="MT_BOOTLOADER_MEMORY=${MT_Bootloader_Memory}"/>
-									<listOptionValue builtIn="false" value="MT_BOOTLOADER_PROBE=${MT_Bootloader_Probe}"/>
-									<listOptionValue builtIn="false" value="MT_FIRMWARE_ADDRESS=${MT_Firmware_Address}"/>
-									<listOptionValue builtIn="false" value="MT_FIRMWARE_CLKPULLPWM=${MT_Firmware_ClkPullPwm}"/>
-									<listOptionValue builtIn="false" value="MT_FIRMWARE_MEMORY=${MT_Firmware_Memory}"/>
-									<listOptionValue builtIn="false" value="MT_FIRMWARE_PROBE=${MT_Firmware_Probe}"/>
-									<listOptionValue builtIn="false" value="MT_FIRMWARE_SERIAL=${MT_Firmware_Serial}"/>
-									<listOptionValue builtIn="false" value="MT_FIRMWARE_USB=${MT_Firmware_Usb}"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.incpath.1385247018" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_10MHz_Reference/Src}&quot;"/>
@@ -175,8 +150,8 @@
 								<option id="de.innot.avreclipse.linker.option.libpath.939957995" name="Libraries Path (-L)" superClass="de.innot.avreclipse.linker.option.libpath"/>
 								<option id="de.innot.avreclipse.linker.option.libs.2039879246" name="Libraries (-l)" superClass="de.innot.avreclipse.linker.option.libs"/>
 								<option id="de.innot.avreclipse.linker.option.otherobjs.1774034155" name="Other Objects (*.o)" superClass="de.innot.avreclipse.linker.option.otherobjs" valueType="userObjs">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_clkPullPwm.o}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_memory.o}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_clkPullPwm.o}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_probe.o}&quot;"/>
 								</option>
 								<inputType id="de.innot.avreclipse.tool.linker.input.124312367" name="OBJ Files" superClass="de.innot.avreclipse.tool.linker.input">
