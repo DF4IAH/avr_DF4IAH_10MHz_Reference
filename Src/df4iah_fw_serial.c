@@ -124,17 +124,23 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 		/* get message and free semaphore */
 		serialCtxtTxBufferLen = ringBufferPull(isSend, serialCtxtTxBuffer, (uint8_t) sizeof(serialCtxtTxBuffer));
 		freeSemaphore(isSend);
-		serialCtxtTxBuffer[serialCtxtTxBufferLen++] = '\r';	// obligatory NMEA message ends with CR LF
-		serialCtxtTxBuffer[serialCtxtTxBufferLen++] = '\n';
 
-		/* clear TRANSMIT COMPLETE */
-		UCSR0A = UCSR0A & ~(_BV(TXC0));
+		if (serialCtxtTxBufferLen) {
+			if (serialCtxtTxBuffer[--serialCtxtTxBufferLen]) {  // chop off trailing NULL char
+				serialCtxtTxBufferLen++;						// restore index, if not NULL
+			}
+			serialCtxtTxBuffer[serialCtxtTxBufferLen++] = '\r';	// obligatory NMEA message ends with CR LF
+			serialCtxtTxBuffer[serialCtxtTxBufferLen++] = '\n';
 
-		/* initial load of USART data register, after this the ISR will handle it until the serial TX buffer is completed */
-		UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
+			/* clear TRANSMIT COMPLETE */
+			UCSR0A = UCSR0A & ~(_BV(TXC0));
 
-		/* enable DATA REGISTER EMPTY INTERRUPT - the interrupt will arrive after initial UDSR0 loading */
-		UCSR0B |= _BV(UDRIE0);								// this will shoot an interrupt because UDR0 is ready again to be filled (UDRE0 is true)
+			/* initial load of USART data register, after this the ISR will handle it until the serial TX buffer is completed */
+			UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
+
+			/* enable DATA REGISTER EMPTY INTERRUPT - the interrupt will arrive after initial UDSR0 loading */
+			UCSR0B |= _BV(UDRIE0);								// this will shoot an interrupt because UDR0 is ready again to be filled (UDRE0 is true)
+		}
 
 	} else {  // now we are not ready yet, call us later again
 		freeSemaphore(isSend);
