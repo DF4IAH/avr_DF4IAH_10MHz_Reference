@@ -44,12 +44,9 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
 void serial_fw_init()
 {
-	// setting IO pins: direction
-	UART_DDR  = (UART_DDR  & ~(_BV(UART_RX_PNUM))) | _BV(UART_TX_PNUM);	// RX in, TX out
-
-	// setting IO pins: pull-up
-	UART_PORT = (UART_PORT & ~(_BV(UART_TX_PNUM))) | _BV(UART_RX_PNUM);	// RX pull-up on, TX off
-	MCUCR = MCUCR & ~(_BV(PUD));										// general activation of all pull-ups, if not already done
+	// setting IO pins: pull-up on
+	MCUCR = (MCUCR & ~(_BV(PUD)));										// ensure PUD is off --> activation of all pull-ups
+	UART_PORT = UART_PORT | _BV(UART_RX_PNUM);							// RX pull-up on, PUD is deactivated in main()
 
 	// setting baud rate
 	UART_BAUD_HIGH = ((UART_CALC_BAUDRATE(DEFAULT_BAUDRATE)>>8) & 0xff);
@@ -59,15 +56,15 @@ void serial_fw_init()
 	UART_STATUS = _BV(UART_DOUBLE);										// UCSR0A: U2X0
 #endif
 
-	// enabling the Transmitter or the Receiver
-	UART_CTRL  = (UART_CTRL & 0b11100000) 				| 				// UCSR0B: keep interrupt state (RXCIE0 TXCIE0 RXCIE0),
-				  _BV(RXEN0) 							| 				// RXEN0=1,
+	// enabling the Transmitter and the Receiver
+	UART_CTRL  = (UART_CTRL & 0b11100000) 					|			// UCSR0B: keep interrupt state (RXCIE0 TXCIE0 RXCIE0),
+				  _BV(RXEN0) 								|			// RXEN0=1,
 				  _BV(TXEN0);											// TXEN0=1
 
 	// setting frame format
-	UART_CTRL2 =  (0b00<<UMSEL00) 						|				// UCSR0C: asynchronous USART,
-				  ((DEFAULT_PARITY_N0_E2_O3)<<UPM00)	|				// parity 0=off, 2=even, 3=odd, 1=(do not use)
-				  ((DEFAULT_BITS - 5)		<<UCSZ00);					// bits 5..8
+	UART_CTRL2 =  (0b00<<UMSEL00) 							|			// UCSR0C: asynchronous USART,
+				  ((DEFAULT_PARITY_N0_E2_O3 & 0b11)<<UPM00)	|			// parity 0=off, 2=even, 3=odd, 1=(do not use)
+				 (((DEFAULT_BITS - 5)       & 0b11)<<UCSZ00);			// bits 5..8
 
 	// interrupt: clearing Global Interrupt Flag when interrupts are changed
 	cli();
@@ -82,10 +79,10 @@ void serial_fw_close()
 {
 	// interrupt: clearing Global Interrupt Flag when interrupts are changed
 	cli();
-	UART_CTRL = UART_CTRL & ~(_BV(RXCIE0)				|				// UCSR0B: disable all serial interrupts,
-							  _BV(TXCIE0)				|
-							  _BV(UDRIE0)				|
-							  _BV(RXEN0)				|				// and TX/RX ports
+	UART_CTRL = UART_CTRL & ~(_BV(RXCIE0)					|			// UCSR0B: disable all serial interrupts,
+							  _BV(TXCIE0)					|
+							  _BV(UDRIE0)					|
+							  _BV(RXEN0)					|			// and TX/RX ports
 							  _BV(TXEN0));
 	sei();
 
@@ -94,10 +91,7 @@ void serial_fw_close()
 #endif
 
 	// setting IO pins: pull-up off
-	UART_PORT = UART_PORT & ~(_BV(UART_RX_PNUM) | _BV(UART_TX_PNUM));	// RX pull-up off, PUD is deactivated in main()
-
-	// setting IO pins: direction
-	UART_DDR  = UART_DDR  & ~(_BV(UART_RX_PNUM) | _BV(UART_TX_PNUM));	// RX and TX are in, again
+	UART_PORT = UART_PORT & ~(_BV(UART_RX_PNUM));						// RX pull-up off
 }
 
 #if 0
@@ -132,7 +126,7 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 		freeSemaphore(isSend);
 
 		/* initial load of USART data register, after this the ISR will handle it until the serial TX buffer is completed */
-		UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
+		//UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
 
 		/* clear TRANSMIT COMPLETE */
 		UCSR0A = UCSR0A & ~(_BV(TXC0));
@@ -151,6 +145,7 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 		} else {
 			ringBufferPushAddHook(!isSend, false, serialCtxtTxBuffer, len);
 		}
+		serialCtxtTxBufferLen = serialCtxtTxBufferIdx = 0;
 #endif
 	}
 }

@@ -347,6 +347,9 @@ static void give_away(void)
 	usb_fw_sendInInterrupt();
 	workInQueue();
 
+	if (UCSR0A & _BV(UDRE0)) {  // XXX remove me!
+		UDR0 = 0xa5;
+	}
 	clkPullPwm_fw_togglePin();
 }
 
@@ -357,9 +360,8 @@ int main(void)
 	{
 		vectortable_to_firmware();
 		wdt_init();
-
 		clkPullPwm_fw_init();
-
+		serial_fw_init();
 		usb_fw_init();
 		sei();
 	}
@@ -379,9 +381,6 @@ int main(void)
 		usb_fw_close();
 		serial_fw_close();
 		clkPullPwm_fw_close();
-
-		// switch off all pull-up
-		//MCUCR |= _BV(PUD);										// general deactivation of all pull-ups
 
 		// all pins are set to be input
 		DDRB = 0x00;
@@ -410,7 +409,7 @@ int main(void)
 		} else {
 			/* enter and keep in sleep mode */
 			for (;;) {
-				set_sleep_mode(SLEEP_MODE_EXT_STANDBY);
+				set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 				cli();
 				// if (some_condition) {
 					sleep_enable();
@@ -423,6 +422,5 @@ int main(void)
 			}
 		}
     }
-
 	return 0;
 }
