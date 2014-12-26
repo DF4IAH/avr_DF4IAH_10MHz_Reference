@@ -9,6 +9,9 @@
 #define DF4IAH_FW_CLKPULLPWM_H_
 
 
+/* this modules uses the T1 timer/counter/pwm-generator of the AVR controller as 16-bit PWM generator */
+
+
 enum ENUM_CLKOUT_t {
 	ENUM_CLKOUT_OFF 										= 0,
 	ENUM_CLKOUT_ON

@@ -22,14 +22,16 @@
 #define min(a,b) ((a) < (b) ?  (a) : (b))
 
 
+extern uint16_t usbSetupCntr;
 extern uint16_t cntRcv;
 extern uint16_t cntSend;
 extern uint8_t usbIsrCtxtBufferIdx;
+extern uint8_t isUsbCommTest;
+
 extern uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE];
 extern uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE];
 
 static uint16_t doTestCntr 									= 0;
-static uint8_t doTest 										= 0;
 
 
 #if USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH
@@ -76,24 +78,6 @@ PROGMEM const char usbDescriptorHidReport[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] 
 # endif
 #endif
 
-
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_usb"), aligned(2)))
-#endif
-uint8_t setTestOn(uint8_t isTest)
-{
-	uint8_t ret = doTest;
-	doTest = isTest;
-	return ret;
-}
-
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_usb"), aligned(2)))
-#endif
-uint8_t getTestOn(void)
-{
-	return doTest;
-}
 
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_usb"), aligned(2)))
@@ -166,6 +150,8 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
 
     if (((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_VENDOR) &&
     	((rq->bmRequestType & USBRQ_RCPT_MASK) == USBRQ_RCPT_DEVICE)) {
+    	usbSetupCntr++;
+
     	if (rq->bRequest == USBCUSTOMRQ_ECHO) {				// echo -- used for reliability tests
     		usbCtxtSetupReplyBuffer[0] = rq->wValue.bytes[0];
     		usbCtxtSetupReplyBuffer[1] = rq->wValue.bytes[1];
@@ -199,7 +185,7 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 	uint8_t retLen = 0;
 
 	/* special communication TEST */
-	if (doTest) {
+	if (isUsbCommTest) {
 		if (cntRcv) {
 #if 1
 			data[retLen++] = '0' + ((doTestCntr / 1000) % 10);

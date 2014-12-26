@@ -23,6 +23,7 @@
 #include "df4iah_bl_clkPullPwm.h"
 #include "df4iah_fw_memory.h"
 #include "df4iah_fw_usb.h"
+#include "df4iah_fw_clkFastCtr.h"
 #include "df4iah_fw_clkPullPwm.h"
 #include "df4iah_fw_ringbuffer.h"
 #include "df4iah_fw_serial.h"
@@ -45,19 +46,18 @@
 void (*jump_to_fw)(void)	 								= (void*) 0x0000;
 void (*jump_to_bl)(void)	 								= (void*) 0x7000;
 volatile uint8_t timer0Snapshot 							= 0x00;
+volatile uint8_t isTimerTest								= false;
 uint8_t jumperBlSet											= false;
 volatile uint8_t stopAvr		 							= 0;
 volatile enum ENTER_MODE_t enterMode						= ENTER_MODE_SLEEP;
 volatile uint8_t helpConcatNr								= 0;
-uint8_t isUsbCommTest 										= false;
 volatile uint8_t mainCtxtBufferIdx 							= 0;
 usbTxStatus_t usbTxStatus1 									= { 0 },
 			  usbTxStatus3 									= { 0 };
 
-/* df4iah_fw_usb */
-volatile uint16_t cntRcv 									= 0;
-volatile uint16_t cntSend 									= 0;
-volatile uint8_t usbIsrCtxtBufferIdx 						= 0;
+/* df4iah_fw_clkFastCtr */
+volatile uint32_t absTimer_10us								= 0;
+volatile uint8_t  absTimer_next_OCR2A_value					= 0;
 
 /* df4iah_fw_ringbuffer */
 volatile uint8_t usbRingBufferSendPushIdx 					= 0;
@@ -73,6 +73,14 @@ volatile uint8_t usbRingBufferHookIsSend 					= 0;
 volatile uint8_t serialCtxtRxBufferLen						= 0;
 volatile uint8_t serialCtxtTxBufferLen						= 0;
 uint8_t serialCtxtTxBufferIdx								= 0;
+
+/* df4iah_fw_usb */
+volatile uint16_t usbSetupCntr								= 0;
+volatile uint16_t cntRcv 									= 0;
+volatile uint16_t cntSend 									= 0;
+volatile uint8_t usbIsrCtxtBufferIdx 						= 0;
+volatile uint8_t isSerComm									= true;
+volatile uint8_t isUsbCommTest 								= false;
 
 
 // ARRAYS - due to overwriting hazards they are following the controlling variables
@@ -99,7 +107,10 @@ const uchar VM_COMMAND_ABORT[]								= "ABORT";
 const uchar VM_COMMAND_HELP[]								= "HELP";
 const uchar VM_COMMAND_LOADER[]								= "LOADER";
 const uchar VM_COMMAND_REBOOT[]								= "REBOOT";
+const uchar VM_COMMAND_SEROFF[]								= "SEROFF";
+const uchar VM_COMMAND_SERON[]								= "SERON";
 const uchar VM_COMMAND_TEST[]								= "TEST";
+const uchar VM_COMMAND_TIMER[]								= "TIMER";
 
 
 // STRINGS IN CODE SECTION
@@ -112,21 +123,29 @@ PROGMEM const uchar PM_INTERPRETER_HELP1[] 					= "\n" \
 															  "\n" \
 															  "$ <NMEA-Message>\t\tsends message to the GPS module.\n" \
 															  "\n" \
-															  "ABORT\t\t\t\tpowers the device down (sleep mode).\n";
+															  "ABORT\t\t\t\tpowers the device down (sleep mode).\n" \
+															  "\n" \
+															  "HELP\t\t\t\tthis message.\n" \
+															  "\n";
 const uint8_t PM_INTERPRETER_HELP1_len 						= sizeof(PM_INTERPRETER_HELP1);
 
-PROGMEM const uchar PM_INTERPRETER_HELP2[] 					= "HELP\t\t\t\tthis message.\n" \
-															  "\n" \
-															  "LOADER\t\t\t\tenter bootloader.\n"
+PROGMEM const uchar PM_INTERPRETER_HELP2[] 					= "LOADER\t\t\t\tenter bootloader.\n"
 															  "\n" \
 															  "REBOOT\t\t\t\treboot the firmware.\n" \
 															  "\n" \
+															  "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
+															  "SERON\t\t\t\tswitch serial communication ON.\n" \
+															  "\n" \
 															  "TEST\t\t\t\ttoggles counter test.\n" \
+															  "\n";
+const uint8_t PM_INTERPRETER_HELP2_len 						= sizeof(PM_INTERPRETER_HELP2);
+
+PROGMEM const uchar PM_INTERPRETER_HELP3[] 					= "TIMER\t\t\t\ttoggles timer test.\n" \
 															  "\n" \
 															  "===========\n" \
-															  "\n" \
-															  ">";
-const uint8_t PM_INTERPRETER_HELP2_len 						= sizeof(PM_INTERPRETER_HELP2);
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  ">";
+const uint8_t PM_INTERPRETER_HELP3_len 						= sizeof(PM_INTERPRETER_HELP3);
 
 PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "*?* unknown command, try HELP.\n" \
 															  "\n" \
@@ -280,9 +299,31 @@ static void doInterpret(uchar msg[], uint8_t len)
 		enterMode = ENTER_MODE_FW;
 		stopAvr = true;
 
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_SEROFF, sizeof(VM_COMMAND_SEROFF))) {
+		/* serial communication OFF */
+		isSerComm = false;
+
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_SERON, sizeof(VM_COMMAND_SERON))) {
+		/* serial communication ON */
+		isSerComm = true;
+		isTimerTest = false;
+		isUsbCommTest = false;
+
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_TEST, sizeof(VM_COMMAND_TEST))) {
 		/* special communication TEST */
-		isUsbCommTest = !setTestOn(!isUsbCommTest);
+		isUsbCommTest = !isUsbCommTest;
+		if (isUsbCommTest) {
+			isSerComm = false;
+			isTimerTest = false;
+		}
+
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_TIMER, sizeof(VM_COMMAND_TIMER))) {
+		/* timer 2 overflow counter TEST */
+		isTimerTest = !isTimerTest;
+		if (isTimerTest) {
+			isSerComm = false;
+			isUsbCommTest = false;
+		}
 
 	} else {
 		/* unknown command */
@@ -317,18 +358,52 @@ static void workInQueue()
 		} else if (helpConcatNr && !(statusRcv & RINGBUFFER_MSG_STATUS_AVAIL)) {  // during help printing, go ahead when receive buffer is empty again
 			freeSemaphore(isSend); isLocked = false;
 
-			if (helpConcatNr == 1) {
+			switch (helpConcatNr) {
+			case 1:
 				if (getSemaphore(!isSend)) {
 					ringBufferPush(!isSend, true, (uchar*) PM_INTERPRETER_HELP2, PM_INTERPRETER_HELP2_len);
 					freeSemaphore(!isSend);
 				}
+				helpConcatNr = 2;
+				break;
+
+			case 2:
+				if (getSemaphore(!isSend)) {
+					ringBufferPush(!isSend, true, (uchar*) PM_INTERPRETER_HELP3, PM_INTERPRETER_HELP3_len);
+					freeSemaphore(!isSend);
+				}
+				helpConcatNr = 0;
+				break;
+
+			default:
+				helpConcatNr = 0;
+				break;
 			}
-			helpConcatNr = 0;
 		}
 
 		if (isLocked) {
 			freeSemaphore(isSend);
 		}
+	}
+}
+
+static void doJobs()
+{
+	const uint8_t isSend = false;							// USB Function --> host: USB IN
+	static uint8_t isTimerTestPrintDone = false;
+
+	if (isTimerTest && (!(usbSetupCntr % 100)) && !isTimerTestPrintDone) {
+		uint8_t len = sprintf((char*) mainCtxtBuffer, "### absTimer_10us=%010ld x10 us + TCNT2=%03d\n", absTimer_10us, TCNT2);
+		isTimerTestPrintDone = true;
+
+		if (getSemaphore(isSend)) {
+			ringBufferPush(isSend, false, mainCtxtBuffer, len);
+			freeSemaphore(isSend);
+		} else {
+			ringBufferPushAddHook(isSend, false, mainCtxtBuffer, len);
+		}
+	} else if (usbSetupCntr % 100) {
+		isTimerTestPrintDone = false;
 	}
 }
 
@@ -351,6 +426,7 @@ static void give_away(void)
     usbPoll();
 	usb_fw_sendInInterrupt();
 	workInQueue();
+	doJobs();
 
 	clkPullPwm_fw_togglePin();								// XXX for debugging purposes only
 
@@ -365,6 +441,8 @@ int main(void)
 	{
 		vectortable_to_firmware();
 		wdt_init();
+		PRR = 0xEF;											// disable all modules within the Power Reduction Register
+		clkFastCtr_fw_init();
 		clkPullPwm_fw_init();
 		serial_fw_init();
 		usb_fw_init();
@@ -386,6 +464,7 @@ int main(void)
 		usb_fw_close();
 		serial_fw_close();
 		clkPullPwm_fw_close();
+		clkFastCtr_fw_close();
 
 		// all pins are set to be input
 		DDRB = 0x00;

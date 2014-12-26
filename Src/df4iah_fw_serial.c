@@ -34,6 +34,7 @@
 extern uint8_t serialCtxtRxBufferLen;
 extern uint8_t serialCtxtTxBufferLen;
 extern uint8_t serialCtxtTxBufferIdx;
+extern uint8_t isSerComm;
 
 extern uchar serialCtxtRxBuffer[SERIALCTXT_RX_BUFFER_SIZE];
 extern uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE];
@@ -44,9 +45,12 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
 void serial_fw_init()
 {
+	/* power up this module */
+	PRR &= ~(_BV(PRUSART0));
+
 	// setting IO pins: pull-up on
-	MCUCR = (MCUCR & ~(_BV(PUD)));										// ensure PUD is off --> activation of all pull-ups
-	UART_PORT = UART_PORT | _BV(UART_RX_PNUM);							// RX pull-up on, PUD is deactivated in main()
+	MCUCR     &= ~(_BV(PUD));											// ensure PUD is off --> activation of all pull-ups
+	UART_PORT |=   _BV(UART_RX_PNUM);									// RX pull-up on, PUD is deactivated in main()
 
 	// setting baud rate
 	UART_BAUD_HIGH = ((UART_CALC_BAUDRATE(DEFAULT_BAUDRATE)>>8) & 0xff);
@@ -93,7 +97,10 @@ void serial_fw_close()
 #endif
 
 	// setting IO pins: pull-up off
-	UART_PORT = UART_PORT & ~(_BV(UART_RX_PNUM));						// RX pull-up off
+	UART_PORT &= ~(_BV(UART_RX_PNUM));									// RX pull-up off
+
+	/* no more power is needed for this module */
+	PRR |= _BV(PRUSART0);
 }
 
 #if 0
@@ -127,6 +134,10 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 		serialCtxtTxBufferLen = ringBufferPull(isSend, serialCtxtTxBuffer, (uint8_t) sizeof(serialCtxtTxBuffer));
 		freeSemaphore(isSend);
 
+		/* drop serial RX data if transportation is not activated */
+		if (!isSerComm) {
+			serialCtxtTxBufferLen = 0;
+		}
 		serialCtxtTxBufferIdx = 0;
 
 		if (serialCtxtTxBufferLen) {
@@ -138,7 +149,7 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 			serialCtxtTxBuffer[serialCtxtTxBufferLen++] = '\n';
 
 			/* clear TRANSMIT COMPLETE */
-			UCSR0A = UCSR0A & ~(_BV(TXC0));
+			UCSR0A &= ~(_BV(TXC0));
 
 			/* initial load of USART data register, after this the ISR will handle it until the serial TX buffer is completed */
 			UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
@@ -180,13 +191,15 @@ ISR(USART_RX_vect, ISR_BLOCK)
 
 	/* if the end of a NMEA sentence is detected, send this serial RX buffer to the receive (IN) ring buffer */
 	if (rxData == '\n') {  // a NMEA sentence stops with:  <sentence...*checksum\r\n>
-		if (getSemaphore(false)) {
-			ringBufferPush(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
-			freeSemaphore(false);
-		} else {
-			ringBufferPushAddHook(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
+		if (isSerComm) {
+			if (getSemaphore(false)) {
+				ringBufferPush(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
+				freeSemaphore(false);
+			} else {
+				ringBufferPushAddHook(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
+			}
+			serialCtxtRxBufferLen = 0;
 		}
-		serialCtxtRxBufferLen = 0;
 	}
 }
 
@@ -205,8 +218,9 @@ ISR(USART_RX_vect, ISR_BLOCK)
  * 1	subi		1		 1
  * 1	sbci		1		 1
  * 1	ld (Z)		2		 2
+ * 1	sei			1		 1
  *
- * = 33 clocks --> 1.65 µs until sei() is done
+ * = 34 clocks --> 1.7 µs until sei() is done
  */
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
@@ -225,7 +239,7 @@ ISR(USART_UDRE_vect, ISR_BLOCK)
 	/* check if job is done */
 	if (serialCtxtTxBufferIdx >= serialCtxtTxBufferLen) {
 		/* turn off data register empty interrupt */
-		UART_CTRL = UART_CTRL & ~(_BV(UDRIE0));									// UCSR0B: disable interrupt for register empty
+		UART_CTRL &= _BV(UDRIE0);								// UCSR0B: disable interrupt for register empty
 
 		/* mark buffer as free */
 		serialCtxtTxBufferLen = 0;

@@ -6,6 +6,9 @@
  */
 
 
+/* this modules uses the T1 timer/counter/pwm-generator of the AVR controller as 16-bit PWM generator */
+
+
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/wdt.h>
@@ -28,6 +31,9 @@ __attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
 #endif
 void clkPullPwm_fw_init()
 {
+	/* power up this module */
+	PRR &= ~(_BV(PRTIM1));
+
 	clkPullPwm_bl_init();
 
 #if 0
@@ -46,6 +52,9 @@ __attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
 void clkPullPwm_fw_close()
 {
 	clkPullPwm_bl_close();
+
+	/* no more power is needed for this module */
+	PRR |= _BV(PRTIM1);
 }
 
 #ifdef RELEASE
