@@ -396,10 +396,13 @@ static void doJobs()
 {
 	const uint8_t isSend = false;							// USB Function --> host: USB IN
 	static uint8_t isTimerTestPrintCtr = 0;
+	static uint32_t csc_timer_s_last = 0;
+	uint32_t csc_timer_s = ((uint32_t) (csc_timer_s_HI << 8)) | TCNT0;
 
-	if (isTimerTest && (!((ac_timer_10us/100) % 100)) && (isTimerTestPrintCtr < 3)) {
-		uint8_t len = sprintf((char*) mainCtxtBuffer, "### csc_timer_s=%010ld, ac_timer_10us=%05ld x10 us + ac_TCNT2=%03d\n", ((uint32_t) (csc_timer_s_HI << 8)) | TCNT0, (uint32_t) ac_timer_10us, ac_TCNT2);
+	if (isTimerTest && (csc_timer_s != csc_timer_s_last) && (isTimerTestPrintCtr < 3)) {
+		uint8_t len = sprintf((char*) mainCtxtBuffer, "### csc_timer_s=%09ld, ac_timer_10us=%05ld x10 us + ac_TCNT2=%03d\n", ((uint32_t) (csc_timer_s_HI << 8)) | TCNT0, (uint32_t) ac_timer_10us, ac_TCNT2);
 		isTimerTestPrintCtr++;
+		csc_timer_s_last = csc_timer_s;
 
 		if (getSemaphore(isSend)) {
 			ringBufferPush(isSend, false, mainCtxtBuffer, len);
@@ -407,7 +410,7 @@ static void doJobs()
 		} else {
 			ringBufferPushAddHook(isSend, false, mainCtxtBuffer, len);
 		}
-	} else if ((ac_timer_10us/100) % 100) {
+	} else if (csc_timer_s == csc_timer_s_last) {
 		isTimerTestPrintCtr = 0;
 	}
 }
