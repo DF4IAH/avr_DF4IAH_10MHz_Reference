@@ -44,8 +44,9 @@ void clkSlowCtr_fw_init()
 	TIFR0  = _BV(TOV0);										// clear any pending overflows
 	TIMSK0 = _BV(TOIE0);									// enable the overflow interrupt
 
-	/* activate PCINT20 interrupt for PIN PD4 (T0), @see page 88 */
-
+	/* activate PCINT20 interrupt for PIN PD4 (T0) */
+	PCMSK2 = _BV(PCINT20);
+	PCICR  = _BV(PCIE2);
 }
 
 #ifdef RELEASE

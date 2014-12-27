@@ -444,7 +444,7 @@ static void doJobs()
 	}
 
 	if (isTimerTest && (csc_timer_s != csc_timer_s_last) && (isTimerTestPrintCtr < 3)) {
-		uint8_t len = sprintf((char*) mainCtxtBuffer, "### csc_timer_s=%09ld\tac_timer_10us=%05ld x10 us + ac_TCNT2=%03d\t\tPWM=%05ld, ADC0=%04d, ADC1=%04d\n", csc_timer_s, ac_timer_10us, ac_stamp_TCNT2, (uint32_t) pwmVal, ac_adc_ch[0], ac_adc_ch[1]);
+		uint8_t len = sprintf((char*) mainCtxtBuffer, "### csc_timer_s=%09ld\tcsc_stamp_10us=%05ld x10us + csc_stamp_TCNT2=%03d\tPWM=%05ld, ADC0=%04d, ADC1=%04d\n", csc_timer_s, csc_stamp_10us, csc_stamp_TCNT2, (uint32_t) pwmVal, ac_adc_ch[0], ac_adc_ch[1]);
 		isTimerTestPrintCtr++;
 		csc_timer_s_last = csc_timer_s;
 
