@@ -22,7 +22,7 @@
 #define min(a,b) ((a) < (b) ?  (a) : (b))
 
 
-extern uint16_t usbSetupCntr;
+//extern uint16_t usbSetupCntr;
 extern uint16_t cntRcv;
 extern uint16_t cntSend;
 extern uint8_t usbIsrCtxtBufferIdx;
@@ -150,7 +150,7 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
 
     if (((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_VENDOR) &&
     	((rq->bmRequestType & USBRQ_RCPT_MASK) == USBRQ_RCPT_DEVICE)) {
-    	usbSetupCntr++;
+    	//usbSetupCntr++;
 
     	if (rq->bRequest == USBCUSTOMRQ_ECHO) {				// echo -- used for reliability tests
     		usbCtxtSetupReplyBuffer[0] = rq->wValue.bytes[0];

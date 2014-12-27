@@ -16,10 +16,6 @@
 #include "df4iah_fw_clkFastCtr.h"
 
 
-extern uint32_t absTimer_10us;
-extern uint8_t  absTimer_next_OCR2A_value;
-
-
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
 #endif
@@ -34,10 +30,6 @@ void clkFastCtr_fw_init()
 	/* switch mode to CTC (counter with reset) */
 	TCCR2A = (0b10 << WGM20);
 	//TCCR2B = 0;
-
-	/* load the compare register A to 199 for 200 steps: 20 MHz / 200 = 100 kHz overflows */
-	OCR2A = absTimer_next_OCR2A_value = DEFAULT_OCR2A_VALUE;
-	absTimer_10us = 0;
 
 	/* TOV2 interrupt enable */
 	TIMSK2 = _BV(OCIE2A);
@@ -67,12 +59,11 @@ void clkFastCtr_fw_close()
  * 4	push		2		 8
  * 1	in			1		 1
  * 1	eor			1		 1
- * 1	lds			2		 2
- * 2	sts			2		 4
  * 1	ldi			1		 1
+ * 1	sts			2		 2
  * 1	sei			1		 1
  *
- * = 18 clocks --> 0.9 µs until sei() is done
+ * = 14 clocks --> 0.70 µs until sei() is done
  */
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
@@ -80,8 +71,8 @@ __attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
 //void clkFastCtr_ISR_OVF() - __vector_7
 ISR(TIMER2_COMPA_vect, ISR_BLOCK)
 {
-	absTimer_10us++;
-	OCR2A = absTimer_next_OCR2A_value;
-	absTimer_next_OCR2A_value = DEFAULT_OCR2A_VALUE;
+	// reset counter offset to default value
+	OCR2A = DEFAULT_OCR2A_VALUE;
+
 	sei();
 }

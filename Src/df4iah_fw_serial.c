@@ -174,6 +174,17 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 	}
 }
 
+/*
+ * x	Mnemonics	clocks	resulting clocks
+ * ------------------------------------------------
+ * 15	push		2		30
+ * 1	in			1		 1
+ * 1	eor			1		 1
+ * 1	lds			2		 2
+ * 1	sei			1		 1
+ *
+ * = 35 clocks --> 1.75 µs until sei() is done
+ */
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 #endif
@@ -220,7 +231,7 @@ ISR(USART_RX_vect, ISR_BLOCK)
  * 1	ld (Z)		2		 2
  * 1	sei			1		 1
  *
- * = 34 clocks --> 1.7 µs until sei() is done
+ * = 34 clocks --> 1.70 µs until sei() is done
  */
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))

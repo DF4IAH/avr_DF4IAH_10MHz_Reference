@@ -24,6 +24,7 @@
 #include "df4iah_fw_memory.h"
 #include "df4iah_fw_usb.h"
 #include "df4iah_fw_clkFastCtr.h"
+#include "df4iah_fw_anlgComp.h"
 #include "df4iah_fw_clkPullPwm.h"
 #include "df4iah_fw_ringbuffer.h"
 #include "df4iah_fw_serial.h"
@@ -55,9 +56,9 @@ volatile uint8_t mainCtxtBufferIdx 							= 0;
 usbTxStatus_t usbTxStatus1 									= { 0 },
 			  usbTxStatus3 									= { 0 };
 
-/* df4iah_fw_clkFastCtr */
-volatile uint32_t absTimer_10us								= 0;
-volatile uint8_t  absTimer_next_OCR2A_value					= 0;
+/* df4iah_fw_anlgComp */
+volatile uint32_t ac_timer_10us								= 0;
+volatile uint8_t  ac_TCNT2									= 0;
 
 /* df4iah_fw_ringbuffer */
 volatile uint8_t usbRingBufferSendPushIdx 					= 0;
@@ -75,7 +76,7 @@ volatile uint8_t serialCtxtTxBufferLen						= 0;
 uint8_t serialCtxtTxBufferIdx								= 0;
 
 /* df4iah_fw_usb */
-volatile uint16_t usbSetupCntr								= 0;
+//volatile uint16_t usbSetupCntr							= 0;
 volatile uint16_t cntRcv 									= 0;
 volatile uint16_t cntSend 									= 0;
 volatile uint8_t usbIsrCtxtBufferIdx 						= 0;
@@ -390,11 +391,11 @@ static void workInQueue()
 static void doJobs()
 {
 	const uint8_t isSend = false;							// USB Function --> host: USB IN
-	static uint8_t isTimerTestPrintDone = false;
+	static uint8_t isTimerTestPrintCtr = 0;
 
-	if (isTimerTest && (!(usbSetupCntr % 100)) && !isTimerTestPrintDone) {
-		uint8_t len = sprintf((char*) mainCtxtBuffer, "### absTimer_10us=%010ld x10 us + TCNT2=%03d\n", absTimer_10us, TCNT2);
-		isTimerTestPrintDone = true;
+	if (isTimerTest && (!((ac_timer_10us/100) % 100)) && (isTimerTestPrintCtr < 3)) {
+		uint8_t len = sprintf((char*) mainCtxtBuffer, "### ac_timer_10us=%010ld x10 us + ac_TCNT2=%03d\n", ac_timer_10us, ac_TCNT2);
+		isTimerTestPrintCtr++;
 
 		if (getSemaphore(isSend)) {
 			ringBufferPush(isSend, false, mainCtxtBuffer, len);
@@ -402,8 +403,8 @@ static void doJobs()
 		} else {
 			ringBufferPushAddHook(isSend, false, mainCtxtBuffer, len);
 		}
-	} else if (usbSetupCntr % 100) {
-		isTimerTestPrintDone = false;
+	} else if ((ac_timer_10us/100) % 100) {
+		isTimerTestPrintCtr = 0;
 	}
 }
 
@@ -441,8 +442,13 @@ int main(void)
 	{
 		vectortable_to_firmware();
 		wdt_init();
-		PRR = 0xEF;											// disable all modules within the Power Reduction Register
+
+		PRR    = 0xEF;										// disable all modules within the Power Reduction Register
+		ACSR  |= _BV(ACD);									// switch on Analog Comparator Disable
+		DIDR1 |= (0b11 << AIN0D);							// disable digital input buffers on AIN0 and AIN1
+
 		clkFastCtr_fw_init();
+		anlgComp_fw_init();
 		clkPullPwm_fw_init();
 		serial_fw_init();
 		usb_fw_init();
@@ -464,6 +470,7 @@ int main(void)
 		usb_fw_close();
 		serial_fw_close();
 		clkPullPwm_fw_close();
+		anlgComp_fw_close();
 		clkFastCtr_fw_close();
 
 		// all pins are set to be input
