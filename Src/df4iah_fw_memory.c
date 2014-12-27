@@ -99,18 +99,18 @@ eeprom_layout_t eeprom_content = {
 		0x0000,										// b00_regen_ctr
 		0xb00c,										// b00_crc
 
-		0x0000,										// b01_temp_25c_adc_offset
-		0x0000,										// b01_temp_25c_adc_factor
-		0x0000,										// b01_temp_drift_factor
-		0x0000,										// b01_pwm_25c_pull
-		0x0000,										// b01_pwm_pull_ppm_factor
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
+		0x0000,										// b01_temp_25c_adc_ofs
+		0x0000,										// \--
+		0x0000,										// b01_temp_25c_adc_k
+		0x0000,										// \--
+		0x0000,										// b01_qrg_0v_ofs
+		0x0000,										// \--
+		0x0000,										// b01_qrg_0v_ofs_drift_25c
+		0x0000,										// \--
+		0x0000,										// b01_qrg_p1v_k
+		0x0000,										// \--
+		0x0000,										// b01_qrg_p1v_k_drift_25c
+		0x0000,										// \--
 		0xffff,
 		0xffff,
 		0x0000,										// b01_regen_ctr
@@ -133,8 +133,8 @@ eeprom_layout_t eeprom_content = {
 		0x0000,										// b02_regen_ctr
 		0xb02c,										// b02_crc
 
-		0xffff,										// b03_device_key
-		0xffff,										// b03_device_activations
+		0x0000,										// b03_device_key
+		0x0000,										// b03_device_activations
 		0xffff,
 		0xffff,
 		0xffff,

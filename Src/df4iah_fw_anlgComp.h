@@ -11,6 +11,8 @@
 
 /* this modules uses the Analog Comparator to generate interrupts based on GPS (10 kHz) */
 
+#define AC_ADC_CH_COUNT										2
+
 
 void anlgComp_fw_init();
 void anlgComp_fw_close();

@@ -16,5 +16,6 @@ void clkSlowCtr_fw_close();
 
 /* the following functions are direct __vector_xx calls to reduce some clocks */
 //void clkSlowCtr_ISR_T0_OVL();
+//void clkSlowCtr_ISR_PCI2();
 
 #endif /* DF4IAH_FW_CLKSLOWCTR_H_ */

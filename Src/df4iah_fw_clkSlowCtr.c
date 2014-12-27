@@ -17,6 +17,9 @@
 
 
 extern uint32_t csc_timer_s_HI;
+extern uint8_t  csc_stamp_TCNT2;
+extern uint32_t csc_stamp_10us;
+extern uint32_t ac_timer_10us;
 
 
 #ifdef RELEASE
@@ -64,15 +67,15 @@ void clkSlowCtr_fw_close()
  * x	Mnemonics	clocks	resulting clocks
  * ------------------------------------------------
  * 7	push		2		 14
- * 1	in			1		 1
- * 1	eor			1		 1
- * 4	lds			2		 8
- * 1	adiw		2		 2
- * 2	adc			1		 2
- * 4	sts			2		 8
- * 1	sei			1		 1
+ * 1	in			1		  1
+ * 1	eor			1		  1
+ * 4	lds			2		  8
+ * 1	adiw		2		  2
+ * 2	adc			1		  2
+ * 4	sts			2		  8
+ * 1	sei			1		  1
  *
- * = 35 clocks --> 1.85 µs until sei() is done
+ * = 37 clocks --> 1.85 µs until sei() is done
  */
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_clkslowctr"), aligned(2)))
@@ -82,6 +85,41 @@ ISR(TIMER0_OVF_vect, ISR_BLOCK)
 {
 	// increment PPS counter
 	csc_timer_s_HI++;
+
+	sei();
+}
+
+/*
+ * x	Mnemonics	clocks	resulting clocks
+ * ------------------------------------------------
+ * 7	push		2		 14
+ * 1	in			1		  1
+ * 1	eor			1		  1
+ * 5	lds			2		 10
+ * 1	sbis		3		  3
+ * 0	rjmp		2		  0
+ * 9	sts			2		 18
+ * 1	sei			1		  1
+ *
+ * = 48 clocks --> 2.40 µs until sei() is done
+ */
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_clkslowctr"), aligned(2)))
+#endif
+//void clkSlowCtr_ISR_PCI2() - __vector_5
+ISR(PCINT2_vect, ISR_BLOCK)
+{
+	uint8_t fast_TCNT2 = TCNT2;
+
+	/* stamp on rising edge only */
+	if (PIND & _BV(PIND4)) {
+		// stamp timer
+		csc_stamp_TCNT2 = fast_TCNT2;
+		csc_stamp_10us  = ac_timer_10us;
+
+		// reset 10us timer
+		ac_timer_10us = 0;
+	}
 
 	sei();
 }

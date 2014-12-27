@@ -23,12 +23,13 @@ typedef struct eeprom_layout {
 	uint16_t		b00_crc;
 
 	/* BLOCK_01:    REFERENCE OSCILLATOR */
-	uint16_t		b01_temp_25c_adc_offset;
-	uint16_t		b01_temp_25c_adc_factor;
-	uint16_t		b01_temp_drift_factor;
-	uint16_t		b01_pwm_25c_pull;
-	uint16_t		b01_pwm_pull_ppm_factor;
-	uint16_t		b01_reserved[9];
+	float			b01_temp_25c_adc_ofs;
+	float			b01_temp_25c_adc_k;
+	float			b01_qrg_0v_ofs;
+	float			b01_qrg_0v_ofs_drift_25c;
+	float			b01_qrg_p1v_k;
+	float			b01_qrg_p1v_k_drift_25c;
+	uint16_t		b01_reserved[2];
 	uint16_t		b01_regen_ctr;
 	uint16_t		b01_crc;
 

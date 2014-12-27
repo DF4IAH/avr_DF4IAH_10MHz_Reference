@@ -53,16 +53,22 @@ uint8_t jumperBlSet											= false;
 volatile uint8_t stopAvr		 							= 0;
 volatile enum ENTER_MODE_t enterMode						= ENTER_MODE_SLEEP;
 volatile uint8_t helpConcatNr								= 0;
+volatile uint16_t pwmVal									= 0;
+volatile int32_t pwmTerminalAdj								= 0;
 volatile uint8_t mainCtxtBufferIdx 							= 0;
 usbTxStatus_t usbTxStatus1 									= { 0 },
 			  usbTxStatus3 									= { 0 };
 
 /* df4iah_fw_anlgComp (10kHz) */
-volatile uint8_t  ac_TCNT2									= 0;
-volatile uint16_t ac_timer_10us								= 0;
+volatile uint32_t ac_timer_10us								= 0;
+volatile uint8_t  ac_stamp_TCNT2							= 0;
+volatile uint8_t  ac_adc_convertNowCh						= 0;
+volatile uint8_t  ac_adc_isConvertNowTemp					= 0;
 
 /* df4iah_fw_clkSlowCtr (PPS) */
 volatile uint32_t csc_timer_s_HI							= 0;
+volatile uint8_t  csc_stamp_TCNT2							= 0;
+volatile uint32_t csc_stamp_10us							= 0;
 
 /* df4iah_fw_ringbuffer */
 volatile uint8_t usbRingBufferSendPushIdx 					= 0;
@@ -93,9 +99,8 @@ volatile uint8_t isUsbCommTest 								= false;
 /* main */
 uchar mainCtxtBuffer[MAINCTXT_BUFFER_SIZE] 					= { 0 };
 
-/* df4iah_fw_usb */
-uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE] 				= { 0 };
-uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] 	= { 0 };
+/* df4iah_fw_anlgComp (10kHz) */
+volatile uint16_t ac_adc_ch[AC_ADC_CH_COUNT]				= { 0 };
 
 /* df4iah_fw_ringbuffer */
 uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE] 				= { 0 };
@@ -106,16 +111,22 @@ uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE] 				= { 0 };
 uchar serialCtxtRxBuffer[SERIALCTXT_RX_BUFFER_SIZE] 		= { 0 };
 uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE] 		= { 0 };
 
+/* df4iah_fw_usb */
+uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE] 				= { 0 };
+uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] 	= { 0 };
+
 
 // STRINGS IN MEMORY SECTION
-const uchar VM_COMMAND_ABORT[]								= "ABORT";
+const uchar VM_COMMAND_HALT[]								= "HALT";
 const uchar VM_COMMAND_HELP[]								= "HELP";
+const uchar VM_COMMAND_INFO[]								= "INFO";
 const uchar VM_COMMAND_LOADER[]								= "LOADER";
 const uchar VM_COMMAND_REBOOT[]								= "REBOOT";
 const uchar VM_COMMAND_SEROFF[]								= "SEROFF";
 const uchar VM_COMMAND_SERON[]								= "SERON";
 const uchar VM_COMMAND_TEST[]								= "TEST";
-const uchar VM_COMMAND_TIMER[]								= "TIMER";
+const uchar VM_COMMAND_PLUSSIGN[]							= "+";
+const uchar VM_COMMAND_MINUSSIGN[]							= "-";
 
 
 // STRINGS IN CODE SECTION
@@ -128,24 +139,26 @@ PROGMEM const uchar PM_INTERPRETER_HELP1[] 					= "\n" \
 															  "\n" \
 															  "$ <NMEA-Message>\t\tsends message to the GPS module.\n" \
 															  "\n" \
-															  "ABORT\t\t\t\tpowers the device down (sleep mode).\n" \
+															  "HALT\t\t\t\tpowers the device down (sleep mode).\n" \
 															  "\n" \
 															  "HELP\t\t\t\tthis message.\n" \
 															  "\n";
 const uint8_t PM_INTERPRETER_HELP1_len 						= sizeof(PM_INTERPRETER_HELP1);
 
-PROGMEM const uchar PM_INTERPRETER_HELP2[] 					= "LOADER\t\t\t\tenter bootloader.\n"
+PROGMEM const uchar PM_INTERPRETER_HELP2[] 					= "INFO\t\t\t\ttoggles additional printed infos.\n" \
+															  "\n" \
+															  "LOADER\t\t\t\tenter bootloader.\n"
 															  "\n" \
 															  "REBOOT\t\t\t\treboot the firmware.\n" \
 															  "\n" \
 															  "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
 															  "SERON\t\t\t\tswitch serial communication ON.\n" \
-															  "\n" \
-															  "TEST\t\t\t\ttoggles counter test.\n" \
 															  "\n";
 const uint8_t PM_INTERPRETER_HELP2_len 						= sizeof(PM_INTERPRETER_HELP2);
 
-PROGMEM const uchar PM_INTERPRETER_HELP3[] 					= "TIMER\t\t\t\ttoggles timer test.\n" \
+PROGMEM const uchar PM_INTERPRETER_HELP3[] 					= "TEST\t\t\t\ttoggles counter test.\n" \
+															  "\n" \
+															  "+/- <PWM value>\t\tcorrection value to be added.\n" \
 															  "\n" \
 															  "===========\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
@@ -279,7 +292,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 {
 	const uint8_t isSend = true;
 
-	if (!strncmp((char*) msg, (char*) VM_COMMAND_ABORT, sizeof(VM_COMMAND_ABORT))) {
+	if (!strncmp((char*) msg, (char*) VM_COMMAND_HALT, sizeof(VM_COMMAND_HALT))) {
 		/* stop AVR controller and enter sleep state */
 		enterMode = ENTER_MODE_SLEEP;
 		stopAvr = true;
@@ -314,6 +327,18 @@ static void doInterpret(uchar msg[], uint8_t len)
 		isTimerTest = false;
 		isUsbCommTest = false;
 
+	} else if (msg[0] == VM_COMMAND_PLUSSIGN[0]) {
+		/* correct the PWM value up */
+		int32_t scanVal = 0;
+		sscanf((char*) msg + 1, "%ld", &scanVal);
+		pwmTerminalAdj = scanVal;
+
+	} else if (msg[0] == VM_COMMAND_MINUSSIGN[0]) {
+		/* correct the PWM value down */
+		int32_t scanVal = 0;
+		sscanf((char*) msg + 1, "%ld", &scanVal);
+		pwmTerminalAdj = -scanVal;
+
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_TEST, sizeof(VM_COMMAND_TEST))) {
 		/* special communication TEST */
 		isUsbCommTest = !isUsbCommTest;
@@ -322,7 +347,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			isTimerTest = false;
 		}
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_TIMER, sizeof(VM_COMMAND_TIMER))) {
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_INFO, sizeof(VM_COMMAND_INFO))) {
 		/* timer 2 overflow counter TEST */
 		isTimerTest = !isTimerTest;
 		if (isTimerTest) {
@@ -399,8 +424,27 @@ static void doJobs()
 	static uint32_t csc_timer_s_last = 0;
 	uint32_t csc_timer_s = ((uint32_t) (csc_timer_s_HI << 8)) | TCNT0;
 
+	if (pwmTerminalAdj) {
+		// make a big signed calculation
+		int32_t pwmCalc = ((int32_t) pwmVal) + pwmTerminalAdj;
+		pwmTerminalAdj = 0;
+
+		// frame to uint16_t
+		if (pwmCalc > 0xffff) {
+			pwmCalc = 0xffff;
+		} else if (pwmCalc < 0) {
+			pwmCalc = 0;
+		}
+
+		// write back to the global variable
+		pwmVal = (uint16_t) pwmCalc;
+
+		// adjust PWM out
+		clkPullPwm_fw_setRatio(pwmVal);
+	}
+
 	if (isTimerTest && (csc_timer_s != csc_timer_s_last) && (isTimerTestPrintCtr < 3)) {
-		uint8_t len = sprintf((char*) mainCtxtBuffer, "### csc_timer_s=%09ld, ac_timer_10us=%05ld x10 us + ac_TCNT2=%03d\n", ((uint32_t) (csc_timer_s_HI << 8)) | TCNT0, (uint32_t) ac_timer_10us, ac_TCNT2);
+		uint8_t len = sprintf((char*) mainCtxtBuffer, "### csc_timer_s=%09ld\tac_timer_10us=%05ld x10 us + ac_TCNT2=%03d\t\tPWM=%05ld, ADC0=%04d, ADC1=%04d\n", csc_timer_s, ac_timer_10us, ac_stamp_TCNT2, (uint32_t) pwmVal, ac_adc_ch[0], ac_adc_ch[1]);
 		isTimerTestPrintCtr++;
 		csc_timer_s_last = csc_timer_s;
 

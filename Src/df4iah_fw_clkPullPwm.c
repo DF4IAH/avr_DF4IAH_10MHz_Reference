@@ -23,6 +23,13 @@
 #include "df4iah_fw_clkPullPwm.h"
 
 
+/* already defined in df4iah_bl_clkPullPwm.h and not needed for compilation */
+#ifndef DEFAULT_PWM_COUNT
+# define DEFAULT_PWM_COUNT 									0xC000
+#endif
+
+
+extern uint16_t pwmVal;
 extern eeprom_layout_t eeprom_content;
 
 
@@ -35,6 +42,7 @@ void clkPullPwm_fw_init()
 	PRR &= ~(_BV(PRTIM1));
 
 	clkPullPwm_bl_init();
+	pwmVal = DEFAULT_PWM_COUNT;
 
 #if 0
 	if (memory_fw_isEepromValid()) {

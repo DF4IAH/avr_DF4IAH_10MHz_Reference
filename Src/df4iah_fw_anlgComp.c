@@ -16,8 +16,11 @@
 #include "df4iah_fw_anlgComp.h"
 
 
-extern uint8_t  ac_TCNT2;
-extern uint16_t ac_timer_10us;
+extern uint32_t ac_timer_10us;
+extern uint8_t  ac_stamp_TCNT2;
+extern uint8_t  ac_adc_convertNowCh;
+extern uint8_t  ac_adc_isConvertNowTemp;
+extern uint16_t ac_adc_ch[AC_ADC_CH_COUNT];
 
 
 #ifdef RELEASE
@@ -28,12 +31,13 @@ void anlgComp_fw_init()
 	/* enable power for ADC, reference voltage and analog comparator */
 	PRR &= ~(_BV(PRADC));
 
-	/* disable digital input buffers on AIN0 and AIN1 */
+	/* disable digital input buffers on AIN0, AIN1, ADC0 and ADC1 */
 	DIDR1 |= (0b11 << AIN0D);
+	DIDR0  = (0b000011 << ADC0D);
 
 	/* enable comparator AIN1 pin */
 	ADCSRB &= ~(_BV(ACME));									// disable Analog Comparator Multiplex Enable
-	//ADCSRA |= _BV(ADEN);  								// AD enable
+	ADCSRA |= _BV(ADEN) | (0b111 << ADPS0);					// AD enable, use 128/1 prescaler for ADC clock = 156250 Hz
 
 	/* enable comparator AIN0 pin */
 	ACSR  = (ACSR &  ~(_BV(ACBG) | _BV(ACD)    | 		  	// disable bandgap reference voltage, switch off Analog Comparator Disable
@@ -41,6 +45,9 @@ void anlgComp_fw_init()
 			(0b11 << ACIS0);								// disable ACIE for interrupt as long interrupt source is changed, interrupt on Rising Edge
 	ACSR |= _BV(ACI);										// clear any pending interrupt
 	ACSR |= _BV(ACIE);										// now set ACIE for interrupt
+
+	/* ADC reference set to AREF */
+	ADMUX = (0b01 << REFS0);								// keep ADLAR off
 }
 
 #ifdef RELEASE
@@ -48,25 +55,36 @@ __attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
 #endif
 void anlgComp_fw_close()
 {
-	/* enable comparator AIN0 pin */
-	ACSR &= ~(_BV(ACIE));									// disable interrupt
+	/* disable interrupt, disable analog comparator */
+	ACSR = (ACSR & ~(_BV(ACIE))) | _BV(ACD);
+
+	/* turn off ADC and Analog Comparator */
+	ADCSRA = (0b111 << ADPS0);								// disable but keep the prescaler at last value
+	ADCSRB = 0;												// disable Analog Comparator Multiplex Enable
+
+	/* turn off reference voltage at selection */
+	ADMUX = 0;
 
 	/* disable power for ADC, reference voltage and analog comparator */
 	PRR |= _BV(PRADC);
+
+	/* start the initial conversion */
+	ADCSRA |= _BV(ADSC);
 }
 
 /*
  * x	Mnemonics	clocks	resulting clocks
  * ------------------------------------------------
- * 5	push		2		10
+ * 11	push		2		22
  * 1	in			1		 1
  * 1	eor			1		 1
- * 3	lds			2		 6
- * 3	sts			2		 6
+ * 5	lds			2		10
+ * 5	sts			2		10
  * 1	adiw		2		 2
+ * 2	adc			2		 4
  * 1	sei			1		 1
  *
- * = 27 clocks --> 1.35 µs until sei() is done
+ * = 51 clocks --> 2.55 µs until sei() is done
  */
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
@@ -74,8 +92,29 @@ __attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
 //void anlgComp_ISR_ANALOG_COMP() - __vector_23
 ISR(ANALOG_COMP_vect, ISR_BLOCK)
 {
-	ac_TCNT2 = TCNT2;
+	ac_stamp_TCNT2 = TCNT2;
 	ac_timer_10us++;
 
 	sei();
+
+	/* when ADC has finished with previous conversion (it should be), store the value and restart new job */
+	if (!(ADCSRA & _BV(ADSC))) {
+		// read LSB first
+		ac_adc_ch[ac_adc_convertNowCh]  = ADCL;
+		ac_adc_ch[ac_adc_convertNowCh] |= (ADCH << 8);
+
+		if (!ac_adc_isConvertNowTemp) {
+			// switch to next ADC input channel (ADMUX)
+			ac_adc_convertNowCh++;
+			ac_adc_convertNowCh = ac_adc_convertNowCh % AC_ADC_CH_COUNT;
+			ADMUX = (ADMUX & ~(0b1111 << MUX0)) | ((ac_adc_convertNowCh & 0x07) << MUX0);
+
+			// start next ADC conversion and reset ADIF flag
+			ADCSRA |= _BV(ADSC) | _BV(ADIF);
+
+		} else {
+			/* temperature conversion needs to change some settings */
+
+		}
+	}
 }
