@@ -16,10 +16,8 @@
 #include "df4iah_fw_anlgComp.h"
 
 
-//extern uint32_t absTimer_10us;
-extern uint32_t ac_timer_10us;
-//extern uint32_t last_ac_absTimer_10us;
 extern uint8_t  ac_TCNT2;
+extern uint16_t ac_timer_10us;
 
 
 #ifdef RELEASE
@@ -60,16 +58,15 @@ void anlgComp_fw_close()
 /*
  * x	Mnemonics	clocks	resulting clocks
  * ------------------------------------------------
- * 7	push		2		14
+ * 5	push		2		10
  * 1	in			1		 1
  * 1	eor			1		 1
- * 5	lds			2		10
- * 5	sts			2		10
+ * 3	lds			2		 6
+ * 3	sts			2		 6
  * 1	adiw		2		 2
- * 2	adc			1		 2
  * 1	sei			1		 1
  *
- * = 41 clocks --> 2.05 µs until sei() is done
+ * = 27 clocks --> 1.35 µs until sei() is done
  */
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))

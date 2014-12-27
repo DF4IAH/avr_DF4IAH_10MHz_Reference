@@ -31,7 +31,7 @@ void clkFastCtr_fw_init()
 	TCCR2A = (0b10 << WGM20);
 	//TCCR2B = 0;
 
-	/* TOV2 interrupt enable */
+	/* OCF2A interrupt enable */
 	TIMSK2 = _BV(OCIE2A);
 
 	/* switch clock source to T2S/1 */
@@ -68,7 +68,7 @@ void clkFastCtr_fw_close()
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
 #endif
-//void clkFastCtr_ISR_OVF() - __vector_7
+//void clkFastCtr_ISR_T2_CompA() - __vector_7
 ISR(TIMER2_COMPA_vect, ISR_BLOCK)
 {
 	// reset counter offset to default value

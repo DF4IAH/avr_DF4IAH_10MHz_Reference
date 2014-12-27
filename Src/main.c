@@ -19,14 +19,15 @@
 
 #include "chipdef.h"
 #include "usbdrv_fw/usbdrv.h"
+#include "df4iah_fw_usb.h"
 #include "df4iah_bl_memory.h"
 #include "df4iah_bl_clkPullPwm.h"
 #include "df4iah_fw_memory.h"
-#include "df4iah_fw_usb.h"
+#include "df4iah_fw_ringbuffer.h"
+#include "df4iah_fw_clkPullPwm.h"
 #include "df4iah_fw_clkFastCtr.h"
 #include "df4iah_fw_anlgComp.h"
-#include "df4iah_fw_clkPullPwm.h"
-#include "df4iah_fw_ringbuffer.h"
+#include "df4iah_fw_clkSlowCtr.h"
 #include "df4iah_fw_serial.h"
 
 #include "main.h"
@@ -56,9 +57,12 @@ volatile uint8_t mainCtxtBufferIdx 							= 0;
 usbTxStatus_t usbTxStatus1 									= { 0 },
 			  usbTxStatus3 									= { 0 };
 
-/* df4iah_fw_anlgComp */
-volatile uint32_t ac_timer_10us								= 0;
+/* df4iah_fw_anlgComp (10kHz) */
 volatile uint8_t  ac_TCNT2									= 0;
+volatile uint16_t ac_timer_10us								= 0;
+
+/* df4iah_fw_clkSlowCtr (PPS) */
+volatile uint32_t csc_timer_s_HI							= 0;
 
 /* df4iah_fw_ringbuffer */
 volatile uint8_t usbRingBufferSendPushIdx 					= 0;
@@ -394,7 +398,7 @@ static void doJobs()
 	static uint8_t isTimerTestPrintCtr = 0;
 
 	if (isTimerTest && (!((ac_timer_10us/100) % 100)) && (isTimerTestPrintCtr < 3)) {
-		uint8_t len = sprintf((char*) mainCtxtBuffer, "### ac_timer_10us=%010ld x10 us + ac_TCNT2=%03d\n", ac_timer_10us, ac_TCNT2);
+		uint8_t len = sprintf((char*) mainCtxtBuffer, "### csc_timer_s=%010ld, ac_timer_10us=%05ld x10 us + ac_TCNT2=%03d\n", ((uint32_t) (csc_timer_s_HI << 8)) | TCNT0, (uint32_t) ac_timer_10us, ac_TCNT2);
 		isTimerTestPrintCtr++;
 
 		if (getSemaphore(isSend)) {
@@ -447,9 +451,10 @@ int main(void)
 		ACSR  |= _BV(ACD);									// switch on Analog Comparator Disable
 		DIDR1 |= (0b11 << AIN0D);							// disable digital input buffers on AIN0 and AIN1
 
+		clkPullPwm_fw_init();
 		clkFastCtr_fw_init();
 		anlgComp_fw_init();
-		clkPullPwm_fw_init();
+		clkSlowCtr_fw_init();
 		serial_fw_init();
 		usb_fw_init();
 		sei();
@@ -469,9 +474,10 @@ int main(void)
 		wdt_close();
 		usb_fw_close();
 		serial_fw_close();
-		clkPullPwm_fw_close();
+		clkSlowCtr_fw_close();
 		anlgComp_fw_close();
 		clkFastCtr_fw_close();
+		clkPullPwm_fw_close();
 
 		// all pins are set to be input
 		DDRB = 0x00;
