@@ -90,8 +90,8 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.1034531880" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<macros>
 					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
-					<stringMacro name="MT_Firmware_Memory" type="VALUE_TEXT" value="0x2800"/>
-					<stringMacro name="MT_Firmware_Main" type="VALUE_TEXT" value="0x2000"/>
+					<stringMacro name="MT_Firmware_Memory" type="VALUE_TEXT" value="0x3000"/>
+					<stringMacro name="MT_Firmware_Main" type="VALUE_TEXT" value="0x2800"/>
 					<stringMacro name="MT_Firmware_ClkFastCtr" type="VALUE_TEXT" value="0x5000"/>
 					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="MT_Bootloader_Memory" type="VALUE_TEXT" value="0x7900"/>
@@ -99,7 +99,7 @@
 					<stringMacro name="MT_Firmware_ClkSlowCtr" type="VALUE_TEXT" value="0x5800"/>
 					<stringMacro name="MT_Firmware_Usb" type="VALUE_TEXT" value="0x3800"/>
 					<stringMacro name="MT_Bootloader_ClkPullPwm" type="VALUE_TEXT" value="0x7780"/>
-					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x3000"/>
+					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x3600"/>
 					<stringMacro name="MT_Bootloader_Probe" type="VALUE_TEXT" value="0x78C0"/>
 					<stringMacro name="RELEASE" type="VALUE_TEXT" value="1"/>
 					<stringMacro name="MT_Firmware_AnlgComp" type="VALUE_TEXT" value="0x4800"/>
@@ -153,8 +153,8 @@
 								<option id="de.innot.avreclipse.linker.option.otherlinkargs.1923160745" name="Other Arguments" superClass="de.innot.avreclipse.linker.option.otherlinkargs" value="-Wl,-u,vfscanf -Wl,-u,vfprintf  -Wl,--section-start=.text=${MT_Firmware_Address}  -Wl,--section-start=.df4iah_fw_main=${MT_Firmware_Main}  -Wl,--section-start=.df4iah_fw_usb=${MT_Firmware_Usb} -Wl,--section-start=.df4iah_fw_clkpullpwm=${MT_Firmware_ClkPullPwm}  -Wl,--section-start=.df4iah_fw_clkfastctr=${MT_Firmware_ClkFastCtr}  -Wl,--section-start=.df4iah_fw_clkslowctr=${MT_Firmware_ClkSlowCtr}  -Wl,--section-start=.df4iah_fw_anlgcomp=${MT_Firmware_AnlgComp}  -Wl,--section-start=.df4iah_fw_memory=${MT_Firmware_Memory}  -Wl,--section-start=.df4iah_fw_serial=${MT_Firmware_Serial}  -Wl,--section-start=.df4iah_bl_memory=${MT_Bootloader_Memory}  -Wl,--section-start=.df4iah_bl_probe=${MT_Bootloader_Probe}  -Wl,--section-start=.df4iah_bl_clkpullpwm=${MT_Bootloader_ClkPullPwm}" valueType="string"/>
 								<option id="de.innot.avreclipse.linker.option.libpath.939957995" name="Libraries Path (-L)" superClass="de.innot.avreclipse.linker.option.libpath"/>
 								<option id="de.innot.avreclipse.linker.option.libs.2039879246" name="Libraries (-l)" superClass="de.innot.avreclipse.linker.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="printf_min"/>
-									<listOptionValue builtIn="false" value="scanf_min"/>
+									<listOptionValue builtIn="false" value="printf_flt"/>
+									<listOptionValue builtIn="false" value="scanf_flt"/>
 								</option>
 								<option id="de.innot.avreclipse.linker.option.otherobjs.1774034155" name="Other Objects (*.o)" superClass="de.innot.avreclipse.linker.option.otherobjs" valueType="userObjs">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_memory.o}&quot;"/>

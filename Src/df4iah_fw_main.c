@@ -480,15 +480,15 @@ static void doJobs()
 		isTimerTestPrintCtr++;
 		csc_timer_s_last = csc_timer_s;
 
-#if 0
 		uint8_t len;
 		len = sprintf((char*) mainCtxtBuffer,
-				"### csc_timer_s=%09lu\tcsc_stamp_10us=%05lu x10us + csc_stamp_TCNT2=%03u\n",
+				"### csc_timer_s=%09lu\tcsc_stamp_10us=%05lu x10us\t+ csc_stamp_TCNT2=%03u\n",
 				csc_timer_s,
 				csc_stamp_10us,
 				csc_stamp_TCNT2);
 		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
+#if 0
 		len = sprintf((char*) mainCtxtBuffer,
 				"### PWM=%05u\n",
 				pwmVal);
@@ -499,8 +499,8 @@ static void doJobs()
 				//ac_adc_ch[0],
 				//(int32_t) 1234); /*adc_ch0_mvolts*/
 		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
-#else
 		(void) isSend;
+#else
 #endif
 
 //		len = sprintf((char*) mainCtxtBuffer,
