@@ -39,7 +39,7 @@
 #endif
 
 
-#define MAINCTXT_BUFFER_SIZE								250
+#define MAINCTXT_BUFFER_SIZE								254
 
 
 // DATA SECTION
@@ -61,9 +61,9 @@ usbTxStatus_t usbTxStatus1 									= { 0 },
 
 /* df4iah_fw_anlgComp (10kHz) */
 volatile uint32_t ac_timer_10us								= 0;
-volatile uint8_t  ac_stamp_TCNT2							= 0;
+//volatile uint8_t  ac_stamp_TCNT2							= 0;
 volatile uint8_t  ac_adc_convertNowCh						= 0;
-volatile uint8_t  ac_adc_isConvertNowTemp					= 0;
+volatile uint8_t  ac_adc_convertNowTempStep					= 0;
 
 /* df4iah_fw_clkSlowCtr (PPS) */
 volatile uint32_t csc_timer_s_HI							= 0;
@@ -100,7 +100,7 @@ volatile uint8_t isUsbCommTest 								= false;
 uchar mainCtxtBuffer[MAINCTXT_BUFFER_SIZE] 					= { 0 };
 
 /* df4iah_fw_anlgComp (10kHz) */
-volatile uint16_t ac_adc_ch[AC_ADC_CH_COUNT]				= { 0 };
+volatile uint16_t ac_adc_ch[AC_ADC_CH_COUNT + 1]			= { 0 };  // plus one for the temperature sensor
 
 /* df4iah_fw_ringbuffer */
 uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE] 				= { 0 };
@@ -260,6 +260,9 @@ void __vector_default(void) { ; }
 //}
 
 
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
 static inline void vectortable_to_firmware(void) {
 	cli();
 	asm volatile											// set active vector table into the Firmware section
@@ -276,44 +279,62 @@ static inline void vectortable_to_firmware(void) {
 	);
 }
 
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
 static inline void wdt_init() {
 	cli();
 	wdt_reset();
 	wdt_disable();
 }
 
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
 static inline void wdt_close() {
 	cli();
 	wdt_reset();
 	wdt_disable();
 }
 
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
 static void doInterpret(uchar msg[], uint8_t len)
 {
 	const uint8_t isSend = true;
 
 	if (!strncmp((char*) msg, (char*) VM_COMMAND_HALT, sizeof(VM_COMMAND_HALT))) {
 		/* stop AVR controller and enter sleep state */
+		isSerComm = false;
+		isTimerTest = false;
+		isUsbCommTest = false;
 		enterMode = ENTER_MODE_SLEEP;
 		stopAvr = true;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP))) {
 		/* help information */
-		if (getSemaphore(!isSend)) {
-			int len = sprintf((char*) mainCtxtBuffer, "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: %03d%03d\n", VERSION_HIGH, VERSION_LOW);
-			ringBufferPush(!isSend, false, mainCtxtBuffer, len);
-			ringBufferPush(!isSend, true, (uchar*) PM_INTERPRETER_HELP1, PM_INTERPRETER_HELP1_len);
-			freeSemaphore(!isSend);
-			helpConcatNr = 1;
-		}
+		int len = sprintf((char*) mainCtxtBuffer, "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: %03d%03d\n", VERSION_HIGH, VERSION_LOW);
+		ringBufferWaitAppend(!isSend, false, mainCtxtBuffer, len);
+		ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP1, PM_INTERPRETER_HELP1_len);
+		helpConcatNr = 1;
+		isSerComm = false;
+		isTimerTest = false;
+		isUsbCommTest = false;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_LOADER, sizeof(VM_COMMAND_LOADER))) {
 		/* enter bootloader */
+		isSerComm = false;
+		isTimerTest = false;
+		isUsbCommTest = false;
 		enterMode = ENTER_MODE_BL;
 		stopAvr = true;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_REBOOT, sizeof(VM_COMMAND_REBOOT))) {
 		/* enter firmware (REBOOT) */
+		isSerComm = false;
+		isTimerTest = false;
+		isUsbCommTest = false;
 		enterMode = ENTER_MODE_FW;
 		stopAvr = true;
 
@@ -332,12 +353,16 @@ static void doInterpret(uchar msg[], uint8_t len)
 		int32_t scanVal = 0;
 		sscanf((char*) msg + 1, "%ld", &scanVal);
 		pwmTerminalAdj = scanVal;
+		isSerComm = false;
+		isUsbCommTest = false;
 
 	} else if (msg[0] == VM_COMMAND_MINUSSIGN[0]) {
 		/* correct the PWM value down */
 		int32_t scanVal = 0;
 		sscanf((char*) msg + 1, "%ld", &scanVal);
 		pwmTerminalAdj = -scanVal;
+		isSerComm = false;
+		isUsbCommTest = false;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_TEST, sizeof(VM_COMMAND_TEST))) {
 		/* special communication TEST */
@@ -357,15 +382,14 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else {
 		/* unknown command */
-		if (getSemaphore(!isSend)) {
-			ringBufferPush(!isSend, true, (uchar*) PM_INTERPRETER_UNKNOWN, PM_INTERPRETER_UNKNOWN_len);
-			freeSemaphore(!isSend);
-		} else {
-			ringBufferPushAddHook(!isSend, true, (uchar*) PM_INTERPRETER_UNKNOWN, PM_INTERPRETER_UNKNOWN_len);
-		}
+		ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_UNKNOWN, PM_INTERPRETER_UNKNOWN_len);
+		isTimerTest = false;
 	}
 }
 
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
 static void workInQueue()
 {
 	const uint8_t isSend = true;
@@ -390,18 +414,12 @@ static void workInQueue()
 
 			switch (helpConcatNr) {
 			case 1:
-				if (getSemaphore(!isSend)) {
-					ringBufferPush(!isSend, true, (uchar*) PM_INTERPRETER_HELP2, PM_INTERPRETER_HELP2_len);
-					freeSemaphore(!isSend);
-				}
+				ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP2, PM_INTERPRETER_HELP2_len);
 				helpConcatNr = 2;
 				break;
 
 			case 2:
-				if (getSemaphore(!isSend)) {
-					ringBufferPush(!isSend, true, (uchar*) PM_INTERPRETER_HELP3, PM_INTERPRETER_HELP3_len);
-					freeSemaphore(!isSend);
-				}
+				ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP3, PM_INTERPRETER_HELP3_len);
 				helpConcatNr = 0;
 				break;
 
@@ -417,6 +435,9 @@ static void workInQueue()
 	}
 }
 
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
 static void doJobs()
 {
 	const uint8_t isSend = false;							// USB Function --> host: USB IN
@@ -444,34 +465,81 @@ static void doJobs()
 	}
 
 	if (isTimerTest && (csc_timer_s != csc_timer_s_last) && (isTimerTestPrintCtr < 3)) {
-		uint8_t len = sprintf((char*) mainCtxtBuffer, "### csc_timer_s=%09ld\tcsc_stamp_10us=%05ld x10us + csc_stamp_TCNT2=%03d\tPWM=%05ld, ADC0=%04d, ADC1=%04d\n", csc_timer_s, csc_stamp_10us, csc_stamp_TCNT2, (uint32_t) pwmVal, ac_adc_ch[0], ac_adc_ch[1]);
+		/*
+		 * ATTENTION: Floating vfprint() and friends needs changes to the linker
+		 * @see http://winavr.scienceprog.com/avr-gcc-tutorial/using-sprintf-function-for-float-numbers-in-avr-gcc.html
+		 *
+		 * 1)	Linker option:		--Wl,-u,vfprintf
+		 * 2)	Linker libraries:	-lm  -lprintf_flt
+		 */
+
+		//float adc_ch0_mvolts = (((float) ac_adc_ch[0]) * 4.4742f) / 1.024f;
+		//float adc_ch1_mvolts = (((float) ac_adc_ch[1]) * 4.4742f) / 1.024f;
+
+		/* enter this block just n times per second */
 		isTimerTestPrintCtr++;
 		csc_timer_s_last = csc_timer_s;
 
-		if (getSemaphore(isSend)) {
-			ringBufferPush(isSend, false, mainCtxtBuffer, len);
-			freeSemaphore(isSend);
-		} else {
-			ringBufferPushAddHook(isSend, false, mainCtxtBuffer, len);
-		}
+#if 0
+		uint8_t len;
+		len = sprintf((char*) mainCtxtBuffer,
+				"### csc_timer_s=%09lu\tcsc_stamp_10us=%05lu x10us + csc_stamp_TCNT2=%03u\n",
+				csc_timer_s,
+				csc_stamp_10us,
+				csc_stamp_TCNT2);
+		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+
+		len = sprintf((char*) mainCtxtBuffer,
+				"### PWM=%05u\n",
+				pwmVal);
+		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+
+		len = sprintf((char*) mainCtxtBuffer,
+				"### ADC0=%%04u (%%04ldmV), \n");
+				//ac_adc_ch[0],
+				//(int32_t) 1234); /*adc_ch0_mvolts*/
+		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+#else
+		(void) isSend;
+#endif
+
+//		len = sprintf((char*) mainCtxtBuffer,
+//		"### PWM=%05u\n",
+//		pwmVal);
+//		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+
+
+//		uint8_t len = sprintf((char*) mainCtxtBuffer,
+//				"### csc_timer_s=%%09lu\tcsc_stamp_10us=%%05lu x10us + csc_stamp_TCNT2=%%03u\tPWM=%%05u, ADC0=%%04u (%%04ldmV), ADC1=%%04u (%%04ldmV), Temp=%%04u (%%02dC)\n");
+//				csc_timer_s,
+//				csc_stamp_10us,
+//				csc_stamp_TCNT2,
+//				pwmVal,
+//				ac_adc_ch[0],
+//				(int32_t) 1234 /*adc_ch0_mvolts*/,
+//				ac_adc_ch[1],
+//				(int32_t) 5678 /*adc_ch1_mvolts*/,
+//				ac_adc_ch[2],
+//				ac_adc_ch[2] - (367 - 25));
+		ac_adc_convertNowTempStep = 1;  // prepare for next temperature conversion
+
 	} else if (csc_timer_s == csc_timer_s_last) {
 		isTimerTestPrintCtr = 0;
 	}
 }
 
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
 static void sendInitialHelp()
 {
-	const uint8_t isSend = true;
-
-	if (getSemaphore(isSend)) {
-		ringBufferPush(isSend, false, VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP));
-		freeSemaphore(isSend);
-	} else {
-		ringBufferPushAddHook(isSend, false, VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP));
-	}
+	ringBufferAppend(true, false, VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP));
 }
 
-static void give_away(void)
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
+void give_away(void)
 {
     wdt_reset();
 
@@ -487,6 +555,9 @@ static void give_away(void)
 }
 
 
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
 int main(void)
 {
 	/* init AVR */

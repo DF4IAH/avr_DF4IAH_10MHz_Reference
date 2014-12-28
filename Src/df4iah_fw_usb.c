@@ -99,8 +99,9 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 void usb_fw_sendInInterrupt()
 {
 	static uchar bufferInt[5] = "<INT>";
-	/* send next packet if a new time-slot is ready to send */
+
 	if (usbInterruptIsReady()) {
+		/* send next packet if a new time-slot is ready to send */
 		usbSetInterrupt(bufferInt, sizeof(bufferInt));
 	}
 }
@@ -184,8 +185,8 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 	const uint8_t isSend = false;
 	uint8_t retLen = 0;
 
-	/* special communication TEST */
 	if (isUsbCommTest) {
+		/* special communication TEST */
 		if (cntRcv) {
 #if 1
 			data[retLen++] = '0' + ((doTestCntr / 1000) % 10);
@@ -213,10 +214,12 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 			freeSemaphore(isSend);
 			cntRcv -= retLen + pullLen;
 			return retLen + pullLen;
+
 		} else {
 			strcpy((char*) data, "SemInUse");
 			return min(len, 8);
 		}
+
 	} else {
 		return retLen;
 	}
@@ -232,28 +235,22 @@ USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 {
 	const uint8_t isSend = true;
 
-	/* append first or any substring to the inBuffer */
 	if (cntSend > len) {
+		/* append first or any substring to the inBuffer */
 		cntSend -= len;
 		memcpy(&(usbIsrCtxtBuffer[usbIsrCtxtBufferIdx]), data, len);
 		usbIsrCtxtBufferIdx += len;
 		return 0;											// go ahead with more transfer requests
 
-	/* append last substring to the inBuffer and push it to the OUT ring buffer (host --> USB function) */
 	} else {
+		/* append last substring to the inBuffer and push it to the OUT ring buffer (host --> USB function) */
 		if (cntSend > 0) {
 			memcpy(&(usbIsrCtxtBuffer[usbIsrCtxtBufferIdx]), data, cntSend);
 			usbIsrCtxtBufferIdx += cntSend;
 		}
 
 		/* push OUT string (send) from host to the USB function's ring buffer */
-		if (getSemaphore(isSend)) {
-			ringBufferPush(isSend, false, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
-			freeSemaphore(isSend);
-
-		} else {
-			ringBufferPushAddHook(isSend, false, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
-		}
+		ringBufferAppend(isSend, false, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
 
 		usbIsrCtxtBufferIdx = cntSend = 0;
 		return 1;											// no more data transfers accepted

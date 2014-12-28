@@ -23,13 +23,14 @@ typedef struct eeprom_layout {
 	uint16_t		b00_crc;
 
 	/* BLOCK_01:    REFERENCE OSCILLATOR */
-	float			b01_temp_25c_adc_ofs;
-	float			b01_temp_25c_adc_k;
-	float			b01_qrg_0v_ofs;
-	float			b01_qrg_0v_ofs_drift_25c;
-	float			b01_qrg_p1v_k;
-	float			b01_qrg_p1v_k_drift_25c;
-	uint16_t		b01_reserved[2];
+	float			b01_ref_AREF_volts;
+	float			b01_ref_1V1_volts;
+	float			b01_qrg_ofs_0v_25C;
+	float			b01_qrg_ofs_0v_drift_1K;
+	float			b01_qrg_k_p1v_25C;
+	float			b01_qrg_k_p1v_drift_1K;
+	int16_t			b01_temp_ofs_adc_25C;						// k = 1 mv / K, @see p261
+	uint16_t		b01_reserved[1];
 	uint16_t		b01_regen_ctr;
 	uint16_t		b01_crc;
 
@@ -50,7 +51,7 @@ typedef struct eeprom_layout {
 	uint16_t		b03_crc;
 
 	/* unassigned BLOCKS */
-	uint16_t		bxx_reserved[512 - 48];
+	uint16_t		bxx_reserved[512 - (4 * 16)];
 } eeprom_layout_t;
 
 

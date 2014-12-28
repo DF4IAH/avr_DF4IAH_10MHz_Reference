@@ -7,9 +7,12 @@
 
 
 #include <string.h>
+#include <util/delay.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <avr/wdt.h>
 
+#include "main.h"
 #include "df4iah_fw_ringbuffer.h"
 
 
@@ -210,4 +213,52 @@ enum RINGBUFFER_MSG_STATUS_t getStatusNextMsg(uint8_t isSend)
 		}
 	}
 	return status;
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+void ringBufferWaitFree(uint8_t isSend)
+{
+	for (;;) {
+		if (getSemaphore(isSend)) {
+			uint8_t pushIdx = (isSend ?  usbRingBufferSendPushIdx : usbRingBufferRcvPushIdx);
+			uint8_t pullIdx = (isSend ?  usbRingBufferSendPullIdx : usbRingBufferRcvPullIdx);
+
+			if (pullIdx == pushIdx) {
+				freeSemaphore(isSend);
+				break;
+			}
+			freeSemaphore(isSend);
+		}
+
+		// give the CPU away for a moment to delay
+		give_away();
+	};
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+uint8_t ringBufferAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
+{
+	uint8_t retLen = 0;
+
+	if (getSemaphore(isSend)) {
+		retLen = ringBufferPush(isSend, isPgm, inData, len);
+		freeSemaphore(isSend);
+	} else {
+		ringBufferPushAddHook(isSend, isPgm, inData, len);
+	}
+
+	return retLen;
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+uint8_t ringBufferWaitAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
+{
+	ringBufferWaitFree(isSend);
+	return ringBufferAppend(isSend, isPgm, inData, len);
 }

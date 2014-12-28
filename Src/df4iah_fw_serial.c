@@ -161,14 +161,9 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 	} else {  // now we are not ready yet, call us later again
 		freeSemaphore(isSend);
 
-#if 1
+#if 0
 		int len = sprintf((char*) serialCtxtTxBuffer, "E: can not enter SERIAL SEND - UCSR0A=0x%02x, serialCtxtTxBufferLen=%d, serialCtxtTxBufferIdx=%d\n", UCSR0A, serialCtxtTxBufferLen, serialCtxtTxBufferIdx);
-		if (getSemaphore(!isSend)) {
-			ringBufferPush(!isSend, false, serialCtxtTxBuffer, len);
-			freeSemaphore(!isSend);
-		} else {
-			ringBufferPushAddHook(!isSend, false, serialCtxtTxBuffer, len);
-		}
+		ringBufferAppend(!isSend, false, serialCtxtTxBuffer, len);
 		serialCtxtTxBufferLen = serialCtxtTxBufferIdx = 0;
 #endif
 	}
@@ -203,12 +198,7 @@ ISR(USART_RX_vect, ISR_BLOCK)
 	/* if the end of a NMEA sentence is detected, send this serial RX buffer to the receive (IN) ring buffer */
 	if (rxData == '\n') {  // a NMEA sentence stops with:  <sentence...*checksum\r\n>
 		if (isSerComm) {
-			if (getSemaphore(false)) {
-				ringBufferPush(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
-				freeSemaphore(false);
-			} else {
-				ringBufferPushAddHook(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
-			}
+			ringBufferAppend(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
 			serialCtxtRxBufferLen = 0;
 		}
 	}

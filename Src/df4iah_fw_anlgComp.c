@@ -17,10 +17,10 @@
 
 
 extern uint32_t ac_timer_10us;
-extern uint8_t  ac_stamp_TCNT2;
+//extern uint8_t  ac_stamp_TCNT2;
 extern uint8_t  ac_adc_convertNowCh;
-extern uint8_t  ac_adc_isConvertNowTemp;
-extern uint16_t ac_adc_ch[AC_ADC_CH_COUNT];
+extern uint8_t  ac_adc_convertNowTempStep;
+extern uint16_t ac_adc_ch[AC_ADC_CH_COUNT + 1];				// plus one for the temperature sensor
 
 
 #ifdef RELEASE
@@ -72,7 +72,7 @@ void anlgComp_fw_close()
 	ADCSRA |= _BV(ADSC);
 }
 
-/*
+/* TODO
  * x	Mnemonics	clocks	resulting clocks
  * ------------------------------------------------
  * 11	push		2		22
@@ -92,29 +92,68 @@ __attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
 //void anlgComp_ISR_ANALOG_COMP() - __vector_23
 ISR(ANALOG_COMP_vect, ISR_BLOCK)
 {
-	ac_stamp_TCNT2 = TCNT2;
+	//ac_stamp_TCNT2 = TCNT2;
 	ac_timer_10us++;
-
-	sei();
 
 	/* when ADC has finished with previous conversion (it should be), store the value and restart new job */
 	if (!(ADCSRA & _BV(ADSC))) {
 		// read LSB first
-		ac_adc_ch[ac_adc_convertNowCh]  = ADCL;
-		ac_adc_ch[ac_adc_convertNowCh] |= (ADCH << 8);
+		uint16_t adVal  =  ADCL;
+		         adVal |= (ADCH << 8);
 
-		if (!ac_adc_isConvertNowTemp) {
+		sei();
+
+		switch (ac_adc_convertNowTempStep)
+		{
+		case 0:
+			// store last measurement
+			ac_adc_ch[ac_adc_convertNowCh] = adVal;
+
 			// switch to next ADC input channel (ADMUX)
 			ac_adc_convertNowCh++;
 			ac_adc_convertNowCh = ac_adc_convertNowCh % AC_ADC_CH_COUNT;
-			ADMUX = (ADMUX & ~(0b1111 << MUX0)) | ((ac_adc_convertNowCh & 0x07) << MUX0);
+			ADMUX = 0b01000000 | (ac_adc_convertNowCh & 0x07);  // = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
+			break;
 
-			// start next ADC conversion and reset ADIF flag
-			ADCSRA |= _BV(ADSC) | _BV(ADIF);
+		case 1:
+			// store last measurement
+			ac_adc_ch[ac_adc_convertNowCh] = adVal;
 
-		} else {
-			/* temperature conversion needs to change some settings */
+			// calculate next ADC input channel (ADMUX)
+			ac_adc_convertNowCh++;
+			ac_adc_convertNowCh = ac_adc_convertNowCh % AC_ADC_CH_COUNT;
 
+			// switch over to temperature conversion
+			ADMUX = 0b11001000;  // = (0b11 << REFS0) | (0x08 << MUX0);
+			ac_adc_convertNowTempStep = 2;
+			break;
+
+		case 2:
+			// first sample to be discarded
+			ac_adc_convertNowTempStep = 3;
+			break;
+
+		case 3:
+			ac_adc_ch[AC_ADC_CH_COUNT] = adVal;
+			// no break
+		default:
+			// switch to next ADC input channel (ADMUX)
+			ac_adc_convertNowCh++;
+			ac_adc_convertNowCh = ac_adc_convertNowCh % AC_ADC_CH_COUNT;
+			ADMUX = 0b01000000 | (ac_adc_convertNowCh & 0x07);  // = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
+			ac_adc_convertNowTempStep = 4;
+			break;
+
+		case 4:
+			// first sample to be discarded
+			ac_adc_convertNowTempStep = 0;
+			break;
 		}
+
+		// start next ADC conversion and reset ADIF flag
+		ADCSRA |= _BV(ADSC) | _BV(ADIF);
+
+	} else {
+		sei();
 	}
 }

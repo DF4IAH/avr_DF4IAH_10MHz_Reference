@@ -99,19 +99,13 @@ eeprom_layout_t eeprom_content = {
 		0x0000,										// b00_regen_ctr
 		0xb00c,										// b00_crc
 
-		0x0000,										// b01_temp_25c_adc_ofs
-		0x0000,										// \--
-		0x0000,										// b01_temp_25c_adc_k
-		0x0000,										// \--
-		0x0000,										// b01_qrg_0v_ofs
-		0x0000,										// \--
-		0x0000,										// b01_qrg_0v_ofs_drift_25c
-		0x0000,										// \--
-		0x0000,										// b01_qrg_p1v_k
-		0x0000,										// \--
-		0x0000,										// b01_qrg_p1v_k_drift_25c
-		0x0000,										// \--
-		0xffff,
+		4.4742f,									// b01_ref_AREF_volts					4.4742 V
+		1.085f,										// b01_ref_1V1_volts					1.085  V
+		0.0f,										// b01_qrg_ofs_0v_25C
+		0.0f,										// b01_qrg_ofs_0v_drift_1K
+		0.0f,										// b01_qrg_k_p1v_25C
+		0.0f,										// b01_qrg_k_p1v_drift_1K
+		367,										// b01_temp_ofs_adc_25C					0367 = 25°C
 		0xffff,
 		0x0000,										// b01_regen_ctr
 		0xb01c,										// b01_crc
@@ -599,4 +593,4 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff
 };
-#pragma GCC diagnostic push
+#pragma GCC diagnostic pop

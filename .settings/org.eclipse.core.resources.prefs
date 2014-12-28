@@ -2,5 +2,7 @@ eclipse.preferences.version=1
 encoding//Src/df4iah_fw_anlgComp.c=UTF-8
 encoding//Src/df4iah_fw_clkFastCtr.c=UTF-8
 encoding//Src/df4iah_fw_clkSlowCtr.c=UTF-8
+encoding//Src/df4iah_fw_memory.c=UTF-8
 encoding//Src/df4iah_fw_serial.c=UTF-8
+encoding//Src/main.c=UTF-8
 encoding/<project>=US-ASCII
