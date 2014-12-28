@@ -39,7 +39,7 @@
 #endif
 
 
-#define MAINCTXT_BUFFER_SIZE								254
+#define MAINCTXT_BUFFER_SIZE								128
 
 
 // DATA SECTION
@@ -90,7 +90,7 @@ uint8_t serialCtxtTxBufferIdx								= 0;
 volatile uint16_t cntRcv 									= 0;
 volatile uint16_t cntSend 									= 0;
 volatile uint8_t usbIsrCtxtBufferIdx 						= 0;
-volatile uint8_t isSerComm									= true;
+volatile uint8_t isSerComm									= false;
 volatile uint8_t isUsbCommTest 								= false;
 
 
@@ -141,22 +141,22 @@ PROGMEM const uchar PM_INTERPRETER_HELP1[] 					= "\n" \
 															  "\n" \
 															  "HALT\t\t\t\tpowers the device down (sleep mode).\n" \
 															  "\n" \
-															  "HELP\t\t\t\tthis message.\n" \
-															  "\n";
+															  "HELP\t\t\t\tthis message.\n";
 const uint8_t PM_INTERPRETER_HELP1_len 						= sizeof(PM_INTERPRETER_HELP1);
 
-PROGMEM const uchar PM_INTERPRETER_HELP2[] 					= "INFO\t\t\t\ttoggles additional printed infos.\n" \
+PROGMEM const uchar PM_INTERPRETER_HELP2[] 					= "\n" \
+															  "INFO\t\t\t\ttoggles additional printed infos.\n" \
 															  "\n" \
 															  "LOADER\t\t\t\tenter bootloader.\n"
 															  "\n" \
 															  "REBOOT\t\t\t\treboot the firmware.\n" \
 															  "\n" \
 															  "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
-															  "SERON\t\t\t\tswitch serial communication ON.\n" \
-															  "\n";
+															  "SERON\t\t\t\tswitch serial communication ON.\n";
 const uint8_t PM_INTERPRETER_HELP2_len 						= sizeof(PM_INTERPRETER_HELP2);
 
-PROGMEM const uchar PM_INTERPRETER_HELP3[] 					= "TEST\t\t\t\ttoggles counter test.\n" \
+PROGMEM const uchar PM_INTERPRETER_HELP3[] 					= "\n" \
+															  "TEST\t\t\t\ttoggles counter test.\n" \
 															  "\n" \
 															  "+/- <PWM value>\t\tcorrection value to be added.\n" \
 															  "\n" \
@@ -283,8 +283,6 @@ static inline void vectortable_to_firmware(void) {
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
 static inline void wdt_init() {
-	cli();
-	wdt_reset();
 	wdt_disable();
 }
 
@@ -292,8 +290,6 @@ static inline void wdt_init() {
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
 static inline void wdt_close() {
-	cli();
-	wdt_reset();
 	wdt_disable();
 }
 
@@ -469,12 +465,12 @@ static void doJobs()
 		 * ATTENTION: Floating vfprint() and friends needs changes to the linker
 		 * @see http://winavr.scienceprog.com/avr-gcc-tutorial/using-sprintf-function-for-float-numbers-in-avr-gcc.html
 		 *
-		 * 1)	Linker option:		--Wl,-u,vfprintf
-		 * 2)	Linker libraries:	-lm  -lprintf_flt
+		 * 1)	Linker option:		     --Wl,-u,vfprintf  --Wl,-u,vfscanf
+		 * 2)	Linker libraries:	-lm  -lprintf_flt      -lscanf_flt
 		 */
 
-		//float adc_ch0_mvolts = (((float) ac_adc_ch[0]) * 4.4742f) / 1.024f;
-		//float adc_ch1_mvolts = (((float) ac_adc_ch[1]) * 4.4742f) / 1.024f;
+		float adc_ch0_mvolts = (((float) ac_adc_ch[0]) * 4.4742f) / 1.024f;
+		float adc_ch1_mvolts = (((float) ac_adc_ch[1]) * 4.4742f) / 1.024f;
 
 		/* enter this block just n times per second */
 		isTimerTestPrintCtr++;
@@ -488,39 +484,29 @@ static void doJobs()
 				csc_stamp_TCNT2);
 		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
-#if 0
 		len = sprintf((char*) mainCtxtBuffer,
 				"### PWM=%05u\n",
 				pwmVal);
 		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 		len = sprintf((char*) mainCtxtBuffer,
-				"### ADC0=%%04u (%%04ldmV), \n");
-				//ac_adc_ch[0],
-				//(int32_t) 1234); /*adc_ch0_mvolts*/
+				"### ADC0=%04u (%04ldmV)\n",
+				ac_adc_ch[0],
+				(int32_t) adc_ch0_mvolts);
 		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
-		(void) isSend;
-#else
-#endif
 
-//		len = sprintf((char*) mainCtxtBuffer,
-//		"### PWM=%05u\n",
-//		pwmVal);
-//		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+		len = sprintf((char*) mainCtxtBuffer,
+				"### ADC1=%04u (%04ldmV)\n",
+				ac_adc_ch[1],
+				(int32_t) adc_ch1_mvolts);
+		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
+		len = sprintf((char*) mainCtxtBuffer,
+				"### Temp=%04u (%02dC).\n\n",
+				ac_adc_ch[2],
+				ac_adc_ch[2] - (367 - 25));
+		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
-//		uint8_t len = sprintf((char*) mainCtxtBuffer,
-//				"### csc_timer_s=%%09lu\tcsc_stamp_10us=%%05lu x10us + csc_stamp_TCNT2=%%03u\tPWM=%%05u, ADC0=%%04u (%%04ldmV), ADC1=%%04u (%%04ldmV), Temp=%%04u (%%02dC)\n");
-//				csc_timer_s,
-//				csc_stamp_10us,
-//				csc_stamp_TCNT2,
-//				pwmVal,
-//				ac_adc_ch[0],
-//				(int32_t) 1234 /*adc_ch0_mvolts*/,
-//				ac_adc_ch[1],
-//				(int32_t) 5678 /*adc_ch1_mvolts*/,
-//				ac_adc_ch[2],
-//				ac_adc_ch[2] - (367 - 25));
 		ac_adc_convertNowTempStep = 1;  // prepare for next temperature conversion
 
 	} else if (csc_timer_s == csc_timer_s_last) {
@@ -569,6 +555,9 @@ int main(void)
 		ACSR  |= _BV(ACD);									// switch on Analog Comparator Disable
 		DIDR1 |= (0b11 << AIN0D);							// disable digital input buffers on AIN0 and AIN1
 
+		// switch off Pull-Up Disable
+		MCUCR &= ~(_BV(PUD));
+
 		clkPullPwm_fw_init();
 		clkFastCtr_fw_init();
 		anlgComp_fw_init();
@@ -607,6 +596,9 @@ int main(void)
 		PORTC = 0x00;
 		PORTD = 0x00;
 
+		// switch off Pull-Up Disable
+		MCUCR &= ~(_BV(PUD));
+
 		if (enterMode) {
 			if (enterMode == ENTER_MODE_BL) {
 				/* write BOOT one time token to the EEPROM to INHIBIT restart into this Firmware again */
@@ -617,8 +609,16 @@ int main(void)
 				jump_to_bl();										// jump to bootloader section
 
 			} else if (enterMode == ENTER_MODE_FW) {
+#if 1
 				/* restart firmware */
 				jump_to_fw();										// jump to firmware section (REBOOT)
+#else
+				/* reset with the help of the WDT */
+				wdt_enable(WDTO_250MS);
+				for (;;) {
+			        _delay_ms(1000);
+				}
+#endif
 			}
 
 		} else {

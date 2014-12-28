@@ -48,6 +48,9 @@ void anlgComp_fw_init()
 
 	/* ADC reference set to AREF */
 	ADMUX = (0b01 << REFS0);								// keep ADLAR off
+
+	/* start the initial conversion */
+	ADCSRA |= _BV(ADSC);
 }
 
 #ifdef RELEASE
@@ -67,9 +70,6 @@ void anlgComp_fw_close()
 
 	/* disable power for ADC, reference voltage and analog comparator */
 	PRR |= _BV(PRADC);
-
-	/* start the initial conversion */
-	ADCSRA |= _BV(ADSC);
 }
 
 /* TODO
@@ -78,13 +78,16 @@ void anlgComp_fw_close()
  * 11	push		2		22
  * 1	in			1		 1
  * 1	eor			1		 1
- * 5	lds			2		10
- * 5	sts			2		10
+ * 7	lds			2		14
  * 1	adiw		2		 2
  * 2	adc			2		 4
+ * 4	sts			2		 8
+ * 1	sbrc		3		 3
+ * 1	ldi			1		 1
+ * 1	or			1		 1
  * 1	sei			1		 1
  *
- * = 51 clocks --> 2.55 µs until sei() is done
+ * = 58 clocks --> 2.90 µs until sei() is done
  */
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))

@@ -50,7 +50,7 @@ void serial_fw_init()
 
 	// setting IO pins: pull-up on
 	MCUCR     &= ~(_BV(PUD));											// ensure PUD is off --> activation of all pull-ups
-	UART_PORT |=   _BV(UART_RX_PNUM);									// RX pull-up on, PUD is deactivated in main()
+	UART_PORT |=   _BV(UART_RX_PNUM);									// RX pull-up on
 
 	// setting baud rate
 	UART_BAUD_HIGH = ((UART_CALC_BAUDRATE(DEFAULT_BAUDRATE)>>8) & 0xff);

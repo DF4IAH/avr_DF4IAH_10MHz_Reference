@@ -22,9 +22,9 @@
 #endif
 
 
-#define RINGBUFFER_SEND_SIZE								254
-#define RINGBUFFER_RCV_SIZE									254
-#define RINGBUFFER_HOOK_SIZE								254
+#define RINGBUFFER_SEND_SIZE								128
+#define RINGBUFFER_RCV_SIZE									128
+#define RINGBUFFER_HOOK_SIZE								128
 
 #define MSG_PATTERN_NMEA									'$'
 
