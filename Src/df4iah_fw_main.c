@@ -30,7 +30,7 @@
 #include "df4iah_fw_clkSlowCtr.h"
 #include "df4iah_fw_serial.h"
 
-#include "main.h"
+#include "df4iah_fw_main.h"
 
 
 #ifndef BOOT_TOKEN											// should be included from chipdef.h --> mega32.h
@@ -44,7 +44,7 @@
 
 // DATA SECTION
 
-/* main */
+/* df4iah_fw_main */
 void (*jump_to_fw)(void)	 								= (void*) 0x0000;
 void (*jump_to_bl)(void)	 								= (void*) 0x7000;
 volatile uint8_t timer0Snapshot 							= 0x00;
@@ -96,7 +96,7 @@ volatile uint8_t isUsbCommTest 								= false;
 
 // ARRAYS - due to overwriting hazards they are following the controlling variables
 
-/* main */
+/* df4iah_fw_main */
 uchar mainCtxtBuffer[MAINCTXT_BUFFER_SIZE] 					= { 0 };
 
 /* df4iah_fw_anlgComp (10kHz) */

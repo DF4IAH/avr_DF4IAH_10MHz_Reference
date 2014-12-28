@@ -10,7 +10,7 @@
 #include <avr/interrupt.h>
 
 #include "chipdef.h"
-#include "main.h"
+#include "df4iah_fw_main.h"
 #include "df4iah_fw_ringbuffer.h"
 
 #include "df4iah_fw_serial.h"

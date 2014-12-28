@@ -7,7 +7,7 @@
 
 #include <avr/eeprom.h>
 
-#include "main.h"
+#include "df4iah_fw_main.h"
 
 #include "df4iah_bl_memory.h"
 #include "df4iah_fw_memory.h"

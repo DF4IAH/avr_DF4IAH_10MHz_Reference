@@ -1,12 +1,12 @@
 /*
- * main.h
+ * df4iah_fw_main.h
  *
  *  Created on: 01.11.2014
  *      Author: DF4IAH, Ulrich Habel
  */
 
-#ifndef FW_MAIN_H_
-#define FW_MAIN_H_
+#ifndef DF4IAH_FW_MAIN_H_
+#define DF4IAH_FW_MAIN_H_
 
 /* MCU frequency */
 #ifndef F_CPU
@@ -39,4 +39,4 @@ enum ENTER_MODE_t {
 void give_away(void);
 int main(void);
 
-#endif /* FW_MAIN_H_ */
+#endif /* DF4IAH_FW_MAIN_H_ */

@@ -12,7 +12,7 @@
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
 
-#include "main.h"
+#include "df4iah_fw_main.h"
 #include "df4iah_fw_ringbuffer.h"
 
 
