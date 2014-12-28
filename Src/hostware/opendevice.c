@@ -37,6 +37,7 @@ static int  _shellStyleMatch(char *text, char *p)
             /* Literal match with following character. */
             p++;
             /* FALLTHROUGH */
+            // no break
         default:
             if (*text != *p) {
                 return MATCH_FAILED;

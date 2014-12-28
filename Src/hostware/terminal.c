@@ -270,7 +270,7 @@ static void ncurses_rx_print(WINDOW** win_rx, const char string[], int colorPair
 	if (colorPair) {
 		wattron(*win_rx, COLOR_PAIR(colorPair));
 	}
-	mvwprintw(*win_rx, LINES - 18, 1, "%s\n", string);
+	mvwprintw(*win_rx, LINES - 18, 1, "%s", string);
 	if (colorPair) {
 		wattroff(*win_rx, COLOR_PAIR(colorPair));
 	}
@@ -349,7 +349,7 @@ void terminal()
         	int oldIdx = 0;
         	for (int idx = 0; idx < inLineCnt; ++idx) {
         		if (inLine[idx] == '\r') {
-        			inLine[idx] = ' ';
+        			inLine[idx] = '\n';
 
         		} else if ((inLine[idx] == '\n') || ((idx + 1) == inLineCnt)) {
 					enum E_COLOR_PAIRS_t thisColor = E_COLOR_PAIR_RCV_MAIN;
@@ -362,7 +362,7 @@ void terminal()
 						inLine[idx + 1] = 0;
 					}
 
-					if (inLine[oldIdx] == '$') {			// NMEA messages are o be marked special
+					if (inLine[oldIdx] == '$') {			// NMEA messages are highlighted
 						thisColor = E_COLOR_PAIR_RCV_GPS;
 						thisAttribute = 0;
 					}
