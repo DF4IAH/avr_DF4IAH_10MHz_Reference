@@ -16,6 +16,9 @@
 #include "df4iah_fw_clkFastCtr.h"
 
 
+extern uint16_t fastCtr10us;
+
+
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
 #endif
@@ -72,7 +75,8 @@ __attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
 ISR(TIMER2_COMPA_vect, ISR_BLOCK)
 {
 	// reset counter offset to default value
-	OCR2A = DEFAULT_OCR2A_VALUE;
+	//OCR2A = DEFAULT_OCR2A_VALUE;
+
 
 	sei();
 }

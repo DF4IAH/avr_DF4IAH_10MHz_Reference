@@ -51,55 +51,58 @@ float mainCoef_b01_ref_AREF_V								= 0.0f;
 float mainCoef_b01_ref_1V1_V								= 0.0f;
 float mainCoef_b01_temp_ofs_adc_25C_steps					= 0.0f;
 float mainCoef_b01_temp_k_p1step_adc_K						= 0.0f;
-volatile uint8_t  mainCtxtBufferIdx 						= 0;
-volatile enum REFCLK_STATE_t mainRefClkState				= REFCLK_STATE_NOSYNC;
-volatile int32_t  mainPwmTerminalAdj						= 0;
-volatile uint8_t  mainHelpConcatNr							= 0;
-volatile uint8_t  mainIsTimerTest							= false;
-volatile uint8_t  mainIsJumperBlSet							= false;
-volatile uint8_t  mainStopAvr		 						= 0;
-volatile enum ENTER_MODE_t mainEnterMode					= ENTER_MODE_SLEEP;
+uint8_t  mainCtxtBufferIdx 									= 0;
+enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
+int32_t  mainPwmTerminalAdj									= 0;
+uint8_t  mainHelpConcatNr									= 0;
+uint8_t  mainIsTimerTest									= false;
+uint8_t  mainIsJumperBlSet									= false;
+uint8_t  mainStopAvr		 								= 0;
+enum ENTER_MODE_t mainEnterMode								= ENTER_MODE_SLEEP;
 volatile uint8_t  timer0Snapshot 							= 0x00;
 usbTxStatus_t usbTxStatus1 									= { 0 },
 			  usbTxStatus3 									= { 0 };
 
 /* df4iah_fw_clkPullPwm */
-volatile uint16_t pullCoef_b02_pwm_initial					= 0;
-volatile uint16_t pullPwmVal								= 0;
+uint16_t pullCoef_b02_pwm_initial							= 0;
+uint16_t pullPwmVal											= 0;
+
+/* df4iah_fw_clkFastCtr (20 MHz clock) */
+uint16_t fastCtr10us										= 0;
 
 /* df4iah_fw_anlgComp (10kHz) */
-volatile uint32_t ac_timer_10us								= 0;
-//volatile uint8_t  ac_stamp_TCNT2							= 0;
-volatile uint8_t  ac_adc_convertNowCh						= 0;
-volatile uint8_t  ac_adc_convertNowTempStep					= 0;
+uint32_t ac_timer_10us										= 0;
+//uint8_t  ac_stamp_TCNT2									= 0;
+uint8_t  ac_adc_convertNowCh								= 0;
+uint8_t  ac_adc_convertNowTempStep							= 0;
 
 /* df4iah_fw_clkSlowCtr (PPS) */
-volatile uint32_t csc_timer_s_HI							= 0;
-volatile uint8_t  csc_stamp_TCNT2							= 0;
-volatile uint32_t csc_stamp_10us							= 0;
+uint32_t csc_timer_s_HI										= 0;
+uint8_t  csc_stamp_TCNT2									= 0;
+uint32_t csc_stamp_10us										= 0;
 
 /* df4iah_fw_ringbuffer */
-volatile uint8_t  usbRingBufferSendPushIdx 					= 0;
-volatile uint8_t  usbRingBufferSendPullIdx 					= 0;
-volatile uint8_t  usbRingBufferRcvPushIdx 					= 0;
-volatile uint8_t  usbRingBufferRcvPullIdx 					= 0;
-volatile uint8_t  usbRingBufferHookLen 						= 0;
-volatile uint8_t  usbRingBufferHookIsSend 					= 0;
-volatile uint8_t  usbRingBufferSendSemaphore 				= 0;  // semaphore is free
-volatile uint8_t  usbRingBufferRcvSemaphore 				= 0;  // semaphore is free
+uint8_t  usbRingBufferSendPushIdx 							= 0;
+uint8_t  usbRingBufferSendPullIdx 							= 0;
+uint8_t  usbRingBufferRcvPushIdx 							= 0;
+uint8_t  usbRingBufferRcvPullIdx 							= 0;
+uint8_t  usbRingBufferHookLen 								= 0;
+uint8_t  usbRingBufferHookIsSend 							= 0;
+uint8_t  usbRingBufferSendSemaphore 						= 0;  // semaphore is free
+uint8_t  usbRingBufferRcvSemaphore 							= 0;  // semaphore is free
 
 /* df4iah_fw_serial */
-volatile uint8_t  serialCtxtRxBufferLen						= 0;
-volatile uint8_t  serialCtxtTxBufferLen						= 0;
-volatile uint8_t  serialCtxtTxBufferIdx						= 0;
+uint8_t  serialCtxtRxBufferLen								= 0;
+uint8_t  serialCtxtTxBufferLen								= 0;
+uint8_t  serialCtxtTxBufferIdx								= 0;
 
 /* df4iah_fw_usb */
-//volatile uint16_t usbSetupCntr							= 0;
-volatile uint16_t cntRcv 									= 0;
-volatile uint16_t cntSend 									= 0;
-volatile uint8_t  usbIsrCtxtBufferIdx 						= 0;
-volatile uint8_t  isSerComm									= true;
-volatile uint8_t  isUsbCommTest 							= false;
+//uint16_t usbSetupCntr										= 0;
+uint16_t cntRcv 											= 0;
+uint16_t cntSend 											= 0;
+uint8_t  usbIsrCtxtBufferIdx 								= 0;
+uint8_t  isSerComm											= true;
+uint8_t  isUsbCommTest 										= false;
 
 
 // ARRAYS - due to overwriting hazards they are following the controlling variables
@@ -109,7 +112,7 @@ uchar mainCtxtBuffer[MAINCTXT_BUFFER_SIZE] 					= { 0 };
 uint8_t eepromBlockCopy[sizeof(eeprom_b00_t)]				= { 0 };  // any block has the same size
 
 /* df4iah_fw_anlgComp (10kHz) */
-volatile uint16_t ac_adc_ch[AC_ADC_CH_COUNT + 1]			= { 0 };  // plus one for the temperature sensor
+uint16_t ac_adc_ch[AC_ADC_CH_COUNT + 1]						= { 0 };  // plus one for the temperature sensor
 
 /* df4iah_fw_ringbuffer */
 uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE] 				= { 0 };
