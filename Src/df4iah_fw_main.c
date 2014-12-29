@@ -460,6 +460,8 @@ static void doJobs()
 	uint32_t csc_timer_s = ((uint32_t) (csc_timer_s_HI << 8)) | TCNT0;
 
 	if ((refClkSM_last_csc_timer_s != csc_timer_s) || isTimerTestPrintCtr) {  // a new SPS impulse has arrived ... and some following lines
+		uint8_t len = 0;
+
 		/*
 		 * ATTENTION: Floating vfprint() and friends needs changes to the linker
 		 * @see http://winavr.scienceprog.com/avr-gcc-tutorial/using-sprintf-function-for-float-numbers-in-avr-gcc.html
@@ -477,13 +479,20 @@ static void doJobs()
 			refClkSM_last_csc_timer_s = csc_timer_s;
 			ac_adc_convertNowTempStep = 1;  				// prepare for next temperature conversion, once per second
 			isTimerTestPrintCtr = 1;						// show 1 timer line per second
+
+			if ((9990 <= csc_stamp_10us) && (csc_stamp_10us <= 10010)) {
+				/* catch frequency when in range of +/-200ppm */
+				float qrgDev_Hz = 100.0f * (10000U - csc_stamp_10us);
+				len = sprintf((char*) mainCtxtBuffer,
+						">>> qrgDev_Hz=%4.3fHz\n", qrgDev_Hz);
+				ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			}
 		}
 
 		if (mainIsTimerTest && isTimerTestPrintCtr) {
 			/* enter this block just n times per second */
 			--isTimerTestPrintCtr;
 
-			uint8_t len;
 			len = sprintf((char*) mainCtxtBuffer,
 					"### csc_timer_s=%09lu\tcsc_stamp_10us=%05lu x10us\t+ csc_stamp_TCNT2=%03u\n",
 					csc_timer_s,
@@ -556,7 +565,6 @@ void give_away(void)
 	usb_fw_sendInInterrupt();
 	workInQueue();
 	doJobs();
-
 
 #if 0
 	/* go into sleep mode */
