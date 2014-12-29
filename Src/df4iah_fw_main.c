@@ -314,7 +314,6 @@ static void doInterpret(uchar msg[], uint8_t len)
 		ringBufferWaitAppend(!isSend, false, mainCtxtBuffer, len);
 		ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP1, PM_INTERPRETER_HELP1_len);
 		helpConcatNr = 1;
-		isSerComm = false;
 		isTimerTest = false;
 		isUsbCommTest = false;
 
