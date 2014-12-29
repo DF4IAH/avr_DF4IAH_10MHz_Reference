@@ -134,6 +134,7 @@ const uchar VM_COMMAND_REBOOT[]								= "REBOOT";
 const uchar VM_COMMAND_SEROFF[]								= "SEROFF";
 const uchar VM_COMMAND_SERON[]								= "SERON";
 const uchar VM_COMMAND_TEST[]								= "TEST";
+const uchar VM_COMMAND_WRITEPWM[]							= "WRITEPWM";
 const uchar VM_COMMAND_PLUSSIGN[]							= "+";
 const uchar VM_COMMAND_MINUSSIGN[]							= "-";
 
@@ -148,7 +149,7 @@ PROGMEM const uchar PM_INTERPRETER_HELP1[] 					= "\n" \
 															  "\n" \
 															  "$ <NMEA-Message>\t\tsends message to the GPS module.\n" \
 															  "\n" \
-															  "HALT\t\t\t\tpowers the device down (sleep mode).\n";
+															  "HALT\t\t\t\tpowers the device down (sleep mode).";
 const uint8_t PM_INTERPRETER_HELP1_len 						= sizeof(PM_INTERPRETER_HELP1);
 
 PROGMEM const uchar PM_INTERPRETER_HELP2[] 					= "\n" \
@@ -156,25 +157,29 @@ PROGMEM const uchar PM_INTERPRETER_HELP2[] 					= "\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
 															  "INFO\t\t\t\ttoggles additional printed infos.\n" \
 															  "\n" \
-															  "LOADER\t\t\t\tenter bootloader.\n";
+															  "LOADER\t\t\t\tenter bootloader.";
 const uint8_t PM_INTERPRETER_HELP2_len 						= sizeof(PM_INTERPRETER_HELP2);
 
 PROGMEM const uchar PM_INTERPRETER_HELP3[] 					= "\n" \
 															  "REBOOT\t\t\t\treboot the firmware.\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SERON\t\t\t\tswitch serial communication ON.\n" \
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
-															  "TEST\t\t\t\ttoggles counter test.\n";
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SERON\t\t\t\tswitch serial communication ON.";
 const uint8_t PM_INTERPRETER_HELP3_len 						= sizeof(PM_INTERPRETER_HELP3);
 
 PROGMEM const uchar PM_INTERPRETER_HELP4[] 					= "\n" \
-															  "+/- <PWM value>\t\tcorrection value to be added.\n" \
+															  "TEST\t\t\t\ttoggles counter test.\n" \
 															  "\n" \
+															  "WRITEPWM\t\t\tstore current PWM as default value." \
+															  "\n" \
+															  "+/- <PWM value>\t\tcorrection value to be added.";
+const uint8_t PM_INTERPRETER_HELP4_len 						= sizeof(PM_INTERPRETER_HELP4);
+
+PROGMEM const uchar PM_INTERPRETER_HELP5[] 					= "\n" \
 															  "===========\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  ">";
-const uint8_t PM_INTERPRETER_HELP4_len 						= sizeof(PM_INTERPRETER_HELP4);
+const uint8_t PM_INTERPRETER_HELP5_len 						= sizeof(PM_INTERPRETER_HELP5);
 
 PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "*?* unknown command, try HELP.\n" \
 															  "\n" \
@@ -328,6 +333,14 @@ static void doInterpret(uchar msg[], uint8_t len)
 		mainIsTimerTest = false;
 		isUsbCommTest = false;
 
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_INFO, sizeof(VM_COMMAND_INFO))) {
+		/* timer 2 overflow counter TEST */
+		mainIsTimerTest = !mainIsTimerTest;
+		if (mainIsTimerTest) {
+			isSerComm = false;
+			isUsbCommTest = false;
+		}
+
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_LOADER, sizeof(VM_COMMAND_LOADER))) {
 		/* enter bootloader */
 		isSerComm = false;
@@ -354,6 +367,18 @@ static void doInterpret(uchar msg[], uint8_t len)
 		mainIsTimerTest = false;
 		isUsbCommTest = false;
 
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_TEST, sizeof(VM_COMMAND_TEST))) {
+		/* special communication TEST */
+		isUsbCommTest = !isUsbCommTest;
+		if (isUsbCommTest) {
+			isSerComm = false;
+			mainIsTimerTest = false;
+		}
+
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_WRITEPWM, sizeof(VM_COMMAND_WRITEPWM))) {
+		/* write current PWM value as the default/startup value to the EEPROM */
+		memory_fw_writeEEpromPage((uint8_t*) &pullPwmVal, sizeof(uint16_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial));
+
 	} else if (msg[0] == VM_COMMAND_PLUSSIGN[0]) {
 		/* correct the PWM value up */
 		int32_t scanVal = 0;
@@ -370,26 +395,9 @@ static void doInterpret(uchar msg[], uint8_t len)
 		isSerComm = false;
 		isUsbCommTest = false;
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_TEST, sizeof(VM_COMMAND_TEST))) {
-		/* special communication TEST */
-		isUsbCommTest = !isUsbCommTest;
-		if (isUsbCommTest) {
-			isSerComm = false;
-			mainIsTimerTest = false;
-		}
-
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_INFO, sizeof(VM_COMMAND_INFO))) {
-		/* timer 2 overflow counter TEST */
-		mainIsTimerTest = !mainIsTimerTest;
-		if (mainIsTimerTest) {
-			isSerComm = false;
-			isUsbCommTest = false;
-		}
-
 	} else {
 		/* unknown command */
 		ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_UNKNOWN, PM_INTERPRETER_UNKNOWN_len);
-		mainIsTimerTest = false;
 	}
 }
 
@@ -431,9 +439,12 @@ static void workInQueue()
 
 			case 3:
 				ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP4, PM_INTERPRETER_HELP4_len);
-				mainHelpConcatNr = 0;
+				mainHelpConcatNr = 4;
 				break;
 
+			case 4:
+				ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP5, PM_INTERPRETER_HELP5_len);
+				// no break
 			default:
 				mainHelpConcatNr = 0;
 				break;
@@ -456,26 +467,7 @@ static void doJobs()
 	static uint32_t refClkSM_last_csc_timer_s = 0;
 	uint32_t csc_timer_s = ((uint32_t) (csc_timer_s_HI << 8)) | TCNT0;
 
-	if (mainPwmTerminalAdj) {
-		// make a big signed calculation
-		int32_t pwmCalc = ((int32_t) pullPwmVal) + mainPwmTerminalAdj;
-		mainPwmTerminalAdj = 0;
-
-		// frame to uint16_t
-		if (pwmCalc > 0xffff) {
-			pwmCalc = 0xffff;
-		} else if (pwmCalc < 0) {
-			pwmCalc = 0;
-		}
-
-		// write back to the global variable
-		pullPwmVal = (uint16_t) pwmCalc;
-
-		// adjust PWM out
-		clkPullPwm_fw_setRatio(pullPwmVal);
-	}
-
-	if ((csc_timer_s != refClkSM_last_csc_timer_s) || (isTimerTestPrintCtr < 3)) {  // a new SPS impulse has arrived
+	if ((refClkSM_last_csc_timer_s != csc_timer_s) || isTimerTestPrintCtr) {  // a new SPS impulse has arrived ... and some following lines
 		/*
 		 * ATTENTION: Floating vfprint() and friends needs changes to the linker
 		 * @see http://winavr.scienceprog.com/avr-gcc-tutorial/using-sprintf-function-for-float-numbers-in-avr-gcc.html
@@ -488,16 +480,16 @@ static void doJobs()
 		float adc_ch1_mvolts = (((float) ac_adc_ch[1]) * 4.4742f) / 1.024f;
 		float adc_ch2_C      = 25.f;
 
-		if (csc_timer_s != refClkSM_last_csc_timer_s) {
+		if (refClkSM_last_csc_timer_s != csc_timer_s) {
 			/* 10 MHz Ref-Clk State Machine */
 			refClkSM_last_csc_timer_s = csc_timer_s;
-			ac_adc_convertNowTempStep = 1;  				// prepare for next temperature conversion
-			isTimerTestPrintCtr = 0;
+			ac_adc_convertNowTempStep = 1;  				// prepare for next temperature conversion, once per second
+			isTimerTestPrintCtr = 1;						// show 1 timer line per second
 		}
 
-		if (mainIsTimerTest && isTimerTestPrintCtr < 3) {
+		if (mainIsTimerTest && isTimerTestPrintCtr) {
 			/* enter this block just n times per second */
-			isTimerTestPrintCtr++;
+			--isTimerTestPrintCtr;
 
 			uint8_t len;
 			len = sprintf((char*) mainCtxtBuffer,
@@ -530,9 +522,26 @@ static void doJobs()
 					ac_adc_ch[2] - (367 - 25));
 			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 		}
+	}
 
-	} else if (csc_timer_s == refClkSM_last_csc_timer_s) {
-		isTimerTestPrintCtr = 0;
+	/* correct PWM with  +/- <value> */
+	if (mainPwmTerminalAdj) {
+		// make a big signed calculation
+		int32_t pwmCalc = ((int32_t) pullPwmVal) + mainPwmTerminalAdj;
+		mainPwmTerminalAdj = 0;
+
+		// frame to uint16_t
+		if (pwmCalc > 0xffff) {
+			pwmCalc = 0xffff;
+		} else if (pwmCalc < 0) {
+			pwmCalc = 0;
+		}
+
+		// write back to the global variable
+		pullPwmVal = (uint16_t) pwmCalc;
+
+		// adjust PWM out
+		clkPullPwm_fw_setRatio(pullPwmVal);
 	}
 }
 

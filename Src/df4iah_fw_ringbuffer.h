@@ -38,7 +38,7 @@ void ringBufferPushAddHook(uint8_t isSend, uint8_t isPgm, const uchar inData[], 
 uint8_t ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size);
 
 enum RINGBUFFER_MSG_STATUS_t getStatusNextMsg(uint8_t isSend);
-void ringBufferWaitFree(uint8_t isSend);
+void ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend);
 uint8_t ringBufferAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len);
 uint8_t ringBufferWaitAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len);
 

@@ -10,6 +10,7 @@
 
 
 #include <stdint.h>
+#include <stddef.h>
 #include <avr/io.h>
 #include <avr/wdt.h>
 #include <util/delay.h>
@@ -31,7 +32,7 @@
 
 extern uint16_t pullCoef_b02_pwm_initial;
 extern uint16_t pullPwmVal;
-extern uint8_t  eepromBlockCopy[sizeof(eeprom_b00_t)];
+//extern uint8_t  eepromBlockCopy[sizeof(eeprom_b00_t)];
 
 
 #ifdef RELEASE
@@ -44,6 +45,17 @@ void clkPullPwm_fw_init()
 
 	clkPullPwm_bl_init();
 
+#if 1
+	/* single memory access */
+	if (memory_fw_isEepromValid(BLOCK_REFOSC_NR)) {
+		memory_fw_readEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial, sizeof(uint16_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial));
+		pullPwmVal = pullCoef_b02_pwm_initial;
+
+	} else {
+		pullPwmVal = DEFAULT_PWM_COUNT;
+	}
+#else
+	/* block read memory access */
 	if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_REFOSC_NR)) {
 		/* read PWM coefficient */
 		eeprom_b02_t* b02 = (eeprom_b02_t*) &eepromBlockCopy;
@@ -52,6 +64,7 @@ void clkPullPwm_fw_init()
 	} else {
 		pullPwmVal = DEFAULT_PWM_COUNT;
 	}
+#endif
 }
 
 #ifdef RELEASE
