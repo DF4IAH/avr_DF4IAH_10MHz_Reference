@@ -14,14 +14,6 @@
 #include "usbdrv_fw/usbdrv.h"
 
 
-#ifndef true
-# define true 1
-#endif
-#ifndef false
-# define false 0
-#endif
-
-
 #define RINGBUFFER_SEND_SIZE								128
 #define RINGBUFFER_RCV_SIZE									128
 #define RINGBUFFER_HOOK_SIZE								128

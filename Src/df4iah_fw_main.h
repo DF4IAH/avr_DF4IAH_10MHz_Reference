@@ -29,6 +29,23 @@
 #define VERSION_HIGH										141
 #define VERSION_LOW											229
 
+
+#ifndef true
+# define true 1
+#endif
+#ifndef false
+# define false 0
+#endif
+
+
+enum REFCLK_STATE_t {
+	REFCLK_STATE_NOSYNC										= 0,
+	REFCLK_STATE_SEARCH_QRG									= 0b0010,
+	REFCLK_STATE_SEARCH_PHASE								= 0b0011,
+	REFCLK_STATE_LOCKED_PHASE								= 0b0111,
+	REFCLK_STATE_SYNC										= 0b1111
+};
+
 enum ENTER_MODE_t {
 	ENTER_MODE_SLEEP 										= 0,
 	ENTER_MODE_BL,

@@ -16,9 +16,23 @@
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-uint8_t memory_fw_isEepromValid(void)
+uint8_t memory_fw_isEepromValid(uint8_t blockNr)
 {
-	return 1;			// TODO calculate CRC32
+	return true;	// TODO calculate CRC16
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+uint8_t memory_fw_readEepromValidBlock(uint8_t* target, uint8_t blockNr)
+{
+	if (blockNr < 16) {
+		if (memory_fw_isEepromValid(blockNr)) {
+			memory_fw_readEEpromPage(target, 1 << 5, blockNr << 5);
+			return true;
+		}
+	}
+	return false;
 }
 
 #ifdef RELEASE
@@ -171,6 +185,9 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+		0x0000,										// b05_regen_ctr
+		0xb05c,										// b05_crc
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -185,6 +202,9 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+		0x0000,										// b06_regen_ctr
+		0xb06c,										// b06_crc
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -199,6 +219,9 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+		0x0000,										// b07_regen_ctr
+		0xb07c,										// b07_crc
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -213,6 +236,9 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+		0x0000,										// b08_regen_ctr
+		0xb08c,										// b08_crc
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -227,6 +253,9 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+		0x0000,										// b09_regen_ctr
+		0xb09c,										// b09_crc
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -241,6 +270,9 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+		0x0000,										// b10_regen_ctr
+		0xb10c,										// b10_crc
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -255,6 +287,9 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+		0x0000,										// b11_regen_ctr
+		0xb11c,										// b11_crc
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -269,6 +304,9 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+		0x0000,										// b12_regen_ctr
+		0xb12c,										// b12_crc
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -283,6 +321,9 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+		0x0000,										// b13_regen_ctr
+		0xb13c,										// b13_crc
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -297,6 +338,9 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+		0x0000,										// b14_regen_ctr
+		0xb14c,										// b14_crc
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -311,6 +355,11 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+		0x0000,										// b15_regen_ctr
+		0xb15c,										// b15_crc
+
+
+		/* since here the memory is not organized */
 		0xffff,
 		0xffff,
 		0xffff,
@@ -327,6 +376,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -343,6 +393,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -359,6 +410,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -375,6 +427,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -391,6 +444,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -407,6 +461,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -423,6 +478,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -439,6 +495,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -455,6 +512,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -471,6 +529,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -487,6 +546,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -503,6 +563,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -519,6 +580,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -535,6 +597,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -551,6 +614,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
+
 		0xffff,
 		0xffff,
 		0xffff,
@@ -564,29 +628,7 @@ eeprom_layout_t eeprom_content = {
 		0xffff,
 		0xffff,
 		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
+		0xffff,			// this position is used for the BOOT_MARKER
 		0xffff,
 		0xffff
 };
