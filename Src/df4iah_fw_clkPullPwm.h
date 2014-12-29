@@ -23,6 +23,7 @@ void clkPullPwm_fw_close();
 
 void clkPullPwm_fw_setRatio(uint16_t ratio);
 
+void clkPullPwm_fw_setPin(uint8_t isSet);
 void clkPullPwm_fw_togglePin();
 void clkPullPwm_fw_endlessTogglePin();
 

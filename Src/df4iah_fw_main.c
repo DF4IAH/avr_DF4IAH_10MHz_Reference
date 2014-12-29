@@ -50,7 +50,7 @@ void (*mainJumpToBL)(void)	 								= (void*) 0x7000;
 float mainCoef_b01_ref_AREF_V								= 0.0f;
 float mainCoef_b01_ref_1V1_V								= 0.0f;
 float mainCoef_b01_temp_ofs_adc_25C_steps					= 0.0f;
-float mainCoef_b01_temp_k_p1step_adc_1K						= 0.0f;
+float mainCoef_b01_temp_k_p1step_adc_K						= 0.0f;
 volatile uint8_t  mainCtxtBufferIdx 						= 0;
 volatile enum REFCLK_STATE_t mainRefClkState				= REFCLK_STATE_NOSYNC;
 volatile int32_t  mainPwmTerminalAdj						= 0;
@@ -262,18 +262,10 @@ void __vector_default(void) { ; }
 //EMPTY_INTERRUPT(SPM_READY_vect);
 
 /* assign interrupt routines to vectors */
-/* due to optimizations the ISR is set at the function block directly */
-//ISR(USART_RX_vect, ISR_BLOCK) {
-//	serial_ISR_RXC0();
-//}
-
-//ISR(USART_UDRE_vect, ISR_BLOCK) {
-//	serial_ISR_UDRE0();
-//}
-
-//ISR(USART_TX_vect, ISR_NOBLOCK) {
-//	serial_ISR_TXC0();
-//}
+/* due to optimizations the ISRs are set at the function block directly */
+ISR(WDT_vect, ISR_NAKED) {  // vector_6 - nothing to do, resets WDIF bit
+	__asm__ __volatile__ ("reti" ::: "memory");
+}
 
 
 #ifdef RELEASE
@@ -476,9 +468,9 @@ static void doJobs()
 		 * 2)	Linker libraries:	-lm  -lprintf_flt      -lscanf_flt
 		 */
 
-		float adc_ch0_mvolts = (((float) ac_adc_ch[0]) * 4.4742f) / 1.024f;
-		float adc_ch1_mvolts = (((float) ac_adc_ch[1]) * 4.4742f) / 1.024f;
-		float adc_ch2_C      = 25.f;
+		float adc_ch0_volts = ( ac_adc_ch[0] * mainCoef_b01_ref_AREF_V) / 1024.f;
+		float adc_ch1_volts = ( ac_adc_ch[1] * mainCoef_b01_ref_AREF_V) / 1024.f;
+		float adc_ch2_C     = ((ac_adc_ch[2] - mainCoef_b01_temp_ofs_adc_25C_steps) * mainCoef_b01_temp_k_p1step_adc_K) + 25.0f;
 
 		if (refClkSM_last_csc_timer_s != csc_timer_s) {
 			/* 10 MHz Ref-Clk State Machine */
@@ -505,21 +497,21 @@ static void doJobs()
 			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			len = sprintf((char*) mainCtxtBuffer,
-					"### ADC0=%04u (%04ldmV)\n",
+					"### ADC0=%04u (%0.4fmV)\n",
 					ac_adc_ch[0],
-					(int32_t) adc_ch0_mvolts);
+					adc_ch0_volts);
 			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			len = sprintf((char*) mainCtxtBuffer,
-					"### ADC1=%04u (%04ldmV)\n",
+					"### ADC1=%04u (%0.4fmV)\n",
 					ac_adc_ch[1],
-					(int32_t) adc_ch1_mvolts);
+					adc_ch1_volts);
 			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			len = sprintf((char*) mainCtxtBuffer,
-					"### Temp=%04u (%02dC).\n\n",
+					"### Temp=%04u (%0.1fC).\n\n",
 					ac_adc_ch[2],
-					ac_adc_ch[2] - (367 - 25));
+					adc_ch2_C);
 			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 		}
 	}
@@ -565,10 +557,32 @@ void give_away(void)
 	workInQueue();
 	doJobs();
 
-	clkPullPwm_fw_togglePin();								// XXX for debugging purposes only
 
+#if 0
 	/* go into sleep mode */
-	// TODO sleep mode
+	{
+		clkPullPwm_fw_setPin(false);							// XXX for debugging purposes only
+
+		cli();
+		WDTCSR |= _BV(WDIE);
+		sei();
+
+		wdt_enable(WDTO_15MS);
+
+		set_sleep_mode(SLEEP_MODE_IDLE);
+		sleep_mode();											// wake-up by any interrupt or after 15 ms
+
+		cli();
+		WDTCSR &= ~(_BV(WDIE));
+		sei();
+
+		wdt_disable();
+		clkPullPwm_fw_setPin(true);								// XXX for debugging purposes only
+	}
+#else
+	/* due to the fact that the clkFastCtr interrupts every 12.8 µs there is no chance to power down */
+	clkPullPwm_fw_togglePin();									// XXX for debugging purposes only
+#endif
 }
 
 
@@ -604,7 +618,7 @@ int main(void)
 			mainCoef_b01_ref_AREF_V					= b01->b01_ref_AREF_V;
 			mainCoef_b01_ref_1V1_V					= b01->b01_ref_1V1_V;
 			mainCoef_b01_temp_ofs_adc_25C_steps		= b01->b01_temp_ofs_adc_25C_steps;
-			mainCoef_b01_temp_k_p1step_adc_1K		= b01->b01_temp_k_p1step_adc_1K;
+			mainCoef_b01_temp_k_p1step_adc_K		= b01->b01_temp_k_p1step_adc_K;
 		}
 
 		/* enter HELP command in USB host OUT queue */

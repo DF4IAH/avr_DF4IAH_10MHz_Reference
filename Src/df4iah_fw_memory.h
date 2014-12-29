@@ -50,7 +50,7 @@ typedef struct eeprom_b01 {
 	float			b01_ref_AREF_V;
 	float			b01_ref_1V1_V;
 	float			b01_temp_ofs_adc_25C_steps;
-	float			b01_temp_k_p1step_adc_1K;
+	float			b01_temp_k_p1step_adc_K;
 	uint16_t		b01_reserved[6];
 	uint16_t		b01_regen_ctr;
 	uint16_t		b01_crc;

@@ -89,6 +89,19 @@ void clkPullPwm_fw_setRatio(uint16_t ratio)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
 #endif
+inline void clkPullPwm_fw_setPin(uint8_t isSet)
+{
+	if (isSet) {
+		PWMTOGGLEPIN_PIN |=   _BV(PWMTOGGLEPIN_PNUM);
+
+	} else {
+		PWMTOGGLEPIN_PIN &= ~(_BV(PWMTOGGLEPIN_PNUM));
+	}
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
+#endif
 void clkPullPwm_fw_togglePin()
 {
 	clkPullPwm_bl_togglePin();

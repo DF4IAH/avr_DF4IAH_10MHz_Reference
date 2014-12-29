@@ -123,7 +123,7 @@ eeprom_layout_t eeprom_content = {
 		4.4742f,									// b01_ref_AREF_V					4.4742 V
 		1.085f,										// b01_ref_1V1_V					1.085  V
 		367.0f,										// b01_temp_ofs_adc_25C_steps		0367 = 25°C
-		1.0595703f,									// b01_temp_k_p1step_adc_1K				1mv / K  -->  abt.  1K / step
+		1.0595703f,									// b01_temp_k_p1step_adc_K			1mv / K  -->  abt.  1K / step
 		0xffff,
 		0xffff,
 		0xffff,
