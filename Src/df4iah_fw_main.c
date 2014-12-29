@@ -90,7 +90,7 @@ uint8_t serialCtxtTxBufferIdx								= 0;
 volatile uint16_t cntRcv 									= 0;
 volatile uint16_t cntSend 									= 0;
 volatile uint8_t usbIsrCtxtBufferIdx 						= 0;
-volatile uint8_t isSerComm									= false;
+volatile uint8_t isSerComm									= true;
 volatile uint8_t isUsbCommTest 								= false;
 
 
