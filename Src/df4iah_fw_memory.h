@@ -65,7 +65,8 @@ typedef struct eeprom_b02 {
 	float			b02_qrg_ofs_0v_drift_1K_Hz;
 	float			b02_qrg_k_p1v_25C_Hz;
 	float			b02_qrg_k_p1v_drift_1K;
-	uint16_t		b02_reserved[2];
+	uint16_t		b02_pwm_initial;
+	uint16_t		b02_reserved[1];
 	uint16_t		b02_regen_ctr;
 	uint16_t		b02_crc;
 } eeprom_b02_t;

@@ -8,9 +8,16 @@
 #include <avr/eeprom.h>
 
 #include "df4iah_fw_main.h"
+#include "df4iah_bl_clkPullPwm.h"
 
 #include "df4iah_bl_memory.h"
 #include "df4iah_fw_memory.h"
+
+
+/* only to silence Eclipse */
+#ifndef DEFAULT_PWM_COUNT
+# define DEFAULT_PWM_COUNT 0
+#endif
 
 
 #ifdef RELEASE
@@ -132,7 +139,7 @@ eeprom_layout_t eeprom_content = {
 		0.0f,										// b02_qrg_ofs_0v_drift_1K_Hz
 		190.0f,										// b02_qrg_k_p1v_25C_Hz					delta 190 Hz / delta 1 V   @ 10 MHz
 		0.0f,										// b02_qrg_k_p1v_drift_1K
-		0xffff,
+		DEFAULT_PWM_COUNT,							// b02_pwm_initial
 		0xffff,
 		0x0000,										// b02_regen_ctr
 		0xb02c,										// b02_crc

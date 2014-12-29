@@ -23,14 +23,15 @@
 #include "df4iah_fw_clkPullPwm.h"
 
 
-/* already defined in df4iah_bl_clkPullPwm.h and not needed for compilation */
+/* only to silence Eclipse */
 #ifndef DEFAULT_PWM_COUNT
-# define DEFAULT_PWM_COUNT 									0xC000
+# define DEFAULT_PWM_COUNT 0
 #endif
 
 
-extern uint16_t pwmVal;
-extern eeprom_layout_t eeprom_content;
+extern uint16_t pullCoef_b02_pwm_initial;
+extern uint16_t pullPwmVal;
+extern uint8_t  eepromBlockCopy[sizeof(eeprom_b00_t)];
 
 
 #ifdef RELEASE
@@ -42,16 +43,15 @@ void clkPullPwm_fw_init()
 	PRR &= ~(_BV(PRTIM1));
 
 	clkPullPwm_bl_init();
-	pwmVal = DEFAULT_PWM_COUNT;
 
-#if 0
-	if (memory_fw_isEepromValid()) {
-		uint8_t dfltPwmValue[2] = { 0 };
+	if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_REFOSC_NR)) {
+		/* read PWM coefficient */
+		eeprom_b02_t* b02 = (eeprom_b02_t*) &eepromBlockCopy;
+		pullPwmVal = pullCoef_b02_pwm_initial = b02->b02_pwm_initial;
 
-		memory_fw_readEEpromPage(&(dfltPwmValue[0]), sizeof(dfltPwmValue), (uint16_t) &(eeprom_content.pwm_pull_avg));
-		clkPullPwm_fw_setRatio(dfltPwmValue[0] | (((uint16_t) dfltPwmValue[1]) << 8));
+	} else {
+		pullPwmVal = DEFAULT_PWM_COUNT;
 	}
-#endif
 }
 
 #ifdef RELEASE

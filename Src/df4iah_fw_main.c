@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stddef.h>
 #include <string.h>
 #include <util/delay.h>
 #include <avr/io.h>
@@ -35,7 +36,6 @@
 
 #ifndef BOOT_TOKEN											// should be included from chipdef.h --> mega32.h
 # define BOOT_TOKEN											0xb00f
-# define BOOT_TOKEN_EE_ADR									0x3fe
 #endif
 
 
@@ -45,19 +45,27 @@
 // DATA SECTION
 
 /* df4iah_fw_main */
-void (*jump_to_fw)(void)	 								= (void*) 0x0000;
-void (*jump_to_bl)(void)	 								= (void*) 0x7000;
-volatile uint8_t timer0Snapshot 							= 0x00;
-volatile uint8_t isTimerTest								= false;
-uint8_t jumperBlSet											= false;
-volatile uint8_t stopAvr		 							= 0;
-volatile enum ENTER_MODE_t enterMode						= ENTER_MODE_SLEEP;
-volatile uint8_t helpConcatNr								= 0;
-volatile uint16_t pwmVal									= 0;
-volatile int32_t pwmTerminalAdj								= 0;
-volatile uint8_t mainCtxtBufferIdx 							= 0;
+void (*mainJumpToFW)(void)	 								= (void*) 0x0000;
+void (*mainJumpToBL)(void)	 								= (void*) 0x7000;
+float mainCoef_b01_ref_AREF_V								= 0.0f;
+float mainCoef_b01_ref_1V1_V								= 0.0f;
+float mainCoef_b01_temp_ofs_adc_25C_steps					= 0.0f;
+float mainCoef_b01_temp_k_p1step_adc_1K						= 0.0f;
+volatile uint8_t  mainCtxtBufferIdx 						= 0;
+volatile enum REFCLK_STATE_t mainRefClkState				= REFCLK_STATE_NOSYNC;
+volatile int32_t  mainPwmTerminalAdj						= 0;
+volatile uint8_t  mainHelpConcatNr							= 0;
+volatile uint8_t  mainIsTimerTest							= false;
+volatile uint8_t  mainIsJumperBlSet							= false;
+volatile uint8_t  mainStopAvr		 						= 0;
+volatile enum ENTER_MODE_t mainEnterMode					= ENTER_MODE_SLEEP;
+volatile uint8_t  timer0Snapshot 							= 0x00;
 usbTxStatus_t usbTxStatus1 									= { 0 },
 			  usbTxStatus3 									= { 0 };
+
+/* df4iah_fw_clkPullPwm */
+volatile uint16_t pullCoef_b02_pwm_initial					= 0;
+volatile uint16_t pullPwmVal								= 0;
 
 /* df4iah_fw_anlgComp (10kHz) */
 volatile uint32_t ac_timer_10us								= 0;
@@ -71,33 +79,34 @@ volatile uint8_t  csc_stamp_TCNT2							= 0;
 volatile uint32_t csc_stamp_10us							= 0;
 
 /* df4iah_fw_ringbuffer */
-volatile uint8_t usbRingBufferSendPushIdx 					= 0;
-volatile uint8_t usbRingBufferSendPullIdx 					= 0;
-volatile uint8_t usbRingBufferRcvPushIdx 					= 0;
-volatile uint8_t usbRingBufferRcvPullIdx 					= 0;
-volatile uint8_t usbRingBufferSendSemaphore 				= 0;  // semaphore is free
-volatile uint8_t usbRingBufferRcvSemaphore 					= 0;  // semaphore is free
-volatile uint8_t usbRingBufferHookLen 						= 0;
-volatile uint8_t usbRingBufferHookIsSend 					= 0;
+volatile uint8_t  usbRingBufferSendPushIdx 					= 0;
+volatile uint8_t  usbRingBufferSendPullIdx 					= 0;
+volatile uint8_t  usbRingBufferRcvPushIdx 					= 0;
+volatile uint8_t  usbRingBufferRcvPullIdx 					= 0;
+volatile uint8_t  usbRingBufferHookLen 						= 0;
+volatile uint8_t  usbRingBufferHookIsSend 					= 0;
+volatile uint8_t  usbRingBufferSendSemaphore 				= 0;  // semaphore is free
+volatile uint8_t  usbRingBufferRcvSemaphore 				= 0;  // semaphore is free
 
 /* df4iah_fw_serial */
-volatile uint8_t serialCtxtRxBufferLen						= 0;
-volatile uint8_t serialCtxtTxBufferLen						= 0;
-uint8_t serialCtxtTxBufferIdx								= 0;
+volatile uint8_t  serialCtxtRxBufferLen						= 0;
+volatile uint8_t  serialCtxtTxBufferLen						= 0;
+volatile uint8_t  serialCtxtTxBufferIdx						= 0;
 
 /* df4iah_fw_usb */
 //volatile uint16_t usbSetupCntr							= 0;
 volatile uint16_t cntRcv 									= 0;
 volatile uint16_t cntSend 									= 0;
-volatile uint8_t usbIsrCtxtBufferIdx 						= 0;
-volatile uint8_t isSerComm									= true;
-volatile uint8_t isUsbCommTest 								= false;
+volatile uint8_t  usbIsrCtxtBufferIdx 						= 0;
+volatile uint8_t  isSerComm									= true;
+volatile uint8_t  isUsbCommTest 							= false;
 
 
 // ARRAYS - due to overwriting hazards they are following the controlling variables
 
 /* df4iah_fw_main */
 uchar mainCtxtBuffer[MAINCTXT_BUFFER_SIZE] 					= { 0 };
+uint8_t eepromBlockCopy[sizeof(eeprom_b00_t)]				= { 0 };  // any block has the same size
 
 /* df4iah_fw_anlgComp (10kHz) */
 volatile uint16_t ac_adc_ch[AC_ADC_CH_COUNT + 1]			= { 0 };  // plus one for the temperature sensor
@@ -139,31 +148,33 @@ PROGMEM const uchar PM_INTERPRETER_HELP1[] 					= "\n" \
 															  "\n" \
 															  "$ <NMEA-Message>\t\tsends message to the GPS module.\n" \
 															  "\n" \
-															  "HALT\t\t\t\tpowers the device down (sleep mode).\n" \
-															  "\n" \
-															  "HELP\t\t\t\tthis message.\n";
+															  "HALT\t\t\t\tpowers the device down (sleep mode).\n";
 const uint8_t PM_INTERPRETER_HELP1_len 						= sizeof(PM_INTERPRETER_HELP1);
 
 PROGMEM const uchar PM_INTERPRETER_HELP2[] 					= "\n" \
+															  "HELP\t\t\t\tthis message.\n" \
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
 															  "INFO\t\t\t\ttoggles additional printed infos.\n" \
 															  "\n" \
-															  "LOADER\t\t\t\tenter bootloader.\n"
-															  "\n" \
-															  "REBOOT\t\t\t\treboot the firmware.\n" \
-															  "\n" \
-															  "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
-															  "SERON\t\t\t\tswitch serial communication ON.\n";
+															  "LOADER\t\t\t\tenter bootloader.\n";
 const uint8_t PM_INTERPRETER_HELP2_len 						= sizeof(PM_INTERPRETER_HELP2);
 
 PROGMEM const uchar PM_INTERPRETER_HELP3[] 					= "\n" \
-															  "TEST\t\t\t\ttoggles counter test.\n" \
-															  "\n" \
+															  "REBOOT\t\t\t\treboot the firmware.\n" \
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SERON\t\t\t\tswitch serial communication ON.\n" \
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
+															  "TEST\t\t\t\ttoggles counter test.\n";
+const uint8_t PM_INTERPRETER_HELP3_len 						= sizeof(PM_INTERPRETER_HELP3);
+
+PROGMEM const uchar PM_INTERPRETER_HELP4[] 					= "\n" \
 															  "+/- <PWM value>\t\tcorrection value to be added.\n" \
 															  "\n" \
 															  "===========\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  ">";
-const uint8_t PM_INTERPRETER_HELP3_len 						= sizeof(PM_INTERPRETER_HELP3);
+const uint8_t PM_INTERPRETER_HELP4_len 						= sizeof(PM_INTERPRETER_HELP4);
 
 PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "*?* unknown command, try HELP.\n" \
 															  "\n" \
@@ -303,35 +314,35 @@ static void doInterpret(uchar msg[], uint8_t len)
 	if (!strncmp((char*) msg, (char*) VM_COMMAND_HALT, sizeof(VM_COMMAND_HALT))) {
 		/* stop AVR controller and enter sleep state */
 		isSerComm = false;
-		isTimerTest = false;
+		mainIsTimerTest = false;
 		isUsbCommTest = false;
-		enterMode = ENTER_MODE_SLEEP;
-		stopAvr = true;
+		mainEnterMode = ENTER_MODE_SLEEP;
+		mainStopAvr = true;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP))) {
 		/* help information */
 		int len = sprintf((char*) mainCtxtBuffer, "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: %03d%03d\n", VERSION_HIGH, VERSION_LOW);
 		ringBufferWaitAppend(!isSend, false, mainCtxtBuffer, len);
 		ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP1, PM_INTERPRETER_HELP1_len);
-		helpConcatNr = 1;
-		isTimerTest = false;
+		mainHelpConcatNr = 1;
+		mainIsTimerTest = false;
 		isUsbCommTest = false;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_LOADER, sizeof(VM_COMMAND_LOADER))) {
 		/* enter bootloader */
 		isSerComm = false;
-		isTimerTest = false;
+		mainIsTimerTest = false;
 		isUsbCommTest = false;
-		enterMode = ENTER_MODE_BL;
-		stopAvr = true;
+		mainEnterMode = ENTER_MODE_BL;
+		mainStopAvr = true;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_REBOOT, sizeof(VM_COMMAND_REBOOT))) {
 		/* enter firmware (REBOOT) */
 		isSerComm = false;
-		isTimerTest = false;
+		mainIsTimerTest = false;
 		isUsbCommTest = false;
-		enterMode = ENTER_MODE_FW;
-		stopAvr = true;
+		mainEnterMode = ENTER_MODE_FW;
+		mainStopAvr = true;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_SEROFF, sizeof(VM_COMMAND_SEROFF))) {
 		/* serial communication OFF */
@@ -340,14 +351,14 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_SERON, sizeof(VM_COMMAND_SERON))) {
 		/* serial communication ON */
 		isSerComm = true;
-		isTimerTest = false;
+		mainIsTimerTest = false;
 		isUsbCommTest = false;
 
 	} else if (msg[0] == VM_COMMAND_PLUSSIGN[0]) {
 		/* correct the PWM value up */
 		int32_t scanVal = 0;
 		sscanf((char*) msg + 1, "%ld", &scanVal);
-		pwmTerminalAdj = scanVal;
+		mainPwmTerminalAdj = scanVal;
 		isSerComm = false;
 		isUsbCommTest = false;
 
@@ -355,7 +366,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 		/* correct the PWM value down */
 		int32_t scanVal = 0;
 		sscanf((char*) msg + 1, "%ld", &scanVal);
-		pwmTerminalAdj = -scanVal;
+		mainPwmTerminalAdj = -scanVal;
 		isSerComm = false;
 		isUsbCommTest = false;
 
@@ -364,13 +375,13 @@ static void doInterpret(uchar msg[], uint8_t len)
 		isUsbCommTest = !isUsbCommTest;
 		if (isUsbCommTest) {
 			isSerComm = false;
-			isTimerTest = false;
+			mainIsTimerTest = false;
 		}
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_INFO, sizeof(VM_COMMAND_INFO))) {
 		/* timer 2 overflow counter TEST */
-		isTimerTest = !isTimerTest;
-		if (isTimerTest) {
+		mainIsTimerTest = !mainIsTimerTest;
+		if (mainIsTimerTest) {
 			isSerComm = false;
 			isUsbCommTest = false;
 		}
@@ -378,7 +389,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else {
 		/* unknown command */
 		ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_UNKNOWN, PM_INTERPRETER_UNKNOWN_len);
-		isTimerTest = false;
+		mainIsTimerTest = false;
 	}
 }
 
@@ -394,7 +405,7 @@ static void workInQueue()
 		enum RINGBUFFER_MSG_STATUS_t statusSend = getStatusNextMsg(isSend);
 		enum RINGBUFFER_MSG_STATUS_t statusRcv  = getStatusNextMsg(!isSend);
 
-		if (!helpConcatNr && (statusSend & RINGBUFFER_MSG_STATUS_AVAIL)) {	// if any message is available and not during help printing
+		if (!mainHelpConcatNr && (statusSend & RINGBUFFER_MSG_STATUS_AVAIL)) {	// if any message is available and not during help printing
 			if (statusSend & RINGBUFFER_MSG_STATUS_IS_NMEA) {
 				serial_pullAndSendNmea_havingSemaphore(isSend); isLocked = false;
 
@@ -404,22 +415,27 @@ static void workInQueue()
 				doInterpret(mainCtxtBuffer, mainCtxtBufferIdx);				// message is clean to process
 			}
 
-		} else if (helpConcatNr && !(statusRcv & RINGBUFFER_MSG_STATUS_AVAIL)) {  // during help printing, go ahead when receive buffer is empty again
+		} else if (mainHelpConcatNr && !(statusRcv & RINGBUFFER_MSG_STATUS_AVAIL)) {  // during help printing, go ahead when receive buffer is empty again
 			freeSemaphore(isSend); isLocked = false;
 
-			switch (helpConcatNr) {
+			switch (mainHelpConcatNr) {
 			case 1:
 				ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP2, PM_INTERPRETER_HELP2_len);
-				helpConcatNr = 2;
+				mainHelpConcatNr = 2;
 				break;
 
 			case 2:
 				ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP3, PM_INTERPRETER_HELP3_len);
-				helpConcatNr = 0;
+				mainHelpConcatNr = 3;
+				break;
+
+			case 3:
+				ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP4, PM_INTERPRETER_HELP4_len);
+				mainHelpConcatNr = 0;
 				break;
 
 			default:
-				helpConcatNr = 0;
+				mainHelpConcatNr = 0;
 				break;
 			}
 		}
@@ -437,13 +453,13 @@ static void doJobs()
 {
 	const uint8_t isSend = false;							// USB Function --> host: USB IN
 	static uint8_t isTimerTestPrintCtr = 0;
-	static uint32_t csc_timer_s_last = 0;
+	static uint32_t refClkSM_last_csc_timer_s = 0;
 	uint32_t csc_timer_s = ((uint32_t) (csc_timer_s_HI << 8)) | TCNT0;
 
-	if (pwmTerminalAdj) {
+	if (mainPwmTerminalAdj) {
 		// make a big signed calculation
-		int32_t pwmCalc = ((int32_t) pwmVal) + pwmTerminalAdj;
-		pwmTerminalAdj = 0;
+		int32_t pwmCalc = ((int32_t) pullPwmVal) + mainPwmTerminalAdj;
+		mainPwmTerminalAdj = 0;
 
 		// frame to uint16_t
 		if (pwmCalc > 0xffff) {
@@ -453,13 +469,13 @@ static void doJobs()
 		}
 
 		// write back to the global variable
-		pwmVal = (uint16_t) pwmCalc;
+		pullPwmVal = (uint16_t) pwmCalc;
 
 		// adjust PWM out
-		clkPullPwm_fw_setRatio(pwmVal);
+		clkPullPwm_fw_setRatio(pullPwmVal);
 	}
 
-	if (isTimerTest && (csc_timer_s != csc_timer_s_last) && (isTimerTestPrintCtr < 3)) {
+	if ((csc_timer_s != refClkSM_last_csc_timer_s) || (isTimerTestPrintCtr < 3)) {  // a new SPS impulse has arrived
 		/*
 		 * ATTENTION: Floating vfprint() and friends needs changes to the linker
 		 * @see http://winavr.scienceprog.com/avr-gcc-tutorial/using-sprintf-function-for-float-numbers-in-avr-gcc.html
@@ -470,45 +486,52 @@ static void doJobs()
 
 		float adc_ch0_mvolts = (((float) ac_adc_ch[0]) * 4.4742f) / 1.024f;
 		float adc_ch1_mvolts = (((float) ac_adc_ch[1]) * 4.4742f) / 1.024f;
+		float adc_ch2_C      = 25.f;
 
-		/* enter this block just n times per second */
-		isTimerTestPrintCtr++;
-		csc_timer_s_last = csc_timer_s;
+		if (csc_timer_s != refClkSM_last_csc_timer_s) {
+			/* 10 MHz Ref-Clk State Machine */
+			refClkSM_last_csc_timer_s = csc_timer_s;
+			ac_adc_convertNowTempStep = 1;  				// prepare for next temperature conversion
+			isTimerTestPrintCtr = 0;
+		}
 
-		uint8_t len;
-		len = sprintf((char*) mainCtxtBuffer,
-				"### csc_timer_s=%09lu\tcsc_stamp_10us=%05lu x10us\t+ csc_stamp_TCNT2=%03u\n",
-				csc_timer_s,
-				csc_stamp_10us,
-				csc_stamp_TCNT2);
-		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+		if (mainIsTimerTest && isTimerTestPrintCtr < 3) {
+			/* enter this block just n times per second */
+			isTimerTestPrintCtr++;
 
-		len = sprintf((char*) mainCtxtBuffer,
-				"### PWM=%05u\n",
-				pwmVal);
-		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			uint8_t len;
+			len = sprintf((char*) mainCtxtBuffer,
+					"### csc_timer_s=%09lu\tcsc_stamp_10us=%05lu x10us\t+ csc_stamp_TCNT2=%03u\n",
+					csc_timer_s,
+					csc_stamp_10us,
+					csc_stamp_TCNT2);
+			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
-		len = sprintf((char*) mainCtxtBuffer,
-				"### ADC0=%04u (%04ldmV)\n",
-				ac_adc_ch[0],
-				(int32_t) adc_ch0_mvolts);
-		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			len = sprintf((char*) mainCtxtBuffer,
+					"### PWM=%05u\n",
+					pullPwmVal);
+			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
-		len = sprintf((char*) mainCtxtBuffer,
-				"### ADC1=%04u (%04ldmV)\n",
-				ac_adc_ch[1],
-				(int32_t) adc_ch1_mvolts);
-		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			len = sprintf((char*) mainCtxtBuffer,
+					"### ADC0=%04u (%04ldmV)\n",
+					ac_adc_ch[0],
+					(int32_t) adc_ch0_mvolts);
+			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
-		len = sprintf((char*) mainCtxtBuffer,
-				"### Temp=%04u (%02dC).\n\n",
-				ac_adc_ch[2],
-				ac_adc_ch[2] - (367 - 25));
-		ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			len = sprintf((char*) mainCtxtBuffer,
+					"### ADC1=%04u (%04ldmV)\n",
+					ac_adc_ch[1],
+					(int32_t) adc_ch1_mvolts);
+			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
-		ac_adc_convertNowTempStep = 1;  // prepare for next temperature conversion
+			len = sprintf((char*) mainCtxtBuffer,
+					"### Temp=%04u (%02dC).\n\n",
+					ac_adc_ch[2],
+					ac_adc_ch[2] - (367 - 25));
+			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+		}
 
-	} else if (csc_timer_s == csc_timer_s_last) {
+	} else if (csc_timer_s == refClkSM_last_csc_timer_s) {
 		isTimerTestPrintCtr = 0;
 	}
 }
@@ -545,6 +568,7 @@ __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
 int main(void)
 {
+
 	/* init AVR */
 	{
 		vectortable_to_firmware();
@@ -554,7 +578,7 @@ int main(void)
 		ACSR  |= _BV(ACD);									// switch on Analog Comparator Disable
 		DIDR1 |= (0b11 << AIN0D);							// disable digital input buffers on AIN0 and AIN1
 
-		// switch off Pull-Up Disable
+		/* switch off Pull-Up Disable */
 		MCUCR &= ~(_BV(PUD));
 
 		clkPullPwm_fw_init();
@@ -564,13 +588,22 @@ int main(void)
 		serial_fw_init();
 		usb_fw_init();
 		sei();
+
+		/* read sensor coefficients */
+		if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_MEASURING_NR)) {
+			eeprom_b01_t* b01 = (eeprom_b01_t*) &eepromBlockCopy;
+			mainCoef_b01_ref_AREF_V					= b01->b01_ref_AREF_V;
+			mainCoef_b01_ref_1V1_V					= b01->b01_ref_1V1_V;
+			mainCoef_b01_temp_ofs_adc_25C_steps		= b01->b01_temp_ofs_adc_25C_steps;
+			mainCoef_b01_temp_k_p1step_adc_1K		= b01->b01_temp_k_p1step_adc_1K;
+		}
+
+		/* enter HELP command in USB host OUT queue */
+		sendInitialHelp();
 	}
 
-	/* enter HELP command in USB host OUT queue */
-	sendInitialHelp();
-
 	/* run the chip */
-    while (!stopAvr) {
+    while (!mainStopAvr) {
     	give_away();
     }
 
@@ -598,19 +631,19 @@ int main(void)
 		// switch off Pull-Up Disable
 		MCUCR &= ~(_BV(PUD));
 
-		if (enterMode) {
-			if (enterMode == ENTER_MODE_BL) {
+		if (mainEnterMode) {
+			if (mainEnterMode == ENTER_MODE_BL) {
 				/* write BOOT one time token to the EEPROM to INHIBIT restart into this Firmware again */
 				uint16_t tokenVal = BOOT_TOKEN;
-				memory_fw_writeEEpromPage((uint8_t*) &tokenVal, sizeof(tokenVal), BOOT_TOKEN_EE_ADR);
+				memory_fw_writeEEpromPage((uint8_t*) &tokenVal, sizeof(tokenVal), offsetof(eeprom_layout_t, bootMarker));
 
 				/* enter bootloader */
-				jump_to_bl();										// jump to bootloader section
+				mainJumpToBL();										// jump to bootloader section
 
-			} else if (enterMode == ENTER_MODE_FW) {
+			} else if (mainEnterMode == ENTER_MODE_FW) {
 #if 1
 				/* restart firmware */
-				jump_to_fw();										// jump to firmware section (REBOOT)
+				mainJumpToFW();										// jump to firmware section (REBOOT)
 #else
 				/* reset with the help of the WDT */
 				wdt_enable(WDTO_250MS);
