@@ -504,7 +504,7 @@ static void doJobs()
 					int16_t qrgDev_Hz = (int16_t) (localClockDiff >> 1);
 					int16_t ppm = (int16_t) (localClockDiff / 20);
 					len = sprintf((char*) mainCtxtBuffer,
-							">>> localClockDiff=%+10ld @ 20MHz,\tqrgDev_Hz=%+4dHz @ 10MHz,\tDrift=%+04dppm\n\n",
+							"\n>>> localClockDiff = %+04ld @ 20MHz,\tqrgDev_Hz = %+04dHz @ 10MHz,\tDrift = %+04dppm\n",
 							localClockDiff,
 							qrgDev_Hz,
 							ppm);
@@ -727,7 +727,7 @@ int main(void)
 				// if (some_condition) {
 					sleep_enable();
 					sleep_bod_disable();
-					sei();
+				//	sei();
 					sleep_cpu();
 					sleep_disable();
 				// }
