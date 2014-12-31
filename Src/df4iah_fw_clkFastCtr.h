@@ -9,15 +9,16 @@
 #define DF4IAH_FW_CLKFASTCTR_H_
 
 
-/* this modules uses the T2 timer/counter/pwm-generator of the AVR controller as timer */
+/* this modules uses the T1 timer/counter/pwm-generator of the AVR controller as timer */
 
-#define DEFAULT_OCR2A_VALUE									199
+
+#define OCR1_TOP_VALUE 										19999
 
 
 void clkFastCtr_fw_init();
 void clkFastCtr_fw_close();
 
 /* the following functions are direct __vector_xx calls to reduce some clocks */
-//void clkFastCtr_ISR_T2_CompA();
+//void clkFastCtr_ISR_T1_CompA();
 
 #endif /* DF4IAH_FW_CLKFASTCTR_H_ */

@@ -6,7 +6,7 @@
  */
 
 
-/* this modules uses the T1 timer/counter/pwm-generator of the AVR controller as 16-bit PWM generator */
+/* this modules uses the T0 timer/counter/pwm-generator of the AVR controller as 8-bit PWM generator */
 
 
 #include <stdint.h>
@@ -30,8 +30,8 @@
 #endif
 
 
-extern uint16_t pullCoef_b02_pwm_initial;
-extern uint16_t pullPwmVal;
+extern uint8_t pullCoef_b02_pwm_initial;
+extern uint8_t pullPwmVal;
 //extern uint8_t  eepromBlockCopy[sizeof(eeprom_b00_t)];
 
 
@@ -41,18 +41,16 @@ __attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
 void clkPullPwm_fw_init()
 {
 	/* power up this module */
-	PRR &= ~(_BV(PRTIM1));
+	//PRR &= ~(_BV(PRTIM0));								// already done in clkPullPwm_bl_init()
 
 	clkPullPwm_bl_init();
 
 #if 1
 	/* single memory access */
 	if (memory_fw_isEepromValid(BLOCK_REFOSC_NR)) {
-		memory_fw_readEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial, sizeof(uint16_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial));
+		memory_fw_readEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial));
 		pullPwmVal = pullCoef_b02_pwm_initial;
-
-	} else {
-		pullPwmVal = DEFAULT_PWM_COUNT;
+		clkPullPwm_fw_setRatio(pullPwmVal);
 	}
 #else
 	/* block read memory access */
@@ -60,9 +58,7 @@ void clkPullPwm_fw_init()
 		/* read PWM coefficient */
 		eeprom_b02_t* b02 = (eeprom_b02_t*) &eepromBlockCopy;
 		pullPwmVal = pullCoef_b02_pwm_initial = b02->b02_pwm_initial;
-
-	} else {
-		pullPwmVal = DEFAULT_PWM_COUNT;
+		clkPullPwm_fw_setRatio(pullPwmVal);
 	}
 #endif
 }
@@ -75,13 +71,13 @@ void clkPullPwm_fw_close()
 	clkPullPwm_bl_close();
 
 	/* no more power is needed for this module */
-	PRR |= _BV(PRTIM1);
+	//PRR |= _BV(PRTIM0);									// already done in clkPullPwm_bl_close()
 }
 
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
 #endif
-void clkPullPwm_fw_setRatio(uint16_t ratio)
+void clkPullPwm_fw_setRatio(uint8_t ratio)
 {
 	clkPullPwm_bl_setRatio(ratio);
 }

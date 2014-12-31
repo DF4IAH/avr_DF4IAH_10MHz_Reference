@@ -53,7 +53,7 @@ float mainCoef_b01_temp_ofs_adc_25C_steps					= 0.0f;
 float mainCoef_b01_temp_k_p1step_adc_K						= 0.0f;
 uint8_t  mainCtxtBufferIdx 									= 0;
 enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
-int32_t  mainPwmTerminalAdj									= 0;
+int16_t  mainPwmTerminalAdj									= 0;
 uint8_t  mainHelpConcatNr									= 0;
 uint8_t  mainIsTimerTest									= false;
 uint8_t  mainIsJumperBlSet									= false;
@@ -64,22 +64,23 @@ usbTxStatus_t usbTxStatus1 									= { 0 },
 			  usbTxStatus3 									= { 0 };
 
 /* df4iah_fw_clkPullPwm */
-uint16_t pullCoef_b02_pwm_initial							= 0;
-uint16_t pullPwmVal											= 0;
+uint8_t pullCoef_b02_pwm_initial							= 0;
+uint8_t pullPwmVal											= 0;
 
 /* df4iah_fw_clkFastCtr (20 MHz clock) */
-uint16_t fastCtr10us										= 0;
+uint16_t fastStampTCNT1										= 0;
+uint32_t fastStampCtr1ms									= 0;
+uint32_t fastCtr1ms											= 0;
 
-/* df4iah_fw_anlgComp (10kHz) */
-uint32_t ac_timer_10us										= 0;
-//uint8_t  ac_stamp_TCNT2									= 0;
-uint8_t  ac_adc_convertNowCh								= 0;
-uint8_t  ac_adc_convertNowTempStep							= 0;
+/* df4iah_fw_anlgComp (10 kHz GPS pulse) */
+uint8_t  acAdcConvertNowCh									= 0;
+uint8_t  acAdcConvertNowTempStep							= 0;
 
-/* df4iah_fw_clkSlowCtr (PPS) */
-uint32_t csc_timer_s_HI										= 0;
-uint8_t  csc_stamp_TCNT2									= 0;
-uint32_t csc_stamp_10us										= 0;
+/* df4iah_fw_clkSlowCtr (PPS 1 Hz GPS pulse) */
+uint16_t slowStampTCNT1										= 0;
+uint16_t slowStampTCNT1_last								= 0;
+uint32_t slowStampCtr1ms									= 0;
+uint32_t slowStampCtr1ms_last								= 0;
 
 /* df4iah_fw_ringbuffer */
 uint8_t  usbRingBufferSendPushIdx 							= 0;
@@ -112,7 +113,7 @@ uchar mainCtxtBuffer[MAINCTXT_BUFFER_SIZE] 					= { 0 };
 uint8_t eepromBlockCopy[sizeof(eeprom_b00_t)]				= { 0 };  // any block has the same size
 
 /* df4iah_fw_anlgComp (10kHz) */
-uint16_t ac_adc_ch[AC_ADC_CH_COUNT + 1]						= { 0 };  // plus one for the temperature sensor
+uint16_t acAdcCh[AC_ADC_CH_COUNT + 1]						= { 0 };  // plus one for the temperature sensor
 
 /* df4iah_fw_ringbuffer */
 uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE] 				= { 0 };
@@ -173,7 +174,7 @@ const uint8_t PM_INTERPRETER_HELP3_len 						= sizeof(PM_INTERPRETER_HELP3);
 PROGMEM const uchar PM_INTERPRETER_HELP4[] 					= "\n" \
 															  "TEST\t\t\t\ttoggles counter test.\n" \
 															  "\n" \
-															  "WRITEPWM\t\t\tstore current PWM as default value." \
+															  "WRITEPWM\t\t\tstore current PWM as default value.\n" \
 															  "\n" \
 															  "+/- <PWM value>\t\tcorrection value to be added.";
 const uint8_t PM_INTERPRETER_HELP4_len 						= sizeof(PM_INTERPRETER_HELP4);
@@ -376,18 +377,16 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else if (msg[0] == VM_COMMAND_PLUSSIGN[0]) {
 		/* correct the PWM value up */
-		int32_t scanVal = 0;
-		sscanf((char*) msg + 1, "%ld", &scanVal);
+		int16_t scanVal = 0;
+		sscanf((char*) msg + 1, "%d", &scanVal);
 		mainPwmTerminalAdj = scanVal;
-		isSerComm = false;
 		isUsbCommTest = false;
 
 	} else if (msg[0] == VM_COMMAND_MINUSSIGN[0]) {
 		/* correct the PWM value down */
-		int32_t scanVal = 0;
-		sscanf((char*) msg + 1, "%ld", &scanVal);
+		int16_t scanVal = 0;
+		sscanf((char*) msg + 1, "%d", &scanVal);
 		mainPwmTerminalAdj = -scanVal;
-		isSerComm = false;
 		isUsbCommTest = false;
 
 	} else {
@@ -458,11 +457,22 @@ __attribute__((section(".df4iah_fw_main"), aligned(2)))
 static void doJobs()
 {
 	const uint8_t isSend = false;							// USB Function --> host: USB IN
+	const uint16_t LocalCtr1msSpan = 1000 * DEBUG_DELAY_CNT;// wake up every DEBUG_DELAY_CNT second
 	static uint8_t isTimerTestPrintCtr = 0;
-	static uint32_t refClkSM_last_csc_timer_s = 0;
-	uint32_t csc_timer_s = ((uint32_t) (csc_timer_s_HI << 8)) | TCNT0;
+	static uint32_t localStampCtr1ms_next = 0;
+	uint16_t localStampTCNT1;
+	uint32_t localStampCtr1ms;
+	uint16_t localStampTCNT1_last;
+	uint32_t localStampCtr1ms_last;
 
-	if ((refClkSM_last_csc_timer_s != csc_timer_s) || isTimerTestPrintCtr) {  // a new SPS impulse has arrived ... and some following lines
+	cli();													// during data copy keep data consistent
+	localStampTCNT1			= slowStampTCNT1;
+	localStampCtr1ms		= slowStampCtr1ms;
+	localStampTCNT1_last	= slowStampTCNT1_last;
+	localStampCtr1ms_last	= slowStampCtr1ms_last;
+	sei();
+
+	if ((localStampCtr1ms_next <= localStampCtr1ms) || isTimerTestPrintCtr) {  // a new SPS impulse has arrived ... and some following lines
 		uint8_t len = 0;
 
 		/*
@@ -473,23 +483,38 @@ static void doJobs()
 		 * 2)	Linker libraries:	-lm  -lprintf_flt      -lscanf_flt
 		 */
 
-		float adc_ch0_volts = ( ac_adc_ch[0] * mainCoef_b01_ref_AREF_V) / 1024.f;
-		float adc_ch1_volts = ( ac_adc_ch[1] * mainCoef_b01_ref_AREF_V) / 1024.f;
-		float adc_ch2_C     = ((ac_adc_ch[2] - mainCoef_b01_temp_ofs_adc_25C_steps) * mainCoef_b01_temp_k_p1step_adc_K) + 25.0f;
+		float adcCh0Volts = ( acAdcCh[0] * mainCoef_b01_ref_AREF_V) / 1024.f;
+		float adcCh1Volts = ( acAdcCh[1] * mainCoef_b01_ref_AREF_V) / 1024.f;
+		float adcCh2C     = ((acAdcCh[2] - mainCoef_b01_temp_ofs_adc_25C_steps) * mainCoef_b01_temp_k_p1step_adc_K) + 25.0f;
 
-		if (refClkSM_last_csc_timer_s != csc_timer_s) {
+		if (localStampCtr1ms_next <= localStampCtr1ms) {
 			/* 10 MHz Ref-Clk State Machine */
-			refClkSM_last_csc_timer_s = csc_timer_s;
-			ac_adc_convertNowTempStep = 1;  				// prepare for next temperature conversion, once per second
+			acAdcConvertNowTempStep = 1;  					// prepare for next temperature conversion, once per second
 			isTimerTestPrintCtr = 1;						// show 1 timer line per second
 
-			if ((9990 <= csc_stamp_10us) && (csc_stamp_10us <= 10010)) {
-				/* catch frequency when in range of +/-200ppm */
-				float qrgDev_Hz = 100.0f * (10000U - csc_stamp_10us);
-				len = sprintf((char*) mainCtxtBuffer,
-						">>> qrgDev_Hz=%4.3fHz\n", qrgDev_Hz);
-				ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			/* frequency shift calculation */
+			{
+
+				int32_t localClockDiff = ((20000L * (localStampCtr1ms - localStampCtr1ms_last))
+									   + ((((int32_t) localStampTCNT1) - ((int32_t) localStampTCNT1_last))))
+									   - 20000000L;
+				if ((localClockDiff >= -2000) &&
+					(localClockDiff <=  2000)) {
+					/* catch frequency when in range of +/-100ppm */
+					int16_t qrgDev_Hz = (int16_t) (localClockDiff >> 1);
+					int16_t ppm = (int16_t) (localClockDiff / 20);
+					len = sprintf((char*) mainCtxtBuffer,
+							">>> localClockDiff=%+10ld @ 20MHz,\tqrgDev_Hz=%+4dHz @ 10MHz,\tDrift=%+04dppm\n\n",
+							localClockDiff,
+							qrgDev_Hz,
+							ppm);
+					ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+				}
 			}
+
+			/* calculate next monitoring time */
+			localStampCtr1ms_next  = localStampCtr1ms      + LocalCtr1msSpan;
+			localStampCtr1ms_next -= localStampCtr1ms_next % LocalCtr1msSpan;
 		}
 
 		if (mainIsTimerTest && isTimerTestPrintCtr) {
@@ -497,52 +522,59 @@ static void doJobs()
 			--isTimerTestPrintCtr;
 
 			len = sprintf((char*) mainCtxtBuffer,
-					"### csc_timer_s=%09lu\tcsc_stamp_10us=%05lu x10us\t+ csc_stamp_TCNT2=%03u\n",
-					csc_timer_s,
-					csc_stamp_10us,
-					csc_stamp_TCNT2);
+					"### localStampCtr1ms=%09lu\tlocalStampTCNT1=%05u\tfastStampCtr1ms=%09lu\tfastStampTCNT1=%05u\n",
+					localStampCtr1ms,
+					localStampTCNT1,
+					fastStampCtr1ms,
+					fastStampTCNT1);
 			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			len = sprintf((char*) mainCtxtBuffer,
-					"### PWM=%05u\n",
+					"### PWM=%03u\n",
 					pullPwmVal);
 			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			len = sprintf((char*) mainCtxtBuffer,
 					"### ADC0=%04u (%0.4fmV)\n",
-					ac_adc_ch[0],
-					adc_ch0_volts);
+					acAdcCh[0],
+					adcCh0Volts);
 			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			len = sprintf((char*) mainCtxtBuffer,
 					"### ADC1=%04u (%0.4fmV)\n",
-					ac_adc_ch[1],
-					adc_ch1_volts);
+					acAdcCh[1],
+					adcCh1Volts);
 			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			len = sprintf((char*) mainCtxtBuffer,
 					"### Temp=%04u (%0.1fC).\n\n",
-					ac_adc_ch[2],
-					adc_ch2_C);
+					acAdcCh[2],
+					adcCh2C);
 			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+
+			if (!isTimerTestPrintCtr) {
+				len = 5;
+				memcpy((char*) mainCtxtBuffer, "===\n\n", len + 1);
+				ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			}
 		}
 	}
 
 	/* correct PWM with  +/- <value> */
 	if (mainPwmTerminalAdj) {
 		// make a big signed calculation
-		int32_t pwmCalc = ((int32_t) pullPwmVal) + mainPwmTerminalAdj;
+		int16_t pwmCalc = ((int16_t) pullPwmVal) + mainPwmTerminalAdj;
 		mainPwmTerminalAdj = 0;
 
-		// frame to uint16_t
-		if (pwmCalc > 0xffff) {
-			pwmCalc = 0xffff;
+		// frame to uint8_t
+		if (pwmCalc > 0xff) {
+			pwmCalc = 0xff;
 		} else if (pwmCalc < 0) {
 			pwmCalc = 0;
 		}
 
 		// write back to the global variable
-		pullPwmVal = (uint16_t) pwmCalc;
+		pullPwmVal = (uint8_t) pwmCalc;
 
 		// adjust PWM out
 		clkPullPwm_fw_setRatio(pullPwmVal);

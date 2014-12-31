@@ -16,10 +16,11 @@
 #include "df4iah_fw_clkSlowCtr.h"
 
 
-extern uint32_t csc_timer_s_HI;
-extern uint8_t  csc_stamp_TCNT2;
-extern uint32_t csc_stamp_10us;
-extern uint32_t ac_timer_10us;
+extern uint16_t slowStampTCNT1;
+extern uint16_t slowStampTCNT1_last;
+extern uint32_t slowStampCtr1ms;
+extern uint32_t slowStampCtr1ms_last;
+extern uint32_t fastCtr1ms;
 
 
 #ifdef RELEASE
@@ -27,26 +28,28 @@ __attribute__((section(".df4iah_fw_clkslowctr"), aligned(2)))
 #endif
 void clkSlowCtr_fw_init()
 {
+#if 0
 	/* power up this module */
-	PRR &= ~(_BV(PRTIM0));
+	PRR &= ~(_BV(PRTIM2));
 
 	/* switch mode to normal mode and overflows at MAX (= 255) */
-	TCCR0A = (0b00 << WGM00);
-	//TCCR0B = 0;
+	TCCR2A = (0b00 << WGM20);
+	//TCCR2B = 0;
 
 	/* initialize counter */
-	TCNT0 = 0;
+	TCNT2 = 0;
 
-	/* switch clock source to external T0 rising edge */
-	TCCR0B = (0b111 << CS00);								// since now the clock runs
+	/* switch clock source to internal clock T2S/1024 */
+	TCCR2B = (0b111 << CS20);								// since now the clock runs
 
-	/* TOV0 interrupt enable */
-	TIFR0  = _BV(TOV0);										// clear any pending overflows
-	TIMSK0 = _BV(TOIE0);									// enable the overflow interrupt
+	/* TOV2 interrupt enable */
+	//TIFR2  = _BV(TOV2);									// clear any pending overflows
+	//TIMSK2 = _BV(TOIE2);									// enable the overflow interrupt
+#endif
 
 	/* activate PCINT20 interrupt for PIN PD4 (T0) */
-	PCMSK2 = _BV(PCINT20);
-	PCICR  = _BV(PCIE2);
+	PCMSK2 |= _BV(PCINT20);
+	PCICR  |= _BV(PCIE2);
 }
 
 #ifdef RELEASE
@@ -54,16 +57,23 @@ __attribute__((section(".df4iah_fw_clkslowctr"), aligned(2)))
 #endif
 void clkSlowCtr_fw_close()
 {
+	/* deactivate PCINT20 interrupt for PIN PD4 (T0) */
+	PCICR  &= ~(PCIE2);
+	PCMSK2 &= ~(PCINT20);
+
+#if 0
 	/* switch clock source to halted */
-	TCCR0B = 0;
+	TCCR2B = 0;
 
 	// switch off interrupts
-	TIMSK0 = 0;
+	TIMSK2 = 0;
 
 	/* no more power is needed for this module */
-	PRR |= _BV(PRTIM0);
+	PRR |= _BV(PRTIM2);
+#endif
 }
 
+#if 0
 /*
  * x	Mnemonics	clocks	resulting clocks
  * ------------------------------------------------
@@ -84,25 +94,30 @@ __attribute__((section(".df4iah_fw_clkslowctr"), aligned(2)))
 //void clkSlowCtr_ISR_T0_OVL() - __vector_16
 ISR(TIMER0_OVF_vect, ISR_BLOCK)
 {
+//	__asm__ __volatile__ ("reti" ::: "memory");
+
 	// increment PPS counter
-	csc_timer_s_HI++;
+	slowPPS_HI++;
 
 	sei();
 }
+#endif
 
 /*
  * x	Mnemonics	clocks	resulting clocks
  * ------------------------------------------------
- * 7	push		2		 14
- * 1	in			1		  1
- * 1	eor			1		  1
- * 5	lds			2		 10
- * 1	sbis		3		  3
- * 0	rjmp		2		  0
- * 9	sts			2		 18
- * 1	sei			1		  1
+ * 16	push		2		 32
+ *  1	in			1		  1
+ *  1	eor			1		  1
+ * 12	lds			2		 24
+ *  1	sbis		3		  3
+ *  0	rjmp		2		  0
+ *  1	ldi			1		  1
+ *  1	or			1		  1
+ * 12	sts			2		 24
+ *  1	sei			1		  1
  *
- * = 48 clocks --> 2.40 µs until sei() is done
+ * = 90 clocks --> 4.50 µs until sei() is done
  */
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_clkslowctr"), aligned(2)))
@@ -110,17 +125,20 @@ __attribute__((section(".df4iah_fw_clkslowctr"), aligned(2)))
 //void clkSlowCtr_ISR_PCI2() - __vector_5
 ISR(PCINT2_vect, ISR_BLOCK)
 {
-	uint8_t fast_TCNT2 = TCNT2;
+	uint8_t  localTCNT1L = TCNT1L;							// LSB first
+	uint8_t  localTCNT1H = TCNT1H;
+	uint32_t localCtr1ms = fastCtr1ms;
 
 	/* stamp on rising edge only */
 	if (PIND & _BV(PIND4)) {
-		// stamp timer
-		csc_stamp_TCNT2 = fast_TCNT2;
-		csc_stamp_10us  = ac_timer_10us;
+		// remember last value
+		slowStampTCNT1_last = slowStampTCNT1;
+		slowStampCtr1ms_last = slowStampCtr1ms;
 
-		// reset 10us timer
-		ac_timer_10us = 0;
+		// stamp current timer
+		slowStampTCNT1  = (localTCNT1L | (localTCNT1H << 8));
+		slowStampCtr1ms = localCtr1ms;
 	}
 
-	sei();
+	sei();													// since here we can accept interruptions
 }

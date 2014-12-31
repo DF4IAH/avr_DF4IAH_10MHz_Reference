@@ -16,11 +16,9 @@
 #include "df4iah_fw_anlgComp.h"
 
 
-extern uint32_t ac_timer_10us;
-//extern uint8_t  ac_stamp_TCNT2;
-extern uint8_t  ac_adc_convertNowCh;
-extern uint8_t  ac_adc_convertNowTempStep;
-extern uint16_t ac_adc_ch[AC_ADC_CH_COUNT + 1];				// plus one for the temperature sensor
+extern uint8_t  acAdcConvertNowCh;
+extern uint8_t  acAdcConvertNowTempStep;
+extern uint16_t acAdcCh[AC_ADC_CH_COUNT + 1];				// plus one for the temperature sensor
 
 
 #ifdef RELEASE
@@ -40,11 +38,13 @@ void anlgComp_fw_init()
 	ADCSRA |= _BV(ADEN) | (0b111 << ADPS0);					// AD enable, use 128/1 prescaler for ADC clock = 156250 Hz
 
 	/* enable comparator AIN0 pin */
-	ACSR  = (ACSR &  ~(_BV(ACBG) | _BV(ACD)    | 		  	// disable bandgap reference voltage, switch off Analog Comparator Disable
-			_BV(ACO) | _BV(ACIC) | _BV(ACIE))) | 			// no Analog Comparator Output, no Analog Comparator Input Capture for the Counter1
+	ACSR  = (ACSR &  ~(_BV(ACBG) | _BV(ACD)	|	 		  	// disable bandgap reference voltage, switch off Analog Comparator Disable
+			_BV(ACO) | _BV(ACIE)))			| 				// no Analog Comparator Output
+			_BV(ACIC)						|				// Analog Comparator Input Capture for the Counter1
 			(0b11 << ACIS0);								// disable ACIE for interrupt as long interrupt source is changed, interrupt on Rising Edge
 	ACSR |= _BV(ACI);										// clear any pending interrupt
 	ACSR |= _BV(ACIE);										// now set ACIE for interrupt
+
 
 	/* ADC reference set to AREF */
 	ADMUX = (0b01 << REFS0);								// keep ADLAR off
@@ -62,7 +62,7 @@ void anlgComp_fw_close()
 	ACSR = (ACSR & ~(_BV(ACIE))) | _BV(ACD);
 
 	/* turn off ADC and Analog Comparator */
-	ADCSRA = (0b111 << ADPS0);								// disable but keep the prescaler at last value
+	ADCSRA = (0b111 << ADPS0);								// disable but keep the prescaler output at the lowest frequency
 	ADCSRB = 0;												// disable Analog Comparator Multiplex Enable
 
 	/* turn off reference voltage at selection */
@@ -72,22 +72,16 @@ void anlgComp_fw_close()
 	PRR |= _BV(PRADC);
 }
 
-/* TODO
+/*
  * x	Mnemonics	clocks	resulting clocks
  * ------------------------------------------------
- * 11	push		2		22
+ * 9	push		2		18
  * 1	in			1		 1
  * 1	eor			1		 1
- * 7	lds			2		14
- * 1	adiw		2		 2
- * 2	adc			2		 4
- * 4	sts			2		 8
- * 1	sbrc		3		 3
- * 1	ldi			1		 1
- * 1	or			1		 1
+ * 2	lds			2		 2
  * 1	sei			1		 1
  *
- * = 58 clocks --> 2.90 µs until sei() is done
+ * = 23 clocks --> 1.15 µs until sei() is done
  */
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
@@ -95,68 +89,67 @@ __attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
 //void anlgComp_ISR_ANALOG_COMP() - __vector_23
 ISR(ANALOG_COMP_vect, ISR_BLOCK)
 {
-	//ac_stamp_TCNT2 = TCNT2;
-	ac_timer_10us++;
+	/* timer strobe is taken from df4iah_fw_clkFastCtr.h */
+	/* use compare interrupt to handle the ADC */
+
+	/* read the ADC value */
+	uint8_t localADCL = ADCL;								// read LSB first
+	uint8_t localADCH = ADCH;
+
+	sei();
 
 	/* when ADC has finished with previous conversion (it should be), store the value and restart new job */
 	if (!(ADCSRA & _BV(ADSC))) {
-		// read LSB first
-		uint16_t adVal  =  ADCL;
-		         adVal |= (ADCH << 8);
+		uint16_t adVal  =  localADCL | (localADCH << 8);
 
-		sei();
-
-		switch (ac_adc_convertNowTempStep)
+		switch (acAdcConvertNowTempStep)
 		{
 		case 0:
 			// store last measurement
-			ac_adc_ch[ac_adc_convertNowCh] = adVal;
+			acAdcCh[acAdcConvertNowCh] = adVal;
 
 			// switch to next ADC input channel (ADMUX)
-			ac_adc_convertNowCh++;
-			ac_adc_convertNowCh = ac_adc_convertNowCh % AC_ADC_CH_COUNT;
-			ADMUX = 0b01000000 | (ac_adc_convertNowCh & 0x07);  // = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
+			acAdcConvertNowCh++;
+			acAdcConvertNowCh = acAdcConvertNowCh % AC_ADC_CH_COUNT;
+			ADMUX = 0b01000000 | (acAdcConvertNowCh & 0x07);  // = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
 			break;
 
 		case 1:
 			// store last measurement
-			ac_adc_ch[ac_adc_convertNowCh] = adVal;
+			acAdcCh[acAdcConvertNowCh] = adVal;
 
 			// calculate next ADC input channel (ADMUX)
-			ac_adc_convertNowCh++;
-			ac_adc_convertNowCh = ac_adc_convertNowCh % AC_ADC_CH_COUNT;
+			acAdcConvertNowCh++;
+			acAdcConvertNowCh = acAdcConvertNowCh % AC_ADC_CH_COUNT;
 
 			// switch over to temperature conversion
 			ADMUX = 0b11001000;  // = (0b11 << REFS0) | (0x08 << MUX0);
-			ac_adc_convertNowTempStep = 2;
+			acAdcConvertNowTempStep = 2;
 			break;
 
 		case 2:
 			// first sample to be discarded
-			ac_adc_convertNowTempStep = 3;
+			acAdcConvertNowTempStep = 3;
 			break;
 
 		case 3:
-			ac_adc_ch[AC_ADC_CH_COUNT] = adVal;
+			acAdcCh[AC_ADC_CH_COUNT] = adVal;
 			// no break
 		default:
 			// switch to next ADC input channel (ADMUX)
-			ac_adc_convertNowCh++;
-			ac_adc_convertNowCh = ac_adc_convertNowCh % AC_ADC_CH_COUNT;
-			ADMUX = 0b01000000 | (ac_adc_convertNowCh & 0x07);  // = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
-			ac_adc_convertNowTempStep = 4;
+			acAdcConvertNowCh++;
+			acAdcConvertNowCh = acAdcConvertNowCh % AC_ADC_CH_COUNT;
+			ADMUX = 0b01000000 | (acAdcConvertNowCh & 0x07);  // = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
+			acAdcConvertNowTempStep = 4;
 			break;
 
 		case 4:
 			// first sample to be discarded
-			ac_adc_convertNowTempStep = 0;
+			acAdcConvertNowTempStep = 0;
 			break;
 		}
 
 		// start next ADC conversion and reset ADIF flag
 		ADCSRA |= _BV(ADSC) | _BV(ADIF);
-
-	} else {
-		sei();
 	}
 }

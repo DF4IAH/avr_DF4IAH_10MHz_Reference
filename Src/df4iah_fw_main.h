@@ -25,9 +25,10 @@
  */
 #define EXIT_WDT_TIME										WDTO_250MS
 
+#define DEBUG_DELAY_CNT										1
 
 #define VERSION_HIGH										141
-#define VERSION_LOW											229
+#define VERSION_LOW											231
 
 
 #ifndef true
@@ -55,5 +56,25 @@ enum ENTER_MODE_t {
 
 void give_away(void);
 int main(void);
+
+
+// this following table has most of the instructions listed
+
+/*TODO
+ * x	Mnemonics	clocks	resulting clocks
+ * ------------------------------------------------
+ * 8	push		2		16
+ * 1	in			1		 1
+ * 1	eor			1		 1
+ * 2	lds			2		 4
+ * 1	sei			1		 1
+ * 2	ld (Z)		2		 4
+ * 2	ldi			2		 4
+ * 1	adiw		2		 2
+ * 2	adc			1		 2
+ * 2	sts			2		 4
+ *
+ * = 23 clocks --> 1.15 µs until sei() is done
+ */
 
 #endif /* DF4IAH_FW_MAIN_H_ */

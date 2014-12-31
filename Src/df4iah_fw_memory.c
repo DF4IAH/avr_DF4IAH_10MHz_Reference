@@ -140,6 +140,7 @@ eeprom_layout_t eeprom_content = {
 		190.0f,										// b02_qrg_k_p1v_25C_Hz					delta 190 Hz / delta 1 V   @ 10 MHz
 		0.0f,										// b02_qrg_k_p1v_drift_1K
 		DEFAULT_PWM_COUNT,							// b02_pwm_initial
+		0xff,
 		0xffff,
 		0x0000,										// b02_regen_ctr
 		0xb02c,										// b02_crc
