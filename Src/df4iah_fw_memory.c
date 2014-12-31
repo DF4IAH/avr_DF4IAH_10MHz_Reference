@@ -13,6 +13,7 @@
 #include "df4iah_bl_clkPullPwm.h"
 #include "df4iah_bl_memory.h"
 #include "df4iah_fw_memory.h"
+#include "df4iah_fw_serial.h"
 
 #include "df4iah_fw_memory_eepromData.h"
 
@@ -80,6 +81,11 @@ uint8_t memory_fw_isEepromBlockValid(uint8_t blockNr)	// initializes eepromBlock
 	return false;
 }
 
+uint16_t memory_fw_getSealMarker(uint8_t blockNr)
+{
+	return (0xb00c | (blockNr << 4));
+}
+
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
@@ -90,7 +96,7 @@ uint8_t memory_fw_makeEepromBlockValid(uint8_t* block, uint8_t blockNr)
 		uint16_t oldCrcCalc  = memory_fw_calcBlockCrc(block);
 
 		if (oldCrcBlock != oldCrcCalc) {
-			if (oldCrcBlock == (0xb00c | (blockNr << 4))) {
+			if (oldCrcBlock == memory_fw_getSealMarker(blockNr)) {
 				/* initial CRC calc marker found, seal the content */
 				block[30] = (oldCrcCalc & 0xff);
 				block[31] = (oldCrcCalc >> 8);
@@ -162,7 +168,7 @@ uint8_t memory_fw_checkAndInitBlock(uint8_t blockNr)
 			/* the block is non-valid, reload the EEPROM block with the default data */
 			uint16_t oldCrcBlock = eepromBlockCopy[30] | (eepromBlockCopy[31] << 8);
 
-			if (oldCrcBlock != (0xb00c | (blockNr << 4))) {
+			if (oldCrcBlock != memory_fw_getSealMarker(blockNr)) {
 				/* reading default values if not CRC calc marker for sealing is found */
 				memory_fw_readFlashPage(eepromBlockCopy,
 						(1 << 5) - 4,								// load default data, without counter and special marked CRC value

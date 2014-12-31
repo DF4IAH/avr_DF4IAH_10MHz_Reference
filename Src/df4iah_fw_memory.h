@@ -234,12 +234,14 @@ typedef struct eeprom_defaultValues_layout {
 } eeprom_defaultValues_layout_t;
 
 
-uint8_t memory_fw_isEepromBlockValid(uint8_t blockNr);
-uint8_t memory_fw_makeEepromBlockValid(uint8_t* block, uint8_t blockNr);
-uint8_t memory_fw_readEepromValidBlock(uint8_t* target, uint8_t blockNr);
-uint8_t memory_fw_writeEepromBlockMakeValid(uint8_t* source, uint8_t blockNr);
-uint8_t memory_fw_checkAndInitBlock(uint8_t blockNr);
-uint8_t memory_fw_checkAndInitAllBlocks();
+uint16_t memory_fw_calcBlockCrc(uint8_t* block);
+uint8_t  memory_fw_isEepromBlockValid(uint8_t blockNr);
+uint16_t memory_fw_getSealMarker(uint8_t blockNr);
+uint8_t  memory_fw_makeEepromBlockValid(uint8_t* block, uint8_t blockNr);
+uint8_t  memory_fw_readEepromValidBlock(uint8_t* target, uint8_t blockNr);
+uint8_t  memory_fw_writeEepromBlockMakeValid(uint8_t* source, uint8_t blockNr);
+uint8_t  memory_fw_checkAndInitBlock(uint8_t blockNr);
+uint8_t  memory_fw_checkAndInitAllBlocks();
 
 void memory_fw_eraseFlash(void);
 void memory_fw_readFlashPage(uint8_t target[], pagebuf_t size, uint32_t baddr);

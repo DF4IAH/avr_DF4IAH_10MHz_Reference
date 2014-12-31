@@ -391,6 +391,11 @@ static void doInterpret(uchar msg[], uint8_t len)
 		/* write current PWM value as the default/startup value to the EEPROM */
 		memory_fw_writeEEpromPage((uint8_t*) &pullPwmVal, sizeof(uint16_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial));
 
+		/* for any modified block add the CRC seal marker and do a  memory_fw_checkAndInitBlock() */
+		uint16_t newCrc = memory_fw_getSealMarker(BLOCK_REFOSC_NR);
+		memory_fw_writeEEpromPage((uint8_t*) &newCrc, sizeof(uint16_t), offsetof(eeprom_layout_t, b02.b02_crc));
+		memory_fw_checkAndInitBlock(BLOCK_REFOSC_NR);
+
 	} else if (msg[0] == VM_COMMAND_PLUSSIGN[0]) {
 		/* correct the PWM value up */
 		int16_t scanVal = 0;
@@ -519,7 +524,7 @@ static void doJobs()
 					/* catch frequency when in range of +/-20ppm */
 					int16_t qrgDev_Hz = (int16_t) (localClockDiff >> 1);
 					int16_t ppm = (int16_t) (localClockDiff / 20);
-					float pwmDev_steps = localClockDiff * 512.0f / (mainCoef_b02_qrg_k_p1v_25C_Hz * mainCoef_b01_ref_AREF_V);
+					float pwmDev_steps = -localClockDiff * 128.0f / (mainCoef_b02_qrg_k_p1v_25C_Hz * mainCoef_b01_ref_AREF_V);
 					len = sprintf((char*) mainCtxtBuffer,
 							"\n>>> localClockDiff = %+04ld @ 20MHz,\tqrgDev_Hz = %+04dHz @ 10MHz,\tDrift = %+04dppm,\tPWM-correction = %+3.1f\n",
 							localClockDiff,
@@ -687,8 +692,8 @@ int main(void)
 
 		/* read REFERENCE OSCILLATOR (REFOSC) coefficients */
 		if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_REFOSC_NR)) {
-
-			memory_fw_readEEpromPage((uint8_t*) &mainCoef_b02_qrg_k_p1v_25C_Hz, sizeof(uint16_t), offsetof(eeprom_layout_t, b02.b02_qrg_k_p1v_25C_Hz));
+			eeprom_b02_t* b02 = (eeprom_b02_t*) &eepromBlockCopy;
+			mainCoef_b02_qrg_k_p1v_25C_Hz			= b02->b02_qrg_k_p1v_25C_Hz;
 		}
 
 		/* enter HELP command in USB host OUT queue */

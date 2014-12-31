@@ -9,6 +9,11 @@
 #define DF4IAH_FW_MEMORY_EEPROMDATA_H_
 
 
+#define DEFAULT_PARITY_N0_E2_O3_BITPOS						12
+#define DEFAULT_STOPBITS_BITPOS								8
+#define DEFAULT_DATABITS_BITPOS								0
+
+
 #define EEPROM_DEFAULT_CONTENT_B00	\
 		'D', 'F',									/* b00_header */ 																		\
 		'4', 'I',					\
@@ -55,8 +60,13 @@
 		0xb02c										/* b02_crc */																			\
 
 #define EEPROM_DEFAULT_CONTENT_B03	\
-		0x0000,										/* b03_serial_baud */																	\
-		0x0000,										/* b03_serial_bitsParityStopbits */														\
+		DEFAULT_BAUDRATE,							/* b03_serial_baud */																	\
+		(DEFAULT_PARITY_N0_E2_O3																											\
+				<< DEFAULT_PARITY_N0_E2_O3_BITPOS)	|																						\
+		(DEFAULT_STOPBITS																													\
+				<< DEFAULT_STOPBITS_BITPOS)			|																						\
+		DEFAULT_DATABITS																													\
+				<< DEFAULT_DATABITS_BITPOS,			/* b03_serial_bitsParityStopbits */														\
 		0x0000,										/* b03_gps_comm_mode */																	\
 		0x0000,										/* b03_last_fix */																		\
 		0xffff,						\

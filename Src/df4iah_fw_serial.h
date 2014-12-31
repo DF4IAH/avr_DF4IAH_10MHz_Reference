@@ -18,7 +18,7 @@
 #define DEFAULT_BAUDRATE 											19200
 // #define DEFAULT_BAUDRATE 										38400
 //#define DEFAULT_BAUDRATE											115200
-#define DEFAULT_BITS												8
+#define DEFAULT_DATABITS											8
 #define DEFAULT_PARITY_N0_E2_O3										0
 #define DEFAULT_STOPBITS											1
 
