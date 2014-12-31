@@ -67,7 +67,7 @@ void serial_fw_init()
 	// setting frame format
 	UART_CTRL2 =  (0b00<<UMSEL00) 							|			// UCSR0C: asynchronous USART,
 				  ((DEFAULT_PARITY_N0_E2_O3 & 0b11)<<UPM00)	|			// parity 0=off, 2=even, 3=odd, 1=(do not use)
-				 (((DEFAULT_BITS - 5)       & 0b11)<<UCSZ00);			// bits 5..8
+				 (((DEFAULT_DATABITS - 5)   & 0b11)<<UCSZ00);			// bits 5..8
 
 	// this is a dummy operation to clear the RX ready bit
 	serialCtxtTxBufferIdx = UDR0;

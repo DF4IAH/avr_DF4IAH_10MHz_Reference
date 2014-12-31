@@ -532,12 +532,32 @@ static void doJobs()
 							ppm,
 							pwmDev_steps);
 					ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+
+					if ((-2 <= localClockDiff) && (localClockDiff <= 2)) {
+						if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE) {
+							/* hand-over to the phase lock loop */
+							mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
+						}
+					} else {
+						/* frequency search and lock loop entering QRG area */
+						mainRefClkState = REFCLK_STATE_SEARCH_QRG;
+					}
+
+					if ((0.0f <= (pullPwmVal + pwmDev_steps)) && ((pullPwmVal + pwmDev_steps) <= 255.0f)) {
+						/* add the PWM offset */
+						pullPwmVal = (uint8_t) (pullPwmVal + pwmDev_steps);
+						clkPullPwm_fw_setRatio(pullPwmVal);
+					}
+
+				} else {
+					/* frequency search and lock loop - out if sync */
+					mainRefClkState = REFCLK_STATE_NOSYNC;
 				}
 			}
 
 			/* calculate next monitoring time */
-			localStampCtr1ms_next  = localStampCtr1ms      + LocalCtr1msSpan;
-			localStampCtr1ms_next -= localStampCtr1ms_next % LocalCtr1msSpan;
+			localStampCtr1ms_next  = localStampCtr1ms     	+ LocalCtr1msSpan;
+			localStampCtr1ms_next -= localStampCtr1ms_next 	% LocalCtr1msSpan;
 		}
 
 		if (mainIsTimerTest && isTimerTestPrintCtr) {
@@ -555,6 +575,11 @@ static void doJobs()
 			len = sprintf((char*) mainCtxtBuffer,
 					"### PWM=%03u\n",
 					pullPwmVal);
+			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+
+			len = sprintf((char*) mainCtxtBuffer,
+					"### mainRefClkState=%u\n",
+					mainRefClkState);
 			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			len = sprintf((char*) mainCtxtBuffer,
