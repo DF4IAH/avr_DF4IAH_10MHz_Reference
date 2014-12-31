@@ -12,6 +12,7 @@
 #include <avr/wdt.h>
 #include <avr/boot.h>
 
+#include "df4iah_fw_main.h"
 #include "df4iah_fw_memory.h"
 #include "df4iah_fw_usb_requests.h"
 #include "df4iah_fw_ringbuffer.h"

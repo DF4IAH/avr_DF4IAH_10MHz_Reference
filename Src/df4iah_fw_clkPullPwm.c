@@ -47,7 +47,7 @@ void clkPullPwm_fw_init()
 
 #if 1
 	/* single memory access */
-	if (memory_fw_isEepromValid(BLOCK_REFOSC_NR)) {
+	if (memory_fw_isEepromBlockValid(BLOCK_REFOSC_NR)) {
 		memory_fw_readEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial));
 		pullPwmVal = pullCoef_b02_pwm_initial;
 		clkPullPwm_fw_setRatio(pullPwmVal);

@@ -5,13 +5,16 @@
  *      Author: DF4IAH, Ulrich Habel
  */
 
+#include <string.h>
 #include <avr/eeprom.h>
 
 #include "df4iah_fw_main.h"
-#include "df4iah_bl_clkPullPwm.h"
 
+#include "df4iah_bl_clkPullPwm.h"
 #include "df4iah_bl_memory.h"
 #include "df4iah_fw_memory.h"
+
+#include "df4iah_fw_memory_eepromData.h"
 
 
 /* only to silence Eclipse */
@@ -20,12 +23,114 @@
 #endif
 
 
+extern eeprom_defaultValues_layout_t eeprom_defaultValues_content;
+extern uint8_t eepromBlockCopy[sizeof(eeprom_b00_t)];
+
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-braces"
+#ifdef RELEASE
+__attribute__((section(".eeprom"), aligned(2)))
+#endif
+eeprom_layout_t eeprom_content = {
+		EEPROM_DEFAULT_CONTENT_B00,
+		EEPROM_DEFAULT_CONTENT_B01,
+		EEPROM_DEFAULT_CONTENT_B02,
+		EEPROM_DEFAULT_CONTENT_B03,
+		EEPROM_DEFAULT_CONTENT_B04,
+		EEPROM_DEFAULT_CONTENT_B05,
+		EEPROM_DEFAULT_CONTENT_B06,
+		EEPROM_DEFAULT_CONTENT_B07,
+
+		EEPROM_DEFAULT_CONTENT_FILL
+};
+#pragma GCC diagnostic pop
+
+
+uint16_t memory_fw_calcBlockCrc(uint8_t* block)
+{
+	uint16_t crc = CRC_SALT_VALUE;
+
+	return crc;
+}
+
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-uint8_t memory_fw_isEepromValid(uint8_t blockNr)
+uint8_t memory_fw_isEepromBlockValid(uint8_t blockNr)	// initializes eepromBlockCopy
 {
-	return true;	// TODO calculate CRC16
+	if (blockNr < BLOCK_COUNT) {
+		/* read block */
+		memory_fw_readEEpromPage((uint8_t*) &eepromBlockCopy, sizeof(eeprom_b00_t), blockNr << 5);
+
+		uint16_t localCrcBlock = eepromBlockCopy[30] | (eepromBlockCopy[31] << 8);
+		uint16_t localCrcCalc  = memory_fw_calcBlockCrc(eepromBlockCopy);
+
+		if (localCrcBlock == localCrcCalc) {
+			// block valid
+			return true;
+
+		} else {
+			// block CRC verified OK
+			return false;
+		}
+	}
+
+	// bad usage
+	return false;
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+uint8_t memory_fw_makeEepromBlockValid(uint8_t* block, uint8_t blockNr)
+{
+	if (blockNr < BLOCK_COUNT) {
+		uint16_t oldCrcBlock = block[30] | (block[31] << 8);
+		uint16_t oldCrcCalc  = memory_fw_calcBlockCrc(block);
+
+		if (oldCrcBlock != oldCrcCalc) {
+			if (oldCrcBlock == (0xb00c | (blockNr << 4))) {
+				/* initial CRC calc marker found, seal the content */
+				block[30] = (oldCrcCalc & 0xff);
+				block[31] = (oldCrcCalc >> 8);
+
+			} else {
+				/* any recalculation of the CRC is counted */
+				uint16_t counter = block[28] | (block[29] << 8);
+
+				counter++;
+				block[28] = (counter & 0xff);
+				block[29] = (counter >> 8);
+
+				/* re-calc the CRC */
+				uint16_t newCrcCalc = memory_fw_calcBlockCrc(block);
+
+				block[30] = (newCrcCalc & 0xff);
+				block[31] = (newCrcCalc >> 8);
+			}
+		}
+		// block valid
+		return true;
+	}
+
+	// bad usage
+	return false;
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+uint8_t memory_fw_writeEepromBlockMakeValid(uint8_t* source, uint8_t blockNr)
+{
+	if (blockNr < BLOCK_COUNT) {
+		memory_fw_makeEepromBlockValid(source, blockNr);
+		memory_fw_writeEEpromPage(source, 1 << 5, blockNr << 5);
+		return true;
+	}
+
+	// bad usage
+	return false;
 }
 
 #ifdef RELEASE
@@ -33,13 +138,63 @@ __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
 uint8_t memory_fw_readEepromValidBlock(uint8_t* target, uint8_t blockNr)
 {
-	if (blockNr < 16) {
-		if (memory_fw_isEepromValid(blockNr)) {
-			memory_fw_readEEpromPage(target, 1 << 5, blockNr << 5);
+	if (blockNr < BLOCK_COUNT) {
+		if (memory_fw_isEepromBlockValid(blockNr)) {
+			if (target != eepromBlockCopy) {
+				// eepromBlockCopy is already loaded, other targets have to
+				memory_fw_readEEpromPage(target, 1 << 5, blockNr << 5);
+			}
 			return true;
 		}
 	}
+
+	// bad usage
 	return false;
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+uint8_t memory_fw_checkAndInitBlock(uint8_t blockNr)
+{
+	if (blockNr < BLOCK_COUNT) {
+		if (!memory_fw_isEepromBlockValid(blockNr)) {  // HINT: memory_fw_isEepromBlockValid() preloads eepromBlockCopy
+			/* the block is non-valid, reload the EEPROM block with the default data */
+			uint16_t oldCrcBlock = eepromBlockCopy[30] | (eepromBlockCopy[31] << 8);
+
+			if (oldCrcBlock != (0xb00c | (blockNr << 4))) {
+				/* reading default values if not CRC calc marker for sealing is found */
+				memory_fw_readFlashPage(eepromBlockCopy,
+						(1 << 5) - 4,								// load default data, without counter and special marked CRC value
+						(((uint16_t) ((void*) &eeprom_defaultValues_content)) + (blockNr << 5)));
+			}
+
+			memory_fw_writeEepromBlockMakeValid(eepromBlockCopy, blockNr);
+			return 1;
+
+		} else {
+			// no correction made
+			return 0;
+		}
+	}
+
+	// bad usage
+	return 0;
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+uint8_t memory_fw_checkAndInitAllBlocks()
+{
+	uint8_t ret = 0;
+
+	for (int blockIdx = 0; blockIdx < BLOCK_COUNT; ++blockIdx) {
+		ret += memory_fw_checkAndInitBlock(blockIdx);
+	}
+
+	// count of block that needed reloading of default values
+	return ret;
 }
 
 #ifdef RELEASE
@@ -93,551 +248,3 @@ void memory_fw_writeEEpromPage(uint8_t source[], pagebuf_t size, uint16_t baddr)
 
 	// eeprom_busy_wait();
 }
-
-// -- 8< --
-
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-braces"
-#ifdef RELEASE
-__attribute__((section(".eeprom"), aligned(2)))
-#endif
-eeprom_layout_t eeprom_content = {
-		'D', 'F',									// b00_header
-		'4', 'I',
-		'A', 'H',
-		' ', '1',
-		'0', 'M',
-		'h', 'z',
-		'-', 'R',
-		'e', 'f',
-		(VERSION_HIGH<<8) | VERSION_LOW,			// b00_version	MSB: yr*10 + month / 10,  LSB: month % 10 + day
-		0x0000,										// b00_device_serial
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b00_regen_ctr
-		0xb00c,										// b00_crc
-
-		4.4742f,									// b01_ref_AREF_V					4.4742 V
-		1.085f,										// b01_ref_1V1_V					1.085  V
-		367.0f,										// b01_temp_ofs_adc_25C_steps		0367 = 25°C
-		1.0595703f,									// b01_temp_k_p1step_adc_K			1mv / K  -->  abt.  1K / step
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b01_regen_ctr
-		0xb01c,										// b01_crc
-
-		 9999520.0f,								// b02_qrg_ofs_0v_25C_Hz				 9.999 520 MHz (-48 ppm)
-		10000240.0f,								// b02_qrg_ofs_5v_25C_Hz				10.000 240 MHz (+24 ppm)
-		3.000f,										// b02_qrg_ofs_10MHz_25C_V				3.000 V for 10 MHz
-		0.0f,										// b02_qrg_ofs_0v_drift_1K_Hz
-		190.0f,										// b02_qrg_k_p1v_25C_Hz					delta 190 Hz / delta 1 V   @ 10 MHz
-		0.0f,										// b02_qrg_k_p1v_drift_1K
-		DEFAULT_PWM_COUNT,							// b02_pwm_initial
-		0xff,
-		0xffff,
-		0x0000,										// b02_regen_ctr
-		0xb02c,										// b02_crc
-
-		0x0000,										// b03_serial_baud
-		0x0000,										// b03_serial_bitsParityStopbits
-		0x0000,										// b03_gps_comm_mode
-		0x0000,										// b03_last_fix
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b03_regen_ctr
-		0xb03c,										// b03_crc
-
-		0x0000,										// b04_device_key
-		0x0000,										// b04_device_activations
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b04_regen_ctr
-		0xb04c,										// b04_crc
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b05_regen_ctr
-		0xb05c,										// b05_crc
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b06_regen_ctr
-		0xb06c,										// b06_crc
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b07_regen_ctr
-		0xb07c,										// b07_crc
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b08_regen_ctr
-		0xb08c,										// b08_crc
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b09_regen_ctr
-		0xb09c,										// b09_crc
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b10_regen_ctr
-		0xb10c,										// b10_crc
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b11_regen_ctr
-		0xb11c,										// b11_crc
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b12_regen_ctr
-		0xb12c,										// b12_crc
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b13_regen_ctr
-		0xb13c,										// b13_crc
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b14_regen_ctr
-		0xb14c,										// b14_crc
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0x0000,										// b15_regen_ctr
-		0xb15c,										// b15_crc
-
-
-		/* since here the memory is not organized */
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,
-		0xffff,			// this position is used for the BOOT_MARKER
-		0xffff,
-		0xffff
-};
-#pragma GCC diagnostic pop

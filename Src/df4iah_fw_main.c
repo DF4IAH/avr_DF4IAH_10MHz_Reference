@@ -24,6 +24,7 @@
 #include "df4iah_bl_memory.h"
 #include "df4iah_bl_clkPullPwm.h"
 #include "df4iah_fw_memory.h"
+#include "df4iah_fw_memory_eepromData.h"
 #include "df4iah_fw_ringbuffer.h"
 #include "df4iah_fw_clkPullPwm.h"
 #include "df4iah_fw_clkFastCtr.h"
@@ -34,8 +35,11 @@
 #include "df4iah_fw_main.h"
 
 
-#ifndef BOOT_TOKEN											// should be included from chipdef.h --> mega32.h
+#ifndef BOOT_TOKEN											// make Eclipse happy: should be included from chipdef.h --> mega32.h
 # define BOOT_TOKEN											0xb00f
+#endif
+#ifndef DEFAULT_PWM_COUNT									// make Eclipse happy: should be included from chipdef.h --> mega32.h
+# define DEFAULT_PWM_COUNT									0
 #endif
 
 
@@ -51,6 +55,7 @@ float mainCoef_b01_ref_AREF_V								= 0.0f;
 float mainCoef_b01_ref_1V1_V								= 0.0f;
 float mainCoef_b01_temp_ofs_adc_25C_steps					= 0.0f;
 float mainCoef_b01_temp_k_p1step_adc_K						= 0.0f;
+float mainCoef_b02_qrg_k_p1v_25C_Hz							= 0.0f;
 uint8_t  mainCtxtBufferIdx 									= 0;
 enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
 int16_t  mainPwmTerminalAdj									= 0;
@@ -144,6 +149,17 @@ const uchar VM_COMMAND_MINUSSIGN[]							= "-";
 
 
 // STRINGS IN CODE SECTION
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-braces"
+PROGMEM const eeprom_defaultValues_layout_t eeprom_defaultValues_content = {
+		EEPROM_DEFAULT_CONTENT_B00,
+		EEPROM_DEFAULT_CONTENT_B01,
+		EEPROM_DEFAULT_CONTENT_B02,
+		EEPROM_DEFAULT_CONTENT_B03,
+		EEPROM_DEFAULT_CONTENT_B04
+};
+#pragma GCC diagnostic pop
+
 // PROGMEM const char PM_VENDOR[] 							= "DF4IAH";
 // const uint8_t PM_VENDOR_len = sizeof(PM_VENDOR);
 
@@ -498,16 +514,18 @@ static void doJobs()
 				int32_t localClockDiff = ((20000L * (localStampCtr1ms - localStampCtr1ms_last))
 									   + ((((int32_t) localStampTCNT1) - ((int32_t) localStampTCNT1_last))))
 									   - 20000000L;
-				if ((localClockDiff >= -2000) &&
-					(localClockDiff <=  2000)) {
-					/* catch frequency when in range of +/-100ppm */
+				if ((localClockDiff >= -400) &&
+					(localClockDiff <=  400)) {
+					/* catch frequency when in range of +/-20ppm */
 					int16_t qrgDev_Hz = (int16_t) (localClockDiff >> 1);
 					int16_t ppm = (int16_t) (localClockDiff / 20);
+					float pwmDev_steps = localClockDiff * 512.0f / (mainCoef_b02_qrg_k_p1v_25C_Hz * mainCoef_b01_ref_AREF_V);
 					len = sprintf((char*) mainCtxtBuffer,
-							"\n>>> localClockDiff = %+04ld @ 20MHz,\tqrgDev_Hz = %+04dHz @ 10MHz,\tDrift = %+04dppm\n",
+							"\n>>> localClockDiff = %+04ld @ 20MHz,\tqrgDev_Hz = %+04dHz @ 10MHz,\tDrift = %+04dppm,\tPWM-correction = %+3.1f\n",
 							localClockDiff,
 							qrgDev_Hz,
-							ppm);
+							ppm,
+							pwmDev_steps);
 					ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 				}
 			}
@@ -655,13 +673,22 @@ int main(void)
 		usb_fw_init();
 		sei();
 
-		/* read sensor coefficients */
+		/* check CRC of all blocks and update with default values if the data is non-valid */
+		memory_fw_checkAndInitAllBlocks();
+
+		/* read MEASURING coefficients */
 		if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_MEASURING_NR)) {
 			eeprom_b01_t* b01 = (eeprom_b01_t*) &eepromBlockCopy;
 			mainCoef_b01_ref_AREF_V					= b01->b01_ref_AREF_V;
 			mainCoef_b01_ref_1V1_V					= b01->b01_ref_1V1_V;
 			mainCoef_b01_temp_ofs_adc_25C_steps		= b01->b01_temp_ofs_adc_25C_steps;
 			mainCoef_b01_temp_k_p1step_adc_K		= b01->b01_temp_k_p1step_adc_K;
+		}
+
+		/* read REFERENCE OSCILLATOR (REFOSC) coefficients */
+		if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_REFOSC_NR)) {
+
+			memory_fw_readEEpromPage((uint8_t*) &mainCoef_b02_qrg_k_p1v_25C_Hz, sizeof(uint16_t), offsetof(eeprom_layout_t, b02.b02_qrg_k_p1v_25C_Hz));
 		}
 
 		/* enter HELP command in USB host OUT queue */

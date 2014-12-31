@@ -13,6 +13,9 @@
 #include "chipdef.h"
 
 
+#define CRC_SALT_VALUE										0b1010010110100101		// DF4IAH's special taste
+
+
 enum BLOCK_NR_t {
 	BLOCK_HEADER_NR = 0,
 	BLOCK_MEASURING_NR,
@@ -22,14 +25,8 @@ enum BLOCK_NR_t {
 	BLOCK_B05_NR,
 	BLOCK_B06_NR,
 	BLOCK_B07_NR,
-	BLOCK_B08_NR,
-	BLOCK_B09_NR,
-	BLOCK_B10_NR,
-	BLOCK_B11_NR,
-	BLOCK_B12_NR,
-	BLOCK_B13_NR,
-	BLOCK_B14_NR,
-	BLOCK_B15_NR
+
+	BLOCK_COUNT
 };
 
 
@@ -209,41 +206,40 @@ typedef struct eeprom_layout {
 	/* BLOCK_07:    unassigned */
 	eeprom_b07_t b07;
 
-	/* BLOCK_08:    unassigned */
-	eeprom_b08_t b08;
-
-	/* BLOCK_09:    unassigned */
-	eeprom_b09_t b09;
-
-	/* BLOCK_10:    unassigned */
-	eeprom_b10_t b10;
-
-	/* BLOCK_11:    unassigned */
-	eeprom_b11_t b11;
-
-	/* BLOCK_12:    unassigned */
-	eeprom_b12_t b12;
-
-	/* BLOCK_13:    unassigned */
-	eeprom_b13_t b13;
-
-	/* BLOCK_14:    unassigned */
-	eeprom_b14_t b14;
-
-	/* BLOCK_15:    unassigned */
-	eeprom_b15_t b15;
-
 
 	/* unassigned memory */
-	uint16_t		unassigned1_reserved[253];
+	uint16_t		unassigned1_reserved[512 - (BLOCK_COUNT * 16) - 3];
 	uint16_t		bootMarker;						// EEPROM Address = 0x3fa..0x3fb
 	uint16_t		unassigned2_reserved[2];
 
 } eeprom_layout_t;
 
+typedef struct eeprom_defaultValues_layout {
 
-uint8_t memory_fw_isEepromValid(uint8_t blockNr);
+	/* BLOCK_00:    HEADER-INFO */
+	eeprom_b00_t b00;
+
+	/* BLOCK_01:    MEASURING */
+	eeprom_b01_t b01;
+
+	/* BLOCK_02:    REFERENCE OSCILLATOR (REFOSC) */
+	eeprom_b02_t b02;
+
+	/* BLOCK_03:    GPS */
+	eeprom_b03_t b03;
+
+	/* BLOCK_04:    KEYS */
+	eeprom_b04_t b04;
+
+} eeprom_defaultValues_layout_t;
+
+
+uint8_t memory_fw_isEepromBlockValid(uint8_t blockNr);
+uint8_t memory_fw_makeEepromBlockValid(uint8_t* block, uint8_t blockNr);
 uint8_t memory_fw_readEepromValidBlock(uint8_t* target, uint8_t blockNr);
+uint8_t memory_fw_writeEepromBlockMakeValid(uint8_t* source, uint8_t blockNr);
+uint8_t memory_fw_checkAndInitBlock(uint8_t blockNr);
+uint8_t memory_fw_checkAndInitAllBlocks();
 
 void memory_fw_eraseFlash(void);
 void memory_fw_readFlashPage(uint8_t target[], pagebuf_t size, uint32_t baddr);
