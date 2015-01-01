@@ -36,7 +36,7 @@ extern uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE];
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-void* memcpy_rb(uint8_t isPgm, void* destPtr, const void* srcPtr, size_t len)
+static void* memcpy_rb(uint8_t isPgm, void* destPtr, const void* srcPtr, size_t len)
 {
 	if (!isPgm) {
 		return memcpy(destPtr, srcPtr, len);
@@ -52,7 +52,7 @@ void* memcpy_rb(uint8_t isPgm, void* destPtr, const void* srcPtr, size_t len)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-uint8_t getSemaphore(uint8_t isSend)
+uint8_t ringbuffer_fw_getSemaphore(uint8_t isSend)
 {
 	uint8_t isLocked;
 	uint8_t* semPtr = (isSend ?  &usbRingBufferSendSemaphore : &usbRingBufferRcvSemaphore);
@@ -82,10 +82,12 @@ uint8_t getSemaphore(uint8_t isSend)
 	return !isLocked;
 }
 
+// forward declaration
+static uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len);
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-void freeSemaphore(uint8_t isSend)
+void ringbuffer_fw_freeSemaphore(uint8_t isSend)
 {
 	/* check if the hook has a job attached to it */
 	if (usbRingBufferHookLen && (usbRingBufferHookIsSend == isSend)) {
@@ -106,7 +108,7 @@ void freeSemaphore(uint8_t isSend)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
+static uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
 {
 	uint8_t retLen = 0;
 	uint8_t bufferSize = (isSend ?  RINGBUFFER_SEND_SIZE : RINGBUFFER_RCV_SIZE);
@@ -143,7 +145,7 @@ uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-void ringBufferPushAddHook(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
+static void ringBufferPushAddHook(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
 {
 	/* copy data for the hooked job - hook needs to be unassigned before */
 	if (!usbRingBufferHookLen) {
@@ -156,7 +158,7 @@ void ringBufferPushAddHook(uint8_t isSend, uint8_t isPgm, const uchar inData[], 
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-uint8_t ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size)
+uint8_t ringbuffer_fw_ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size)
 {
 	uint8_t len = 0;
 	uint8_t pushIdx = (isSend ?  usbRingBufferSendPushIdx : usbRingBufferRcvPushIdx);
@@ -197,7 +199,7 @@ uint8_t ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-enum RINGBUFFER_MSG_STATUS_t getStatusNextMsg(uint8_t isSend)
+enum RINGBUFFER_MSG_STATUS_t ringbuffer_fw_getStatusNextMsg(uint8_t isSend)
 {
 	enum RINGBUFFER_MSG_STATUS_t status = 0;
 	uint8_t pushIdx = (isSend ?  usbRingBufferSendPushIdx : usbRingBufferRcvPushIdx);
@@ -218,10 +220,10 @@ enum RINGBUFFER_MSG_STATUS_t getStatusNextMsg(uint8_t isSend)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-void ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend)
+void ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend)
 {
 	for (;;) {
-		if (getSemaphore(isSend)) {
+		if (ringbuffer_fw_getSemaphore(isSend)) {
 			uint8_t pushIdx = (isSend ?  usbRingBufferSendPushIdx : usbRingBufferRcvPushIdx);
 			uint8_t pullIdx = (isSend ?  usbRingBufferSendPullIdx : usbRingBufferRcvPullIdx);
 
@@ -229,7 +231,7 @@ void ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend)
 				// buffer is empty, break loop and hold semaphore
 				break;
 			}
-			freeSemaphore(isSend);
+			ringbuffer_fw_freeSemaphore(isSend);
 		}
 
 		// give the CPU away for a moment to delay, do not use giveAway() that would make a loop
@@ -241,13 +243,13 @@ void ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-uint8_t ringBufferAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
+uint8_t ringbuffer_fw_ringBufferAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
 {
 	uint8_t retLen = 0;
 
-	if (getSemaphore(isSend)) {
+	if (ringbuffer_fw_getSemaphore(isSend)) {
 		retLen = ringBufferPush(isSend, isPgm, inData, len);
-		freeSemaphore(isSend);
+		ringbuffer_fw_freeSemaphore(isSend);
 	} else {
 		ringBufferPushAddHook(isSend, isPgm, inData, len);
 	}
@@ -257,10 +259,10 @@ uint8_t ringBufferAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], ui
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
-uint8_t ringBufferWaitAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
+uint8_t ringbuffer_fw_ringBufferWaitAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
 {
-	ringBufferWaitFreeAndKeepSemaphore(isSend);
+	ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(isSend);
 	uint8_t retLen = ringBufferPush(isSend, isPgm, inData, len);
-	freeSemaphore(isSend);
+	ringbuffer_fw_freeSemaphore(isSend);
 	return retLen;
 }

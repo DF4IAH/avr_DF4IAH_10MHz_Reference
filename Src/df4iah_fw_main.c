@@ -19,7 +19,6 @@
 #include <avr/pgmspace.h>   								// required by usbdrv.h
 
 #include "chipdef.h"
-#include "usbdrv_fw/usbdrv.h"
 #include "df4iah_fw_usb.h"
 #include "df4iah_bl_memory.h"
 #include "df4iah_bl_clkPullPwm.h"
@@ -56,6 +55,8 @@ float mainCoef_b01_ref_1V1_V								= 0.0f;
 float mainCoef_b01_temp_ofs_adc_25C_steps					= 0.0f;
 float mainCoef_b01_temp_k_p1step_adc_K						= 0.0f;
 float mainCoef_b02_qrg_k_p1v_25C_Hz							= 0.0f;
+uint8_t  mainPwmHistIdx 									= 0;
+float mainPwmHistAvg										= 0.0f;
 uint8_t  mainCtxtBufferIdx 									= 0;
 enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
 int16_t  mainPwmTerminalAdj									= 0;
@@ -114,6 +115,7 @@ uint8_t  isUsbCommTest 										= false;
 // ARRAYS - due to overwriting hazards they are following the controlling variables
 
 /* df4iah_fw_main */
+uint8_t mainPwmHist[PWM_HIST_COUNT]							= { 0 };
 uchar mainCtxtBuffer[MAINCTXT_BUFFER_SIZE] 					= { 0 };
 uint8_t eepromBlockCopy[sizeof(eeprom_b00_t)]				= { 0 };  // any block has the same size
 
@@ -324,6 +326,52 @@ static inline void wdt_close() {
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
+static float calcPwmWghtDiff(float* calcWght, float localDiff)
+{
+	float localDiffForWght = fabs(localDiff);
+	if (localDiffForWght < 1.0f) {
+		localDiffForWght = 1.0f;
+	} else if (localDiffForWght > 5.0f) {
+		localDiffForWght = 5.0f;
+	}
+
+	*calcWght = (float) (1.0f / powf(localDiffForWght, 1.5));
+	return localDiff * (*calcWght);
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
+float main_fw_calcPwmWghtDiff(float pwmDiff)
+{
+	float localWght = 0;
+	return calcPwmWghtDiff(&localWght, pwmDiff);
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
+void main_fw_calcPwmWghtAvg()
+{
+	float diffSum = 0.0f;
+	float wghtSum = 0.0f;
+
+	for (uint8_t idx = PWM_HIST_COUNT; idx; ) {
+		float localDiff = (mainPwmHist[--idx] - mainPwmHistAvg);
+		float localWght = 0.0f;
+
+		/* culminate sums */
+		diffSum += calcPwmWghtDiff(&localWght, localDiff);
+		wghtSum += localWght;
+	}
+
+	/* setting the global variable */
+	mainPwmHistAvg += (diffSum / wghtSum);
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
 static void doInterpret(uchar msg[], uint8_t len)
 {
 	const uint8_t isSend = true;
@@ -339,8 +387,8 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP))) {
 		/* help information */
 		int len = sprintf((char*) mainCtxtBuffer, "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: %03d%03d\n", VERSION_HIGH, VERSION_LOW);
-		ringBufferWaitAppend(!isSend, false, mainCtxtBuffer, len);
-		ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP1, PM_INTERPRETER_HELP1_len);
+		ringbuffer_fw_ringBufferWaitAppend(!isSend, false, mainCtxtBuffer, len);
+		ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP1, PM_INTERPRETER_HELP1_len);
 		mainHelpConcatNr = 1;
 		mainIsTimerTest = false;
 		isUsbCommTest = false;
@@ -412,7 +460,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else {
 		/* unknown command */
-		ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_UNKNOWN, PM_INTERPRETER_UNKNOWN_len);
+		ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_UNKNOWN, PM_INTERPRETER_UNKNOWN_len);
 	}
 }
 
@@ -423,42 +471,42 @@ static void workInQueue()
 {
 	const uint8_t isSend = true;
 
-	if (getSemaphore(isSend)) {
+	if (ringbuffer_fw_getSemaphore(isSend)) {
 		uint8_t isLocked = true;
-		enum RINGBUFFER_MSG_STATUS_t statusSend = getStatusNextMsg(isSend);
-		enum RINGBUFFER_MSG_STATUS_t statusRcv  = getStatusNextMsg(!isSend);
+		enum RINGBUFFER_MSG_STATUS_t statusSend = ringbuffer_fw_getStatusNextMsg(isSend);
+		enum RINGBUFFER_MSG_STATUS_t statusRcv  = ringbuffer_fw_getStatusNextMsg(!isSend);
 
 		if (!mainHelpConcatNr && (statusSend & RINGBUFFER_MSG_STATUS_AVAIL)) {	// if any message is available and not during help printing
 			if (statusSend & RINGBUFFER_MSG_STATUS_IS_NMEA) {
 				serial_pullAndSendNmea_havingSemaphore(isSend); isLocked = false;
 
 			} else if ((statusSend & RINGBUFFER_MSG_STATUS_IS_MASK) == 0) {	// message from firmware state machine
-				mainCtxtBufferIdx = ringBufferPull(isSend, mainCtxtBuffer, (uint8_t) sizeof(mainCtxtBuffer));
-				freeSemaphore(isSend); isLocked = false;
+				mainCtxtBufferIdx = ringbuffer_fw_ringBufferPull(isSend, mainCtxtBuffer, (uint8_t) sizeof(mainCtxtBuffer));
+				ringbuffer_fw_freeSemaphore(isSend); isLocked = false;
 				doInterpret(mainCtxtBuffer, mainCtxtBufferIdx);				// message is clean to process
 			}
 
 		} else if (mainHelpConcatNr && !(statusRcv & RINGBUFFER_MSG_STATUS_AVAIL)) {  // during help printing, go ahead when receive buffer is empty again
-			freeSemaphore(isSend); isLocked = false;
+			ringbuffer_fw_freeSemaphore(isSend); isLocked = false;
 
 			switch (mainHelpConcatNr) {
 			case 1:
-				ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP2, PM_INTERPRETER_HELP2_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP2, PM_INTERPRETER_HELP2_len);
 				mainHelpConcatNr = 2;
 				break;
 
 			case 2:
-				ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP3, PM_INTERPRETER_HELP3_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP3, PM_INTERPRETER_HELP3_len);
 				mainHelpConcatNr = 3;
 				break;
 
 			case 3:
-				ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP4, PM_INTERPRETER_HELP4_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP4, PM_INTERPRETER_HELP4_len);
 				mainHelpConcatNr = 4;
 				break;
 
 			case 4:
-				ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP5, PM_INTERPRETER_HELP5_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP5, PM_INTERPRETER_HELP5_len);
 				// no break
 			default:
 				mainHelpConcatNr = 0;
@@ -467,7 +515,7 @@ static void workInQueue()
 		}
 
 		if (isLocked) {
-			freeSemaphore(isSend);
+			ringbuffer_fw_freeSemaphore(isSend);
 		}
 	}
 }
@@ -519,45 +567,77 @@ static void doJobs()
 				int32_t localClockDiff = ((20000L * (localStampCtr1ms - localStampCtr1ms_last))
 									   + ((((int32_t) localStampTCNT1) - ((int32_t) localStampTCNT1_last))))
 									   - 20000000L;
-				if ((localClockDiff >= -400) &&
-					(localClockDiff <=  400)) {
-					/* catch frequency when in range of +/-20ppm */
+
+				if ((-1000 < localClockDiff) &&
+					( 1000 > localClockDiff)) {
+					/* keep measuring window between +/-50ppm */
 					int16_t qrgDev_Hz = (int16_t) (localClockDiff >> 1);
 					int16_t ppm = (int16_t) (localClockDiff / 20);
-					float pwmDev_steps = -localClockDiff * 128.0f / (mainCoef_b02_qrg_k_p1v_25C_Hz * mainCoef_b01_ref_AREF_V);
-					len = sprintf((char*) mainCtxtBuffer,
-							"\n>>> localClockDiff = %+04ld @ 20MHz,\tqrgDev_Hz = %+04dHz @ 10MHz,\tDrift = %+04dppm,\tPWM-correction = %+3.1f\n",
-							localClockDiff,
-							qrgDev_Hz,
-							ppm,
-							pwmDev_steps);
-					ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
-					if ((-2 <= localClockDiff) && (localClockDiff <= 2)) {
+					main_fw_calcPwmWghtAvg();
+					float pwmDevLin_steps  = -localClockDiff * 128.0f / (mainCoef_b02_qrg_k_p1v_25C_Hz * mainCoef_b01_ref_AREF_V);
+					float pwmDevWght_steps = main_fw_calcPwmWghtDiff(pwmDevLin_steps);
+
+					/* determine the new state of the FSM */
+					if ((-1 <= pwmDevWght_steps) && (pwmDevWght_steps <= 1)) {
 						if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE) {
 							/* hand-over to the phase lock loop */
 							mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
 						}
-					} else {
+
+					} else if ((-75 <= pwmDevWght_steps) && (pwmDevWght_steps <= 75)) {  // abt. +/- 25 ppm
 						/* frequency search and lock loop entering QRG area */
 						mainRefClkState = REFCLK_STATE_SEARCH_QRG;
+
+					} else {
+						/* frequency search and lock loop - out if sync */
+						mainRefClkState = REFCLK_STATE_NOSYNC;
 					}
 
-					if ((0.0f <= (pullPwmVal + pwmDev_steps)) && ((pullPwmVal + pwmDev_steps) <= 255.0f)) {
-						/* add the PWM offset */
-						pullPwmVal = (uint8_t) (pullPwmVal + pwmDev_steps);
-						clkPullPwm_fw_setRatio(pullPwmVal);
+					/* windowing and adding of the new PWM value */
+					if ((0.0f <= (pullPwmVal + pwmDevWght_steps)) && ((pullPwmVal + pwmDevWght_steps) <= 255.0f)) {
+						pullPwmVal = (uint8_t) (pullPwmVal + pwmDevWght_steps + 0.5f);
+					} else if (pwmDevWght_steps < 0.0f) {
+						pwmDevWght_steps = -pullPwmVal;
+						pullPwmVal = 0;
+
+					} else  {
+						pwmDevWght_steps = (255.0f - pullPwmVal);
+						pullPwmVal = 255;
 					}
+
+					/* adjusting the PWM register */
+					clkPullPwm_fw_setRatio(pullPwmVal);
+
+					/* write into history table */
+					mainPwmHist[mainPwmHistIdx++] = pullPwmVal;
+					mainPwmHistIdx %= PWM_HIST_COUNT;
+
+					/* monitoring */
+					len = sprintf((char*) mainCtxtBuffer,
+							"\nI## localClockDiff = %+4ld @ 20MHz,\tqrgDev_Hz = %+4dHz @ 10MHz,\tppm = %+4d\n",
+							localClockDiff,
+							qrgDev_Hz,
+							ppm);
+					ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+
+					len = sprintf((char*) mainCtxtBuffer,
+							"I## mainPwmHistAvg = %3.1f,\tpwmDevLin_steps = %+3.1f,\tpwmDevWght_steps = %+3.1f,\tpullPwmVal = %03u\n",
+							mainPwmHistAvg,
+							pwmDevLin_steps,
+							pwmDevWght_steps,
+							pullPwmVal);
+					ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 				} else {
 					/* frequency search and lock loop - out if sync */
 					mainRefClkState = REFCLK_STATE_NOSYNC;
 				}
-			}
 
-			/* calculate next monitoring time */
-			localStampCtr1ms_next  = localStampCtr1ms     	+ LocalCtr1msSpan;
-			localStampCtr1ms_next -= localStampCtr1ms_next 	% LocalCtr1msSpan;
+				/* calculate next monitoring time */
+				localStampCtr1ms_next  = localStampCtr1ms     	+ LocalCtr1msSpan;
+				localStampCtr1ms_next -= localStampCtr1ms_next 	% LocalCtr1msSpan;
+			}
 		}
 
 		if (mainIsTimerTest && isTimerTestPrintCtr) {
@@ -565,45 +645,45 @@ static void doJobs()
 			--isTimerTestPrintCtr;
 
 			len = sprintf((char*) mainCtxtBuffer,
-					"### localStampCtr1ms=%09lu\tlocalStampTCNT1=%05u\tfastStampCtr1ms=%09lu\tfastStampTCNT1=%05u\n",
+					"T## localStampCtr1ms=%09lu\tlocalStampTCNT1=%05u\tfastStampCtr1ms=%09lu\tfastStampTCNT1=%05u\n",
 					localStampCtr1ms,
 					localStampTCNT1,
 					fastStampCtr1ms,
 					fastStampTCNT1);
-			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			len = sprintf((char*) mainCtxtBuffer,
-					"### PWM=%03u\n",
+					"T## PWM=%03u\n",
 					pullPwmVal);
-			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			len = sprintf((char*) mainCtxtBuffer,
-					"### mainRefClkState=%u\n",
+					"T## mainRefClkState=%u\n",
 					mainRefClkState);
-			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			len = sprintf((char*) mainCtxtBuffer,
-					"### ADC0=%04u (%0.4fmV)\n",
+					"T## ADC0=%04u (%0.4fmV)\n",
 					acAdcCh[0],
 					adcCh0Volts);
-			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			len = sprintf((char*) mainCtxtBuffer,
-					"### ADC1=%04u (%0.4fmV)\n",
+					"T## ADC1=%04u (%0.4fmV)\n",
 					acAdcCh[1],
 					adcCh1Volts);
-			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			len = sprintf((char*) mainCtxtBuffer,
-					"### Temp=%04u (%0.1fC).\n\n",
+					"T## Temp=%04u (%0.1fC).\n\n",
 					acAdcCh[2],
 					adcCh2C);
-			ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 			if (!isTimerTestPrintCtr) {
 				len = 5;
 				memcpy((char*) mainCtxtBuffer, "===\n\n", len + 1);
-				ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+				ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 			}
 		}
 	}
@@ -632,15 +712,15 @@ static void doJobs()
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
-static void sendInitialHelp()
+void main_fw_sendInitialHelp()
 {
-	ringBufferAppend(true, false, VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP));
+	ringbuffer_fw_ringBufferAppend(true, false, VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP));
 }
 
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
-void give_away(void)
+void main_fw_giveAway(void)
 {
     wdt_reset();
 
@@ -721,13 +801,20 @@ int main(void)
 			mainCoef_b02_qrg_k_p1v_25C_Hz			= b02->b02_qrg_k_p1v_25C_Hz;
 		}
 
+		/* init the PWM history table */
+		for (int idx = PWM_HIST_COUNT; idx; ) {
+			mainPwmHist[--idx] = pullCoef_b02_pwm_initial;
+		}
+		// mainPwmHistIdx = 0;								// already initialized
+		mainPwmHistAvg = (float) pullCoef_b02_pwm_initial;
+
 		/* enter HELP command in USB host OUT queue */
-		sendInitialHelp();
+		main_fw_sendInitialHelp();
 	}
 
 	/* run the chip */
     while (!mainStopAvr) {
-    	give_away();
+    	main_fw_giveAway();
     }
 
     /* stop AVR */

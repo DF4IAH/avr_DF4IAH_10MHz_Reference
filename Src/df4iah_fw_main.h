@@ -8,6 +8,10 @@
 #ifndef DF4IAH_FW_MAIN_H_
 #define DF4IAH_FW_MAIN_H_
 
+
+#include "usbdrv_fw/usbdrv.h"
+
+
 /* MCU frequency */
 #ifndef F_CPU
 // #define F_CPU 7372800
@@ -25,10 +29,12 @@
  */
 #define EXIT_WDT_TIME										WDTO_250MS
 
+#define PWM_HIST_COUNT										16
+
 #define DEBUG_DELAY_CNT										1
 
-#define VERSION_HIGH										141
-#define VERSION_LOW											231
+#define VERSION_HIGH										150
+#define VERSION_LOW											101
 
 
 #ifndef true
@@ -54,8 +60,11 @@ enum ENTER_MODE_t {
 };
 
 
-void give_away(void);
-int main(void);
+float main_fw_calcPwmWghtDiff(float pwmDiff);
+void  main_fw_calcPwmWghtAvg();
+void  main_fw_sendInitialHelp();
+void  main_fw_giveAway(void);
+int   main(void);
 
 
 // this following table has most of the instructions listed

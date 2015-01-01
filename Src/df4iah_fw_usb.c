@@ -209,10 +209,10 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 
 	signed int readCnt = min(cntRcv, len) + 1 - retLen;
 	if (readCnt > 0) {
-		if (getSemaphore(isSend)) {
+		if (ringbuffer_fw_getSemaphore(isSend)) {
 			/* pull next message from the ring buffer and send it to the host IN */
-			uint8_t pullLen = ringBufferPull(isSend, data + retLen, readCnt);	// we accept that the final null byte is written behind the buffer
-			freeSemaphore(isSend);
+			uint8_t pullLen = ringbuffer_fw_ringBufferPull(isSend, data + retLen, readCnt);	// we accept that the final null byte is written behind the buffer
+			ringbuffer_fw_freeSemaphore(isSend);
 			cntRcv -= retLen + pullLen;
 			return retLen + pullLen;
 
@@ -251,7 +251,7 @@ USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 		}
 
 		/* push OUT string (send) from host to the USB function's ring buffer */
-		ringBufferAppend(isSend, false, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
+		ringbuffer_fw_ringBufferAppend(isSend, false, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
 
 		usbIsrCtxtBufferIdx = cntSend = 0;
 		return 1;											// no more data transfers accepted
