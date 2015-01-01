@@ -72,13 +72,13 @@ usbTxStatus_t usbTxStatus1 									= { 0 },
 /* df4iah_fw_clkPullPwm */
 uint8_t pullCoef_b02_pwm_initial							= 0;
 uint8_t pullPwmVal											= 0;
-//uint8_t pullPwmSubCnt										= 0;
-//uint8_t pullPwmSubCmp										= 0;
 
 /* df4iah_fw_clkFastCtr (20 MHz clock) */
 uint16_t fastStampTCNT1										= 0;
 uint32_t fastStampCtr1ms									= 0;
 uint32_t fastCtr1ms											= 0;
+uint8_t  fastPwmSubCnt										= 0;
+uint8_t  fastPwmSubCmp										= 0;
 
 /* df4iah_fw_anlgComp (10 kHz GPS pulse) */
 uint8_t  acAdcConvertNowCh									= 0;

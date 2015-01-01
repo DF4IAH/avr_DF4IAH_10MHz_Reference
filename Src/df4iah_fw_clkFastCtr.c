@@ -19,6 +19,9 @@
 extern uint16_t fastStampTCNT1;
 extern uint32_t fastStampCtr1ms;
 extern uint32_t fastCtr1ms;
+extern uint8_t  fastPwmSubCnt;
+extern uint8_t  fastPwmSubCmp;
+extern uint8_t  pullPwmVal;
 
 
 #ifdef RELEASE
@@ -123,5 +126,17 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 	/* the 32 bit timer overflows every 3 1/4 year */
 	fastCtr1ms++;
 
+	/* preload the compare A register with its current base value */
+	OCR0B = pullPwmVal;
+
+	/* adjust by one when sub-compare value is higher than counter */
+	if (fastPwmSubCnt < fastPwmSubCmp) {
+		OCR0B++;
+	}
+
 	sei();														// since here we can accept interruptions
+
+	/* sub-counter increment */
+	fastPwmSubCnt++;
+	fastPwmSubCnt &= 0x0f;
 }
