@@ -381,7 +381,7 @@ void terminal()
 			break;
 
 		case KEY_F(2):
-			sleep(30);
+			sleep(300);
 			loop = 0;
 			break;
 
