@@ -11,6 +11,11 @@
 
 /* this modules uses the T0 timer/counter/pwm-generator of the AVR controller as counter */
 
+
+/* enable if the stamp of the timer CAPTURE unit (stable!) shall be used instead of a direct fast timer copy (jitter !!!) */
+#define CLKSLOWCTR_STAMP_CAPTURE
+
+
 void clkSlowCtr_fw_init();
 void clkSlowCtr_fw_close();
 

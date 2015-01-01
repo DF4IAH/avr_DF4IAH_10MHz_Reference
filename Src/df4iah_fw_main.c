@@ -331,11 +331,11 @@ static float calcPwmWghtDiff(float* calcWght, float localDiff)
 	float localDiffForWght = fabs(localDiff);
 	if (localDiffForWght < 1.0f) {
 		localDiffForWght = 1.0f;
-	} else if (localDiffForWght > 5.0f) {
-		localDiffForWght = 5.0f;
+	} else if (localDiffForWght > 10.0f) {
+		localDiffForWght = 10.0f;
 	}
 
-	*calcWght = (float) (1.0f / powf(localDiffForWght, 1.5));
+	*calcWght = (float) (1.0f / powf(localDiffForWght, 1.2));
 	return localDiff * (*calcWght);
 }
 
@@ -579,15 +579,23 @@ static void doJobs()
 					float pwmDevWght_steps = main_fw_calcPwmWghtDiff(pwmDevLin_steps);
 
 					/* determine the new state of the FSM */
-					if ((-1 <= pwmDevWght_steps) && (pwmDevWght_steps <= 1)) {
+					if ((-1 <= pwmDevWght_steps) && (pwmDevWght_steps <= 1)) {  // single step tuning
 						if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE) {
 							/* hand-over to the phase lock loop */
 							mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
 						}
 
-					} else if ((-75 <= pwmDevWght_steps) && (pwmDevWght_steps <= 75)) {  // abt. +/- 25 ppm
-						/* frequency search and lock loop entering QRG area */
-						mainRefClkState = REFCLK_STATE_SEARCH_QRG;
+					} else if ((-3 <= pwmDevWght_steps) && (pwmDevWght_steps <= 3)) {  // phase lock loop locked out again
+						if (mainRefClkState > REFCLK_STATE_SEARCH_QRG) {
+							/* frequency search and lock loop entering QRG area */
+							mainRefClkState = REFCLK_STATE_SEARCH_QRG;
+						}
+
+					} else if ((-75 <= pwmDevWght_steps) && (pwmDevWght_steps <= 75)) {	 // entering 10.0 MHz area
+						if (mainRefClkState < REFCLK_STATE_SEARCH_QRG) {
+							/* frequency search and lock loop entering QRG area */
+							mainRefClkState = REFCLK_STATE_SEARCH_QRG;
+						}
 
 					} else {
 						/* frequency search and lock loop - out if sync */
@@ -631,7 +639,7 @@ static void doJobs()
 
 				} else {
 					/* frequency search and lock loop - out if sync */
-					mainRefClkState = REFCLK_STATE_NOSYNC;
+					// mainRefClkState = REFCLK_STATE_NOSYNC;  // single spike should not destroy time base - deactivated
 				}
 
 				/* calculate next monitoring time */
