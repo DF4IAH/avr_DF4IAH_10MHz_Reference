@@ -72,6 +72,8 @@ usbTxStatus_t usbTxStatus1 									= { 0 },
 /* df4iah_fw_clkPullPwm */
 uint8_t pullCoef_b02_pwm_initial							= 0;
 uint8_t pullPwmVal											= 0;
+//uint8_t pullPwmSubCnt										= 0;
+//uint8_t pullPwmSubCmp										= 0;
 
 /* df4iah_fw_clkFastCtr (20 MHz clock) */
 uint16_t fastStampTCNT1										= 0;
