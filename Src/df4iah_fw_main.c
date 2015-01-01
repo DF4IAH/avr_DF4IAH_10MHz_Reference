@@ -643,7 +643,7 @@ static void doJobs()
 					ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 					len = sprintf((char*) mainCtxtBuffer,
-							"I## mainPwmHistAvg = %3.1f,\tpwmDevLin_steps = %+3.1f,\tpwmDevWght_steps = %+3.1f,\nnewPwmVal = %03.2f\n",
+							"I## mainPwmHistAvg = %3.1f,\tpwmDevLin_steps = %+3.1f,\tpwmDevWght_steps = %+3.3f,\tnewPwmVal = %03.3f\n",
 							mainPwmHistAvg,
 							pwmDevLin_steps,
 							pwmDevWght_steps,
