@@ -138,5 +138,5 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 
 	/* sub-counter increment */
 	fastPwmSubCnt++;
-	fastPwmSubCnt &= 0x0f;
+	fastPwmSubCnt &= (1 << FAST_PWM_SUB_BITCNT) - 1;
 }

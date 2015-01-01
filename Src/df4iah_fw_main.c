@@ -607,11 +607,11 @@ static void doJobs()
 					}
 
 					/* windowing and adding of the new PWM value */
-					float newPwmVal =  pwmDevWght_steps + (pullPwmVal + (fastPwmSubCmp / 16.0f));
+					float newPwmVal =  pwmDevWght_steps + (pullPwmVal + (fastPwmSubCmp / ((float) FAST_PWM_SUB_BITCNT)));
 					if ((0.0f <= newPwmVal) && (newPwmVal < 256.0f)) {
 						//pullPwmVal = (uint8_t) (pullPwmVal + pwmDevWght_steps + 0.5f);
 						pullPwmVal = (uint8_t) newPwmVal;
-						localFastPwmSubCmp = (uint8_t) ((newPwmVal - pullPwmVal) * 16.0f + 0.5f);
+						localFastPwmSubCmp = (uint8_t) ((newPwmVal - pullPwmVal) * ((float) FAST_PWM_SUB_BITCNT) + 0.5f);
 
 					} else if (pwmDevWght_steps < 0.0f) {
 						pwmDevWght_steps = -pullPwmVal;
@@ -621,7 +621,7 @@ static void doJobs()
 					} else  {
 						pwmDevWght_steps = (255.0f - pullPwmVal);
 						pullPwmVal = 255;
-						localFastPwmSubCmp = 15;
+						localFastPwmSubCmp = ((1 << FAST_PWM_SUB_BITCNT) - 1);
 					}
 
 					/* adjusting the PWM registers */
@@ -643,7 +643,7 @@ static void doJobs()
 					ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
 
 					len = sprintf((char*) mainCtxtBuffer,
-							"I## mainPwmHistAvg = %3.1f,\tpwmDevLin_steps = %+3.1f,\tpwmDevWght_steps = %+3.1f,\nnewPwmVal = %03.4f\n",
+							"I## mainPwmHistAvg = %3.1f,\tpwmDevLin_steps = %+3.1f,\tpwmDevWght_steps = %+3.1f,\nnewPwmVal = %03.2f\n",
 							mainPwmHistAvg,
 							pwmDevLin_steps,
 							pwmDevWght_steps,

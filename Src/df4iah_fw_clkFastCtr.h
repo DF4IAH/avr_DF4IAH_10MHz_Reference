@@ -13,6 +13,7 @@
 
 
 #define OCR1_TOP_VALUE 										19999
+#define FAST_PWM_SUB_BITCNT									6
 
 
 void clkFastCtr_fw_init();
