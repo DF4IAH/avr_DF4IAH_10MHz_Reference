@@ -132,7 +132,7 @@ const uint8_t PM_INTERPRETER_UNKNOWN_len 					= sizeof(PM_INTERPRETER_UNKNOWN);
 PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: %03d%03d\n";
 
 PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA1: localClockDiff = %+4ld @ 20MHz,\tqrgDev_Hz = %+4dHz @ 10MHz,\tppm = %+4d\n";
-PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA2: mainPwmHistAvg = %3.1f,\tpwmDevLin_steps = %+3.1f,\tpwmDevWght_steps = %+3.3f,\tnewPwmVal = %03.3f\n\n";
+PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA2: mainPwmHistAvg = %03.3f,\tpwmDevLin_steps = %+03.3f,\tpwmDevWght_steps = %+03.3f,\tnewPwmVal = %03.3f\n\n";
 
 PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA1: localStampCtr1ms = %09lu \tlocalStampTCNT1 = %05u \tfastStampCtr1ms = %09lu \tfastStampTCNT1 = %05u\n";
 PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA2: PWM = %03u, \tSub-PWM = %03u\n";
@@ -158,6 +158,7 @@ float mainCoef_b01_temp_k_p1step_adc_K						= 0.0f;
 float mainCoef_b02_qrg_k_p1v_25C_Hz							= 0.0f;
 uint8_t  mainPwmHistIdx 									= 0;
 float mainPwmHistAvg										= 0.0f;
+float mainPwmHistWghtSum									= 0.0f;
 uint8_t  mainCtxtBufferIdx 									= 0;
 enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
 float mainPwmTerminalAdj									= 0.0f;
@@ -377,8 +378,8 @@ static uint8_t calcTimerAdj(uint8_t* subVal, uint8_t intValBefore, float pwmAdju
 	if (pwmAdjust < 0.0f) {
 		pwmAdjust = 0.0f;
 
-	} else if (pwmAdjust >= 256.0f) {
-		pwmAdjust = 256.0f - (1 / ((float) (1 << FAST_PWM_SUB_BITCNT)));
+	} else if (pwmAdjust >= 255.0f) {
+		pwmAdjust = 255.0f - (1 / ((float) (1 << FAST_PWM_SUB_BITCNT)));
 	}
 
 	/* add rounding value */
@@ -394,16 +395,19 @@ __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
 static float calcPwmWghtDiff(float* calcWght, float localDiff)
 {
-	float localDiffForWght = fabs(localDiff);
+	float localDiffForWght = (localDiff >= 0.0f ?  localDiff : -localDiff);
+
+#if 0
 	if (localDiffForWght < 1.0f) {
 		localDiffForWght = 1.0f;
 
 	} else if (localDiffForWght > 10.0f) {
 		localDiffForWght = 10.0f;
 	}
+#endif
 
-	*calcWght = (float) (1.0f / powf(localDiffForWght, 1.2));
-	return localDiff * (*calcWght);
+	*calcWght = log10f(10.0f + localDiffForWght)	* 0.5f;	// XXX adjust the coefficients
+	return localDiff * (*calcWght)					* 1.25f;
 }
 
 #ifdef RELEASE
@@ -411,7 +415,7 @@ __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
 float main_fw_calcPwmWghtDiff(float pwmDiff)
 {
-	float localWght = 0;
+	float localWght = 0.0f;
 	return calcPwmWghtDiff(&localWght, pwmDiff);
 }
 
@@ -420,6 +424,7 @@ __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
 void main_fw_calcPwmWghtAvg()
 {
+	/* for the 1st step calculate the global average and sum of all weights */
 	float diffSum = 0.0f;
 	float wghtSum = 0.0f;
 
@@ -427,13 +432,14 @@ void main_fw_calcPwmWghtAvg()
 		float localDiff = (mainPwmHist[--idx] - mainPwmHistAvg);
 		float localWght = 0.0f;
 
-		/* culminate sums */
+		/* culminate each entry with its weight */
 		diffSum += calcPwmWghtDiff(&localWght, localDiff);
 		wghtSum += localWght;
 	}
 
-	/* setting the global variable */
+	/* setting the global variables */
 	mainPwmHistAvg += (diffSum / wghtSum);
+	mainPwmHistWghtSum = wghtSum;
 }
 
 #ifdef RELEASE
@@ -711,48 +717,21 @@ static void doJobs()
 					}
 
 					/* windowing and adding of the new PWM value */
-#if 0
-					float newPwmVal =  pwmDevWght_steps + (pullPwmVal + (fastPwmSubCmp / ((float) FAST_PWM_SUB_BITCNT)));
-					if ((0.0f <= newPwmVal) && (newPwmVal < 256.0f)) {
-						//pullPwmVal = (uint8_t) (pullPwmVal + pwmDevWght_steps + 0.5f);
-						pullPwmVal = (uint8_t) newPwmVal;
-						localFastPwmSubCmp = (uint8_t) ((newPwmVal - pullPwmVal) * ((float) FAST_PWM_SUB_BITCNT) + 0.5f);
-
-					} else if (pwmDevWght_steps < 0.0f) {
-						pwmDevWght_steps = -pullPwmVal;
-						pullPwmVal = 0;
-						localFastPwmSubCmp = 0;
-
-					} else  {
-						pwmDevWght_steps = (255.0f - pullPwmVal);
-						pullPwmVal = 255;
-						localFastPwmSubCmp = ((1 << FAST_PWM_SUB_BITCNT) - 1);
-					}
-
-					if (mainIsAFC) {
-						/* adjusting the PWM registers */
-						cli();
-						clkPullPwm_fw_setRatio(pullPwmVal);
-						fastPwmSubCmp = localFastPwmSubCmp;
-						sei();
-					}
-#else
 					cli();
-					uint8_t localPwmSubVal = fastPwmSubCmp;
 					uint8_t localPullPwmVal = pullPwmVal;
+					uint8_t localPwmSubVal  = fastPwmSubCmp;
 					sei();
-
-					localPullPwmVal = calcTimerAdj(&localPwmSubVal, localPullPwmVal, pwmDevWght_steps);
 
 					if (mainIsAFC) {
 						/* adjusting the PWM registers and make the new value public */
+						localPullPwmVal = calcTimerAdj(&localPwmSubVal, localPullPwmVal, pwmDevWght_steps);
+
 						cli();
-						clkPullPwm_fw_setRatio(localPullPwmVal);
+						pullPwmVal    = localPullPwmVal;
 						fastPwmSubCmp = localPwmSubVal;
-						pullPwmVal = localPullPwmVal;
+						clkPullPwm_fw_setRatio(pullPwmVal);
 						sei();
 					}
-#endif
 
 					/* write into history table */
 					mainPwmHist[mainPwmHistIdx++] = pullPwmVal;
@@ -832,7 +811,7 @@ static void doJobs()
 			}
 		}
 
-		if (mainPwmTerminalAdj) {  // TODO check
+		if (mainPwmTerminalAdj) {
 			/* correct PWM with  +/- <value> */
 			cli();
 			uint8_t localFastPwmValBefore = pullPwmVal;
@@ -968,6 +947,7 @@ int main(void)
 		}
 		// mainPwmHistIdx = 0;								// already initialized
 		mainPwmHistAvg = (float) pullCoef_b02_pwm_initial;
+		mainPwmHistWghtSum = (float) PWM_HIST_COUNT;
 
 		/* enter HELP command in USB host OUT queue */
 		main_fw_sendInitialHelp();
