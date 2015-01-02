@@ -137,8 +137,8 @@ PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA2: mainPwmHistAvg = %03.3f, \tpw
 PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA1: localStampCtr1ms = %09lu, \tlocalStampTCNT1 = %05u, \tfastStampCtr1ms = %09lu, \tfastStampTCNT1 = %05u\n";
 PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA2: PWM = %03u, \tSub-PWM = %03u\n";
 PROGMEM const uchar PM_FORMAT_TA03[]						= "#TA3: mainRefClkState = %u\n";
-PROGMEM const uchar PM_FORMAT_TA04[]						= "#TA4: ADC0 = %04u (%0.4fmV)\n";
-PROGMEM const uchar PM_FORMAT_TA05[]						= "#TA5: ADC1 = %04u (%0.4fmV)\n";
+PROGMEM const uchar PM_FORMAT_TA04[]						= "#TA4: ADC0 = %04u (%0.3fmV)\n";
+PROGMEM const uchar PM_FORMAT_TA05[]						= "#TA5: ADC1 = %04u (%0.3fmV)\n";
 PROGMEM const uchar PM_FORMAT_TA06[]						= "#TA6: Temp = %04u (%0.1fC)\n";
 PROGMEM const uchar PM_FORMAT_TA07[]						= "#TA7: =======\n\n";
 
