@@ -131,10 +131,10 @@ const uint8_t PM_INTERPRETER_UNKNOWN_len 					= sizeof(PM_INTERPRETER_UNKNOWN);
 
 PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: %03d%03d\n";
 
-PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA1: localClockDiff = %+4ld @ 20MHz,\tqrgDev_Hz = %+4dHz @ 10MHz,\tppm = %+4d\n";
-PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA2: mainPwmHistAvg = %03.3f,\tpwmDevLin_steps = %+03.3f,\tpwmDevWght_steps = %+03.3f,\tnewPwmVal = %03.3f\n\n";
+PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA1: localClockDiff = %+4ld @20MHz, \tlocalClockAvg = %+4.2f @20MHz, \tqrgDev_Hz = %+4dHz @10MHz, \tppm = %+02.3f\n";
+PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA2: mainPwmHistAvg = %03.3f, \tpwmDevLin_steps = %+03.3f, \tpwmDevWght_steps = %+03.3f, \tnewPwmVal = %03.3f\n\n";
 
-PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA1: localStampCtr1ms = %09lu \tlocalStampTCNT1 = %05u \tfastStampCtr1ms = %09lu \tfastStampTCNT1 = %05u\n";
+PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA1: localStampCtr1ms = %09lu, \tlocalStampTCNT1 = %05u, \tfastStampCtr1ms = %09lu, \tfastStampTCNT1 = %05u\n";
 PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA2: PWM = %03u, \tSub-PWM = %03u\n";
 PROGMEM const uchar PM_FORMAT_TA03[]						= "#TA3: mainRefClkState = %u\n";
 PROGMEM const uchar PM_FORMAT_TA04[]						= "#TA4: ADC0 = %04u (%0.4fmV)\n";
@@ -221,6 +221,7 @@ uint8_t  usbIsrCtxtBufferIdx 								= 0;
 
 /* df4iah_fw_main */
 uint8_t mainPwmHist[PWM_HIST_COUNT]							= { 0 };
+uint16_t mainClockDiffs[MAIN_CLOCK_DIFF_COUNT]				= { 0 };
 uchar mainPrepareBuffer[MAIN_PREPARE_BUFFER_SIZE] 			= { 0 };
 uchar mainFormatBuffer[MAIN_FORMAT_BUFFER_SIZE]				= { 0 };
 uint8_t eepromBlockCopy[sizeof(eeprom_b00_t)]				= { 0 };  // any block has the same size
@@ -685,29 +686,49 @@ static void doJobs()
 				if ((-1000 < localClockDiff) &&
 					( 1000 > localClockDiff)) {
 					/* keep measuring window between +/-50ppm */
+					int16_t localClockDiffSum = 0;
 					int16_t qrgDev_Hz = (int16_t) (localClockDiff >> 1);
-					int16_t ppm = (int16_t) (localClockDiff / 20);
+					float ppm = (localClockDiff / 20.0f);
+
+					/* shift register with three last localClockDiff's */
+					for (int idx = MAIN_CLOCK_DIFF_COUNT - 1; idx; --idx) {
+						mainClockDiffs[idx] = mainClockDiffs[idx - 1];
+						localClockDiffSum += mainClockDiffs[idx - 1];
+					}
+					mainClockDiffs[0] = (uint16_t) localClockDiff;
+					localClockDiffSum += mainClockDiffs[0];
+					float localClockDiffAvg = localClockDiffSum / ((float) MAIN_CLOCK_DIFF_COUNT);
+					float localClockDiffUse = ((mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) ?  localClockDiffAvg : localClockDiff);
 
 					main_fw_calcPwmWghtAvg();
-					float pwmDevLin_steps  = -localClockDiff * 128.0f / (mainCoef_b02_qrg_k_p1v_25C_Hz * mainCoef_b01_ref_AREF_V);
+					float pwmDevLin_steps  = -localClockDiffUse * 128.0f / (mainCoef_b02_qrg_k_p1v_25C_Hz * mainCoef_b01_ref_AREF_V);
 					float pwmDevWght_steps = main_fw_calcPwmWghtDiff(pwmDevLin_steps);
 
 					/* determine the new state of the FSM */
-					if ((-1 <= pwmDevWght_steps) && (pwmDevWght_steps <= 1)) {  // single step tuning
+					if ((-0.1f <= ppm) && (ppm <= 0.1f)) {  // single step tuning with counter stabilizer
+						if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
+							/* Upgrading: switch on the frequency mean value counter */
+							mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
+						}
+					} else if ((-0.25f <= ppm) && (ppm <= 0.25f)) {  // single step tuning
 						if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE) {
-							/* hand-over to the phase lock loop */
+							/* Upgrading: hand-over to the phase lock loop */
+							mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
+
+						} else if (mainRefClkState > REFCLK_STATE_SEARCH_PHASE) {
+							/* Downgrading: to shaky for the mean value counter */
 							mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
 						}
 
-					} else if ((-3 <= pwmDevWght_steps) && (pwmDevWght_steps <= 3)) {  // phase lock loop locked out again
+					} else if ((-1.0f <= ppm) && (ppm <= 1.0f)) {  // phase lock loop locked out again
 						if (mainRefClkState > REFCLK_STATE_SEARCH_QRG) {
-							/* frequency search and lock loop entering QRG area */
+							/* Downgrading: frequency search and lock loop entering QRG area */
 							mainRefClkState = REFCLK_STATE_SEARCH_QRG;
 						}
 
-					} else if ((-75 <= pwmDevWght_steps) && (pwmDevWght_steps <= 75)) {	 // entering 10.0 MHz area
+					} else if ((-25.0f <= ppm) && (ppm <= 25.0f)) {	 // entering 10.0 MHz area
 						if (mainRefClkState < REFCLK_STATE_SEARCH_QRG) {
-							/* frequency search and lock loop entering QRG area */
+							/* Upgrading: frequency search and lock loop entering QRG area */
 							mainRefClkState = REFCLK_STATE_SEARCH_QRG;
 						}
 
@@ -741,6 +762,7 @@ static void doJobs()
 					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA01, sizeof(PM_FORMAT_IA01));
 					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 							localClockDiff,
+							localClockDiffAvg,
 							qrgDev_Hz,
 							ppm);
 					ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
