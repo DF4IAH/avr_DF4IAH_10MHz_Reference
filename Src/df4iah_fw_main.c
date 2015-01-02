@@ -681,7 +681,8 @@ static void doJobs()
 
 				int32_t localClockDiff = ((20000L * (localStampCtr1ms - localStampCtr1ms_last))
 									   + ((((int32_t) localStampTCNT1) - ((int32_t) localStampTCNT1_last))))
-									   - 20000000L;
+									   - 20000000L
+									   + 1L;				// 1 clock offset to let the phase wander and the locker find its position to lock
 
 				if ((-1000 < localClockDiff) &&
 					( 1000 > localClockDiff)) {
