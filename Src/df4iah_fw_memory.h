@@ -234,6 +234,8 @@ typedef struct eeprom_defaultValues_layout {
 } eeprom_defaultValues_layout_t;
 
 
+void* memory_fw_copyBuffer(uint8_t isPgm, void* destPtr, const void* srcPtr, size_t len);
+
 uint16_t memory_fw_calcBlockCrc(uint8_t* block);
 uint8_t  memory_fw_isEepromBlockValid(uint8_t blockNr);
 uint16_t memory_fw_getSealMarker(uint8_t blockNr);

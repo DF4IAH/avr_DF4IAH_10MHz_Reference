@@ -11,6 +11,10 @@
 
 #include "usbdrv_fw/usbdrv.h"
 
+/* VERSION: YYM, MDD */
+#define VERSION_HIGH										150
+#define VERSION_LOW											102
+
 
 /* MCU frequency */
 #ifndef F_CPU
@@ -32,9 +36,6 @@
 #define PWM_HIST_COUNT										16
 
 #define DEBUG_DELAY_CNT										1
-
-#define VERSION_HIGH										150
-#define VERSION_LOW											101
 
 
 #ifndef true

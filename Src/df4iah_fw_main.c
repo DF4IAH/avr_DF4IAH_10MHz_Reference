@@ -42,7 +42,108 @@
 #endif
 
 
-#define MAINCTXT_BUFFER_SIZE								128
+#define MAIN_PREPARE_BUFFER_SIZE							128
+#define MAIN_FORMAT_BUFFER_SIZE								128
+
+
+// STRINGS IN MEMORY SECTION
+
+const uchar VM_COMMAND_AFCOFF[]								= "AFCOFF";
+const uchar VM_COMMAND_AFCON[]								= "AFCON";
+const uchar VM_COMMAND_HALT[]								= "HALT";
+const uchar VM_COMMAND_HELP[]								= "HELP";
+const uchar VM_COMMAND_INFO[]								= "INFO";
+const uchar VM_COMMAND_LOADER[]								= "LOADER";
+const uchar VM_COMMAND_REBOOT[]								= "REBOOT";
+const uchar VM_COMMAND_SEROFF[]								= "SEROFF";
+const uchar VM_COMMAND_SERON[]								= "SERON";
+const uchar VM_COMMAND_TEST[]								= "TEST";
+const uchar VM_COMMAND_WRITEPWM[]							= "WRITEPWM";
+const uchar VM_COMMAND_PLUSSIGN[]							= "+";
+const uchar VM_COMMAND_MINUSSIGN[]							= "-";
+
+
+// STRINGS IN CODE SECTION
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-braces"
+PROGMEM const eeprom_defaultValues_layout_t eeprom_defaultValues_content = {
+		EEPROM_DEFAULT_CONTENT_B00,
+		EEPROM_DEFAULT_CONTENT_B01,
+		EEPROM_DEFAULT_CONTENT_B02,
+		EEPROM_DEFAULT_CONTENT_B03,
+		EEPROM_DEFAULT_CONTENT_B04
+};
+#pragma GCC diagnostic pop
+
+// PROGMEM const char PM_VENDOR[] 							= "DF4IAH";
+// const uint8_t PM_VENDOR_len = sizeof(PM_VENDOR);
+
+PROGMEM const uchar PM_INTERPRETER_HELP01[]					= "\n" \
+															  "\n" \
+															  "=== HELP ===\n" \
+															  "\n" \
+															  "$ <NMEA-Message>\t\tsends message to the GPS module.";
+const uint8_t PM_INTERPRETER_HELP01_len 					= sizeof(PM_INTERPRETER_HELP01);
+
+PROGMEM const uchar PM_INTERPRETER_HELP02[] 				= "\n" \
+															  "AFCOFF\t\t\t\tswitch AFC off.\n" \
+															  "AFCON\t\t\t\tswitch AFC on.";
+const uint8_t PM_INTERPRETER_HELP02_len 					= sizeof(PM_INTERPRETER_HELP02);
+
+PROGMEM const uchar PM_INTERPRETER_HELP03[] 				= "HALT\t\t\t\tpowers the device down (sleep mode).";
+const uint8_t PM_INTERPRETER_HELP03_len 					= sizeof(PM_INTERPRETER_HELP03);
+
+PROGMEM const uchar PM_INTERPRETER_HELP04[] 				= "HELP\t\t\t\tthis message.";
+const uint8_t PM_INTERPRETER_HELP04_len 					= sizeof(PM_INTERPRETER_HELP04);
+
+PROGMEM const uchar PM_INTERPRETER_HELP05[] 				= "INFO\t\t\t\ttoggles additional printed infos.";
+const uint8_t PM_INTERPRETER_HELP05_len 					= sizeof(PM_INTERPRETER_HELP05);
+
+PROGMEM const uchar PM_INTERPRETER_HELP06[] 				= "LOADER\t\t\t\tenter bootloader.";
+const uint8_t PM_INTERPRETER_HELP06_len 					= sizeof(PM_INTERPRETER_HELP06);
+
+PROGMEM const uchar PM_INTERPRETER_HELP07[] 				= "REBOOT\t\t\t\treboot the firmware.";
+const uint8_t PM_INTERPRETER_HELP07_len 					= sizeof(PM_INTERPRETER_HELP07);
+
+PROGMEM const uchar PM_INTERPRETER_HELP08[] 				= "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SERON\t\t\t\tswitch serial communication ON.";
+const uint8_t PM_INTERPRETER_HELP08_len 					= sizeof(PM_INTERPRETER_HELP08);
+
+PROGMEM const uchar PM_INTERPRETER_HELP09[] 				= "TEST\t\t\t\ttoggles counter test.";
+const uint8_t PM_INTERPRETER_HELP09_len 					= sizeof(PM_INTERPRETER_HELP09);
+
+PROGMEM const uchar PM_INTERPRETER_HELP10[] 				= "WRITEPWM\t\t\tstore current PWM as default value.";
+const uint8_t PM_INTERPRETER_HELP10_len 					= sizeof(PM_INTERPRETER_HELP10);
+
+PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "+/- <PWM value>\t\tcorrection value to be added.";
+const uint8_t PM_INTERPRETER_HELP11_len 					= sizeof(PM_INTERPRETER_HELP11);
+
+PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "===========\n" \
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  ">";
+const uint8_t PM_INTERPRETER_HELP12_len 					= sizeof(PM_INTERPRETER_HELP12);
+
+PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "*?* unknown command, try HELP.\n" \
+															  "\n" \
+															  ">";
+const uint8_t PM_INTERPRETER_UNKNOWN_len 					= sizeof(PM_INTERPRETER_UNKNOWN);
+
+PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: %03d%03d\n";
+
+PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA1: localClockDiff = %+4ld @ 20MHz,\tqrgDev_Hz = %+4dHz @ 10MHz,\tppm = %+4d\n";
+PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA2: mainPwmHistAvg = %3.1f,\tpwmDevLin_steps = %+3.1f,\tpwmDevWght_steps = %+3.3f,\tnewPwmVal = %03.3f\n\n";
+
+PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA1: localStampCtr1ms = %09lu \tlocalStampTCNT1 = %05u \tfastStampCtr1ms = %09lu \tfastStampTCNT1 = %05u\n";
+PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA2: PWM = %03u, \tSub-PWM = %03u\n";
+PROGMEM const uchar PM_FORMAT_TA03[]						= "#TA3: mainRefClkState = %u\n";
+PROGMEM const uchar PM_FORMAT_TA04[]						= "#TA4: ADC0 = %04u (%0.4fmV)\n";
+PROGMEM const uchar PM_FORMAT_TA05[]						= "#TA5: ADC1 = %04u (%0.4fmV)\n";
+PROGMEM const uchar PM_FORMAT_TA06[]						= "#TA6: Temp = %04u (%0.1fC)\n";
+PROGMEM const uchar PM_FORMAT_TA07[]						= "#TA7: =======\n\n";
+
+PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID1: +/- KEY \tmainPwmTerminalAdj = %f, \tpullPwmValBefore    = %03u + fastPwmSubCmpBefore    = %03u\n";
+PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID2: +/- KEY \tmainPwmTerminalAdj = %f, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n\n";
 
 
 // DATA SECTION
@@ -59,11 +160,14 @@ uint8_t  mainPwmHistIdx 									= 0;
 float mainPwmHistAvg										= 0.0f;
 uint8_t  mainCtxtBufferIdx 									= 0;
 enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
-int16_t  mainPwmTerminalAdj									= 0;
+float mainPwmTerminalAdj									= 0.0f;
 uint8_t  mainHelpConcatNr									= 0;
+uint8_t  mainIsAFC											= false;
 uint8_t  mainIsTimerTest									= false;
 uint8_t  mainIsJumperBlSet									= false;
-uint8_t  mainStopAvr		 								= 0;
+uint8_t  mainIsSerComm										= false;
+uint8_t  mainIsUsbCommTest 									= false;
+uint8_t  mainStopAvr		 								= false;
 enum ENTER_MODE_t mainEnterMode								= ENTER_MODE_SLEEP;
 volatile uint8_t  timer0Snapshot 							= 0x00;
 usbTxStatus_t usbTxStatus1 									= { 0 },
@@ -110,15 +214,14 @@ uint8_t  serialCtxtTxBufferIdx								= 0;
 uint16_t cntRcv 											= 0;
 uint16_t cntSend 											= 0;
 uint8_t  usbIsrCtxtBufferIdx 								= 0;
-uint8_t  isSerComm											= true;
-uint8_t  isUsbCommTest 										= false;
 
 
 // ARRAYS - due to overwriting hazards they are following the controlling variables
 
 /* df4iah_fw_main */
 uint8_t mainPwmHist[PWM_HIST_COUNT]							= { 0 };
-uchar mainCtxtBuffer[MAINCTXT_BUFFER_SIZE] 					= { 0 };
+uchar mainPrepareBuffer[MAIN_PREPARE_BUFFER_SIZE] 			= { 0 };
+uchar mainFormatBuffer[MAIN_FORMAT_BUFFER_SIZE]				= { 0 };
 uint8_t eepromBlockCopy[sizeof(eeprom_b00_t)]				= { 0 };  // any block has the same size
 
 /* df4iah_fw_anlgComp (10kHz) */
@@ -136,79 +239,6 @@ uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE] 		= { 0 };
 /* df4iah_fw_usb */
 uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE] 				= { 0 };
 uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] 	= { 0 };
-
-
-// STRINGS IN MEMORY SECTION
-const uchar VM_COMMAND_HALT[]								= "HALT";
-const uchar VM_COMMAND_HELP[]								= "HELP";
-const uchar VM_COMMAND_INFO[]								= "INFO";
-const uchar VM_COMMAND_LOADER[]								= "LOADER";
-const uchar VM_COMMAND_REBOOT[]								= "REBOOT";
-const uchar VM_COMMAND_SEROFF[]								= "SEROFF";
-const uchar VM_COMMAND_SERON[]								= "SERON";
-const uchar VM_COMMAND_TEST[]								= "TEST";
-const uchar VM_COMMAND_WRITEPWM[]							= "WRITEPWM";
-const uchar VM_COMMAND_PLUSSIGN[]							= "+";
-const uchar VM_COMMAND_MINUSSIGN[]							= "-";
-
-
-// STRINGS IN CODE SECTION
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-braces"
-PROGMEM const eeprom_defaultValues_layout_t eeprom_defaultValues_content = {
-		EEPROM_DEFAULT_CONTENT_B00,
-		EEPROM_DEFAULT_CONTENT_B01,
-		EEPROM_DEFAULT_CONTENT_B02,
-		EEPROM_DEFAULT_CONTENT_B03,
-		EEPROM_DEFAULT_CONTENT_B04
-};
-#pragma GCC diagnostic pop
-
-// PROGMEM const char PM_VENDOR[] 							= "DF4IAH";
-// const uint8_t PM_VENDOR_len = sizeof(PM_VENDOR);
-
-PROGMEM const uchar PM_INTERPRETER_HELP1[] 					= "\n" \
-															  "\n" \
-															  "=== HELP ===\n" \
-															  "\n" \
-															  "$ <NMEA-Message>\t\tsends message to the GPS module.\n" \
-															  "\n" \
-															  "HALT\t\t\t\tpowers the device down (sleep mode).";
-const uint8_t PM_INTERPRETER_HELP1_len 						= sizeof(PM_INTERPRETER_HELP1);
-
-PROGMEM const uchar PM_INTERPRETER_HELP2[] 					= "\n" \
-															  "HELP\t\t\t\tthis message.\n" \
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
-															  "INFO\t\t\t\ttoggles additional printed infos.\n" \
-															  "\n" \
-															  "LOADER\t\t\t\tenter bootloader.";
-const uint8_t PM_INTERPRETER_HELP2_len 						= sizeof(PM_INTERPRETER_HELP2);
-
-PROGMEM const uchar PM_INTERPRETER_HELP3[] 					= "\n" \
-															  "REBOOT\t\t\t\treboot the firmware.\n" \
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SERON\t\t\t\tswitch serial communication ON.";
-const uint8_t PM_INTERPRETER_HELP3_len 						= sizeof(PM_INTERPRETER_HELP3);
-
-PROGMEM const uchar PM_INTERPRETER_HELP4[] 					= "\n" \
-															  "TEST\t\t\t\ttoggles counter test.\n" \
-															  "\n" \
-															  "WRITEPWM\t\t\tstore current PWM as default value.\n" \
-															  "\n" \
-															  "+/- <PWM value>\t\tcorrection value to be added.";
-const uint8_t PM_INTERPRETER_HELP4_len 						= sizeof(PM_INTERPRETER_HELP4);
-
-PROGMEM const uchar PM_INTERPRETER_HELP5[] 					= "\n" \
-															  "===========\n" \
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  ">";
-const uint8_t PM_INTERPRETER_HELP5_len 						= sizeof(PM_INTERPRETER_HELP5);
-
-PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "*?* unknown command, try HELP.\n" \
-															  "\n" \
-															  ">";
-const uint8_t PM_INTERPRETER_UNKNOWN_len 					= sizeof(PM_INTERPRETER_UNKNOWN);
 
 
 // CODE SECTION
@@ -287,6 +317,7 @@ void __vector_default(void) { ; }
 
 /* assign interrupt routines to vectors */
 /* due to optimizations the ISRs are set at the function block directly */
+
 ISR(WDT_vect, ISR_NAKED) {  // vector_6 - nothing to do, resets WDIF bit
 	__asm__ __volatile__ ("reti" ::: "memory");
 }
@@ -328,11 +359,45 @@ static inline void wdt_close() {
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
+static float calcTimerToFloat(uint8_t subVal, uint8_t intVal)
+{
+	/* the fractional part depends on the bit count used for the sub-PWM */
+	return (((float) intVal) + (((float) subVal) / ((float) (1 << FAST_PWM_SUB_BITCNT))));
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
+static uint8_t calcTimerAdj(uint8_t* subVal, uint8_t intValBefore, float pwmAdjust)
+{
+	/* add the current PWM values to the adjust value to get the next value */
+	pwmAdjust += calcTimerToFloat(*subVal, intValBefore);
+
+	/* windowing the next value into the 8-Bit range */
+	if (pwmAdjust < 0.0f) {
+		pwmAdjust = 0.0f;
+
+	} else if (pwmAdjust >= 256.0f) {
+		pwmAdjust = 256.0f - (1 / ((float) (1 << FAST_PWM_SUB_BITCNT)));
+	}
+
+	/* add rounding value */
+	pwmAdjust += (1 / ((float) (1 << (FAST_PWM_SUB_BITCNT + 1))));
+
+	/* break up into integer and fractional parts */
+	*subVal = (uint8_t) ((pwmAdjust - floorf(pwmAdjust)) * ((float) (1 << FAST_PWM_SUB_BITCNT)));
+	return (uint8_t) pwmAdjust;
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
 static float calcPwmWghtDiff(float* calcWght, float localDiff)
 {
 	float localDiffForWght = fabs(localDiff);
 	if (localDiffForWght < 1.0f) {
 		localDiffForWght = 1.0f;
+
 	} else if (localDiffForWght > 10.0f) {
 		localDiffForWght = 10.0f;
 	}
@@ -378,62 +443,71 @@ static void doInterpret(uchar msg[], uint8_t len)
 {
 	const uint8_t isSend = true;
 
-	if (!strncmp((char*) msg, (char*) VM_COMMAND_HALT, sizeof(VM_COMMAND_HALT))) {
+	if (!strncmp((char*) msg, (char*) VM_COMMAND_AFCOFF, sizeof(VM_COMMAND_AFCOFF))) {
+		/* automatic frequency control OFF */
+		mainIsAFC = false;
+
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_AFCON, sizeof(VM_COMMAND_AFCON))) {
+		/* automatic frequency control ON */
+		mainIsAFC = true;
+
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_HALT, sizeof(VM_COMMAND_HALT))) {
 		/* stop AVR controller and enter sleep state */
-		isSerComm = false;
+		mainIsSerComm = false;
 		mainIsTimerTest = false;
-		isUsbCommTest = false;
+		mainIsUsbCommTest = false;
 		mainEnterMode = ENTER_MODE_SLEEP;
 		mainStopAvr = true;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP))) {
 		/* help information */
-		int len = sprintf((char*) mainCtxtBuffer, "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: %03d%03d\n", VERSION_HIGH, VERSION_LOW);
-		ringbuffer_fw_ringBufferWaitAppend(!isSend, false, mainCtxtBuffer, len);
-		ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP1, PM_INTERPRETER_HELP1_len);
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_VERSION, sizeof(PM_FORMAT_VERSION));
+		int len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer, VERSION_HIGH, VERSION_LOW);
+		ringbuffer_fw_ringBufferWaitAppend(!isSend, false, mainPrepareBuffer, len);
+		ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP01, PM_INTERPRETER_HELP01_len);
 		mainHelpConcatNr = 1;
 		mainIsTimerTest = false;
-		isUsbCommTest = false;
+		mainIsUsbCommTest = false;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_INFO, sizeof(VM_COMMAND_INFO))) {
 		/* timer 2 overflow counter TEST */
 		mainIsTimerTest = !mainIsTimerTest;
 		if (mainIsTimerTest) {
-			isSerComm = false;
-			isUsbCommTest = false;
+			mainIsSerComm = false;
+			mainIsUsbCommTest = false;
 		}
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_LOADER, sizeof(VM_COMMAND_LOADER))) {
 		/* enter bootloader */
-		isSerComm = false;
+		mainIsSerComm = false;
 		mainIsTimerTest = false;
-		isUsbCommTest = false;
+		mainIsUsbCommTest = false;
 		mainEnterMode = ENTER_MODE_BL;
 		mainStopAvr = true;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_REBOOT, sizeof(VM_COMMAND_REBOOT))) {
 		/* enter firmware (REBOOT) */
-		isSerComm = false;
+		mainIsSerComm = false;
 		mainIsTimerTest = false;
-		isUsbCommTest = false;
+		mainIsUsbCommTest = false;
 		mainEnterMode = ENTER_MODE_FW;
 		mainStopAvr = true;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_SEROFF, sizeof(VM_COMMAND_SEROFF))) {
 		/* serial communication OFF */
-		isSerComm = false;
+		mainIsSerComm = false;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_SERON, sizeof(VM_COMMAND_SERON))) {
 		/* serial communication ON */
-		isSerComm = true;
+		mainIsSerComm = true;
 		mainIsTimerTest = false;
-		isUsbCommTest = false;
+		mainIsUsbCommTest = false;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_TEST, sizeof(VM_COMMAND_TEST))) {
 		/* special communication TEST */
-		isUsbCommTest = !isUsbCommTest;
-		if (isUsbCommTest) {
-			isSerComm = false;
+		mainIsUsbCommTest = !mainIsUsbCommTest;
+		if (mainIsUsbCommTest) {
+			mainIsSerComm = false;
 			mainIsTimerTest = false;
 		}
 
@@ -448,17 +522,14 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else if (msg[0] == VM_COMMAND_PLUSSIGN[0]) {
 		/* correct the PWM value up */
-		int16_t scanVal = 0;
-		sscanf((char*) msg + 1, "%d", &scanVal);
-		mainPwmTerminalAdj = scanVal;
-		isUsbCommTest = false;
+		sscanf((char*) msg + 1, "%f", &mainPwmTerminalAdj);
+		mainIsUsbCommTest = false;
 
 	} else if (msg[0] == VM_COMMAND_MINUSSIGN[0]) {
 		/* correct the PWM value down */
-		int16_t scanVal = 0;
-		sscanf((char*) msg + 1, "%d", &scanVal);
-		mainPwmTerminalAdj = -scanVal;
-		isUsbCommTest = false;
+		sscanf((char*) msg + 1, "%f", &mainPwmTerminalAdj);
+		mainPwmTerminalAdj = -mainPwmTerminalAdj;
+		mainIsUsbCommTest = false;
 
 	} else {
 		/* unknown command */
@@ -483,9 +554,9 @@ static void workInQueue()
 				serial_pullAndSendNmea_havingSemaphore(isSend); isLocked = false;
 
 			} else if ((statusSend & RINGBUFFER_MSG_STATUS_IS_MASK) == 0) {	// message from firmware state machine
-				mainCtxtBufferIdx = ringbuffer_fw_ringBufferPull(isSend, mainCtxtBuffer, (uint8_t) sizeof(mainCtxtBuffer));
+				mainCtxtBufferIdx = ringbuffer_fw_ringBufferPull(isSend, mainPrepareBuffer, (uint8_t) sizeof(mainPrepareBuffer));
 				ringbuffer_fw_freeSemaphore(isSend); isLocked = false;
-				doInterpret(mainCtxtBuffer, mainCtxtBufferIdx);				// message is clean to process
+				doInterpret(mainPrepareBuffer, mainCtxtBufferIdx);				// message is clean to process
 			}
 
 		} else if (mainHelpConcatNr && !(statusRcv & RINGBUFFER_MSG_STATUS_AVAIL)) {  // during help printing, go ahead when receive buffer is empty again
@@ -493,22 +564,57 @@ static void workInQueue()
 
 			switch (mainHelpConcatNr) {
 			case 1:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP2, PM_INTERPRETER_HELP2_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP02, PM_INTERPRETER_HELP02_len);
 				mainHelpConcatNr = 2;
 				break;
 
 			case 2:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP3, PM_INTERPRETER_HELP3_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP03, PM_INTERPRETER_HELP03_len);
 				mainHelpConcatNr = 3;
 				break;
 
 			case 3:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP4, PM_INTERPRETER_HELP4_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP04, PM_INTERPRETER_HELP04_len);
 				mainHelpConcatNr = 4;
 				break;
 
 			case 4:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP5, PM_INTERPRETER_HELP5_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP05, PM_INTERPRETER_HELP05_len);
+				mainHelpConcatNr = 5;
+				break;
+
+			case 5:
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP06, PM_INTERPRETER_HELP06_len);
+				mainHelpConcatNr = 6;
+				break;
+
+			case 6:
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP07, PM_INTERPRETER_HELP07_len);
+				mainHelpConcatNr = 7;
+				break;
+
+			case 7:
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP08, PM_INTERPRETER_HELP08_len);
+				mainHelpConcatNr = 8;
+				break;
+
+			case 8:
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP09, PM_INTERPRETER_HELP09_len);
+				mainHelpConcatNr = 9;
+				break;
+
+			case 9:
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP10, PM_INTERPRETER_HELP10_len);
+				mainHelpConcatNr = 10;
+				break;
+
+			case 10:
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP11, PM_INTERPRETER_HELP11_len);
+				mainHelpConcatNr = 11;
+				break;
+
+			case 11:
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP12, PM_INTERPRETER_HELP12_len);
 				// no break
 			default:
 				mainHelpConcatNr = 0;
@@ -572,8 +678,6 @@ static void doJobs()
 
 				if ((-1000 < localClockDiff) &&
 					( 1000 > localClockDiff)) {
-					uint8_t localFastPwmSubCmp = 0;
-
 					/* keep measuring window between +/-50ppm */
 					int16_t qrgDev_Hz = (int16_t) (localClockDiff >> 1);
 					int16_t ppm = (int16_t) (localClockDiff / 20);
@@ -607,6 +711,7 @@ static void doJobs()
 					}
 
 					/* windowing and adding of the new PWM value */
+#if 0
 					float newPwmVal =  pwmDevWght_steps + (pullPwmVal + (fastPwmSubCmp / ((float) FAST_PWM_SUB_BITCNT)));
 					if ((0.0f <= newPwmVal) && (newPwmVal < 256.0f)) {
 						//pullPwmVal = (uint8_t) (pullPwmVal + pwmDevWght_steps + 0.5f);
@@ -624,31 +729,50 @@ static void doJobs()
 						localFastPwmSubCmp = ((1 << FAST_PWM_SUB_BITCNT) - 1);
 					}
 
-					/* adjusting the PWM registers */
+					if (mainIsAFC) {
+						/* adjusting the PWM registers */
+						cli();
+						clkPullPwm_fw_setRatio(pullPwmVal);
+						fastPwmSubCmp = localFastPwmSubCmp;
+						sei();
+					}
+#else
 					cli();
-					clkPullPwm_fw_setRatio(pullPwmVal);
-					fastPwmSubCmp = localFastPwmSubCmp;
+					uint8_t localPwmSubVal = fastPwmSubCmp;
+					uint8_t localPullPwmVal = pullPwmVal;
 					sei();
+
+					localPullPwmVal = calcTimerAdj(&localPwmSubVal, localPullPwmVal, pwmDevWght_steps);
+
+					if (mainIsAFC) {
+						/* adjusting the PWM registers and make the new value public */
+						cli();
+						clkPullPwm_fw_setRatio(localPullPwmVal);
+						fastPwmSubCmp = localPwmSubVal;
+						pullPwmVal = localPullPwmVal;
+						sei();
+					}
+#endif
 
 					/* write into history table */
 					mainPwmHist[mainPwmHistIdx++] = pullPwmVal;
 					mainPwmHistIdx %= PWM_HIST_COUNT;
 
 					/* monitoring */
-					len = sprintf((char*) mainCtxtBuffer,
-							"\nI## localClockDiff = %+4ld @ 20MHz,\tqrgDev_Hz = %+4dHz @ 10MHz,\tppm = %+4d\n",
+					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA01, sizeof(PM_FORMAT_IA01));
+					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 							localClockDiff,
 							qrgDev_Hz,
 							ppm);
-					ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+					ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
 
-					len = sprintf((char*) mainCtxtBuffer,
-							"I## mainPwmHistAvg = %3.1f,\tpwmDevLin_steps = %+3.1f,\tpwmDevWght_steps = %+3.3f,\tnewPwmVal = %03.3f\n",
+					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA02, sizeof(PM_FORMAT_IA02));
+					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 							mainPwmHistAvg,
 							pwmDevLin_steps,
 							pwmDevWght_steps,
-							newPwmVal);
-					ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+							calcTimerToFloat(localPwmSubVal, localPullPwmVal));
+					ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
 
 				} else {
 					/* frequency search and lock loop - out if sync */
@@ -665,68 +789,84 @@ static void doJobs()
 			/* enter this block just n times per second */
 			--isTimerTestPrintCtr;
 
-			len = sprintf((char*) mainCtxtBuffer,
-					"T## localStampCtr1ms=%09lu\tlocalStampTCNT1=%05u\tfastStampCtr1ms=%09lu\tfastStampTCNT1=%05u\n",
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA01, sizeof(PM_FORMAT_TA01));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					localStampCtr1ms,
 					localStampTCNT1,
 					fastStampCtr1ms,
 					fastStampTCNT1);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
 
-			len = sprintf((char*) mainCtxtBuffer,
-					"T## PWM=%03u\n",
-					pullPwmVal);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA02, sizeof(PM_FORMAT_TA02));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+					pullPwmVal,
+					fastPwmSubCmp);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
 
-			len = sprintf((char*) mainCtxtBuffer,
-					"T## mainRefClkState=%u\n",
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA03, sizeof(PM_FORMAT_TA03));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					mainRefClkState);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
 
-			len = sprintf((char*) mainCtxtBuffer,
-					"T## ADC0=%04u (%0.4fmV)\n",
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA04, sizeof(PM_FORMAT_TA04));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[0],
 					adcCh0Volts);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
 
-			len = sprintf((char*) mainCtxtBuffer,
-					"T## ADC1=%04u (%0.4fmV)\n",
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA05, sizeof(PM_FORMAT_TA05));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[1],
 					adcCh1Volts);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
 
-			len = sprintf((char*) mainCtxtBuffer,
-					"T## Temp=%04u (%0.1fC).\n\n",
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA06, sizeof(PM_FORMAT_TA06));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[2],
 					adcCh2C);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
 
 			if (!isTimerTestPrintCtr) {
-				len = 5;
-				memcpy((char*) mainCtxtBuffer, "===\n\n", len + 1);
-				ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainCtxtBuffer, len);
+				memory_fw_copyBuffer(true, mainPrepareBuffer, PM_FORMAT_TA07, sizeof(PM_FORMAT_TA07) + 1);
+				ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, sizeof(PM_FORMAT_TA07) + 1);
 			}
 		}
-	}
 
-	/* correct PWM with  +/- <value> */
-	if (mainPwmTerminalAdj) {
-		// make a big signed calculation
-		int16_t pwmCalc = ((int16_t) pullPwmVal) + mainPwmTerminalAdj;
-		mainPwmTerminalAdj = 0;
+		if (mainPwmTerminalAdj) {  // TODO check
+			/* correct PWM with  +/- <value> */
+			cli();
+			uint8_t localFastPwmValBefore = pullPwmVal;
+			uint8_t localFastPwmSubCmpBefore = fastPwmSubCmp;
+			sei();
 
-		// frame to uint8_t
-		if (pwmCalc > 0xff) {
-			pwmCalc = 0xff;
-		} else if (pwmCalc < 0) {
-			pwmCalc = 0;
+			// calculate next value
+			uint8_t localFastPwmSubCmpNext = localFastPwmSubCmpBefore;
+			uint8_t localFastPwmValNext = calcTimerAdj(&localFastPwmSubCmpNext, localFastPwmValBefore, mainPwmTerminalAdj);
+
+			// write back the global variables for PWM and sub-PWM
+			cli();
+			pullPwmVal = localFastPwmValNext;
+			clkPullPwm_fw_setRatio(pullPwmVal);
+			fastPwmSubCmp = localFastPwmSubCmpNext;
+			sei();
+
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_ID01, sizeof(PM_FORMAT_ID01));
+			uint8_t len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+					mainPwmTerminalAdj,
+					localFastPwmValBefore,
+					localFastPwmSubCmpBefore);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_ID02, sizeof(PM_FORMAT_ID02));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+					mainPwmTerminalAdj,
+					localFastPwmValNext,
+					localFastPwmSubCmpNext);
+			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+
+			// reset data entry
+			mainPwmTerminalAdj = 0.0f;
 		}
-
-		// write back to the global variable
-		pullPwmVal = (uint8_t) pwmCalc;
-
-		// adjust PWM out
-		clkPullPwm_fw_setRatio(pullPwmVal);
 	}
 }
 

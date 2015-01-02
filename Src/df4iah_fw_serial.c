@@ -34,7 +34,7 @@
 extern uint8_t serialCtxtRxBufferLen;
 extern uint8_t serialCtxtTxBufferLen;
 extern uint8_t serialCtxtTxBufferIdx;
-extern uint8_t isSerComm;
+extern uint8_t mainIsSerComm;
 
 extern uchar serialCtxtRxBuffer[SERIALCTXT_RX_BUFFER_SIZE];
 extern uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE];
@@ -135,7 +135,7 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 		ringbuffer_fw_freeSemaphore(isSend);
 
 		/* drop serial RX data if transportation is not activated */
-		if (!isSerComm) {
+		if (!mainIsSerComm) {
 			serialCtxtTxBufferLen = 0;
 		}
 		serialCtxtTxBufferIdx = 0;
@@ -197,7 +197,7 @@ ISR(USART_RX_vect, ISR_BLOCK)
 
 	/* if the end of a NMEA sentence is detected, send this serial RX buffer to the receive (IN) ring buffer */
 	if (rxData == '\n') {  // a NMEA sentence stops with:  <sentence...*checksum\r\n>
-		if (isSerComm) {
+		if (mainIsSerComm) {
 			ringbuffer_fw_ringBufferAppend(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
 			serialCtxtRxBufferLen = 0;
 		}

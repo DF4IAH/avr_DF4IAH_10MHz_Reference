@@ -13,6 +13,8 @@
 #include <avr/wdt.h>
 
 #include "df4iah_fw_main.h"
+#include "df4iah_fw_memory.h"
+
 #include "df4iah_fw_ringbuffer.h"
 
 
@@ -32,22 +34,6 @@ extern uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE];
 extern uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
 extern uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE];
 
-
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
-static void* memcpy_rb(uint8_t isPgm, void* destPtr, const void* srcPtr, size_t len)
-{
-	if (!isPgm) {
-		return memcpy(destPtr, srcPtr, len);
-
-	} else {
-		for (int idx = 0; idx < len; ++idx) {
-			*((uchar*) destPtr + idx) = pgm_read_byte_near(srcPtr + idx);
-		}
-		return destPtr;
-	}
-}
 
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_memory"), aligned(2)))
@@ -121,12 +107,12 @@ static uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[
 		uint8_t lenBot = min((((pullIdx > pushIdx) || !pullIdx) ?  0 : pullIdx - 1), len - lenTop);
 
 		if (lenTop) {
-			memcpy_rb(isPgm, &(ringBuffer[pushIdx]), inData, lenTop);
+			memory_fw_copyBuffer(isPgm, &(ringBuffer[pushIdx]), inData, lenTop);
 			retLen += lenTop;
 		}
 
 		if (lenBot) {
-			memcpy_rb(isPgm, &(ringBuffer[0]), &(inData[lenTop]), lenBot);
+			memory_fw_copyBuffer(isPgm, &(ringBuffer[0]), &(inData[lenTop]), lenBot);
 			retLen += lenBot;
 		}
 
@@ -150,7 +136,7 @@ static void ringBufferPushAddHook(uint8_t isSend, uint8_t isPgm, const uchar inD
 	/* copy data for the hooked job - hook needs to be unassigned before */
 	if (!usbRingBufferHookLen) {
 		usbRingBufferHookIsSend = isSend;
-		memcpy_rb(isPgm, usbRingBufferHook, inData, len);
+		memory_fw_copyBuffer(isPgm, usbRingBufferHook, inData, len);
 		usbRingBufferHookLen = len;							// this assignment last - since now ready to process
 	}														// else: dismiss data - should not be the case anyway
 }

@@ -48,6 +48,25 @@ eeprom_layout_t eeprom_content = {
 #pragma GCC diagnostic pop
 
 
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
+void* memory_fw_copyBuffer(uint8_t isPgm, void* destPtr, const void* srcPtr, size_t len)
+{
+	if (!isPgm) {
+		return memcpy(destPtr, srcPtr, len);
+
+	} else {
+		for (int idx = 0; idx < len; ++idx) {
+			*((uchar*) destPtr + idx) = pgm_read_byte_near(srcPtr + idx);
+		}
+		return destPtr;
+	}
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
 uint16_t memory_fw_calcBlockCrc(uint8_t* block)
 {
 	uint16_t crc = CRC_SALT_VALUE;
