@@ -16,6 +16,8 @@ See http://libusb.sourceforge.net/ or http://libusb-win32.sourceforge.net/
 respectively.
 */
 
+#include <unistd.h>
+#include <stdlib.h>
 #include <strings.h>
 #include <usb.h>											/* this is libusb */
 #include "opendevice.h"										/* common code moved to separate module */
@@ -207,7 +209,9 @@ int main(int argc, char **argv)
 #ifdef ENABLE_TEST
 	} else if (strcasecmp(argv[1], "test") == 0) {
 		/* testing USB messaging */
+#ifdef __APPLE_CC__
 		srandomdev();
+#endif
 		for (int i = 0; i < 50000; i++) {
 			int value = random() & 0xffff, index = random() & 0xffff;
 			int rxValue, rxIndex;
