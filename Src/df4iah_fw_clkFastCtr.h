@@ -14,6 +14,11 @@
 
 #define OCR1_TOP_VALUE 										19999
 #define FAST_PWM_SUB_BITCNT									5
+#define ADC_PWM_CENTER										552
+#define ADC_PWM_LO											(ADC_PWM_CENTER - 130)
+#define ADC_PWM_HI											(ADC_PWM_CENTER + 130)
+#define ADC_PWM_SWITCH_SPEED								4
+#define ADC_PWM_SWITCH_OUT									50
 
 
 void clkFastCtr_fw_init();

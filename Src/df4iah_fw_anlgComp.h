@@ -12,6 +12,11 @@
 /* this modules uses the Analog Comparator to generate interrupts based on GPS (10 kHz) */
 
 #define AC_ADC_CH_COUNT										2
+enum ADC_CH_t {
+	ADC_CH_PWMPULL											= 0,
+	ADC_CH_PHASE,
+	ADC_CH_TEMP
+};
 
 
 void anlgComp_fw_init();

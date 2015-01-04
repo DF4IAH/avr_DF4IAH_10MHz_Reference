@@ -12,6 +12,8 @@
 #include <avr/interrupt.h>
 
 #include "chipdef.h"
+#include "df4iah_fw_main.h"
+#include "df4iah_fw_anlgComp.h"
 
 #include "df4iah_fw_clkFastCtr.h"
 
@@ -22,6 +24,13 @@ extern uint32_t fastCtr1ms;
 extern uint8_t  fastPwmSubCnt;
 extern uint8_t  fastPwmSubCmp;
 extern uint8_t  pullPwmVal;
+extern enum REFCLK_STATE_t mainRefClkState;
+extern uint8_t  mainIsAPC;
+extern uint16_t acAdcCh[AC_ADC_CH_COUNT + 1];
+extern uint16_t fastPwmAdcNow;
+extern uint16_t fastPwmAdcLast;
+extern int16_t  fastPwmAdcAscendingVal;
+
 
 
 #ifdef RELEASE
@@ -122,6 +131,8 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 {
 	/* whenever 20.000 clocks are done, reload it with the MIN value */
 	/* mind you: the reload is not synchronized with any input signals like 1PPS or 10kHz */
+	const uint8_t localSubPwmCnt = (1 << FAST_PWM_SUB_BITCNT);
+	const uint8_t localSubPwmMax = (localSubPwmCnt - 1);
 
 	/* the 32 bit timer overflows every 3 1/4 year */
 	fastCtr1ms++;
@@ -138,5 +149,58 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 
 	/* sub-counter increment */
 	fastPwmSubCnt++;
-	fastPwmSubCnt &= (1 << FAST_PWM_SUB_BITCNT) - 1;
+	fastPwmSubCnt &= localSubPwmMax;
+
+	/* APC = automatic phase control */
+	if (mainIsAPC && true /*(mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) */) {
+		fastPwmAdcLast = fastPwmAdcNow;
+		fastPwmAdcNow  = acAdcCh[ADC_CH_PHASE];
+
+		if ((ADC_PWM_LO < fastPwmAdcNow) && (fastPwmAdcNow < ADC_PWM_HI)) {
+			/* indicator valid inside this range only */
+			fastPwmAdcAscendingVal = (fastPwmAdcNow - fastPwmAdcLast);
+			if ((fastPwmAdcAscendingVal < -ADC_PWM_SWITCH_OUT) || (ADC_PWM_SWITCH_OUT < fastPwmAdcAscendingVal)) {
+				fastPwmAdcAscendingVal = 0;
+			}
+
+			/* inside of measuring phase */
+			if (mainRefClkState < REFCLK_STATE_LOCKING_PHASE) {
+				mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
+			}
+
+			{ /* keeping the phase at 1.5 volts */
+				if ((fastPwmAdcNow < ADC_PWM_CENTER) && (fastPwmAdcAscendingVal < -ADC_PWM_SWITCH_SPEED)) {
+#if 1
+					/* try to decrease the phase */
+					cli();
+					if (!(fastPwmSubCmp--))
+					{
+						fastPwmSubCmp = localSubPwmMax;
+						OCR0B = --pullPwmVal;
+					}
+					sei();
+#endif
+
+				} else if ((fastPwmAdcNow > ADC_PWM_CENTER) && (fastPwmAdcAscendingVal > ADC_PWM_SWITCH_SPEED)) {
+#if 1
+					/* try to increase the phase */
+					cli();
+					if (!(++fastPwmSubCmp % localSubPwmCnt)) {
+						fastPwmSubCmp = 0;
+						OCR0B = ++pullPwmVal;
+					}
+					sei();
+#endif
+				}
+			}
+			/* try to advance the phase */
+			/* try to retard the phase */
+
+		} else {
+			/* got outside of locked phase */
+			if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
+				mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
+			}
+		}
+	}
 }

@@ -50,6 +50,8 @@
 
 const uchar VM_COMMAND_AFCOFF[]								= "AFCOFF";
 const uchar VM_COMMAND_AFCON[]								= "AFCON";
+const uchar VM_COMMAND_APCOFF[]								= "APCOFF";
+const uchar VM_COMMAND_APCON[]								= "APCON";
 const uchar VM_COMMAND_HALT[]								= "HALT";
 const uchar VM_COMMAND_HELP[]								= "HELP";
 const uchar VM_COMMAND_INFO[]								= "INFO";
@@ -87,49 +89,53 @@ PROGMEM const uchar PM_INTERPRETER_HELP01[]					= "\n" \
 const uint8_t PM_INTERPRETER_HELP01_len 					= sizeof(PM_INTERPRETER_HELP01);
 
 PROGMEM const uchar PM_INTERPRETER_HELP02[] 				= "\n" \
-															  "AFCOFF\t\t\t\tswitch AFC off.\n" \
-															  "AFCON\t\t\t\tswitch AFC on.";
+															  "AFCOFF\t\t\t\tswitch AFC (automatic frequency control) off.\n" \
+															  "AFCON\t\t\t\tswitch AFC (automatic frequency control) on.";
 const uint8_t PM_INTERPRETER_HELP02_len 					= sizeof(PM_INTERPRETER_HELP02);
 
-PROGMEM const uchar PM_INTERPRETER_HELP03[] 				= "HALT\t\t\t\tpowers the device down (sleep mode).";
+PROGMEM const uchar PM_INTERPRETER_HELP03[] 				= "APCOFF\t\t\t\tswitch APC (automatic phase control) off.\n" \
+															  "APCON\t\t\t\tswitch APC (automatic phase control) on.";
 const uint8_t PM_INTERPRETER_HELP03_len 					= sizeof(PM_INTERPRETER_HELP03);
 
-PROGMEM const uchar PM_INTERPRETER_HELP04[] 				= "HELP\t\t\t\tthis message.";
+PROGMEM const uchar PM_INTERPRETER_HELP04[] 				= "HALT\t\t\t\tpowers the device down (sleep mode).";
 const uint8_t PM_INTERPRETER_HELP04_len 					= sizeof(PM_INTERPRETER_HELP04);
 
-PROGMEM const uchar PM_INTERPRETER_HELP05[] 				= "INFO\t\t\t\ttoggles additional printed infos.";
+PROGMEM const uchar PM_INTERPRETER_HELP05[] 				= "HELP\t\t\t\tthis message.";
 const uint8_t PM_INTERPRETER_HELP05_len 					= sizeof(PM_INTERPRETER_HELP05);
 
-PROGMEM const uchar PM_INTERPRETER_HELP06[] 				= "LOADER\t\t\t\tenter bootloader.";
+PROGMEM const uchar PM_INTERPRETER_HELP06[] 				= "INFO\t\t\t\ttoggles additional printed infos.";
 const uint8_t PM_INTERPRETER_HELP06_len 					= sizeof(PM_INTERPRETER_HELP06);
 
-PROGMEM const uchar PM_INTERPRETER_HELP07[] 				= "REBOOT\t\t\t\treboot the firmware.";
+PROGMEM const uchar PM_INTERPRETER_HELP07[] 				= "LOADER\t\t\t\tenter bootloader.";
 const uint8_t PM_INTERPRETER_HELP07_len 					= sizeof(PM_INTERPRETER_HELP07);
 
-PROGMEM const uchar PM_INTERPRETER_HELP08[] 				= "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SERON\t\t\t\tswitch serial communication ON.";
+PROGMEM const uchar PM_INTERPRETER_HELP08[] 				= "REBOOT\t\t\t\treboot the firmware.";
 const uint8_t PM_INTERPRETER_HELP08_len 					= sizeof(PM_INTERPRETER_HELP08);
 
-PROGMEM const uchar PM_INTERPRETER_HELP09[] 				= "TEST\t\t\t\ttoggles counter test.";
+PROGMEM const uchar PM_INTERPRETER_HELP09[] 				= "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SERON\t\t\t\tswitch serial communication ON.";
 const uint8_t PM_INTERPRETER_HELP09_len 					= sizeof(PM_INTERPRETER_HELP09);
 
-PROGMEM const uchar PM_INTERPRETER_HELP10[] 				= "WRITEPWM\t\t\tstore current PWM as default value.";
+PROGMEM const uchar PM_INTERPRETER_HELP10[] 				= "TEST\t\t\t\ttoggles counter test.";
 const uint8_t PM_INTERPRETER_HELP10_len 					= sizeof(PM_INTERPRETER_HELP10);
 
-PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "+/- <PWM value>\t\tcorrection value to be added.";
+PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "WRITEPWM\t\t\tstore current PWM as default value.";
 const uint8_t PM_INTERPRETER_HELP11_len 					= sizeof(PM_INTERPRETER_HELP11);
 
-PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "===========\n" \
+PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "+/- <PWM value>\t\tcorrection value to be added.";
+const uint8_t PM_INTERPRETER_HELP12_len 					= sizeof(PM_INTERPRETER_HELP12);
+
+PROGMEM const uchar PM_INTERPRETER_HELP13[] 				= "===========\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  ">";
-const uint8_t PM_INTERPRETER_HELP12_len 					= sizeof(PM_INTERPRETER_HELP12);
+const uint8_t PM_INTERPRETER_HELP13_len 					= sizeof(PM_INTERPRETER_HELP13);
 
 PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "*?* unknown command, try HELP.\n" \
 															  "\n" \
 															  ">";
 const uint8_t PM_INTERPRETER_UNKNOWN_len 					= sizeof(PM_INTERPRETER_UNKNOWN);
 
-PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: %03d%03d\n";
+PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d\n";
 
 PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA1: localClockDiff = %+4ld @20MHz, \tlocalClockAvg = %+4.2f @20MHz, \tqrgDev_Hz = %+4dHz @10MHz, \tppm = %+02.3f\n";
 PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA2: mainPwmHistAvg = %03.3f, \tpwmDevLin_steps = %+03.3f, \tpwmDevWght_steps = %+03.3f, \tnewPwmVal = %03.3f\n\n";
@@ -164,6 +170,7 @@ enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
 float mainPwmTerminalAdj									= 0.0f;
 uint8_t  mainHelpConcatNr									= 0;
 uint8_t  mainIsAFC											= false;
+uint8_t  mainIsAPC											= false;
 uint8_t  mainIsTimerTest									= false;
 uint8_t  mainIsJumperBlSet									= false;
 uint8_t  mainIsSerComm										= false;
@@ -184,6 +191,9 @@ uint32_t fastStampCtr1ms									= 0;
 uint32_t fastCtr1ms											= 0;
 uint8_t  fastPwmSubCnt										= 0;
 uint8_t  fastPwmSubCmp										= 0;
+uint16_t fastPwmAdcNow										= 0;
+uint16_t fastPwmAdcLast										= 0;
+int16_t  fastPwmAdcAscendingVal								= 0;
 
 /* df4iah_fw_anlgComp (10 kHz GPS pulse) */
 uint8_t  acAdcConvertNowCh									= 0;
@@ -398,17 +408,8 @@ static float calcPwmWghtDiff(float* calcWght, float localDiff)
 {
 	float localDiffForWght = (localDiff >= 0.0f ?  localDiff : -localDiff);
 
-#if 0
-	if (localDiffForWght < 1.0f) {
-		localDiffForWght = 1.0f;
-
-	} else if (localDiffForWght > 10.0f) {
-		localDiffForWght = 10.0f;
-	}
-#endif
-
 	*calcWght = log10f(10.0f + localDiffForWght)	* 0.5f;	// XXX adjust the coefficients
-	return localDiff * (*calcWght)					* 1.25f;
+	return localDiff * (*calcWght)					* 0.71f;
 }
 
 #ifdef RELEASE
@@ -457,6 +458,14 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_AFCON, sizeof(VM_COMMAND_AFCON))) {
 		/* automatic frequency control ON */
 		mainIsAFC = true;
+
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_APCOFF, sizeof(VM_COMMAND_APCOFF))) {
+		/* automatic phase control OFF */
+		mainIsAPC = false;
+
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_APCON, sizeof(VM_COMMAND_APCON))) {
+		/* automatic phase control ON */
+		mainIsAPC = true;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_HALT, sizeof(VM_COMMAND_HALT))) {
 		/* stop AVR controller and enter sleep state */
@@ -622,6 +631,11 @@ static void workInQueue()
 
 			case 11:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP12, PM_INTERPRETER_HELP12_len);
+				mainHelpConcatNr = 12;
+				break;
+
+			case 12:
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP13, PM_INTERPRETER_HELP13_len);
 				// no break
 			default:
 				mainHelpConcatNr = 0;
@@ -667,9 +681,9 @@ static void doJobs()
 		 * 2)	Linker libraries:	-lm  -lprintf_flt      -lscanf_flt
 		 */
 
-		float adcCh0Volts = ( acAdcCh[0] * mainCoef_b01_ref_AREF_V) / 1024.f;
-		float adcCh1Volts = ( acAdcCh[1] * mainCoef_b01_ref_AREF_V) / 1024.f;
-		float adcCh2C     = ((acAdcCh[2] - mainCoef_b01_temp_ofs_adc_25C_steps) * mainCoef_b01_temp_k_p1step_adc_K) + 25.0f;
+		float adcCh0Volts = ( acAdcCh[ADC_CH_PWMPULL]	* mainCoef_b01_ref_AREF_V) / 1024.f;
+		float adcCh1Volts = ( acAdcCh[ADC_CH_PHASE]		* mainCoef_b01_ref_AREF_V) / 1024.f;
+		float adcCh2C     = ((acAdcCh[ADC_CH_TEMP]		- mainCoef_b01_temp_ofs_adc_25C_steps) * mainCoef_b01_temp_k_p1step_adc_K) + 25.0f;
 
 		if (localStampCtr1ms_next <= localStampCtr1ms) {
 			/* 10 MHz Ref-Clk State Machine */
@@ -682,7 +696,8 @@ static void doJobs()
 				int32_t localClockDiff = ((20000L * (localStampCtr1ms - localStampCtr1ms_last))
 									   + ((((int32_t) localStampTCNT1) - ((int32_t) localStampTCNT1_last))))
 									   - 20000000L
-									   + 1L;				// 1 clock offset to let the phase wander and the locker find its position to lock
+									   + 2L;				// 2 clocks (= 1 Hz @ 10 MHz) below center frequency to let the phase wander and
+															// the locker find its position to lock in
 
 				if ((-1000 < localClockDiff) &&
 					( 1000 > localClockDiff)) {
@@ -706,12 +721,12 @@ static void doJobs()
 					float pwmDevWght_steps = main_fw_calcPwmWghtDiff(pwmDevLin_steps);
 
 					/* determine the new state of the FSM */
-					if ((-0.1f <= ppm) && (ppm <= 0.1f)) {  // single step tuning with counter stabilizer
+					if ((-0.15f <= ppm) && (ppm <= 0.05f)) {  // single step tuning with counter stabilizer
 						if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 							/* Upgrading: switch on the frequency mean value counter */
 							mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
 						}
-					} else if ((-0.25f <= ppm) && (ppm <= 0.25f)) {  // single step tuning
+					} else if ((-0.35f <= ppm) && (ppm <= 0.15f)) {  // single step tuning
 						if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE) {
 							/* Upgrading: hand-over to the phase lock loop */
 							mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
@@ -721,13 +736,13 @@ static void doJobs()
 							mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
 						}
 
-					} else if ((-1.0f <= ppm) && (ppm <= 1.0f)) {  // phase lock loop locked out again
+					} else if ((-2.2f <= ppm) && (ppm <= 2.0f)) {  // phase lock loop locked out again
 						if (mainRefClkState > REFCLK_STATE_SEARCH_QRG) {
 							/* Downgrading: frequency search and lock loop entering QRG area */
 							mainRefClkState = REFCLK_STATE_SEARCH_QRG;
 						}
 
-					} else if ((-25.0f <= ppm) && (ppm <= 25.0f)) {	 // entering 10.0 MHz area
+					} else if ((-25.2f <= ppm) && (ppm <= 25.0f)) {	 // entering 10.0 MHz area
 						if (mainRefClkState < REFCLK_STATE_SEARCH_QRG) {
 							/* Upgrading: frequency search and lock loop entering QRG area */
 							mainRefClkState = REFCLK_STATE_SEARCH_QRG;
@@ -744,7 +759,7 @@ static void doJobs()
 					uint8_t localPwmSubVal  = fastPwmSubCmp;
 					sei();
 
-					if (mainIsAFC) {
+					if (mainIsAFC && (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
 						/* adjusting the PWM registers and make the new value public */
 						localPullPwmVal = calcTimerAdj(&localPwmSubVal, localPullPwmVal, pwmDevWght_steps);
 
@@ -812,19 +827,19 @@ static void doJobs()
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA04, sizeof(PM_FORMAT_TA04));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-					acAdcCh[0],
+					acAdcCh[ADC_CH_PWMPULL],
 					adcCh0Volts);
 			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA05, sizeof(PM_FORMAT_TA05));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-					acAdcCh[1],
+					acAdcCh[ADC_CH_PHASE],
 					adcCh1Volts);
 			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA06, sizeof(PM_FORMAT_TA06));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-					acAdcCh[2],
+					acAdcCh[ADC_CH_TEMP],
 					adcCh2C);
 			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
 
