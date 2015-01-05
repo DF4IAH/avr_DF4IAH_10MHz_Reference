@@ -179,6 +179,11 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 	if (mainIsAPC && (mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
 		static uint8_t  localSpeedCtr = 0;
 		static uint16_t localSpeedSum = 0;
+#ifdef ADC_PWM_REMEMBER_LAST_NULL
+		static uint16_t localFastPwmAdcAscendingValLast = 0;
+		static uint8_t localSubPwmStore = 0;
+		static uint8_t localPwmStore = 0;
+#endif
 
 		localSpeedSum += acAdcCh[ADC_CH_PHASE];
 		if (localSpeedCtr++ == ADC_PWM_SAMPLING_CNT) {
@@ -190,7 +195,26 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 
 			if ((ADC_PWM_LO < fastPwmAdcNow) && (fastPwmAdcNow < ADC_PWM_HI)) {
 				/* indicator valid inside this range only */
+#ifdef ADC_PWM_REMEMBER_LAST_NULL
+				localFastPwmAdcAscendingValLast = fastPwmAdcAscendingVal;
+#endif
 				fastPwmAdcAscendingVal = ((int16_t) fastPwmAdcNow) - ((int16_t) fastPwmAdcLast);
+
+#ifdef ADC_PWM_REMEMBER_LAST_NULL
+				if (((localFastPwmAdcAscendingValLast < 0) && (fastPwmAdcAscendingVal > 0)) ||
+					((localFastPwmAdcAscendingValLast < 0) && (fastPwmAdcAscendingVal > 0))) {
+					/* change of direction */
+					if (((fastPwmAdcNow - ADC_PWM_CENTER_NEUTRAL_DELTA) < ADC_PWM_CENTER) ||
+						((fastPwmAdcNow + ADC_PWM_CENTER_NEUTRAL_DELTA) > ADC_PWM_CENTER)) {
+						/* store frequency of reversing direction when outside of center phase */
+						cli();
+						localSubPwmStore = fastPwmSubCmp;
+						localPwmStore = pullPwmVal;
+						sei();
+					}
+				}
+#endif
+
 				if ((fastPwmAdcAscendingVal < -ADC_PWM_SWITCH_OUT) || (ADC_PWM_SWITCH_OUT < fastPwmAdcAscendingVal)) {
 					fastPwmAdcAscendingVal = 0;
 				}
@@ -201,12 +225,12 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 				}
 
 				{ /* keeping the phase at 2.4 volts */
-					if ((fastPwmAdcNow < ADC_PWM_CENTER) && (fastPwmAdcAscendingVal <= -ADC_PWM_SWITCH_SPEED)) {
+					if (((fastPwmAdcNow - ADC_PWM_CENTER_NEUTRAL_DELTA) < ADC_PWM_CENTER) && (fastPwmAdcAscendingVal <= -ADC_PWM_SWITCH_SPEED)) {
 #if 1
 						/* try to increase the phase-detector-voltage */	// XXX Richtung OK, Spannungsschwelle falsch?
-						cli();
 						DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
 						DEBUG_DN_PORT |=   _BV(DEBUG_DN_NR);		// TODO debugging aid
+						cli();
 # if 1
 						if (!(fastPwmSubCmp--))						// VCO-Frequency goes lower
 						{
@@ -214,16 +238,16 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 							OCR0B = --pullPwmVal;
 						}
 # endif
-						//DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+							//DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
 						sei();
 #endif
 
-					} else if ((fastPwmAdcNow > ADC_PWM_CENTER) && (fastPwmAdcAscendingVal >= ADC_PWM_SWITCH_SPEED)) {
+					} else if (((fastPwmAdcNow + ADC_PWM_CENTER_NEUTRAL_DELTA) > ADC_PWM_CENTER) && (fastPwmAdcAscendingVal >= ADC_PWM_SWITCH_SPEED)) {
 #if 1
 						/* try to decrease the phase-detector-voltage */  	// XXX OK
-						cli();
 						DEBUG_UP_PORT |=   _BV(DEBUG_UP_NR);		// TODO debugging aid
 						DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+						cli();
 # if 1
 						if (!(++fastPwmSubCmp % localSubPwmCnt)) {	// VCO-Frequency goes higher
 							fastPwmSubCmp = 0;
@@ -233,6 +257,20 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 						//DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
 						sei();
 #endif
+
+					} else if (((fastPwmAdcNow - ADC_PWM_CENTER_NEUTRAL_DELTA) >= ADC_PWM_CENTER) &&
+							   ((fastPwmAdcNow + ADC_PWM_CENTER_NEUTRAL_DELTA) <= ADC_PWM_CENTER)) {
+#ifdef ADC_PWM_REMEMBER_LAST_NULL
+						/* take neutral frequency setting for current PWM */
+						cli();
+						fastPwmSubCmp = localSubPwmStore;
+						OCR0B = pullPwmVal = localPwmStore;
+						sei();
+#endif
+
+						DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+						DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+
 					} else {
 						DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
 						DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
@@ -245,6 +283,9 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 				/* got outside of locked phase */
 				if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
 					mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
+
+					DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+					DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
 				}
 			}
 		}

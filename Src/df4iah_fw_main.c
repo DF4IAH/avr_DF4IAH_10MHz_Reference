@@ -171,7 +171,7 @@ float mainPwmTerminalAdj									= 0.0f;
 uint8_t  mainHelpConcatNr									= 0;
 uint8_t  mainIsAFC											= true;
 uint8_t  mainIsAPC											= true;
-uint8_t  mainIsTimerTest									= false;
+uint8_t  mainIsTimerTest									= true;
 uint8_t  mainIsJumperBlSet									= false;
 uint8_t  mainIsSerComm										= false;
 uint8_t  mainIsUsbCommTest 									= false;
@@ -482,7 +482,6 @@ static void doInterpret(uchar msg[], uint8_t len)
 		ringbuffer_fw_ringBufferWaitAppend(!isSend, false, mainPrepareBuffer, len);
 		ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP01, PM_INTERPRETER_HELP01_len);
 		mainHelpConcatNr = 1;
-		mainIsTimerTest = false;
 		mainIsUsbCommTest = false;
 
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_INFO, sizeof(VM_COMMAND_INFO))) {
@@ -721,12 +720,12 @@ static void doJobs()
 					float pwmDevWght_steps = main_fw_calcPwmWghtDiff(pwmDevLin_steps);
 
 					/* determine the new state of the FSM */
-					if ((-0.1f <= ppm) && (ppm <= 0.1f)) {  // single step tuning with counter stabilizer		// mind you: due to the counter offset
-						if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {  						// the PPM limits are moved, also
+					if ((-0.1f <= ppm) && (ppm <= 0.1f)) {  // single step tuning with counter stabilizer
+						if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 							/* Upgrading: switch on the frequency mean value counter */
 							mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
 						}
-					} else if ((-0.2f <= ppm) && (ppm <= 0.2f)) {  // single step tuning
+					} else if ((-0.2f <= ppm) && (ppm <= 0.1f)) {  // single step tuning
 						if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE) {
 							/* Upgrading: hand-over to the phase lock loop */
 							mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
@@ -736,7 +735,7 @@ static void doJobs()
 							mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
 						}
 
-					} else if ((-2.0f <= ppm) && (ppm <= 2.0f)) {  // phase lock loop locked out again
+					} else if ((-0.25f <= ppm) && (ppm <= 0.25f)) {  // phase lock loop locked out again
 						if (mainRefClkState > REFCLK_STATE_SEARCH_QRG) {
 							/* Downgrading: frequency search and lock loop entering QRG area */
 							mainRefClkState = REFCLK_STATE_SEARCH_QRG;
