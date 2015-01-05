@@ -60,6 +60,14 @@ void clkFastCtr_fw_init()
 
 	/* ICF1 and OCF1A interrupt enable */
 	TIMSK1 = _BV(ICIE1) | _BV(OCIE1A);
+
+	{
+		/* DEBUGGING */
+		DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));
+		DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));
+		DEBUG_UP_DDR  |=   _BV(DEBUG_UP_NR);
+		DEBUG_DN_DDR  |=   _BV(DEBUG_DN_NR);
+	}
 }
 
 #ifdef RELEASE
@@ -67,6 +75,14 @@ __attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
 #endif
 void clkFastCtr_fw_close()
 {
+	{
+		/* DEBUGGING */
+		DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));
+		DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));
+		DEBUG_UP_DDR  &= ~(_BV(DEBUG_UP_NR));
+		DEBUG_DN_DDR  &= ~(_BV(DEBUG_DN_NR));
+	}
+
 	/* switch off interrupts */
 	TIMSK1 = 0;
 
@@ -145,61 +161,91 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 		OCR0B++;
 	}
 
+#if 0
+	DEBUG_UP_PORT |=   _BV(DEBUG_UP_NR);		// TODO debugging aid
+	DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+#endif
 	sei();														// since here we can accept interruptions
+#if 0
+	DEBUG_DN_PORT |=   _BV(DEBUG_DN_NR);		// TODO debugging aid
+	DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+#endif
 
 	/* sub-counter increment */
 	fastPwmSubCnt++;
 	fastPwmSubCnt &= localSubPwmMax;
 
 	/* APC = automatic phase control */
-	if (mainIsAPC && true /*(mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) */) {
-		fastPwmAdcLast = fastPwmAdcNow;
-		fastPwmAdcNow  = acAdcCh[ADC_CH_PHASE];
+	if (mainIsAPC && (mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
+		static uint8_t  localSpeedCtr = 0;
+		static uint16_t localSpeedSum = 0;
 
-		if ((ADC_PWM_LO < fastPwmAdcNow) && (fastPwmAdcNow < ADC_PWM_HI)) {
-			/* indicator valid inside this range only */
-			fastPwmAdcAscendingVal = (fastPwmAdcNow - fastPwmAdcLast);
-			if ((fastPwmAdcAscendingVal < -ADC_PWM_SWITCH_OUT) || (ADC_PWM_SWITCH_OUT < fastPwmAdcAscendingVal)) {
-				fastPwmAdcAscendingVal = 0;
-			}
+		localSpeedSum += acAdcCh[ADC_CH_PHASE];
+		if (localSpeedCtr++ == ADC_PWM_SAMPLING_CNT) {
+			/* subsampling data reduction */
+			localSpeedCtr = 0;
+			fastPwmAdcLast = fastPwmAdcNow;
+			fastPwmAdcNow = localSpeedSum;
+			localSpeedSum = 0;
 
-			/* inside of measuring phase */
-			if (mainRefClkState < REFCLK_STATE_LOCKING_PHASE) {
-				mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
-			}
-
-			{ /* keeping the phase at 1.5 volts */
-				if ((fastPwmAdcNow < ADC_PWM_CENTER) && (fastPwmAdcAscendingVal < -ADC_PWM_SWITCH_SPEED)) {
-#if 1
-					/* try to decrease the phase */
-					cli();
-					if (!(fastPwmSubCmp--))
-					{
-						fastPwmSubCmp = localSubPwmMax;
-						OCR0B = --pullPwmVal;
-					}
-					sei();
-#endif
-
-				} else if ((fastPwmAdcNow > ADC_PWM_CENTER) && (fastPwmAdcAscendingVal > ADC_PWM_SWITCH_SPEED)) {
-#if 1
-					/* try to increase the phase */
-					cli();
-					if (!(++fastPwmSubCmp % localSubPwmCnt)) {
-						fastPwmSubCmp = 0;
-						OCR0B = ++pullPwmVal;
-					}
-					sei();
-#endif
+			if ((ADC_PWM_LO < fastPwmAdcNow) && (fastPwmAdcNow < ADC_PWM_HI)) {
+				/* indicator valid inside this range only */
+				fastPwmAdcAscendingVal = ((int16_t) fastPwmAdcNow) - ((int16_t) fastPwmAdcLast);
+				if ((fastPwmAdcAscendingVal < -ADC_PWM_SWITCH_OUT) || (ADC_PWM_SWITCH_OUT < fastPwmAdcAscendingVal)) {
+					fastPwmAdcAscendingVal = 0;
 				}
-			}
-			/* try to advance the phase */
-			/* try to retard the phase */
 
-		} else {
-			/* got outside of locked phase */
-			if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
-				mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
+				/* inside of measuring phase */
+				if (mainRefClkState < REFCLK_STATE_LOCKING_PHASE) {
+					mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
+				}
+
+				{ /* keeping the phase at 2.4 volts */
+					if ((fastPwmAdcNow < ADC_PWM_CENTER) && (fastPwmAdcAscendingVal <= -ADC_PWM_SWITCH_SPEED)) {
+#if 1
+						/* try to increase the phase-detector-voltage */	// XXX Richtung OK, Spannungsschwelle falsch?
+						cli();
+						DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+						DEBUG_DN_PORT |=   _BV(DEBUG_DN_NR);		// TODO debugging aid
+# if 1
+						if (!(fastPwmSubCmp--))						// VCO-Frequency goes lower
+						{
+							fastPwmSubCmp = localSubPwmMax;
+							OCR0B = --pullPwmVal;
+						}
+# endif
+						//DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+						sei();
+#endif
+
+					} else if ((fastPwmAdcNow > ADC_PWM_CENTER) && (fastPwmAdcAscendingVal >= ADC_PWM_SWITCH_SPEED)) {
+#if 1
+						/* try to decrease the phase-detector-voltage */  	// XXX OK
+						cli();
+						DEBUG_UP_PORT |=   _BV(DEBUG_UP_NR);		// TODO debugging aid
+						DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+# if 1
+						if (!(++fastPwmSubCmp % localSubPwmCnt)) {	// VCO-Frequency goes higher
+							fastPwmSubCmp = 0;
+							OCR0B = ++pullPwmVal;
+						}
+# endif
+						//DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+						sei();
+#endif
+					} else {
+						DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+						DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+					}
+				}
+				/* try to advance the phase */
+				/* try to retard the phase */
+
+			} else {
+				/* got outside of locked phase */
+				if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
+					mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
+				}
 			}
 		}
 	}

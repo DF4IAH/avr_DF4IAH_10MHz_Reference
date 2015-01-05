@@ -13,7 +13,7 @@
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										150
-#define VERSION_LOW											104
+#define VERSION_LOW											105
 
 
 /* MCU frequency */
