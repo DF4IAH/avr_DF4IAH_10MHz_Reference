@@ -165,6 +165,8 @@ float mainCoef_b02_qrg_k_p1v_25C_Hz							= 0.0f;
 uint8_t  mainPwmHistIdx 									= 0;
 float mainPwmHistAvg										= 0.0f;
 float mainPwmHistWghtSum									= 0.0f;
+uint8_t  mainAfcPwmMeanVal									= 0;
+uint8_t  mainAfcPwmMeanSubVal								= 0;
 uint8_t  mainCtxtBufferIdx 									= 0;
 enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
 float mainPwmTerminalAdj									= 0.0f;
@@ -191,8 +193,8 @@ uint32_t fastStampCtr1ms									= 0;
 uint32_t fastCtr1ms											= 0;
 uint8_t  fastPwmSubCnt										= 0;
 uint8_t  fastPwmSubCmp										= 0;
-uint16_t fastPwmAdcNow										= 0;
-uint16_t fastPwmAdcLast										= 0;
+uint32_t fastPwmAdcNow										= 0;
+uint32_t fastPwmAdcLast										= 0;
 int16_t  fastPwmAdcAscendingVal								= 0;
 
 /* df4iah_fw_anlgComp (10 kHz GPS pulse) */
@@ -691,26 +693,30 @@ static void doJobs()
 
 			/* frequency shift calculation */
 			{
-
+				uint8_t localIsOffset = false;
 				int32_t localClockDiff = ((20000L * (localStampCtr1ms - localStampCtr1ms_last))
 									   + ((((int32_t) localStampTCNT1) - ((int32_t) localStampTCNT1_last))))
-									   - 20000000L
-									   + 2L;				// 2 clocks (= 1 Hz @ 10 MHz) below center frequency to let the phase wander and
+									   - 20000000L;
+				if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
+					/* Help APC to find its phase - when found, stop offset */
+					localClockDiff += 2L;					// 2 clocks (= 1 Hz @ 10 MHz) below center frequency to let the phase wander and
 															// the phase locker find its position to lock in
+					localIsOffset = true;
+				}
 
 				if ((-1000 < localClockDiff) &&
 					( 1000 > localClockDiff)) {
 					/* keep measuring window between +/-50ppm */
 					int16_t localClockDiffSum = 0;
-					int16_t qrgDev_Hz = ((int16_t) (localClockDiff >> 1)) - 1;	// correct the clock offset
-					float ppm = (localClockDiff / 20.0f) - 0.1f;				// correct the clock offset
+					int16_t qrgDev_Hz = ((int16_t) (localClockDiff >> 1)) - (localIsOffset ?  1 : 0);	// correct the clock offset
+					float ppm = (localClockDiff / 20.0f) - (localIsOffset ?  0.1f : 0.0f);				// correct the clock offset
 
 					/* shift register with three last localClockDiff's */
 					for (int idx = MAIN_CLOCK_DIFF_COUNT - 1; idx; --idx) {
 						mainClockDiffs[idx] = mainClockDiffs[idx - 1];
 						localClockDiffSum += mainClockDiffs[idx - 1];
 					}
-					mainClockDiffs[0] = (uint16_t) localClockDiff;
+					mainClockDiffs[0] = ((uint16_t) localClockDiff) - (localIsOffset ?  2 : 0);
 					localClockDiffSum += mainClockDiffs[0];
 					float localClockDiffAvg = localClockDiffSum / ((float) MAIN_CLOCK_DIFF_COUNT);
 					float localClockDiffUse = ((mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) ?  localClockDiffAvg : localClockDiff);
@@ -720,12 +726,12 @@ static void doJobs()
 					float pwmDevWght_steps = main_fw_calcPwmWghtDiff(pwmDevLin_steps);
 
 					/* determine the new state of the FSM */
-					if ((-0.1f <= ppm) && (ppm <= 0.1f)) {  // single step tuning with counter stabilizer
+					if ((-0.30f <= ppm) && (ppm <= 0.15f)) {  // single step tuning with counter stabilizer
 						if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 							/* Upgrading: switch on the frequency mean value counter */
 							mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
 						}
-					} else if ((-0.2f <= ppm) && (ppm <= 0.1f)) {  // single step tuning
+					} else if ((-0.35f <= ppm) && (ppm <= 0.35f)) {  // single step tuning
 						if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE) {
 							/* Upgrading: hand-over to the phase lock loop */
 							mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
@@ -735,7 +741,7 @@ static void doJobs()
 							mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
 						}
 
-					} else if ((-0.25f <= ppm) && (ppm <= 0.25f)) {  // phase lock loop locked out again
+					} else if ((-0.5f <= ppm) && (ppm <= 0.5f)) {  // phase lock loop locked out again
 						if (mainRefClkState > REFCLK_STATE_SEARCH_QRG) {
 							/* Downgrading: frequency search and lock loop entering QRG area */
 							mainRefClkState = REFCLK_STATE_SEARCH_QRG;
@@ -758,8 +764,8 @@ static void doJobs()
 					uint8_t localPwmSubVal  = fastPwmSubCmp;
 					sei();
 
-					if (mainIsAFC && (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
-						/* adjusting the PWM registers and make the new value public */
+					if (mainIsAFC && (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
+						/* adjusting the PWM registers and make the new value public - do not modify when handover to APC is made */
 						localPullPwmVal = calcTimerAdj(&localPwmSubVal, localPullPwmVal, pwmDevWght_steps);
 
 						cli();
@@ -768,6 +774,8 @@ static void doJobs()
 						clkPullPwm_fw_setRatio(pullPwmVal);
 						sei();
 					}
+					mainAfcPwmMeanVal = pullPwmVal;
+					mainAfcPwmMeanSubVal = localPwmSubVal;
 
 					/* write into history table */
 					mainPwmHist[mainPwmHistIdx++] = pullPwmVal;
@@ -776,8 +784,8 @@ static void doJobs()
 					/* monitoring */
 					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA01, sizeof(PM_FORMAT_IA01));
 					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-							localClockDiff -2,
-							localClockDiffAvg - 2.0f,
+							localClockDiff,
+							localClockDiffAvg,
 							qrgDev_Hz,
 							ppm);
 					ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
