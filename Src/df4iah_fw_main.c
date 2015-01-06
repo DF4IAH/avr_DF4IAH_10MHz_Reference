@@ -719,7 +719,7 @@ static void doJobs()
 									   - 20000000L;
 				if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 					/* Help APC to find its phase - when found, stop offset */
-					localClockDiff += 2L;					// 2 clocks (= 1 Hz @ 10 MHz) below center frequency to let the phase wander and
+					localClockDiff += 1L;					// 1 clock (= 0.5 Hz @ 10 MHz) below center frequency to let the phase wander and
 															// the phase locker find its position to lock in
 					localIsOffset = true;
 				}
@@ -728,15 +728,15 @@ static void doJobs()
 					( 1000 > localClockDiff)) {
 					/* keep measuring window between +/-50ppm */
 					int16_t localClockDiffSum = 0;
-					int16_t qrgDev_Hz = ((int16_t) (localClockDiff >> 1)) - (localIsOffset ?  1 : 0);	// correct the clock offset
-					float ppm = (localClockDiff / 20.0f) - (localIsOffset ?  0.1f : 0.0f);				// correct the clock offset
+					int16_t qrgDev_Hz = ((int16_t) (localClockDiff >> 1));
+					float ppm = (localClockDiff / 20.0f) - (localIsOffset ?  0.01f : 0.0f);				// correct the clock offset
 
 					/* shift register with three last localClockDiff's */
 					for (int idx = MAIN_CLOCK_DIFF_COUNT - 1; idx; --idx) {
 						mainClockDiffs[idx] = mainClockDiffs[idx - 1];
 						localClockDiffSum += mainClockDiffs[idx - 1];
 					}
-					mainClockDiffs[0] = ((uint16_t) localClockDiff) - (localIsOffset ?  2 : 0);
+					mainClockDiffs[0] = ((uint16_t) localClockDiff) - (localIsOffset ?  1 : 0);
 					localClockDiffSum += mainClockDiffs[0];
 					float localClockDiffAvg = localClockDiffSum / ((float) MAIN_CLOCK_DIFF_COUNT);
 					float localClockDiffUse = ((mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) ?  localClockDiffAvg : localClockDiff);
@@ -746,7 +746,7 @@ static void doJobs()
 					float pwmDevWght_steps = main_fw_calcPwmWghtDiff(pwmDevLin_steps);
 
 					/* determine the new state of the FSM */
-					if ((-0.30f <= ppm) && (ppm <= 0.15f)) {  // single step tuning with counter stabilizer
+					if ((-0.25f <= ppm) && (ppm <= 0.15f)) {  // single step tuning with counter stabilizer
 						if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 							/* Upgrading: switch on the frequency mean value counter */
 							mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
@@ -787,7 +787,7 @@ static void doJobs()
 					uint8_t localPwmSubVal  = fastPwmSubCmp;
 					sei();
 
-					if (mainIsAFC && (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
+					if (mainIsAFC && (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
 						/* adjusting the PWM registers and make the new value public - do not modify when handover to APC is made */
 						localPullPwmVal = calcTimerAdj(&localPwmSubVal, localPullPwmVal, pwmDevWght_steps);
 
