@@ -11,7 +11,7 @@
 
 /* this modules uses the T1 timer/counter/pwm-generator of the AVR controller as timer */
 
-#define EXPERIMENTAL										// ... or not
+//#define EXPERIMENTAL										// ... or not
 
 #define OCR1_TOP_VALUE 										19999
 #define FAST_PWM_SUB_BITCNT									5
@@ -21,8 +21,9 @@
 #define ADC_PWM_CENTER										(150 * ADC_PWM_SAMPLING_CNT)						// 0.65V (Center: 150)
 #define ADC_PWM_LO											(ADC_PWM_CENTER - (120 * ADC_PWM_SAMPLING_CNT))		// 0.13V (Delta: -120)
 #define ADC_PWM_HI											(ADC_PWM_CENTER + (120 * ADC_PWM_SAMPLING_CNT))		// 1.20V (Delta: +125)
-#define ADC_PWM_SWITCH_SPEED								9		// 9
+#define ADC_PWM_SWITCH_SPEED								7		// 9
 #define ADC_PWM_SWITCH_OUT									300		// 300
+#define ADC_PWM_REDUCE_RANGE								100		// 100
 
 #define DEBUG_UP_NR											4
 #define DEBUG_UP_PIN										PINB

@@ -10,6 +10,7 @@
 
 
 #include <math.h>
+#include <stdlib.h>
 #include <avr/interrupt.h>
 
 #include "chipdef.h"
@@ -92,6 +93,23 @@ void clkFastCtr_fw_close()
 	/* no more power is needed for this module */
 	PRR |= _BV(PRTIM1);
 }
+
+
+static uint8_t fastReducer(uint8_t adcVal, uint8_t fullScale)
+{
+	float distance = fabsf(adcVal - ADC_PWM_CENTER);
+	float factor = 1.0f;
+
+	if (distance < fullScale) {
+		factor = (distance / fullScale);
+		float r = (((float) random()) / ((float) RANDOM_MAX));
+		if (r > factor) {
+			return false;
+		}
+	}
+	return true;
+}
+
 
 /*
  * x	Mnemonics	clocks	resulting clocks
@@ -179,9 +197,11 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 	if (mainIsAPC && (mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
 		static uint8_t  localSpeedCtr = 0;
 		static uint32_t localSpeedSum = 0;
+#ifdef EXPERIMENTAL
 		static uint32_t localSpeedLastCenter = 0;
 		static uint8_t  localPwmLastCenterVal = 0;
 		static uint8_t  localPwmLastCenterSub = 0;
+#endif
 
 		localSpeedSum += acAdcCh[ADC_CH_PHASE];
 		if (localSpeedCtr++ == ADC_PWM_SAMPLING_CNT) {
@@ -240,28 +260,32 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 #endif
 					if ((fastPwmAdcNow < ADC_PWM_CENTER) && (fastPwmAdcAscendingVal <= -ADC_PWM_SWITCH_SPEED)) {
 						/* try to increase the phase-detector-voltage */
-						DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
-						DEBUG_DN_PORT |=   _BV(DEBUG_DN_NR);		// TODO debugging aid
-						cli();
-						if (!(fastPwmSubCmp--))						// VCO-Frequency goes lower
-						{
-							fastPwmSubCmp = localSubPwmMax;
-							OCR0B = --pullPwmVal;
-						}
+						if (fastReducer(fastPwmAdcNow, ADC_PWM_REDUCE_RANGE)) {
+							cli();
+							DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+							DEBUG_DN_PORT |=   _BV(DEBUG_DN_NR);		// TODO debugging aid
+							if (!(fastPwmSubCmp--))						// VCO-Frequency goes lower
+							{
+								fastPwmSubCmp = localSubPwmMax;
+								OCR0B = --pullPwmVal;
+							}
 							//DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
-						sei();
+							sei();
+						}
 
 					} else if ((fastPwmAdcNow > ADC_PWM_CENTER) && (fastPwmAdcAscendingVal >= ADC_PWM_SWITCH_SPEED)) {
 						/* try to decrease the phase-detector-voltage */
-						DEBUG_UP_PORT |=   _BV(DEBUG_UP_NR);		// TODO debugging aid
-						DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
-						cli();
-						if (!(++fastPwmSubCmp % localSubPwmCnt)) {	// VCO-Frequency goes higher
-							fastPwmSubCmp = 0;
-							OCR0B = ++pullPwmVal;
+						if (fastReducer(fastPwmAdcNow, ADC_PWM_REDUCE_RANGE)) {
+							cli();
+							DEBUG_UP_PORT |=   _BV(DEBUG_UP_NR);		// TODO debugging aid
+							DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+							if (!(++fastPwmSubCmp % localSubPwmCnt)) {	// VCO-Frequency goes higher
+								fastPwmSubCmp = 0;
+								OCR0B = ++pullPwmVal;
+							}
+							//DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+							sei();
 						}
-						//DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
-						sei();
 
 					} else {
 						DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
