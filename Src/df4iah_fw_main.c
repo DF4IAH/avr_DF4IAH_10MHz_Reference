@@ -996,7 +996,7 @@ int main(void)
 		if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_HEADER_NR)) {
 			eeprom_b00_t* b00 = (eeprom_b00_t*) &eepromBlockCopy;
 			memcpy(mainCoef_b00_dev_header, b00->b00_header, sizeof(mainCoef_b00_dev_header) - 1);
-			mainCoef_b00_dev_header[sizeof(mainCoef_b00_dev_header)] = 0;
+			mainCoef_b00_dev_header[sizeof(mainCoef_b00_dev_header) - 1] = 0;
 
 			mainCoef_b00_dev_serial					= b00->b00_device_serial;
 			mainCoef_b00_dev_version				= b00->b00_version;
