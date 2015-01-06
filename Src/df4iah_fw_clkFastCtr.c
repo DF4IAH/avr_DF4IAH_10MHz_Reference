@@ -9,6 +9,7 @@
 /* this modules uses the T2 timer/counter/pwm-generator of the AVR controller as timer */
 
 
+#include <math.h>
 #include <avr/interrupt.h>
 
 #include "chipdef.h"
@@ -30,8 +31,6 @@ extern uint16_t acAdcCh[AC_ADC_CH_COUNT + 1];
 extern uint32_t fastPwmAdcNow;
 extern uint32_t fastPwmAdcLast;
 extern int16_t  fastPwmAdcAscendingVal;
-extern uint8_t  mainAfcPwmMeanVal;
-extern uint8_t  mainAfcPwmMeanSubVal;
 
 
 #ifdef RELEASE
@@ -180,6 +179,9 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 	if (mainIsAPC && (mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
 		static uint8_t  localSpeedCtr = 0;
 		static uint32_t localSpeedSum = 0;
+		static uint32_t localSpeedLastCenter = 0;
+		static uint8_t  localPwmLastCenterVal = 0;
+		static uint8_t  localPwmLastCenterSub = 0;
 
 		localSpeedSum += acAdcCh[ADC_CH_PHASE];
 		if (localSpeedCtr++ == ADC_PWM_SAMPLING_CNT) {
@@ -203,18 +205,38 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 
 				{ /* keeping the phase at 2.4 volts */
 #ifdef EXPERIMENTAL
-					if (((fastPwmAdcNow <= ADC_PWM_CENTER && (fastPwmAdcLast > ADC_PWM_CENTER)) ||
-						(fastPwmAdcNow >= ADC_PWM_CENTER && (fastPwmAdcLast < ADC_PWM_CENTER))) &&
-						(((fastPwmAdcNow - ADC_PWM_CENTER_AREA) >= ADC_PWM_CENTER) &&
-						((fastPwmAdcNow + ADC_PWM_CENTER_AREA) <= ADC_PWM_CENTER))) {
-						/* phase changed side of ADC_PWM_CENTER - get mean value of AFC */
+					if ((((fastPwmAdcNow <= ADC_PWM_CENTER)		&&
+						  (fastPwmAdcLast > ADC_PWM_CENTER))	||
+			 		     ((fastPwmAdcNow >= ADC_PWM_CENTER)		&&
+					      (fastPwmAdcLast < ADC_PWM_CENTER)))	&&
+						 (fabsf(fastPwmAdcNow - ADC_PWM_CENTER) < ((float) ADC_PWM_CENTER_AREA))) {
+						/* crossing the CENTER line */
 						cli();
-						fastPwmSubCmp = mainAfcPwmMeanSubVal;
-						OCR0B = pullPwmVal = mainAfcPwmMeanVal;
+						uint8_t localPwmThisCenterSub = fastPwmSubCmp;
+						uint8_t localPwmThisCenterVal = pullPwmVal;
 						sei();
 
-					}
-					else
+						/* calculations */
+						// pwm0 = pwm2 + (( pwm2 - pwm1 ) / ( 1 - ( v2 / v1 )))
+						float calcPwm1 = main_fw_calcTimerToFloat(localPwmLastCenterSub, localPwmLastCenterVal);
+						float calcPwm2 = main_fw_calcTimerToFloat(localPwmThisCenterSub, localPwmThisCenterVal);
+						float calcPwm0 = (calcPwm2 + (0.2f * ((calcPwm2 - calcPwm1)) / (1.0f - (((float) fastPwmAdcNow) - ((float) localSpeedLastCenter)))));
+						uint8_t calcPwmSub = 0;
+						uint8_t calcPwmVal = calcTimerAdj(&calcPwmSub, 0, calcPwm0);
+
+						if (fabsf(calcPwmVal - localPwmThisCenterVal) < 2.0f) {  // validity check
+							/* set PWM */
+							cli();
+							fastPwmSubCmp = calcPwmSub;
+							OCR0B = pullPwmVal = calcPwmVal;
+							sei();
+						}
+
+						/* remember for next crossing */
+						localSpeedLastCenter = fastPwmAdcNow;
+						localPwmLastCenterSub = localPwmThisCenterSub;
+						localPwmLastCenterVal = localPwmThisCenterVal;
+					} else
 #endif
 					if ((fastPwmAdcNow < ADC_PWM_CENTER) && (fastPwmAdcAscendingVal <= -ADC_PWM_SWITCH_SPEED)) {
 						/* try to increase the phase-detector-voltage */

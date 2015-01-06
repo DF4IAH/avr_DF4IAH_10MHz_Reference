@@ -64,6 +64,9 @@ const uchar VM_COMMAND_WRITEPWM[]							= "WRITEPWM";
 const uchar VM_COMMAND_PLUSSIGN[]							= "+";
 const uchar VM_COMMAND_MINUSSIGN[]							= "-";
 
+const uchar VM_GPIB_SCM_IDN[]								= "*IDN?";
+const uchar VM_GPIB_SCM_RST[]								= "*RST";
+
 
 // STRINGS IN CODE SECTION
 
@@ -151,12 +154,18 @@ PROGMEM const uchar PM_FORMAT_TA07[]						= "#TA7: =======\n\n";
 PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID1: +/- KEY \tmainPwmTerminalAdj = %f, \tpullPwmValBefore    = %03u + fastPwmSubCmpBefore    = %03u\n";
 PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID2: +/- KEY \tmainPwmTerminalAdj = %f, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n\n";
 
+PROGMEM const uchar PM_FORMAT_GPIB_SCM_IDN[] 				= "DF4IAH,%s,%05u,V20%03u%03u.";
+const uint8_t PM_FORMAT_GPIB_SCM_IDN_len 					= sizeof(PM_FORMAT_GPIB_SCM_IDN);
+
 
 // DATA SECTION
 
 /* df4iah_fw_main */
 void (*mainJumpToFW)(void)	 								= (void*) 0x0000;
 void (*mainJumpToBL)(void)	 								= (void*) 0x7000;
+uchar mainCoef_b00_dev_header[16 + 1]						= { 0 };
+uint16_t mainCoef_b00_dev_serial							= 0;
+uint16_t mainCoef_b00_dev_version							= 0;
 float mainCoef_b01_ref_AREF_V								= 0.0f;
 float mainCoef_b01_ref_1V1_V								= 0.0f;
 float mainCoef_b01_temp_ofs_adc_25C_steps					= 0.0f;
@@ -165,8 +174,6 @@ float mainCoef_b02_qrg_k_p1v_25C_Hz							= 0.0f;
 uint8_t  mainPwmHistIdx 									= 0;
 float mainPwmHistAvg										= 0.0f;
 float mainPwmHistWghtSum									= 0.0f;
-uint8_t  mainAfcPwmMeanVal									= 0;
-uint8_t  mainAfcPwmMeanSubVal								= 0;
 uint8_t  mainCtxtBufferIdx 									= 0;
 enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
 float mainPwmTerminalAdj									= 0.0f;
@@ -237,6 +244,8 @@ uint16_t mainClockDiffs[MAIN_CLOCK_DIFF_COUNT]				= { 0 };
 uchar mainPrepareBuffer[MAIN_PREPARE_BUFFER_SIZE] 			= { 0 };
 uchar mainFormatBuffer[MAIN_FORMAT_BUFFER_SIZE]				= { 0 };
 uint8_t eepromBlockCopy[sizeof(eeprom_b00_t)]				= { 0 };  // any block has the same size
+
+/* df4iah_fw_clkFastCtr */
 
 /* df4iah_fw_anlgComp (10kHz) */
 uint16_t acAdcCh[AC_ADC_CH_COUNT + 1]						= { 0 };  // plus one for the temperature sensor
@@ -373,7 +382,7 @@ static inline void wdt_close() {
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
-static float calcTimerToFloat(uint8_t subVal, uint8_t intVal)
+float main_fw_calcTimerToFloat(uint8_t subVal, uint8_t intVal)
 {
 	/* the fractional part depends on the bit count used for the sub-PWM */
 	return (((float) intVal) + (((float) subVal) / ((float) (1 << FAST_PWM_SUB_BITCNT))));
@@ -382,10 +391,10 @@ static float calcTimerToFloat(uint8_t subVal, uint8_t intVal)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
-static uint8_t calcTimerAdj(uint8_t* subVal, uint8_t intValBefore, float pwmAdjust)
+uint8_t calcTimerAdj(uint8_t* subVal, uint8_t intValBefore, float pwmAdjust)
 {
 	/* add the current PWM values to the adjust value to get the next value */
-	pwmAdjust += calcTimerToFloat(*subVal, intValBefore);
+	pwmAdjust += main_fw_calcTimerToFloat(*subVal, intValBefore);
 
 	/* windowing the next value into the 8-Bit range */
 	if (pwmAdjust < 0.0f) {
@@ -453,7 +462,17 @@ static void doInterpret(uchar msg[], uint8_t len)
 {
 	const uint8_t isSend = true;
 
-	if (!strncmp((char*) msg, (char*) VM_COMMAND_AFCOFF, sizeof(VM_COMMAND_AFCOFF))) {
+	if (!strncmp((char*) msg, (char*) VM_GPIB_SCM_IDN, sizeof(VM_GPIB_SCM_IDN))) {
+		/* GPIB commands - SCPI/SCM - *IDN? */
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GPIB_SCM_IDN, PM_FORMAT_GPIB_SCM_IDN_len);
+		int len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				&(mainCoef_b00_dev_header[0]),
+				mainCoef_b00_dev_serial,
+				mainCoef_b00_dev_version >> 8,
+				mainCoef_b00_dev_version & 0xff);
+		ringbuffer_fw_ringBufferWaitAppend(!isSend, false, mainPrepareBuffer, len);
+
+	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_AFCOFF, sizeof(VM_COMMAND_AFCOFF))) {
 		/* automatic frequency control OFF */
 		mainIsAFC = false;
 
@@ -502,7 +521,8 @@ static void doInterpret(uchar msg[], uint8_t len)
 		mainEnterMode = ENTER_MODE_BL;
 		mainStopAvr = true;
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_REBOOT, sizeof(VM_COMMAND_REBOOT))) {
+	} else if ((!strncmp((char*) msg, (char*) VM_COMMAND_REBOOT, sizeof(VM_COMMAND_REBOOT))) ||
+			   (!strncmp((char*) msg, (char*) VM_GPIB_SCM_RST, sizeof(VM_GPIB_SCM_RST)))) {
 		/* enter firmware (REBOOT) */
 		mainIsSerComm = false;
 		mainIsTimerTest = false;
@@ -751,6 +771,9 @@ static void doJobs()
 						if (mainRefClkState < REFCLK_STATE_SEARCH_QRG) {
 							/* Upgrading: frequency search and lock loop entering QRG area */
 							mainRefClkState = REFCLK_STATE_SEARCH_QRG;
+						} else if (mainRefClkState > REFCLK_STATE_SEARCH_QRG) {
+							/* Downgrading: to shaky for the mean value counter */
+							mainRefClkState = REFCLK_STATE_SEARCH_QRG;
 						}
 
 					} else {
@@ -774,8 +797,6 @@ static void doJobs()
 						clkPullPwm_fw_setRatio(pullPwmVal);
 						sei();
 					}
-					mainAfcPwmMeanVal = pullPwmVal;
-					mainAfcPwmMeanSubVal = localPwmSubVal;
 
 					/* write into history table */
 					mainPwmHist[mainPwmHistIdx++] = pullPwmVal;
@@ -795,7 +816,7 @@ static void doJobs()
 							mainPwmHistAvg,
 							pwmDevLin_steps,
 							pwmDevWght_steps,
-							calcTimerToFloat(localPwmSubVal, localPullPwmVal));
+							main_fw_calcTimerToFloat(localPwmSubVal, localPullPwmVal));
 					ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
 
 				} else {
@@ -970,6 +991,16 @@ int main(void)
 
 		/* check CRC of all blocks and update with default values if the data is non-valid */
 		memory_fw_checkAndInitAllBlocks();
+
+		/* read MEASURING coefficients */
+		if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_HEADER_NR)) {
+			eeprom_b00_t* b00 = (eeprom_b00_t*) &eepromBlockCopy;
+			memcpy(mainCoef_b00_dev_header, b00->b00_header, sizeof(mainCoef_b00_dev_header) - 1);
+			mainCoef_b00_dev_header[sizeof(mainCoef_b00_dev_header)] = 0;
+
+			mainCoef_b00_dev_serial					= b00->b00_device_serial;
+			mainCoef_b00_dev_version				= b00->b00_version;
+		}
 
 		/* read MEASURING coefficients */
 		if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_MEASURING_NR)) {

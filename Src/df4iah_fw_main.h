@@ -63,6 +63,8 @@ enum ENTER_MODE_t {
 };
 
 
+float main_fw_calcTimerToFloat(uint8_t subVal, uint8_t intVal);
+uint8_t calcTimerAdj(uint8_t* subVal, uint8_t intValBefore, float pwmAdjust);
 float main_fw_calcPwmWghtDiff(float pwmDiff);
 void  main_fw_calcPwmWghtAvg();
 void  main_fw_sendInitialHelp();
