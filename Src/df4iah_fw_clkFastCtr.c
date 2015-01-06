@@ -305,5 +305,14 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 				}
 			}
 		}
+
+	} else {
+		/* APC switched off, leave this precision mode */
+		if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
+			mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
+
+			DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+			DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+		}
 	}
 }
