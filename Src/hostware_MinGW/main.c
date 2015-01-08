@@ -15,11 +15,12 @@ This program must be linked with libusb on Unix and libusb-win32 on Windows.
 See http://libusb.sourceforge.net/ or http://libusb-win32.sourceforge.net/
 respectively.
 */
+#include <stdlib.h>
 
 #include <unistd.h>
-#include <stdlib.h>
+#include <string.h>
 #include <strings.h>
-#include <usb.h>											/* this is libusb */
+#include <lusb0_usb.h>										/* this is libusb */
 #include "opendevice.h"										/* common code moved to separate module */
 
 #include "terminal.h"										/* the terminal mimic is inside */
@@ -38,6 +39,26 @@ respectively.
 
 
 usb_dev_handle* handle 				= NULL;
+
+
+// -- 8< --						RANDOM - IMPLEMENTATION STARTS
+
+// random and srandom - @see http://cboard.cprogramming.com/c-programming/148996-random-function-@-stdlib-h-how-do-they-behave.html
+// implementation from: Visual Studio
+static unsigned int g_seed;
+
+void srandom(int seed)
+{
+  g_seed = seed;
+}
+
+int random()
+{
+  g_seed = (214013*g_seed+2531011);
+  return (g_seed>>16) & 0x7FFF;
+}
+
+// -- 8< --						RANDOM - IMPLEMENTATION ENDS
 
 
 void openDevice(bool isReopening)

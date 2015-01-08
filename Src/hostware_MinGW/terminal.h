@@ -8,7 +8,7 @@
 #ifndef TERMINAL_H_
 #define TERMINAL_H_
 
-#include <ncurses.h>
+#include <curses.h>
 
 
 #define RINGBUFFER_SEND_SIZE	1024

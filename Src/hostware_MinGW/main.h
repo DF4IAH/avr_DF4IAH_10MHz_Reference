@@ -8,6 +8,17 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+
+#include <curses.h>
+
+#ifndef true
+# define true 1
+#endif
+#ifndef false
+# define false 0
+#endif
+
+
 void openDevice(bool isReopening);
 void closeDevice();
 

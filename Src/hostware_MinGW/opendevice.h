@@ -22,7 +22,7 @@ files according to the GNU General Public License (GPL) version 2 or 3.
 #ifndef __OPENDEVICE_H_INCLUDED__
 #define __OPENDEVICE_H_INCLUDED__
 
-#include <usb.h>    /* this is libusb, see http://libusb.sourceforge.net/ */
+#include <lusb0_usb.h>    /* this is libusb, see http://libusb.sourceforge.net/ */
 #include <stdio.h>
 
 int usbGetStringAscii(usb_dev_handle *dev, int index, char *buf, int buflen);
