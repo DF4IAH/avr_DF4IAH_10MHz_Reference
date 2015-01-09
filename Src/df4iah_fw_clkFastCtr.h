@@ -14,16 +14,17 @@
 //#define EXPERIMENTAL										// ... or not
 
 #define OCR1_TOP_VALUE 										19999
-#define FAST_PWM_SUB_BITCNT									5													// 5
-#define FAST_PWM_HIST_CNT									8													// 8
-#define ADC_PWM_SAMPLING_CNT								16													// 16
-#define ADC_PWM_CENTER_AREA									10													// 10
+#define FAST_PWM_SUB_BITCNT									5													// highest X bits are relevant
+#define FAST_PWM_SUB_INC_DEC								2													// minimal inc/dec step of sub PWM compare register
+#define FAST_PWM_HIST_CNT									8
+#define ADC_PWM_SAMPLING_CNT								16
+#define ADC_PWM_CENTER_AREA									10
 #define ADC_PWM_CENTER										(150 * ADC_PWM_SAMPLING_CNT)						// 0.65V (Center: 150)
 #define ADC_PWM_LO											(ADC_PWM_CENTER - (120 * ADC_PWM_SAMPLING_CNT))		// 0.13V (Delta: -120)
 #define ADC_PWM_HI											(ADC_PWM_CENTER + (120 * ADC_PWM_SAMPLING_CNT))		// 1.20V (Delta: +125)
-#define ADC_PWM_SWITCH_SPEED								10													// 10
-#define ADC_PWM_SWITCH_OUT									300													// 300
-#define ADC_PWM_REDUCE_RANGE								75													// 75
+#define ADC_PWM_SWITCH_SPEED								4
+#define ADC_PWM_SWITCH_OUT									300
+#define ADC_PWM_REDUCE_RANGE								75
 
 #define DEBUG_UP_NR											4
 #define DEBUG_UP_PIN										PINB

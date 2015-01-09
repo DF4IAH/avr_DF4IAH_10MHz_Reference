@@ -165,8 +165,7 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 {
 	/* whenever 20.000 clocks are done, reload it with the MIN value */
 	/* mind you: the reload is not synchronized with any input signals like 1PPS or 10kHz */
-	const uint8_t localSubPwmCnt = (1 << FAST_PWM_SUB_BITCNT);
-	const uint8_t localSubPwmMax = (localSubPwmCnt - 1);
+	const uint8_t localSubPwmInc = (1 << FAST_PWM_SUB_BITCNT);
 
 	/* the 32 bit timer overflows every 3 1/4 year */
 	fastCtr1ms++;
@@ -190,8 +189,8 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 #endif
 
 	/* sub-counter increment */
-	fastPwmSubCnt++;
-	fastPwmSubCnt &= localSubPwmMax;
+	fastPwmSubCnt += localSubPwmInc;
+	//fastPwmSubCnt &= localSubPwmMax;
 
 	/* APC = automatic phase control */
 	if (mainIsAPC && (mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
@@ -264,9 +263,11 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 							cli();
 							DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
 							DEBUG_DN_PORT |=   _BV(DEBUG_DN_NR);		// TODO debugging aid
-							if (!(fastPwmSubCmp--))						// VCO-Frequency goes lower
-							{
-								fastPwmSubCmp = localSubPwmMax;
+
+							/* VCO-Frequency goes lower */
+							register uint8_t localPwmSubCmpLast = fastPwmSubCmp;
+							fastPwmSubCmp -= FAST_PWM_SUB_INC_DEC;
+							if (fastPwmSubCmp > localPwmSubCmpLast) {	// underflow
 								OCR0B = --pullPwmVal;
 							}
 							//DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
@@ -279,8 +280,11 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 							cli();
 							DEBUG_UP_PORT |=   _BV(DEBUG_UP_NR);		// TODO debugging aid
 							DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
-							if (!(++fastPwmSubCmp % localSubPwmCnt)) {	// VCO-Frequency goes higher
-								fastPwmSubCmp = 0;
+
+							/* VCO-Frequency goes higher */
+							register uint8_t localPwmSubCmpLast = fastPwmSubCmp;
+							fastPwmSubCmp += FAST_PWM_SUB_INC_DEC;
+							if (fastPwmSubCmp < localPwmSubCmpLast) {	// overflow
 								OCR0B = ++pullPwmVal;
 							}
 							//DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid

@@ -385,7 +385,7 @@ __attribute__((section(".df4iah_fw_main"), aligned(2)))
 float main_fw_calcTimerToFloat(uint8_t subVal, uint8_t intVal)
 {
 	/* the fractional part depends on the bit count used for the sub-PWM */
-	return (((float) intVal) + (((float) subVal) / ((float) (1 << FAST_PWM_SUB_BITCNT))));
+	return (((float) intVal) + ((float) subVal) / 256.0f);
 }
 
 #ifdef RELEASE
@@ -401,14 +401,14 @@ uint8_t calcTimerAdj(uint8_t* subVal, uint8_t intValBefore, float pwmAdjust)
 		pwmAdjust = 0.0f;
 
 	} else if (pwmAdjust >= 255.0f) {
-		pwmAdjust = 255.0f - (1 / ((float) (1 << FAST_PWM_SUB_BITCNT)));
+		pwmAdjust = 255.0f - (1 / 256.0f);
 	}
 
 	/* add rounding value */
 	pwmAdjust += (1 / ((float) (1 << (FAST_PWM_SUB_BITCNT + 1))));
 
 	/* break up into integer and fractional parts */
-	*subVal = (uint8_t) ((pwmAdjust - floorf(pwmAdjust)) * ((float) (1 << FAST_PWM_SUB_BITCNT)));
+	*subVal = (uint8_t) ((pwmAdjust - floorf(pwmAdjust)) * 256.0f);
 	return (uint8_t) pwmAdjust;
 }
 
@@ -717,12 +717,14 @@ static void doJobs()
 				int32_t localClockDiff = ((20000L * (localStampCtr1ms - localStampCtr1ms_last))
 									   + ((((int32_t) localStampTCNT1) - ((int32_t) localStampTCNT1_last))))
 									   - 20000000L;
+#if 0
 				if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 					/* Help APC to find its phase - when found, stop offset */
 					localClockDiff += 1L;					// 1 clock (= 0.5 Hz @ 10 MHz) below center frequency to let the phase wander and
 															// the phase locker find its position to lock in
 					localIsOffset = true;
 				}
+#endif
 
 				if ((-1000 < localClockDiff) &&
 					( 1000 > localClockDiff)) {
