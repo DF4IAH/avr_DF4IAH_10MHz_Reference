@@ -1,0 +1,13 @@
+JDF B
+// Created by Version 1.8 
+PROJECT DF4IAH_10MHz_Ref_Osc_V2
+DESIGN df4iah_10mhz_ref_osc_v2 Normal
+DEVKIT LC4032V-75T44I
+ENTRY Schematic/VHDL
+MODULE toplevel.vhd
+MODSTYLE top_lev Normal
+MODSTYLE capture Normal
+MODSTYLE clock_div Normal
+SYNTHESIS_TOOL Synplify
+SIMULATOR_TOOL ActiveHDL
+TOPMODULE top_lev

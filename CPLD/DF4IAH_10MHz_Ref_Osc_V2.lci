@@ -1,0 +1,162 @@
+
+[Device]
+Family = lc4k;
+PartNumber = LC4032V-75T44I;
+Package = 44TQFP;
+PartType = LC4032V;
+Speed = -7.5;
+Operating_condition = IND;
+Status = Production;
+EN_PinGLB = No;
+EN_PinMacrocell = No;
+Default_Device_IO_Types = LVCMOS33, -;
+
+[Revision]
+Parent = lc4k32v.lci;
+DATE = 01/15/2015;
+TIME = 21:31:52;
+Source_Format = Schematic_VHDL;
+Synthesis = Synplify;
+
+[Ignore Assignments]
+
+[Clear Assignments]
+
+[Backannotate Assignments]
+Pin_Block = NO;
+Pin_Macrocell_Block = YES;
+Pin_Assignments = NO;
+IO_Types = YES;
+
+[Global Constraints]
+Zero_hold_time = Yes;
+User_max_glb_fanin = 28;
+
+[Location Assignments]
+layer = OFF;
+C_20MHZ = Pin, 39, -, -, -;
+RESET = Pin, 44, -, A, 4;
+C_2MHZ5 = Pin, 38, -, B, 15;
+C_10MHZ = Pin, 40, -, A, 0;
+Phase = Pin, 35, -, B, 12;
+GateTrig = Pin, 31, -, B, 10;
+C_10KHZ = Pin, 17, -, -, -;
+Gate = Pin, 36, -, B, 13;
+Sync = Pin, 37, -, B, 14;
+
+[Group Assignments]
+layer = OFF;
+
+[Resource Reservations]
+layer = OFF;
+
+[Fitter Report Format]
+
+[Power]
+
+[Source Constraint Option]
+
+[Fast Bypass]
+NONE = C_2MHZ5, GateTrig;
+
+[OSM Bypass]
+
+[Input Registers]
+NONE = C_10KHZ;
+
+[Netlist/Delay Format]
+
+[IO Types]
+layer = OFF;
+C_2MHZ5 = LVCMOS33, PIN, 1, -;
+C_20MHZ = LVCMOS33_5V, PIN, 0, -;
+RESET = LVCMOS33_5V, PIN, 0, -;
+C_10MHZ = LVCMOS33, PIN, 0, -;
+Phase = LVCMOS33_OD, PIN, 1, -;
+GateTrig = LVCMOS33, PIN, 1, -;
+C_10KHZ = LVCMOS33_5V, PIN, 1, -;
+Gate = LVCMOS33_5V, PIN, 1, -;
+Sync = LVCMOS33_5V, PIN, 1, -;
+
+[Pullup]
+
+[Slewrate]
+FAST = C_2MHZ5;
+
+[Region]
+
+[Timing Constraints]
+layer = OFF;
+fMAX_0 = 15;
+fMAX_1 = 50.0000, C_20MHZ, C_20MHZ;
+fMAX_2 = 100000.0000, C_10KHZ, C_10KHZ;
+
+[HSI Attributes]
+
+[Input Delay]
+
+[Pin attributes list]
+
+[Attributes list setting]
+
+[Power Guard]
+
+[opt global constraints list]
+
+[Explorer User Settings]
+
+[LOCATION ASSIGNMENTS LIST]
+
+[RESOURCE RESERVATIONS LIST]
+
+[individual constraints list]
+
+[Timing Analyzer]
+
+[ORP Bypass]
+NONE = C_2MHZ5, GateTrig, Phase;
+
+[PLL Assignments]
+
+[Register Powerup]
+RESET = C_2MHZ5, GateTrig, C_10MHZ;
+
+[global constraints list]
+
+[Global Constraints Process Update]
+
+[Explorer Results]
+
+[VHDL synplify constraints]
+
+[VHDL spectrum constraints]
+
+[verilog synplify constraints]
+
+[verilog spectrum constraints]
+
+[VHDL synplify constraints list]
+
+[VHDL spectrum constraints list]
+
+[verilog synplify constraints list]
+
+[verilog spectrum constraints list]
+
+[OSCTIMER Assignments]
+layer = OFF;
+
+[Constraint Version]
+version = 1.0;
+
+[Node attribute]
+layer = OFF;
+
+[SYMBOL/MODULE attribute]
+layer = OFF;
+
+[ORP ASSIGNMENTS]
+layer = OFF;
+
+[Nodal Constraints]
+layer = OFF;
