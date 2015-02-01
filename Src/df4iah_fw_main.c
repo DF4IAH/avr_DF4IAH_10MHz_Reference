@@ -556,7 +556,6 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else if (!main_fw_memcmp(msg, PM_COMMAND_SERBAUD, sizeof(PM_COMMAND_SERBAUD) - 1)) {
 		/* serial communication baud parameter */
-#if 0
 		sscanf((char*) msg + sizeof(PM_COMMAND_SERBAUD), "%d", &serialCoef_b03_serial_baud);
 		serial_fw_setCommBaud(serialCoef_b03_serial_baud);
 
@@ -567,7 +566,6 @@ static void doInterpret(uchar msg[], uint8_t len)
 		uint16_t newCrc = memory_fw_getSealMarker(BLOCK_GPS_NR);
 		memory_fw_writeEEpromPage((uint8_t*) &newCrc, sizeof(uint16_t), offsetof(eeprom_layout_t, b03.b03_crc));
 		memory_fw_checkAndInitBlock(BLOCK_GPS_NR);
-#endif
 
 		/* user information */
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_SET_BAUD, sizeof(PM_FORMAT_SET_BAUD));
