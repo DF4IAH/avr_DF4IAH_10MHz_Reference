@@ -100,6 +100,9 @@ uint8_t memory_fw_isEepromBlockValid(uint8_t blockNr)	// initializes eepromBlock
 	return false;
 }
 
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_memory"), aligned(2)))
+#endif
 uint16_t memory_fw_getSealMarker(uint8_t blockNr)
 {
 	return (0xb00c | (blockNr << 4));

@@ -341,6 +341,9 @@ void __vector_default(void) { ; }
 /* assign interrupt routines to vectors */
 /* due to optimizations the ISRs are set at the function block directly */
 
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
 ISR(WDT_vect, ISR_NAKED) {  // vector_6 - nothing to do, resets WDIF bit
 	__asm__ __volatile__ ("reti" ::: "memory");
 }

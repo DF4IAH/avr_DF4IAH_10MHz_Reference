@@ -95,6 +95,9 @@ void clkFastCtr_fw_close()
 }
 
 
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
+#endif
 static uint8_t fastReducer(uint8_t adcVal, uint8_t fullScale)
 {
 	float distance = fabsf(adcVal - ADC_PWM_CENTER);
