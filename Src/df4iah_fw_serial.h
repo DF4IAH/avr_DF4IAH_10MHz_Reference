@@ -9,8 +9,8 @@
 #define DF4IAH_FW_SERIAL_H_
 
 
-#define SERIALCTXT_TX_BUFFER_SIZE									128
-#define SERIALCTXT_RX_BUFFER_SIZE									128
+#define SERIALCTXT_TX_BUFFER_SIZE									64
+#define SERIALCTXT_RX_BUFFER_SIZE									64
 
 
 /* UART Baudrate */

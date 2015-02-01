@@ -48,26 +48,6 @@
 
 // STRINGS IN MEMORY SECTION
 
-const uchar VM_COMMAND_AFCOFF[]								= "AFCOFF";
-const uchar VM_COMMAND_AFCON[]								= "AFCON";
-const uchar VM_COMMAND_APCOFF[]								= "APCOFF";
-const uchar VM_COMMAND_APCON[]								= "APCON";
-const uchar VM_COMMAND_HALT[]								= "HALT";
-const uchar VM_COMMAND_HELP[]								= "HELP";
-const uchar VM_COMMAND_INFO[]								= "INFO";
-const uchar VM_COMMAND_LOADER[]								= "LOADER";
-const uchar VM_COMMAND_REBOOT[]								= "REBOOT";
-const uchar VM_COMMAND_SEROFF[]								= "SEROFF";
-const uchar VM_COMMAND_SERON[]								= "SERON";
-const uchar VM_COMMAND_SERBAUD[]							= "SERBAUD";
-const uchar VM_COMMAND_TEST[]								= "TEST";
-const uchar VM_COMMAND_WRITEPWM[]							= "WRITEPWM";
-const uchar VM_COMMAND_PLUSSIGN[]							= "+";
-const uchar VM_COMMAND_MINUSSIGN[]							= "-";
-
-const uchar VM_GPIB_SCM_IDN[]								= "*IDN?";
-const uchar VM_GPIB_SCM_RST[]								= "*RST";
-
 
 // STRINGS IN CODE SECTION
 
@@ -84,6 +64,26 @@ PROGMEM const eeprom_defaultValues_layout_t eeprom_defaultValues_content = {
 
 // PROGMEM const char PM_VENDOR[] 							= "DF4IAH";
 // const uint8_t PM_VENDOR_len = sizeof(PM_VENDOR);
+
+PROGMEM const uchar PM_COMMAND_AFCOFF[]						= "AFCOFF";
+PROGMEM const uchar PM_COMMAND_AFCON[]						= "AFCON";
+PROGMEM const uchar PM_COMMAND_APCOFF[]						= "APCOFF";
+PROGMEM const uchar PM_COMMAND_APCON[]						= "APCON";
+PROGMEM const uchar PM_COMMAND_HALT[]						= "HALT";
+PROGMEM const uchar PM_COMMAND_HELP[]						= "HELP";
+PROGMEM const uchar PM_COMMAND_INFO[]						= "INFO";
+PROGMEM const uchar PM_COMMAND_LOADER[]						= "LOADER";
+PROGMEM const uchar PM_COMMAND_REBOOT[]						= "REBOOT";
+PROGMEM const uchar PM_COMMAND_SEROFF[]						= "SEROFF";
+PROGMEM const uchar PM_COMMAND_SERON[]						= "SERON";
+PROGMEM const uchar PM_COMMAND_SERBAUD[]					= "SERBAUD";
+PROGMEM const uchar PM_COMMAND_TEST[]						= "TEST";
+PROGMEM const uchar PM_COMMAND_WRITEPWM[]					= "WRITEPWM";
+PROGMEM const uchar PM_COMMAND_PLUSSIGN[]					= "+";
+PROGMEM const uchar PM_COMMAND_MINUSSIGN[]					= "-";
+
+PROGMEM const uchar PM_GPIB_SCM_IDN[]						= "*IDN?";
+PROGMEM const uchar PM_GPIB_SCM_RST[]						= "*RST";
 
 PROGMEM const uchar PM_INTERPRETER_HELP01[]					= "\n" \
 															  "\n" \
@@ -454,11 +454,29 @@ void main_fw_calcPwmWghtAvg()
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
+int main_fw_strncmp(const unsigned char* msg, const unsigned char* cmpProg, size_t size)
+{
+	memory_fw_copyBuffer(true, mainFormatBuffer, cmpProg, size);
+	return strncmp((const char*) msg, (const char*) mainFormatBuffer, size);
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
+int main_fw_memcmp(const unsigned char* msg, const unsigned char* cmpProg, size_t size)
+{
+	memory_fw_copyBuffer(true, mainFormatBuffer, cmpProg, size);
+	return memcmp((const char*) msg, (const char*) mainFormatBuffer, size);
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_main"), aligned(2)))
+#endif
 static void doInterpret(uchar msg[], uint8_t len)
 {
 	const uint8_t isSend = true;
 
-	if (!strncmp((char*) msg, (char*) VM_GPIB_SCM_IDN, sizeof(VM_GPIB_SCM_IDN))) {
+	if (!main_fw_strncmp(msg, PM_GPIB_SCM_IDN, sizeof(PM_GPIB_SCM_IDN))) {
 		/* GPIB commands - SCPI/SCM - *IDN? */
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GPIB_SCM_IDN, sizeof(PM_FORMAT_GPIB_SCM_IDN));
 		int len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
@@ -468,23 +486,23 @@ static void doInterpret(uchar msg[], uint8_t len)
 				mainCoef_b00_dev_version & 0xff);
 		ringbuffer_fw_ringBufferWaitAppend(!isSend, false, mainPrepareBuffer, len);
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_AFCOFF, sizeof(VM_COMMAND_AFCOFF))) {
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_AFCOFF, sizeof(PM_COMMAND_AFCOFF))) {
 		/* automatic frequency control OFF */
 		mainIsAFC = false;
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_AFCON, sizeof(VM_COMMAND_AFCON))) {
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_AFCON, sizeof(PM_COMMAND_AFCON))) {
 		/* automatic frequency control ON */
 		mainIsAFC = true;
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_APCOFF, sizeof(VM_COMMAND_APCOFF))) {
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_APCOFF, sizeof(PM_COMMAND_APCOFF))) {
 		/* automatic phase control OFF */
 		mainIsAPC = false;
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_APCON, sizeof(VM_COMMAND_APCON))) {
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_APCON, sizeof(PM_COMMAND_APCON))) {
 		/* automatic phase control ON */
 		mainIsAPC = true;
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_HALT, sizeof(VM_COMMAND_HALT))) {
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_HALT, sizeof(PM_COMMAND_HALT))) {
 		/* stop AVR controller and enter sleep state */
 		mainIsSerComm = false;
 		mainIsTimerTest = false;
@@ -492,7 +510,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 		mainEnterMode = ENTER_MODE_SLEEP;
 		mainStopAvr = true;
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP))) {
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP))) {
 		/* help information */
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_VERSION, sizeof(PM_FORMAT_VERSION));
 		int len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer, VERSION_HIGH, VERSION_LOW);
@@ -501,7 +519,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 		mainHelpConcatNr = 1;
 		mainIsUsbCommTest = false;
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_INFO, sizeof(VM_COMMAND_INFO))) {
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_INFO, sizeof(PM_COMMAND_INFO))) {
 		/* timer 2 overflow counter TEST */
 		mainIsTimerTest = !mainIsTimerTest;
 		if (mainIsTimerTest) {
@@ -509,7 +527,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			mainIsUsbCommTest = false;
 		}
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_LOADER, sizeof(VM_COMMAND_LOADER))) {
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_LOADER, sizeof(PM_COMMAND_LOADER))) {
 		/* enter bootloader */
 		mainIsSerComm = false;
 		mainIsTimerTest = false;
@@ -517,8 +535,8 @@ static void doInterpret(uchar msg[], uint8_t len)
 		mainEnterMode = ENTER_MODE_BL;
 		mainStopAvr = true;
 
-	} else if ((!strncmp((char*) msg, (char*) VM_COMMAND_REBOOT, sizeof(VM_COMMAND_REBOOT))) ||
-			   (!strncmp((char*) msg, (char*) VM_GPIB_SCM_RST, sizeof(VM_GPIB_SCM_RST)))) {
+	} else if ((!main_fw_strncmp(msg, PM_COMMAND_REBOOT, sizeof(PM_COMMAND_REBOOT))) ||
+			   (!main_fw_strncmp(msg, PM_GPIB_SCM_RST, sizeof(PM_GPIB_SCM_RST)))) {
 		/* enter firmware (REBOOT) */
 		mainIsSerComm = false;
 		mainIsTimerTest = false;
@@ -526,20 +544,20 @@ static void doInterpret(uchar msg[], uint8_t len)
 		mainEnterMode = ENTER_MODE_FW;
 		mainStopAvr = true;
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_SEROFF, sizeof(VM_COMMAND_SEROFF))) {
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_SEROFF, sizeof(PM_COMMAND_SEROFF))) {
 		/* serial communication OFF */
 		mainIsSerComm = false;
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_SERON, sizeof(VM_COMMAND_SERON))) {
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_SERON, sizeof(PM_COMMAND_SERON))) {
 		/* serial communication ON */
 		mainIsSerComm = true;
 		mainIsTimerTest = false;
 		mainIsUsbCommTest = false;
 
-	} else if (!memcmp((char*) msg, (char*) VM_COMMAND_SERBAUD, sizeof(VM_COMMAND_SERBAUD) - 1)) {
+	} else if (!main_fw_memcmp(msg, PM_COMMAND_SERBAUD, sizeof(PM_COMMAND_SERBAUD) - 1)) {
 		/* serial communication baud parameter */
 #if 0
-		sscanf((char*) msg + sizeof(VM_COMMAND_SERBAUD), "%d", &serialCoef_b03_serial_baud);
+		sscanf((char*) msg + sizeof(PM_COMMAND_SERBAUD), "%d", &serialCoef_b03_serial_baud);
 		serial_fw_setCommBaud(serialCoef_b03_serial_baud);
 
 		/* write current baud rate as the default/startup value to the EEPROM */
@@ -557,7 +575,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 				serialCoef_b03_serial_baud);
 		ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_TEST, sizeof(VM_COMMAND_TEST))) {
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_TEST, sizeof(PM_COMMAND_TEST))) {
 		/* special communication TEST */
 		mainIsUsbCommTest = !mainIsUsbCommTest;
 		if (mainIsUsbCommTest) {
@@ -565,7 +583,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			mainIsTimerTest = false;
 		}
 
-	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_WRITEPWM, sizeof(VM_COMMAND_WRITEPWM))) {
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_WRITEPWM, sizeof(PM_COMMAND_WRITEPWM))) {
 		/* write current PWM value as the default/startup value to the EEPROM */
 		memory_fw_writeEEpromPage((uint8_t*) &pullPwmVal, sizeof(uint16_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial));
 
@@ -574,12 +592,12 @@ static void doInterpret(uchar msg[], uint8_t len)
 		memory_fw_writeEEpromPage((uint8_t*) &newCrc, sizeof(uint16_t), offsetof(eeprom_layout_t, b02.b02_crc));
 		memory_fw_checkAndInitBlock(BLOCK_REFOSC_NR);
 
-	} else if (msg[0] == VM_COMMAND_PLUSSIGN[0]) {
+	} else if (msg[0] == PM_COMMAND_PLUSSIGN[0]) {
 		/* correct the PWM value up */
 		sscanf((char*) msg + 1, "%f", &mainPwmTerminalAdj);
 		mainIsUsbCommTest = false;
 
-	} else if (msg[0] == VM_COMMAND_MINUSSIGN[0]) {
+	} else if (msg[0] == PM_COMMAND_MINUSSIGN[0]) {
 		/* correct the PWM value down */
 		sscanf((char*) msg + 1, "%f", &mainPwmTerminalAdj);
 		mainPwmTerminalAdj = -mainPwmTerminalAdj;
@@ -944,7 +962,7 @@ __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
 void main_fw_sendInitialHelp()
 {
-	ringbuffer_fw_ringBufferAppend(true, false, VM_COMMAND_HELP, sizeof(VM_COMMAND_HELP));
+	ringbuffer_fw_ringBufferAppend(true, false, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP));
 }
 
 #ifdef RELEASE

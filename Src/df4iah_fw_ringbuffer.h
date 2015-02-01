@@ -15,7 +15,7 @@
 
 
 #define RINGBUFFER_SEND_SIZE								128
-#define RINGBUFFER_RCV_SIZE									128
+#define RINGBUFFER_RCV_SIZE									64
 #define RINGBUFFER_HOOK_SIZE								128
 
 #define MSG_PATTERN_NMEA									'$'
