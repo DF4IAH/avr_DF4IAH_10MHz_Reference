@@ -225,6 +225,9 @@ uint8_t  usbRingBufferSendSemaphore 						= 0;  // semaphore is free
 uint8_t  usbRingBufferRcvSemaphore 							= 0;  // semaphore is free
 
 /* df4iah_fw_serial */
+uint16_t serialCoef_b03_serial_baud							= 0;
+uint16_t serialCoef_b03_bitsParityStopbits					= 0;
+uint16_t serialCoef_b03_gps_comm_mode						= 0;
 uint8_t  serialCtxtRxBufferLen								= 0;
 uint8_t  serialCtxtTxBufferLen								= 0;
 uint8_t  serialCtxtTxBufferIdx								= 0;

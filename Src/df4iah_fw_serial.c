@@ -12,6 +12,8 @@
 #include "chipdef.h"
 #include "df4iah_fw_main.h"
 #include "df4iah_fw_ringbuffer.h"
+#include "df4iah_fw_memory_eepromData.h"
+#include "df4iah_fw_memory.h"
 
 #include "df4iah_fw_serial.h"
 
@@ -31,14 +33,44 @@
 #endif
 
 
-extern uint8_t serialCtxtRxBufferLen;
-extern uint8_t serialCtxtTxBufferLen;
-extern uint8_t serialCtxtTxBufferIdx;
-extern uint8_t mainIsSerComm;
+extern uint16_t serialCoef_b03_serial_baud;
+extern uint16_t serialCoef_b03_bitsParityStopbits;
+extern uint16_t serialCoef_b03_gps_comm_mode;
+
+extern uint8_t  serialCtxtRxBufferLen;
+extern uint8_t  serialCtxtTxBufferLen;
+extern uint8_t  serialCtxtTxBufferIdx;
+extern uint8_t  mainIsSerComm;
 
 extern uchar serialCtxtRxBuffer[SERIALCTXT_RX_BUFFER_SIZE];
 extern uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE];
 
+extern uint8_t eepromBlockCopy[sizeof(eeprom_b00_t)];
+
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_serial"), aligned(2)))
+#endif
+static uint16_t getCommParity(uint16_t val)
+{
+	return (val & DEFAULT_PARITY_N0_E2_O3_MASK) >> DEFAULT_PARITY_N0_E2_O3_BITPOS;
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_serial"), aligned(2)))
+#endif
+static uint16_t getCommStopBits(uint16_t val)
+{
+	return (val & DEFAULT_STOPBITS_MASK) >> DEFAULT_STOPBITS_BITPOS;
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_serial"), aligned(2)))
+#endif
+static uint16_t getCommDataBits(uint16_t val)
+{
+	return (val & DEFAULT_DATABITS_MASK) >> DEFAULT_DATABITS_BITPOS;
+}
 
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
@@ -52,22 +84,31 @@ void serial_fw_init()
 	MCUCR     &= ~(_BV(PUD));											// ensure PUD is off --> activation of all pull-ups
 	UART_PORT |=   _BV(UART_RX_PNUM);									// RX pull-up on
 
+	/* read GPS coefficients */
+	if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_GPS_NR)) {
+		eeprom_b03_t* b03 = (eeprom_b03_t*) &eepromBlockCopy;
+		serialCoef_b03_serial_baud = b03->b03_serial_baud;
+		serialCoef_b03_bitsParityStopbits = b03->b03_serial_bitsParityStopbits;
+		serialCoef_b03_gps_comm_mode = b03->b03_gps_comm_mode;
+	}
+
 	// setting baud rate
-	UART_BAUD_HIGH = ((UART_CALC_BAUDRATE(DEFAULT_BAUDRATE)>>8) & 0xff);
-	UART_BAUD_LOW  = ( UART_CALC_BAUDRATE(DEFAULT_BAUDRATE)     & 0xff);
+	UART_BAUD_HIGH = ((UART_CALC_BAUDRATE(serialCoef_b03_serial_baud)>>8) & 0xff);
+	UART_BAUD_LOW  = ( UART_CALC_BAUDRATE(serialCoef_b03_serial_baud)     & 0xff);
 
 #ifdef UART_DOUBLESPEED
 	UART_STATUS = _BV(UART_DOUBLE);										// UCSR0A: U2X0
 #endif
 
 	// enabling the Transmitter and the Receiver
-	UART_CTRL  =  _BV(RXEN0) 								|			// RXEN0=1,
+	UART_CTRL  =  _BV(RXEN0) 	|										// RXEN0=1,
 				  _BV(TXEN0);											// TXEN0=1
 
 	// setting frame format
-	UART_CTRL2 =  (0b00<<UMSEL00) 							|			// UCSR0C: asynchronous USART,
-				  ((DEFAULT_PARITY_N0_E2_O3 & 0b11)<<UPM00)	|			// parity 0=off, 2=even, 3=odd, 1=(do not use)
-				 (((DEFAULT_DATABITS - 5)   & 0b11)<<UCSZ00);			// bits 5..8
+	UART_CTRL2 = (0b00<<UMSEL00) 															|	// UCSR0C: asynchronous USART,
+				 (( getCommParity(serialCoef_b03_bitsParityStopbits)		& 0b11)<<UPM00)	|	// parity 0=off, 2=even, 3=odd, 1=(do not use)
+				 (((getCommStopBits(serialCoef_b03_bitsParityStopbits) - 1)	&  0b1)<<USBS0) |	// stop bits == 2
+				 (((getCommDataBits(serialCoef_b03_bitsParityStopbits) - 5)	& 0b11)<<UCSZ00);	// bits 5..8
 
 	// this is a dummy operation to clear the RX ready bit
 	serialCtxtTxBufferIdx = UDR0;
