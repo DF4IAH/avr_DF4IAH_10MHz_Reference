@@ -59,6 +59,7 @@ const uchar VM_COMMAND_LOADER[]								= "LOADER";
 const uchar VM_COMMAND_REBOOT[]								= "REBOOT";
 const uchar VM_COMMAND_SEROFF[]								= "SEROFF";
 const uchar VM_COMMAND_SERON[]								= "SERON";
+const uchar VM_COMMAND_SERBAUD[]							= "SERBAUD";
 const uchar VM_COMMAND_TEST[]								= "TEST";
 const uchar VM_COMMAND_WRITEPWM[]							= "WRITEPWM";
 const uchar VM_COMMAND_PLUSSIGN[]							= "+";
@@ -89,54 +90,42 @@ PROGMEM const uchar PM_INTERPRETER_HELP01[]					= "\n" \
 															  "=== HELP ===\n" \
 															  "\n" \
 															  "$ <NMEA-Message>\t\tsends message to the GPS module.";
-const uint8_t PM_INTERPRETER_HELP01_len 					= sizeof(PM_INTERPRETER_HELP01);
 
 PROGMEM const uchar PM_INTERPRETER_HELP02[] 				= "\n" \
 															  "AFCOFF\t\t\t\tswitch AFC (automatic frequency control) off.\n" \
 															  "AFCON\t\t\t\tswitch AFC (automatic frequency control) on.";
-const uint8_t PM_INTERPRETER_HELP02_len 					= sizeof(PM_INTERPRETER_HELP02);
 
 PROGMEM const uchar PM_INTERPRETER_HELP03[] 				= "APCOFF\t\t\t\tswitch APC (automatic phase control) off.\n" \
 															  "APCON\t\t\t\tswitch APC (automatic phase control) on.";
-const uint8_t PM_INTERPRETER_HELP03_len 					= sizeof(PM_INTERPRETER_HELP03);
 
 PROGMEM const uchar PM_INTERPRETER_HELP04[] 				= "HALT\t\t\t\tpowers the device down (sleep mode).";
-const uint8_t PM_INTERPRETER_HELP04_len 					= sizeof(PM_INTERPRETER_HELP04);
 
 PROGMEM const uchar PM_INTERPRETER_HELP05[] 				= "HELP\t\t\t\tthis message.";
-const uint8_t PM_INTERPRETER_HELP05_len 					= sizeof(PM_INTERPRETER_HELP05);
 
 PROGMEM const uchar PM_INTERPRETER_HELP06[] 				= "INFO\t\t\t\ttoggles additional printed infos.";
-const uint8_t PM_INTERPRETER_HELP06_len 					= sizeof(PM_INTERPRETER_HELP06);
 
 PROGMEM const uchar PM_INTERPRETER_HELP07[] 				= "LOADER\t\t\t\tenter bootloader.";
-const uint8_t PM_INTERPRETER_HELP07_len 					= sizeof(PM_INTERPRETER_HELP07);
 
 PROGMEM const uchar PM_INTERPRETER_HELP08[] 				= "REBOOT\t\t\t\treboot the firmware.";
-const uint8_t PM_INTERPRETER_HELP08_len 					= sizeof(PM_INTERPRETER_HELP08);
 
-PROGMEM const uchar PM_INTERPRETER_HELP09[] 				= "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
+PROGMEM const uchar PM_INTERPRETER_HELP09[] 				= "SERBAUD <baud>\t\t\tsetting serial baud rate.";
+
+PROGMEM const uchar PM_INTERPRETER_HELP10[] 				= "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SERON\t\t\t\tswitch serial communication ON.";
-const uint8_t PM_INTERPRETER_HELP09_len 					= sizeof(PM_INTERPRETER_HELP09);
 
-PROGMEM const uchar PM_INTERPRETER_HELP10[] 				= "TEST\t\t\t\ttoggles counter test.";
-const uint8_t PM_INTERPRETER_HELP10_len 					= sizeof(PM_INTERPRETER_HELP10);
+PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "TEST\t\t\t\ttoggles counter test.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "WRITEPWM\t\t\tstore current PWM as default value.";
-const uint8_t PM_INTERPRETER_HELP11_len 					= sizeof(PM_INTERPRETER_HELP11);
+PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "WRITEPWM\t\t\tstore current PWM as default value.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "+/- <PWM value>\t\tcorrection value to be added.";
-const uint8_t PM_INTERPRETER_HELP12_len 					= sizeof(PM_INTERPRETER_HELP12);
+PROGMEM const uchar PM_INTERPRETER_HELP13[] 				= "+/- <PWM value>\t\tcorrection value to be added.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP13[] 				= "===========\n" \
+PROGMEM const uchar PM_INTERPRETER_HELP14[] 				= "===========\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  ">";
-const uint8_t PM_INTERPRETER_HELP13_len 					= sizeof(PM_INTERPRETER_HELP13);
 
 PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "*?* unknown command, try HELP.\n" \
 															  "\n" \
 															  ">";
-const uint8_t PM_INTERPRETER_UNKNOWN_len 					= sizeof(PM_INTERPRETER_UNKNOWN);
 
 PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d\n";
 
@@ -155,7 +144,8 @@ PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID1: +/- KEY \tmainPwmTerminalAdj 
 PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID2: +/- KEY \tmainPwmTerminalAdj = %f, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n\n";
 
 PROGMEM const uchar PM_FORMAT_GPIB_SCM_IDN[] 				= "DF4IAH,%s,%05u,V20%03u%03u.";
-const uint8_t PM_FORMAT_GPIB_SCM_IDN_len 					= sizeof(PM_FORMAT_GPIB_SCM_IDN);
+
+PROGMEM const uchar PM_FORMAT_SET_BAUD[]					= "Communication baud rate set to %+4d baud.\n";
 
 
 // DATA SECTION
@@ -470,7 +460,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	if (!strncmp((char*) msg, (char*) VM_GPIB_SCM_IDN, sizeof(VM_GPIB_SCM_IDN))) {
 		/* GPIB commands - SCPI/SCM - *IDN? */
-		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GPIB_SCM_IDN, PM_FORMAT_GPIB_SCM_IDN_len);
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GPIB_SCM_IDN, sizeof(PM_FORMAT_GPIB_SCM_IDN));
 		int len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				&(mainCoef_b00_dev_header[0]),
 				mainCoef_b00_dev_serial,
@@ -507,7 +497,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_VERSION, sizeof(PM_FORMAT_VERSION));
 		int len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer, VERSION_HIGH, VERSION_LOW);
 		ringbuffer_fw_ringBufferWaitAppend(!isSend, false, mainPrepareBuffer, len);
-		ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP01, PM_INTERPRETER_HELP01_len);
+		ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP01, sizeof(PM_INTERPRETER_HELP01));
 		mainHelpConcatNr = 1;
 		mainIsUsbCommTest = false;
 
@@ -546,6 +536,27 @@ static void doInterpret(uchar msg[], uint8_t len)
 		mainIsTimerTest = false;
 		mainIsUsbCommTest = false;
 
+	} else if (!memcmp((char*) msg, (char*) VM_COMMAND_SERBAUD, sizeof(VM_COMMAND_SERBAUD) - 1)) {
+		/* serial communication baud parameter */
+#if 0
+		sscanf((char*) msg + sizeof(VM_COMMAND_SERBAUD), "%d", &serialCoef_b03_serial_baud);
+		serial_fw_setCommBaud(serialCoef_b03_serial_baud);
+
+		/* write current baud rate as the default/startup value to the EEPROM */
+		memory_fw_writeEEpromPage((uint8_t*) &serialCoef_b03_serial_baud, sizeof(uint16_t), offsetof(eeprom_layout_t, b03.b03_serial_baud));
+
+		/* for any modified block add the CRC seal marker and do a  memory_fw_checkAndInitBlock() */
+		uint16_t newCrc = memory_fw_getSealMarker(BLOCK_GPS_NR);
+		memory_fw_writeEEpromPage((uint8_t*) &newCrc, sizeof(uint16_t), offsetof(eeprom_layout_t, b03.b03_crc));
+		memory_fw_checkAndInitBlock(BLOCK_GPS_NR);
+#endif
+
+		/* user information */
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_SET_BAUD, sizeof(PM_FORMAT_SET_BAUD));
+		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				serialCoef_b03_serial_baud);
+		ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+
 	} else if (!strncmp((char*) msg, (char*) VM_COMMAND_TEST, sizeof(VM_COMMAND_TEST))) {
 		/* special communication TEST */
 		mainIsUsbCommTest = !mainIsUsbCommTest;
@@ -576,7 +587,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else {
 		/* unknown command */
-		ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_UNKNOWN, PM_INTERPRETER_UNKNOWN_len);
+		ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_UNKNOWN, sizeof(PM_INTERPRETER_UNKNOWN));
 	}
 }
 
@@ -607,62 +618,67 @@ static void workInQueue()
 
 			switch (mainHelpConcatNr) {
 			case 1:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP02, PM_INTERPRETER_HELP02_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP02, sizeof(PM_INTERPRETER_HELP02));
 				mainHelpConcatNr = 2;
 				break;
 
 			case 2:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP03, PM_INTERPRETER_HELP03_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP03, sizeof(PM_INTERPRETER_HELP03));
 				mainHelpConcatNr = 3;
 				break;
 
 			case 3:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP04, PM_INTERPRETER_HELP04_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP04, sizeof(PM_INTERPRETER_HELP04));
 				mainHelpConcatNr = 4;
 				break;
 
 			case 4:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP05, PM_INTERPRETER_HELP05_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP05, sizeof(PM_INTERPRETER_HELP05));
 				mainHelpConcatNr = 5;
 				break;
 
 			case 5:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP06, PM_INTERPRETER_HELP06_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP06, sizeof(PM_INTERPRETER_HELP06));
 				mainHelpConcatNr = 6;
 				break;
 
 			case 6:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP07, PM_INTERPRETER_HELP07_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP07, sizeof(PM_INTERPRETER_HELP07));
 				mainHelpConcatNr = 7;
 				break;
 
 			case 7:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP08, PM_INTERPRETER_HELP08_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP08, sizeof(PM_INTERPRETER_HELP08));
 				mainHelpConcatNr = 8;
 				break;
 
 			case 8:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP09, PM_INTERPRETER_HELP09_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP09, sizeof(PM_INTERPRETER_HELP09));
 				mainHelpConcatNr = 9;
 				break;
 
 			case 9:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP10, PM_INTERPRETER_HELP10_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP10, sizeof(PM_INTERPRETER_HELP10));
 				mainHelpConcatNr = 10;
 				break;
 
 			case 10:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP11, PM_INTERPRETER_HELP11_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP11, sizeof(PM_INTERPRETER_HELP11));
 				mainHelpConcatNr = 11;
 				break;
 
 			case 11:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP12, PM_INTERPRETER_HELP12_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP12, sizeof(PM_INTERPRETER_HELP12));
 				mainHelpConcatNr = 12;
 				break;
 
 			case 12:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP13, PM_INTERPRETER_HELP13_len);
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP13, sizeof(PM_INTERPRETER_HELP13));
+				mainHelpConcatNr = 13;
+				break;
+
+			case 13:
+				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP14, sizeof(PM_INTERPRETER_HELP14));
 				// no break
 			default:
 				mainHelpConcatNr = 0;

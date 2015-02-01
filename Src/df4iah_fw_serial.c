@@ -93,8 +93,7 @@ void serial_fw_init()
 	}
 
 	// setting baud rate
-	UART_BAUD_HIGH = ((UART_CALC_BAUDRATE(serialCoef_b03_serial_baud)>>8) & 0xff);
-	UART_BAUD_LOW  = ( UART_CALC_BAUDRATE(serialCoef_b03_serial_baud)     & 0xff);
+	serial_fw_setCommBaud(serialCoef_b03_serial_baud);
 
 #ifdef UART_DOUBLESPEED
 	UART_STATUS = _BV(UART_DOUBLE);										// UCSR0A: U2X0
@@ -163,6 +162,15 @@ uint8_t serial_fw_recvchar(void)
 	return UART_DATA;
 }
 #endif
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_serial"), aligned(2)))
+#endif
+void serial_fw_setCommBaud(uint16_t baud)
+{
+	UART_BAUD_HIGH = ((UART_CALC_BAUDRATE(baud)>>8) & 0xff);
+	UART_BAUD_LOW  = ( UART_CALC_BAUDRATE(baud)     & 0xff);
+}
 
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_serial"), aligned(2)))
