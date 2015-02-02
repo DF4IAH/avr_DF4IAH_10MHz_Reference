@@ -42,10 +42,6 @@
 #endif
 
 
-#define MAIN_PREPARE_BUFFER_SIZE							128
-#define MAIN_FORMAT_BUFFER_SIZE								128
-
-
 // STRINGS IN MEMORY SECTION
 
 
@@ -161,24 +157,31 @@ float mainCoef_b01_ref_1V1_V								= 0.0f;
 float mainCoef_b01_temp_ofs_adc_25C_steps					= 0.0f;
 float mainCoef_b01_temp_k_p1step_adc_K						= 0.0f;
 float mainCoef_b02_qrg_k_p1v_25C_Hz							= 0.0f;
-uint8_t  mainPwmHistIdx 									= 0;
+uint8_t mainIsJumperBlSet									= false;
+uint8_t mainPwmHistIdx 										= 0;
 float mainPwmHistAvg										= 0.0f;
 float mainPwmHistWghtSum									= 0.0f;
-uint8_t  mainCtxtBufferIdx 									= 0;
+//uint8_t  mainCtxtBufferIdx 									= 0;
 enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
 float mainPwmTerminalAdj									= 0.0f;
-uint8_t  mainHelpConcatNr									= 0;
-uint8_t  mainIsAFC											= true;
-uint8_t  mainIsAPC											= true;
-uint8_t  mainIsTimerTest									= true;
-uint8_t  mainIsJumperBlSet									= false;
-uint8_t  mainIsSerComm										= false;
-uint8_t  mainIsUsbCommTest 									= false;
-uint8_t  mainStopAvr		 								= false;
-enum ENTER_MODE_t mainEnterMode								= ENTER_MODE_SLEEP;
+//uint8_t  mainHelpConcatNr									= 0;
+//enum ENTER_MODE_t mainEnterMode								= ENTER_MODE_SLEEP;
 volatile uint8_t  timer0Snapshot 							= 0x00;
 usbTxStatus_t usbTxStatus1 									= { 0 },
 			  usbTxStatus3 									= { 0 };
+/* bit fields */
+main_bf_t main_bf											= {
+									/* mainIsAFC			= */	true,
+									/* mainIsAPC			= */	true,
+									/* mainIsTimerTest		= */	true,
+									/* mainIsSerComm		= */	false,
+									/* mainIsUsbCommTest	= */	false,
+									/* mainStopAvr			= */	false,
+									/* mainEnterMode		= */	ENTER_MODE_SLEEP,
+
+									/* mainCtxtBufferIdx	= */	0,
+									/* mainHelpConcatNr		= */	0
+															};
 
 /* df4iah_fw_clkPullPwm */
 uint8_t pullCoef_b02_pwm_initial							= 0;
@@ -236,7 +239,6 @@ uint8_t mainPwmHist[PWM_HIST_COUNT]							= { 0 };
 uint16_t mainClockDiffs[MAIN_CLOCK_DIFF_COUNT]				= { 0 };
 uchar mainPrepareBuffer[MAIN_PREPARE_BUFFER_SIZE] 			= { 0 };
 uchar mainFormatBuffer[MAIN_FORMAT_BUFFER_SIZE]				= { 0 };
-uint8_t eepromBlockCopy[sizeof(eeprom_b00_t)]				= { 0 };  // any block has the same size
 
 /* df4iah_fw_clkFastCtr */
 
@@ -488,27 +490,27 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_AFCOFF, sizeof(PM_COMMAND_AFCOFF))) {
 		/* automatic frequency control OFF */
-		mainIsAFC = false;
+		main_bf.mainIsAFC = false;
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_AFCON, sizeof(PM_COMMAND_AFCON))) {
 		/* automatic frequency control ON */
-		mainIsAFC = true;
+		main_bf.mainIsAFC = true;
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_APCOFF, sizeof(PM_COMMAND_APCOFF))) {
 		/* automatic phase control OFF */
-		mainIsAPC = false;
+		main_bf.mainIsAPC = false;
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_APCON, sizeof(PM_COMMAND_APCON))) {
 		/* automatic phase control ON */
-		mainIsAPC = true;
+		main_bf.mainIsAPC = true;
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_HALT, sizeof(PM_COMMAND_HALT))) {
 		/* stop AVR controller and enter sleep state */
-		mainIsSerComm = false;
-		mainIsTimerTest = false;
-		mainIsUsbCommTest = false;
-		mainEnterMode = ENTER_MODE_SLEEP;
-		mainStopAvr = true;
+		main_bf.mainIsSerComm = false;
+		main_bf.mainIsTimerTest = false;
+		main_bf.mainIsUsbCommTest = false;
+		main_bf.mainEnterMode = ENTER_MODE_SLEEP;
+		main_bf.mainStopAvr = true;
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP))) {
 		/* help information */
@@ -516,43 +518,43 @@ static void doInterpret(uchar msg[], uint8_t len)
 		int len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer, VERSION_HIGH, VERSION_LOW);
 		ringbuffer_fw_ringBufferWaitAppend(!isSend, false, mainPrepareBuffer, len);
 		ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP01, sizeof(PM_INTERPRETER_HELP01));
-		mainHelpConcatNr = 1;
-		mainIsUsbCommTest = false;
+		main_bf.mainHelpConcatNr = 1;
+		main_bf.mainIsUsbCommTest = false;
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_INFO, sizeof(PM_COMMAND_INFO))) {
 		/* timer 2 overflow counter TEST */
-		mainIsTimerTest = !mainIsTimerTest;
-		if (mainIsTimerTest) {
-			mainIsSerComm = false;
-			mainIsUsbCommTest = false;
+		main_bf.mainIsTimerTest = !(main_bf.mainIsTimerTest);
+		if (main_bf.mainIsTimerTest) {
+			main_bf.mainIsSerComm = false;
+			main_bf.mainIsUsbCommTest = false;
 		}
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_LOADER, sizeof(PM_COMMAND_LOADER))) {
 		/* enter bootloader */
-		mainIsSerComm = false;
-		mainIsTimerTest = false;
-		mainIsUsbCommTest = false;
-		mainEnterMode = ENTER_MODE_BL;
-		mainStopAvr = true;
+		main_bf.mainIsSerComm = false;
+		main_bf.mainIsTimerTest = false;
+		main_bf.mainIsUsbCommTest = false;
+		main_bf.mainEnterMode = ENTER_MODE_BL;
+		main_bf.mainStopAvr = true;
 
 	} else if ((!main_fw_strncmp(msg, PM_COMMAND_REBOOT, sizeof(PM_COMMAND_REBOOT))) ||
 			   (!main_fw_strncmp(msg, PM_GPIB_SCM_RST, sizeof(PM_GPIB_SCM_RST)))) {
 		/* enter firmware (REBOOT) */
-		mainIsSerComm = false;
-		mainIsTimerTest = false;
-		mainIsUsbCommTest = false;
-		mainEnterMode = ENTER_MODE_FW;
-		mainStopAvr = true;
+		main_bf.mainIsSerComm = false;
+		main_bf.mainIsTimerTest = false;
+		main_bf.mainIsUsbCommTest = false;
+		main_bf.mainEnterMode = ENTER_MODE_FW;
+		main_bf.mainStopAvr = true;
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_SEROFF, sizeof(PM_COMMAND_SEROFF))) {
 		/* serial communication OFF */
-		mainIsSerComm = false;
+		main_bf.mainIsSerComm = false;
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_SERON, sizeof(PM_COMMAND_SERON))) {
 		/* serial communication ON */
-		mainIsSerComm = true;
-		mainIsTimerTest = false;
-		mainIsUsbCommTest = false;
+		main_bf.mainIsSerComm = true;
+		main_bf.mainIsTimerTest = false;
+		main_bf.mainIsUsbCommTest = false;
 
 	} else if (!main_fw_memcmp(msg, PM_COMMAND_SERBAUD, sizeof(PM_COMMAND_SERBAUD) - 1)) {
 		/* serial communication baud parameter */
@@ -575,10 +577,10 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_TEST, sizeof(PM_COMMAND_TEST))) {
 		/* special communication TEST */
-		mainIsUsbCommTest = !mainIsUsbCommTest;
-		if (mainIsUsbCommTest) {
-			mainIsSerComm = false;
-			mainIsTimerTest = false;
+		main_bf.mainIsUsbCommTest = !(main_bf.mainIsUsbCommTest);
+		if (main_bf.mainIsUsbCommTest) {
+			main_bf.mainIsSerComm = false;
+			main_bf.mainIsTimerTest = false;
 		}
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_WRITEPWM, sizeof(PM_COMMAND_WRITEPWM))) {
@@ -593,13 +595,13 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (msg[0] == PM_COMMAND_PLUSSIGN[0]) {
 		/* correct the PWM value up */
 		sscanf((char*) msg + 1, "%f", &mainPwmTerminalAdj);
-		mainIsUsbCommTest = false;
+		main_bf.mainIsUsbCommTest = false;
 
 	} else if (msg[0] == PM_COMMAND_MINUSSIGN[0]) {
 		/* correct the PWM value down */
 		sscanf((char*) msg + 1, "%f", &mainPwmTerminalAdj);
 		mainPwmTerminalAdj = -mainPwmTerminalAdj;
-		mainIsUsbCommTest = false;
+		main_bf.mainIsUsbCommTest = false;
 
 	} else {
 		/* unknown command */
@@ -619,85 +621,85 @@ static void workInQueue()
 		enum RINGBUFFER_MSG_STATUS_t statusSend = ringbuffer_fw_getStatusNextMsg(isSend);
 		enum RINGBUFFER_MSG_STATUS_t statusRcv  = ringbuffer_fw_getStatusNextMsg(!isSend);
 
-		if (!mainHelpConcatNr && (statusSend & RINGBUFFER_MSG_STATUS_AVAIL)) {	// if any message is available and not during help printing
+		if (!(main_bf.mainHelpConcatNr) && (statusSend & RINGBUFFER_MSG_STATUS_AVAIL)) {	// if any message is available and not during help printing
 			if (statusSend & RINGBUFFER_MSG_STATUS_IS_NMEA) {
 				serial_pullAndSendNmea_havingSemaphore(isSend); isLocked = false;
 
 			} else if ((statusSend & RINGBUFFER_MSG_STATUS_IS_MASK) == 0) {	// message from firmware state machine
-				mainCtxtBufferIdx = ringbuffer_fw_ringBufferPull(isSend, mainPrepareBuffer, (uint8_t) sizeof(mainPrepareBuffer));
+				main_bf.mainCtxtBufferIdx = ringbuffer_fw_ringBufferPull(isSend, mainPrepareBuffer, (uint8_t) sizeof(mainPrepareBuffer));
 				ringbuffer_fw_freeSemaphore(isSend); isLocked = false;
-				doInterpret(mainPrepareBuffer, mainCtxtBufferIdx);				// message is clean to process
+				doInterpret(mainPrepareBuffer, main_bf.mainCtxtBufferIdx);				// message is clean to process
 			}
 
-		} else if (mainHelpConcatNr && !(statusRcv & RINGBUFFER_MSG_STATUS_AVAIL)) {  // during help printing, go ahead when receive buffer is empty again
+		} else if (main_bf.mainHelpConcatNr && !(statusRcv & RINGBUFFER_MSG_STATUS_AVAIL)) {  // during help printing, go ahead when receive buffer is empty again
 			ringbuffer_fw_freeSemaphore(isSend); isLocked = false;
 
-			switch (mainHelpConcatNr) {
+			switch (main_bf.mainHelpConcatNr) {
 			case 1:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP02, sizeof(PM_INTERPRETER_HELP02));
-				mainHelpConcatNr = 2;
+				main_bf.mainHelpConcatNr = 2;
 				break;
 
 			case 2:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP03, sizeof(PM_INTERPRETER_HELP03));
-				mainHelpConcatNr = 3;
+				main_bf.mainHelpConcatNr = 3;
 				break;
 
 			case 3:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP04, sizeof(PM_INTERPRETER_HELP04));
-				mainHelpConcatNr = 4;
+				main_bf.mainHelpConcatNr = 4;
 				break;
 
 			case 4:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP05, sizeof(PM_INTERPRETER_HELP05));
-				mainHelpConcatNr = 5;
+				main_bf.mainHelpConcatNr = 5;
 				break;
 
 			case 5:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP06, sizeof(PM_INTERPRETER_HELP06));
-				mainHelpConcatNr = 6;
+				main_bf.mainHelpConcatNr = 6;
 				break;
 
 			case 6:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP07, sizeof(PM_INTERPRETER_HELP07));
-				mainHelpConcatNr = 7;
+				main_bf.mainHelpConcatNr = 7;
 				break;
 
 			case 7:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP08, sizeof(PM_INTERPRETER_HELP08));
-				mainHelpConcatNr = 8;
+				main_bf.mainHelpConcatNr = 8;
 				break;
 
 			case 8:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP09, sizeof(PM_INTERPRETER_HELP09));
-				mainHelpConcatNr = 9;
+				main_bf.mainHelpConcatNr = 9;
 				break;
 
 			case 9:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP10, sizeof(PM_INTERPRETER_HELP10));
-				mainHelpConcatNr = 10;
+				main_bf.mainHelpConcatNr = 10;
 				break;
 
 			case 10:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP11, sizeof(PM_INTERPRETER_HELP11));
-				mainHelpConcatNr = 11;
+				main_bf.mainHelpConcatNr = 11;
 				break;
 
 			case 11:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP12, sizeof(PM_INTERPRETER_HELP12));
-				mainHelpConcatNr = 12;
+				main_bf.mainHelpConcatNr = 12;
 				break;
 
 			case 12:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP13, sizeof(PM_INTERPRETER_HELP13));
-				mainHelpConcatNr = 13;
+				main_bf.mainHelpConcatNr = 13;
 				break;
 
 			case 13:
 				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP14, sizeof(PM_INTERPRETER_HELP14));
 				// no break
 			default:
-				mainHelpConcatNr = 0;
+				main_bf.mainHelpConcatNr = 0;
 				break;
 			}
 		}
@@ -827,7 +829,7 @@ static void doJobs()
 					uint8_t localPwmSubVal  = fastPwmSubCmp;
 					sei();
 
-					if (mainIsAFC && (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
+					if (main_bf.mainIsAFC && (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
 						/* adjusting the PWM registers and make the new value public - do not modify when handover to APC is made */
 						localPullPwmVal = calcTimerAdj(&localPwmSubVal, localPullPwmVal, pwmDevWght_steps);
 
@@ -870,7 +872,7 @@ static void doJobs()
 			}
 		}
 
-		if (mainIsTimerTest && isTimerTestPrintCtr) {
+		if (main_bf.mainIsTimerTest && isTimerTestPrintCtr) {
 			/* enter this block just n times per second */
 			--isTimerTestPrintCtr;
 
@@ -1033,8 +1035,8 @@ int main(void)
 		memory_fw_checkAndInitAllBlocks();
 
 		/* read MEASURING coefficients */
-		if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_HEADER_NR)) {
-			eeprom_b00_t* b00 = (eeprom_b00_t*) &eepromBlockCopy;
+		if (memory_fw_readEepromValidBlock(mainFormatBuffer, BLOCK_HEADER_NR)) {
+			eeprom_b00_t* b00 = (eeprom_b00_t*) &mainFormatBuffer;
 			memcpy(mainCoef_b00_dev_header, b00->b00_header, sizeof(mainCoef_b00_dev_header) - 1);
 			mainCoef_b00_dev_header[sizeof(mainCoef_b00_dev_header) - 1] = 0;
 
@@ -1043,8 +1045,8 @@ int main(void)
 		}
 
 		/* read MEASURING coefficients */
-		if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_MEASURING_NR)) {
-			eeprom_b01_t* b01 = (eeprom_b01_t*) &eepromBlockCopy;
+		if (memory_fw_readEepromValidBlock(mainFormatBuffer, BLOCK_MEASURING_NR)) {
+			eeprom_b01_t* b01 = (eeprom_b01_t*) &mainFormatBuffer;
 			mainCoef_b01_ref_AREF_V					= b01->b01_ref_AREF_V;
 			mainCoef_b01_ref_1V1_V					= b01->b01_ref_1V1_V;
 			mainCoef_b01_temp_ofs_adc_25C_steps		= b01->b01_temp_ofs_adc_25C_steps;
@@ -1052,8 +1054,8 @@ int main(void)
 		}
 
 		/* read REFERENCE OSCILLATOR (REFOSC) coefficients */
-		if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_REFOSC_NR)) {
-			eeprom_b02_t* b02 = (eeprom_b02_t*) &eepromBlockCopy;
+		if (memory_fw_readEepromValidBlock(mainFormatBuffer, BLOCK_REFOSC_NR)) {
+			eeprom_b02_t* b02 = (eeprom_b02_t*) &mainFormatBuffer;
 			mainCoef_b02_qrg_k_p1v_25C_Hz			= b02->b02_qrg_k_p1v_25C_Hz;
 		}
 
@@ -1070,7 +1072,7 @@ int main(void)
 	}
 
 	/* run the chip */
-    while (!mainStopAvr) {
+    while (!(main_bf.mainStopAvr)) {
     	main_fw_giveAway();
     }
 
@@ -1098,8 +1100,8 @@ int main(void)
 		// switch off Pull-Up Disable
 		MCUCR &= ~(_BV(PUD));
 
-		if (mainEnterMode) {
-			if (mainEnterMode == ENTER_MODE_BL) {
+		if (main_bf.mainEnterMode) {
+			if (main_bf.mainEnterMode == ENTER_MODE_BL) {
 				/* write BOOT one time token to the EEPROM to INHIBIT restart into this Firmware again */
 				uint16_t tokenVal = BOOT_TOKEN;
 				memory_fw_writeEEpromPage((uint8_t*) &tokenVal, sizeof(tokenVal), offsetof(eeprom_layout_t, bootMarker));
@@ -1107,7 +1109,7 @@ int main(void)
 				/* enter bootloader */
 				mainJumpToBL();										// jump to bootloader section
 
-			} else if (mainEnterMode == ENTER_MODE_FW) {
+			} else if (main_bf.mainEnterMode == ENTER_MODE_FW) {
 #if 1
 				/* restart firmware */
 				mainJumpToFW();										// jump to firmware section (REBOOT)

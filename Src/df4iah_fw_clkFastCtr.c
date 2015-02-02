@@ -27,11 +27,11 @@ extern uint8_t  fastPwmSubCnt;
 extern uint8_t  fastPwmSubCmp;
 extern uint8_t  pullPwmVal;
 extern enum REFCLK_STATE_t mainRefClkState;
-extern uint8_t  mainIsAPC;
 extern uint16_t acAdcCh[AC_ADC_CH_COUNT + 1];
 extern uint32_t fastPwmAdcNow;
 extern uint32_t fastPwmAdcLast;
 extern int16_t  fastPwmAdcAscendingVal;
+extern main_bf_t main_bf;
 
 
 #ifdef RELEASE
@@ -196,7 +196,7 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 	//fastPwmSubCnt &= localSubPwmMax;
 
 	/* APC = automatic phase control */
-	if (mainIsAPC && (mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
+	if (main_bf.mainIsAPC && (mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
 		static uint8_t  localSpeedCtr = 0;
 		static uint32_t localSpeedSum = 0;
 #ifdef EXPERIMENTAL

@@ -25,7 +25,7 @@
 
 
 extern eeprom_defaultValues_layout_t eeprom_defaultValues_content;
-extern uint8_t eepromBlockCopy[sizeof(eeprom_b00_t)];
+extern uchar mainFormatBuffer[MAIN_FORMAT_BUFFER_SIZE];
 
 
 #pragma GCC diagnostic push
@@ -81,10 +81,10 @@ uint8_t memory_fw_isEepromBlockValid(uint8_t blockNr)	// initializes eepromBlock
 {
 	if (blockNr < BLOCK_COUNT) {
 		/* read block */
-		memory_fw_readEEpromPage((uint8_t*) &eepromBlockCopy, sizeof(eeprom_b00_t), blockNr << 5);
+		memory_fw_readEEpromPage((uint8_t*) &mainFormatBuffer, sizeof(eeprom_b00_t), blockNr << 5);
 
-		uint16_t localCrcBlock = eepromBlockCopy[30] | (eepromBlockCopy[31] << 8);
-		uint16_t localCrcCalc  = memory_fw_calcBlockCrc(eepromBlockCopy);
+		uint16_t localCrcBlock = mainFormatBuffer[30] | (mainFormatBuffer[31] << 8);
+		uint16_t localCrcCalc  = memory_fw_calcBlockCrc(mainFormatBuffer);
 
 		if (localCrcBlock == localCrcCalc) {
 			// block valid
@@ -168,7 +168,7 @@ uint8_t memory_fw_readEepromValidBlock(uint8_t* target, uint8_t blockNr)
 {
 	if (blockNr < BLOCK_COUNT) {
 		if (memory_fw_isEepromBlockValid(blockNr)) {
-			if (target != eepromBlockCopy) {
+			if (target != mainFormatBuffer) {
 				// eepromBlockCopy is already loaded, other targets have to
 				memory_fw_readEEpromPage(target, 1 << 5, blockNr << 5);
 			}
@@ -188,16 +188,16 @@ uint8_t memory_fw_checkAndInitBlock(uint8_t blockNr)
 	if (blockNr < BLOCK_COUNT) {
 		if (!memory_fw_isEepromBlockValid(blockNr)) {  // HINT: memory_fw_isEepromBlockValid() preloads eepromBlockCopy
 			/* the block is non-valid, reload the EEPROM block with the default data */
-			uint16_t oldCrcBlock = eepromBlockCopy[30] | (eepromBlockCopy[31] << 8);
+			uint16_t oldCrcBlock = mainFormatBuffer[30] | (mainFormatBuffer[31] << 8);
 
 			if (oldCrcBlock != memory_fw_getSealMarker(blockNr)) {
 				/* reading default values if not CRC calc marker for sealing is found */
-				memory_fw_readFlashPage(eepromBlockCopy,
+				memory_fw_readFlashPage(mainFormatBuffer,
 						(1 << 5) - 4,								// load default data, without counter and special marked CRC value
 						(((uint16_t) ((void*) &eeprom_defaultValues_content)) + (blockNr << 5)));
 			}
 
-			memory_fw_writeEepromBlockMakeValid(eepromBlockCopy, blockNr);
+			memory_fw_writeEepromBlockMakeValid(mainFormatBuffer, blockNr);
 			return 1;
 
 		} else {

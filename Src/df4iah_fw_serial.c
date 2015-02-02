@@ -40,12 +40,12 @@ extern uint16_t serialCoef_b03_gps_comm_mode;
 extern uint8_t  serialCtxtRxBufferLen;
 extern uint8_t  serialCtxtTxBufferLen;
 extern uint8_t  serialCtxtTxBufferIdx;
-extern uint8_t  mainIsSerComm;
 
 extern uchar serialCtxtRxBuffer[SERIALCTXT_RX_BUFFER_SIZE];
 extern uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE];
 
-extern uint8_t eepromBlockCopy[sizeof(eeprom_b00_t)];
+extern main_bf_t main_bf;
+extern uchar mainFormatBuffer[MAIN_FORMAT_BUFFER_SIZE];
 
 
 #ifdef RELEASE
@@ -85,8 +85,8 @@ void serial_fw_init()
 	UART_PORT |=   _BV(UART_RX_PNUM);									// RX pull-up on
 
 	/* read GPS coefficients */
-	if (memory_fw_readEepromValidBlock(eepromBlockCopy, BLOCK_GPS_NR)) {
-		eeprom_b03_t* b03 = (eeprom_b03_t*) &eepromBlockCopy;
+	if (memory_fw_readEepromValidBlock(mainFormatBuffer, BLOCK_GPS_NR)) {
+		eeprom_b03_t* b03 = (eeprom_b03_t*) &mainFormatBuffer;
 		serialCoef_b03_serial_baud = b03->b03_serial_baud;
 		serialCoef_b03_bitsParityStopbits = b03->b03_serial_bitsParityStopbits;
 		serialCoef_b03_gps_comm_mode = b03->b03_gps_comm_mode;
@@ -184,7 +184,7 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 		ringbuffer_fw_freeSemaphore(isSend);
 
 		/* drop serial RX data if transportation is not activated */
-		if (!mainIsSerComm) {
+		if (!(main_bf.mainIsSerComm)) {
 			serialCtxtTxBufferLen = 0;
 		}
 		serialCtxtTxBufferIdx = 0;
@@ -246,7 +246,7 @@ ISR(USART_RX_vect, ISR_BLOCK)
 
 	/* if the end of a NMEA sentence is detected, send this serial RX buffer to the receive (IN) ring buffer */
 	if (rxData == '\n') {  // a NMEA sentence stops with:  <sentence...*checksum\r\n>
-		if (mainIsSerComm) {
+		if (main_bf.mainIsSerComm) {
 			ringbuffer_fw_ringBufferAppend(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
 			serialCtxtRxBufferLen = 0;
 		}

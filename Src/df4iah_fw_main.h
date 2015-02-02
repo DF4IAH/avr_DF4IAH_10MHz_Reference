@@ -38,6 +38,9 @@
 
 #define DEBUG_DELAY_CNT										1
 
+#define MAIN_PREPARE_BUFFER_SIZE							128
+#define MAIN_FORMAT_BUFFER_SIZE								128
+
 
 #ifndef true
 # define true 1
@@ -45,6 +48,23 @@
 #ifndef false
 # define false 0
 #endif
+
+
+typedef struct main_bf_struct
+{
+     uint8_t  mainIsAFC										: 1;
+     uint8_t  mainIsAPC										: 1;
+     uint8_t  mainIsTimerTest								: 1;
+     uint8_t  mainIsSerComm									: 1;
+     uint8_t  mainIsUsbCommTest 							: 1;
+     uint8_t  mainStopAvr		 							: 1;
+     uint8_t  mainEnterMode									: 2;
+     //uint8_t												: 0; // fill to 8 bits
+
+     uint8_t  mainCtxtBufferIdx								: 4;
+     uint8_t  mainHelpConcatNr								: 4;
+     //uint8_t												: 0; // fill to 8 bits
+} main_bf_t;
 
 
 enum REFCLK_STATE_t {

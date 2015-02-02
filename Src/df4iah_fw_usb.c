@@ -27,7 +27,7 @@
 extern uint16_t cntRcv;
 extern uint16_t cntSend;
 extern uint8_t usbIsrCtxtBufferIdx;
-extern uint8_t mainIsUsbCommTest;
+extern main_bf_t main_bf;
 
 extern uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE];
 extern uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE];
@@ -186,7 +186,7 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 	const uint8_t isSend = false;
 	uint8_t retLen = 0;
 
-	if (mainIsUsbCommTest) {
+	if (main_bf.mainIsUsbCommTest) {
 		/* special communication TEST */
 		if (cntRcv) {
 #if 1
