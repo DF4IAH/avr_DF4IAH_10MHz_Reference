@@ -27,12 +27,9 @@ extern uint8_t usbRingBufferRcvPushIdx;
 extern uint8_t usbRingBufferRcvPullIdx;
 extern uint8_t usbRingBufferSendSemaphore;
 extern uint8_t usbRingBufferRcvSemaphore;
-extern uint8_t usbRingBufferHookLen;
-extern uint8_t usbRingBufferHookIsSend;
 
 extern uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE];
 extern uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
-extern uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE];
 
 
 #ifdef RELEASE
@@ -75,12 +72,6 @@ __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 #endif
 void ringbuffer_fw_freeSemaphore(uint8_t isSend)
 {
-	/* check if the hook has a job attached to it */
-	if (usbRingBufferHookLen && (usbRingBufferHookIsSend == isSend)) {
-		(void) ringBufferPush(usbRingBufferHookIsSend, false, usbRingBufferHook, usbRingBufferHookLen);
-		usbRingBufferHookLen = 0;
-	}
-
 	/* free semaphore */
 	{
 		uint8_t* semPtr = (isSend ?  &usbRingBufferSendSemaphore : &usbRingBufferRcvSemaphore);
@@ -126,19 +117,6 @@ static uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[
 		}
 	}
 	return retLen;
-}
-
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
-static void ringBufferPushAddHook(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
-{
-	/* copy data for the hooked job - hook needs to be unassigned before */
-	if (!usbRingBufferHookLen) {
-		usbRingBufferHookIsSend = isSend;
-		memory_fw_copyBuffer(isPgm, usbRingBufferHook, inData, len);
-		usbRingBufferHookLen = len;							// this assignment last - since now ready to process
-	}														// else: dismiss data - should not be the case anyway
 }
 
 #ifdef RELEASE
@@ -224,22 +202,6 @@ void ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend)
 	    wdt_reset();
 	    usbPoll();
 	};
-}
-
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
-uint8_t ringbuffer_fw_ringBufferAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
-{
-	uint8_t retLen = 0;
-
-	if (ringbuffer_fw_getSemaphore(isSend)) {
-		retLen = ringBufferPush(isSend, isPgm, inData, len);
-		ringbuffer_fw_freeSemaphore(isSend);
-	} else {
-		ringBufferPushAddHook(isSend, isPgm, inData, len);
-	}
-	return retLen;
 }
 
 #ifdef RELEASE

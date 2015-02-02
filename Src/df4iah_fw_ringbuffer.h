@@ -15,8 +15,7 @@
 
 
 #define RINGBUFFER_SEND_SIZE								128
-#define RINGBUFFER_RCV_SIZE									64
-#define RINGBUFFER_HOOK_SIZE								128
+#define RINGBUFFER_RCV_SIZE									128
 
 #define MSG_PATTERN_NMEA									'$'
 
@@ -35,7 +34,6 @@ uint8_t ringbuffer_fw_ringBufferPull(uint8_t isSend, uchar outData[], uint8_t si
 
 enum RINGBUFFER_MSG_STATUS_t ringbuffer_fw_getStatusNextMsg(uint8_t isSend);
 void ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend);
-uint8_t ringbuffer_fw_ringBufferAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len);
 uint8_t ringbuffer_fw_ringBufferWaitAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len);
 
 #endif /* DF4IAH_FW_RINGBUFFER_H_ */

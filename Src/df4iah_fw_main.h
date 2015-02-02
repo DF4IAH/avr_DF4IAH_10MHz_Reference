@@ -13,7 +13,7 @@
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										150
-#define VERSION_LOW											201
+#define VERSION_LOW											203
 
 
 /* MCU frequency */
@@ -61,9 +61,8 @@ typedef struct main_bf_struct
      uint8_t  mainEnterMode									: 2;
      //uint8_t												: 0; // fill to 8 bits
 
-     uint8_t  mainCtxtBufferIdx								: 4;
      uint8_t  mainHelpConcatNr								: 4;
-     //uint8_t												: 0; // fill to 8 bits
+     uint8_t												: 4; // fill to 8 bits
 } main_bf_t;
 
 

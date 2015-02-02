@@ -247,7 +247,7 @@ ISR(USART_RX_vect, ISR_BLOCK)
 	/* if the end of a NMEA sentence is detected, send this serial RX buffer to the receive (IN) ring buffer */
 	if (rxData == '\n') {  // a NMEA sentence stops with:  <sentence...*checksum\r\n>
 		if (main_bf.mainIsSerComm) {
-			ringbuffer_fw_ringBufferAppend(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
+			ringbuffer_fw_ringBufferWaitAppend(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
 			serialCtxtRxBufferLen = 0;
 		}
 	}

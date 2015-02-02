@@ -119,7 +119,7 @@ PROGMEM const uchar PM_INTERPRETER_HELP14[] 				= "===========\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  ">";
 
-PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "*?* unknown command, try HELP.\n" \
+PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "*?*  unknown command '%s' received, try HELP.\n" \
 															  "\n" \
 															  ">";
 
@@ -141,7 +141,7 @@ PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID2: +/- KEY \tmainPwmTerminalAdj 
 
 PROGMEM const uchar PM_FORMAT_GPIB_SCM_IDN[] 				= "DF4IAH,%s,%05u,V20%03u%03u.";
 
-PROGMEM const uchar PM_FORMAT_SET_BAUD[]					= "Communication baud rate set to %+4d baud.\n";
+PROGMEM const uchar PM_FORMAT_SET_BAUD[]					= "Communication baud rate set to %5u baud.\n";
 
 
 // DATA SECTION
@@ -161,14 +161,13 @@ uint8_t mainIsJumperBlSet									= false;
 uint8_t mainPwmHistIdx 										= 0;
 float mainPwmHistAvg										= 0.0f;
 float mainPwmHistWghtSum									= 0.0f;
-//uint8_t  mainCtxtBufferIdx 									= 0;
+//uint8_t  mainInterpreterBufferIdx 							= 0;
 enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
 float mainPwmTerminalAdj									= 0.0f;
-//uint8_t  mainHelpConcatNr									= 0;
-//enum ENTER_MODE_t mainEnterMode								= ENTER_MODE_SLEEP;
 volatile uint8_t  timer0Snapshot 							= 0x00;
 usbTxStatus_t usbTxStatus1 									= { 0 },
 			  usbTxStatus3 									= { 0 };
+
 /* bit fields */
 main_bf_t main_bf											= {
 									/* mainIsAFC			= */	true,
@@ -179,9 +178,8 @@ main_bf_t main_bf											= {
 									/* mainStopAvr			= */	false,
 									/* mainEnterMode		= */	ENTER_MODE_SLEEP,
 
-									/* mainCtxtBufferIdx	= */	0,
 									/* mainHelpConcatNr		= */	0
-															};
+															  };
 
 /* df4iah_fw_clkPullPwm */
 uint8_t pullCoef_b02_pwm_initial							= 0;
@@ -212,8 +210,6 @@ uint8_t  usbRingBufferSendPushIdx 							= 0;
 uint8_t  usbRingBufferSendPullIdx 							= 0;
 uint8_t  usbRingBufferRcvPushIdx 							= 0;
 uint8_t  usbRingBufferRcvPullIdx 							= 0;
-uint8_t  usbRingBufferHookLen 								= 0;
-uint8_t  usbRingBufferHookIsSend 							= 0;
 uint8_t  usbRingBufferSendSemaphore 						= 0;  // semaphore is free
 uint8_t  usbRingBufferRcvSemaphore 							= 0;  // semaphore is free
 
@@ -237,6 +233,7 @@ uint8_t  usbIsrCtxtBufferIdx 								= 0;
 /* df4iah_fw_main */
 uint8_t mainPwmHist[PWM_HIST_COUNT]							= { 0 };
 uint16_t mainClockDiffs[MAIN_CLOCK_DIFF_COUNT]				= { 0 };
+uchar mainInterpreterBuffer[MAIN_FORMAT_BUFFER_SIZE]		= { 0 };
 uchar mainPrepareBuffer[MAIN_PREPARE_BUFFER_SIZE] 			= { 0 };
 uchar mainFormatBuffer[MAIN_FORMAT_BUFFER_SIZE]				= { 0 };
 
@@ -248,14 +245,13 @@ uint16_t acAdcCh[AC_ADC_CH_COUNT + 1]						= { 0 };  // plus one for the tempera
 /* df4iah_fw_ringbuffer */
 uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE] 				= { 0 };
 uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE] 				= { 0 };
-uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE] 				= { 0 };
 
 /* df4iah_fw_serial */
 uchar serialCtxtRxBuffer[SERIALCTXT_RX_BUFFER_SIZE] 		= { 0 };
 uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE] 		= { 0 };
 
 /* df4iah_fw_usb */
-uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE] 				= { 0 };
+uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE] 				= { 0 };  // 128
 uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] 	= { 0 };
 
 
@@ -476,8 +472,6 @@ __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
 static void doInterpret(uchar msg[], uint8_t len)
 {
-	const uint8_t isSend = true;
-
 	if (!main_fw_strncmp(msg, PM_GPIB_SCM_IDN, sizeof(PM_GPIB_SCM_IDN))) {
 		/* GPIB commands - SCPI/SCM - *IDN? */
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GPIB_SCM_IDN, sizeof(PM_FORMAT_GPIB_SCM_IDN));
@@ -486,7 +480,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 				mainCoef_b00_dev_serial,
 				mainCoef_b00_dev_version >> 8,
 				mainCoef_b00_dev_version & 0xff);
-		ringbuffer_fw_ringBufferWaitAppend(!isSend, false, mainPrepareBuffer, len);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_AFCOFF, sizeof(PM_COMMAND_AFCOFF))) {
 		/* automatic frequency control OFF */
@@ -515,9 +509,9 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP))) {
 		/* help information */
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_VERSION, sizeof(PM_FORMAT_VERSION));
-		int len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer, VERSION_HIGH, VERSION_LOW);
-		ringbuffer_fw_ringBufferWaitAppend(!isSend, false, mainPrepareBuffer, len);
-		ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP01, sizeof(PM_INTERPRETER_HELP01));
+		int len = snprintf((char*) mainPrepareBuffer, sizeof(mainPrepareBuffer) - 1, (char*) mainFormatBuffer, VERSION_HIGH, VERSION_LOW);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+		ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP01, sizeof(PM_INTERPRETER_HELP01));
 		main_bf.mainHelpConcatNr = 1;
 		main_bf.mainIsUsbCommTest = false;
 
@@ -573,7 +567,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_SET_BAUD, sizeof(PM_FORMAT_SET_BAUD));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				serialCoef_b03_serial_baud);
-		ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_TEST, sizeof(PM_COMMAND_TEST))) {
 		/* special communication TEST */
@@ -605,7 +599,9 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else {
 		/* unknown command */
-		ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_UNKNOWN, sizeof(PM_INTERPRETER_UNKNOWN));
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_INTERPRETER_UNKNOWN, sizeof(PM_INTERPRETER_UNKNOWN));
+		int len = snprintf((char*) mainPrepareBuffer, sizeof(mainPrepareBuffer) - 1, (char*) mainFormatBuffer, msg);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 	}
 }
 
@@ -614,89 +610,97 @@ __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
 static void workInQueue()
 {
-	const uint8_t isSend = true;
-
-	if (ringbuffer_fw_getSemaphore(isSend)) {
+	if (ringbuffer_fw_getSemaphore(true)) {
 		uint8_t isLocked = true;
-		enum RINGBUFFER_MSG_STATUS_t statusSend = ringbuffer_fw_getStatusNextMsg(isSend);
-		enum RINGBUFFER_MSG_STATUS_t statusRcv  = ringbuffer_fw_getStatusNextMsg(!isSend);
+		enum RINGBUFFER_MSG_STATUS_t statusSend = ringbuffer_fw_getStatusNextMsg(true);
+		enum RINGBUFFER_MSG_STATUS_t statusRcv  = ringbuffer_fw_getStatusNextMsg(false);
 
-		if (!(main_bf.mainHelpConcatNr) && (statusSend & RINGBUFFER_MSG_STATUS_AVAIL)) {	// if any message is available and not during help printing
+		if (!(main_bf.mainHelpConcatNr) && (statusSend & RINGBUFFER_MSG_STATUS_AVAIL)) {		// if any message is available and not during help printing
 			if (statusSend & RINGBUFFER_MSG_STATUS_IS_NMEA) {
-				serial_pullAndSendNmea_havingSemaphore(isSend); isLocked = false;
+				serial_pullAndSendNmea_havingSemaphore(true); isLocked = false;
 
-			} else if ((statusSend & RINGBUFFER_MSG_STATUS_IS_MASK) == 0) {	// message from firmware state machine
-				main_bf.mainCtxtBufferIdx = ringbuffer_fw_ringBufferPull(isSend, mainPrepareBuffer, (uint8_t) sizeof(mainPrepareBuffer));
-				ringbuffer_fw_freeSemaphore(isSend); isLocked = false;
-				doInterpret(mainPrepareBuffer, main_bf.mainCtxtBufferIdx);				// message is clean to process
+			} else if ((statusSend & RINGBUFFER_MSG_STATUS_IS_MASK) == 0) {						// message from firmware state machine
+				uint8_t localMsgLen = ringbuffer_fw_ringBufferPull(true, mainInterpreterBuffer, (uint8_t) (sizeof(mainInterpreterBuffer) - 1));
+				ringbuffer_fw_freeSemaphore(true); isLocked = false;
+
+#if 0
+				/* debugging */
+				{
+					const char localReceivedInfo[] = "Got message (length=%d): '%s'\n";
+					int len = snprintf((char*) mainPrepareBuffer, sizeof(mainPrepareBuffer) - 1, localReceivedInfo, localMsgLen, mainInterpreterBuffer);
+					ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+				}
+#endif
+
+				doInterpret(mainInterpreterBuffer, localMsgLen);								// message is clean to process
 			}
 
-		} else if (main_bf.mainHelpConcatNr && !(statusRcv & RINGBUFFER_MSG_STATUS_AVAIL)) {  // during help printing, go ahead when receive buffer is empty again
-			ringbuffer_fw_freeSemaphore(isSend); isLocked = false;
+		} else if (main_bf.mainHelpConcatNr && !(statusRcv & RINGBUFFER_MSG_STATUS_AVAIL)) {	// during help printing, go ahead when receive buffer is empty again
+			ringbuffer_fw_freeSemaphore(true); isLocked = false;
 
 			switch (main_bf.mainHelpConcatNr) {
 			case 1:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP02, sizeof(PM_INTERPRETER_HELP02));
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP02, sizeof(PM_INTERPRETER_HELP02));
 				main_bf.mainHelpConcatNr = 2;
 				break;
 
 			case 2:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP03, sizeof(PM_INTERPRETER_HELP03));
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP03, sizeof(PM_INTERPRETER_HELP03));
 				main_bf.mainHelpConcatNr = 3;
 				break;
 
 			case 3:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP04, sizeof(PM_INTERPRETER_HELP04));
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP04, sizeof(PM_INTERPRETER_HELP04));
 				main_bf.mainHelpConcatNr = 4;
 				break;
 
 			case 4:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP05, sizeof(PM_INTERPRETER_HELP05));
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP05, sizeof(PM_INTERPRETER_HELP05));
 				main_bf.mainHelpConcatNr = 5;
 				break;
 
 			case 5:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP06, sizeof(PM_INTERPRETER_HELP06));
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP06, sizeof(PM_INTERPRETER_HELP06));
 				main_bf.mainHelpConcatNr = 6;
 				break;
 
 			case 6:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP07, sizeof(PM_INTERPRETER_HELP07));
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP07, sizeof(PM_INTERPRETER_HELP07));
 				main_bf.mainHelpConcatNr = 7;
 				break;
 
 			case 7:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP08, sizeof(PM_INTERPRETER_HELP08));
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP08, sizeof(PM_INTERPRETER_HELP08));
 				main_bf.mainHelpConcatNr = 8;
 				break;
 
 			case 8:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP09, sizeof(PM_INTERPRETER_HELP09));
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP09, sizeof(PM_INTERPRETER_HELP09));
 				main_bf.mainHelpConcatNr = 9;
 				break;
 
 			case 9:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP10, sizeof(PM_INTERPRETER_HELP10));
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP10, sizeof(PM_INTERPRETER_HELP10));
 				main_bf.mainHelpConcatNr = 10;
 				break;
 
 			case 10:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP11, sizeof(PM_INTERPRETER_HELP11));
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP11, sizeof(PM_INTERPRETER_HELP11));
 				main_bf.mainHelpConcatNr = 11;
 				break;
 
 			case 11:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP12, sizeof(PM_INTERPRETER_HELP12));
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP12, sizeof(PM_INTERPRETER_HELP12));
 				main_bf.mainHelpConcatNr = 12;
 				break;
 
 			case 12:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP13, sizeof(PM_INTERPRETER_HELP13));
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP13, sizeof(PM_INTERPRETER_HELP13));
 				main_bf.mainHelpConcatNr = 13;
 				break;
 
 			case 13:
-				ringbuffer_fw_ringBufferWaitAppend(!isSend, true, (uchar*) PM_INTERPRETER_HELP14, sizeof(PM_INTERPRETER_HELP14));
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP14, sizeof(PM_INTERPRETER_HELP14));
 				// no break
 			default:
 				main_bf.mainHelpConcatNr = 0;
@@ -705,7 +709,7 @@ static void workInQueue()
 		}
 
 		if (isLocked) {
-			ringbuffer_fw_freeSemaphore(isSend);
+			ringbuffer_fw_freeSemaphore(true);
 		}
 	}
 }
@@ -715,7 +719,7 @@ __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
 static void doJobs()
 {
-	const uint8_t isSend = false;							// USB Function --> host: USB IN
+	//const uint8_t isSend = false;							// USB Function --> host: USB IN
 	const uint16_t LocalCtr1msSpan = 1000 * DEBUG_DELAY_CNT;// wake up every DEBUG_DELAY_CNT second
 	static uint8_t isTimerTestPrintCtr = 0;
 	static uint32_t localStampCtr1ms_next = 0;
@@ -851,7 +855,7 @@ static void doJobs()
 							localClockDiffAvg,
 							qrgDev_Hz,
 							ppm);
-					ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+					ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA02, sizeof(PM_FORMAT_IA02));
 					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
@@ -859,7 +863,7 @@ static void doJobs()
 							pwmDevLin_steps,
 							pwmDevWght_steps,
 							main_fw_calcTimerToFloat(localPwmSubVal, localPullPwmVal));
-					ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+					ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 				} else {
 					/* frequency search and lock loop - out if sync */
@@ -882,40 +886,40 @@ static void doJobs()
 					localStampTCNT1,
 					fastStampCtr1ms,
 					fastStampTCNT1);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA02, sizeof(PM_FORMAT_TA02));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					pullPwmVal,
 					fastPwmSubCmp);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA03, sizeof(PM_FORMAT_TA03));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					mainRefClkState);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA04, sizeof(PM_FORMAT_TA04));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[ADC_CH_PWMPULL],
 					adcCh0Volts);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA05, sizeof(PM_FORMAT_TA05));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[ADC_CH_PHASE],
 					adcCh1Volts);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA06, sizeof(PM_FORMAT_TA06));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[ADC_CH_TEMP],
 					adcCh2C);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 			if (!isTimerTestPrintCtr) {
 				memory_fw_copyBuffer(true, mainPrepareBuffer, PM_FORMAT_TA07, sizeof(PM_FORMAT_TA07) + 1);
-				ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, sizeof(PM_FORMAT_TA07) + 1);
+				ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, sizeof(PM_FORMAT_TA07) + 1);
 			}
 		}
 
@@ -942,14 +946,14 @@ static void doJobs()
 					mainPwmTerminalAdj,
 					localFastPwmValBefore,
 					localFastPwmSubCmpBefore);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_ID02, sizeof(PM_FORMAT_ID02));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					mainPwmTerminalAdj,
 					localFastPwmValNext,
 					localFastPwmSubCmpNext);
-			ringbuffer_fw_ringBufferWaitAppend(isSend, false, mainPrepareBuffer, len);
+			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 			// reset data entry
 			mainPwmTerminalAdj = 0.0f;
@@ -962,7 +966,7 @@ __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
 void main_fw_sendInitialHelp()
 {
-	ringbuffer_fw_ringBufferAppend(true, false, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP));
+	ringbuffer_fw_ringBufferWaitAppend(true, true, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP));
 }
 
 #ifdef RELEASE

@@ -183,7 +183,6 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 {
-	const uint8_t isSend = false;
 	uint8_t retLen = 0;
 
 	if (main_bf.mainIsUsbCommTest) {
@@ -209,10 +208,10 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 
 	signed int readCnt = min(cntRcv, len) + 1 - retLen;
 	if (readCnt > 0) {
-		if (ringbuffer_fw_getSemaphore(isSend)) {
+		if (ringbuffer_fw_getSemaphore(false)) {
 			/* pull next message from the ring buffer and send it to the host IN */
-			uint8_t pullLen = ringbuffer_fw_ringBufferPull(isSend, data + retLen, readCnt);	// we accept that the final null byte is written behind the buffer
-			ringbuffer_fw_freeSemaphore(isSend);
+			uint8_t pullLen = ringbuffer_fw_ringBufferPull(false, data + retLen, readCnt);	// we accept that the final null byte is written behind the buffer
+			ringbuffer_fw_freeSemaphore(false);
 			cntRcv -= retLen + pullLen;
 			return retLen + pullLen;
 
@@ -234,8 +233,6 @@ __attribute__((section(".df4iah_fw_usb"), aligned(2)))
 #endif
 USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 {
-	const uint8_t isSend = true;
-
 	if (cntSend > len) {
 		/* append first or any substring to the inBuffer */
 		cntSend -= len;
@@ -251,7 +248,7 @@ USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 		}
 
 		/* push OUT string (send) from host to the USB function's ring buffer */
-		ringbuffer_fw_ringBufferAppend(isSend, false, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
+		ringbuffer_fw_ringBufferWaitAppend(true, false, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
 
 		usbIsrCtxtBufferIdx = cntSend = 0;
 		return 1;											// no more data transfers accepted
