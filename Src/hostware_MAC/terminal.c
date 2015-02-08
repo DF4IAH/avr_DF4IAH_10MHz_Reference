@@ -8,8 +8,9 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include <time.h>
+#include <unistd.h>
 #include <sys/time.h>
+#include <time.h>
 #include <string.h>
 #include <usb.h>											/* this is libusb */
 
