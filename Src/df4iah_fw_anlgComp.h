@@ -23,7 +23,7 @@ void anlgComp_fw_init();
 void anlgComp_fw_close();
 
 /* the following functions are direct __vector_xx calls to reduce some clocks */
-//void clkFastCtr_ISR_T1_Capt();
 //void clkFastCtr_ISR_T1_CompA();
+//void anlgComp_fw_ISR_ADC();
 
 #endif /* DF4IAH_FW_ANLGCOMP_H_ */

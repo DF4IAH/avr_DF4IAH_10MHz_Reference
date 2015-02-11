@@ -6,7 +6,7 @@
  */
 
 
-/* this modules uses the T0 timer/counter/pwm-generator of the AVR controller as 8-bit PWM generator */
+/* this modules uses the T0-OC0B (Pin 11) timer/counter/pwm-generator of the AVR controller as 8-bit PWM generator */
 
 
 #include <stdint.h>

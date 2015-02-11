@@ -40,6 +40,8 @@ void clkFastCtr_fw_init();
 void clkFastCtr_fw_close();
 
 /* the following functions are direct __vector_xx calls to reduce some clocks */
-//void clkFastCtr_ISR_T1_CompA();
+//void clkFastCtr_fw_ISR_T1_CompA();
+//void clkFastCtr_fw_ISR_T1_Capt();
+//void clkSlowCtr_fw_ISR_PCI2();
 
 #endif /* DF4IAH_FW_CLKFASTCTR_H_ */

@@ -28,7 +28,6 @@
 #include "df4iah_fw_clkPullPwm.h"
 #include "df4iah_fw_clkFastCtr.h"
 #include "df4iah_fw_anlgComp.h"
-#include "df4iah_fw_clkSlowCtr.h"
 #include "df4iah_fw_serial.h"
 
 #include "df4iah_fw_main.h"
@@ -195,15 +194,18 @@ uint32_t fastPwmAdcNow										= 0;
 uint32_t fastPwmAdcLast										= 0;
 int16_t  fastPwmAdcAscendingVal								= 0;
 
-/* df4iah_fw_anlgComp (10 kHz GPS pulse) */
-uint8_t  acAdcConvertNowCh									= 0;
-uint8_t  acAdcConvertNowTempStep							= 0;
+/* df4iah_fw_anlgComp (PPS: 1 Hz GPS pulse) */
+uint8_t  acAdcConvertNowState								= 0;
+uint8_t  acAdcConvertNowCntr								= 0;
+
 
 /* df4iah_fw_clkSlowCtr (PPS 1 Hz GPS pulse) */
+#if 0
 uint16_t slowStampTCNT1										= 0;
 uint16_t slowStampTCNT1_last								= 0;
 uint32_t slowStampCtr1ms									= 0;
 uint32_t slowStampCtr1ms_last								= 0;
+#endif
 
 /* df4iah_fw_ringbuffer */
 uint8_t  usbRingBufferSendPushIdx 							= 0;
@@ -728,12 +730,14 @@ static void doJobs()
 	uint16_t localStampTCNT1_last;
 	uint32_t localStampCtr1ms_last;
 
+#if 0
 	cli();													// during data copy keep data consistent
 	localStampTCNT1			= slowStampTCNT1;
 	localStampCtr1ms		= slowStampCtr1ms;
 	localStampTCNT1_last	= slowStampTCNT1_last;
 	localStampCtr1ms_last	= slowStampCtr1ms_last;
 	sei();
+#endif
 
 	if ((localStampCtr1ms_next <= localStampCtr1ms) || isTimerTestPrintCtr) {  // a new SPS impulse has arrived ... and some following lines
 		uint8_t len = 0;
@@ -752,7 +756,6 @@ static void doJobs()
 
 		if (localStampCtr1ms_next <= localStampCtr1ms) {
 			/* 10 MHz Ref-Clk State Machine */
-			acAdcConvertNowTempStep = 1;  					// prepare for next temperature conversion, once per second
 			isTimerTestPrintCtr = 1;						// show 1 timer line per second
 
 			/* frequency shift calculation */
@@ -875,6 +878,136 @@ static void doJobs()
 				localStampCtr1ms_next -= localStampCtr1ms_next 	% LocalCtr1msSpan;
 			}
 		}
+
+#if 0
+	/* APC = automatic phase control */
+	if (main_bf.mainIsAPC && (mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
+		static uint8_t  localSpeedCtr = 0;
+		static uint32_t localSpeedSum = 0;
+#ifdef EXPERIMENTAL
+		static uint32_t localSpeedLastCenter = 0;
+		static uint8_t  localPwmLastCenterVal = 0;
+		static uint8_t  localPwmLastCenterSub = 0;
+#endif
+
+		localSpeedSum += acAdcCh[ADC_CH_PHASE];
+		if (localSpeedCtr++ == ADC_PWM_SAMPLING_CNT) {
+			/* subsampling data reduction */
+			localSpeedCtr = 0;
+			fastPwmAdcLast = fastPwmAdcNow;
+			fastPwmAdcNow = localSpeedSum;
+			localSpeedSum = 0;
+
+			if ((ADC_PWM_LO < fastPwmAdcNow) && (fastPwmAdcNow < ADC_PWM_HI)) {
+				/* indicator valid inside this range only */
+				fastPwmAdcAscendingVal = ((int16_t) fastPwmAdcNow) - ((int16_t) fastPwmAdcLast);
+				if ((fastPwmAdcAscendingVal < -ADC_PWM_SWITCH_OUT) || (ADC_PWM_SWITCH_OUT < fastPwmAdcAscendingVal)) {
+					fastPwmAdcAscendingVal = 0;
+				}
+
+				/* inside of measuring phase */
+				if (mainRefClkState < REFCLK_STATE_LOCKING_PHASE) {
+					mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
+				}
+
+				{ /* keeping the phase at 2.4 volts */
+#ifdef EXPERIMENTAL
+					if ((((fastPwmAdcNow <= ADC_PWM_CENTER)		&&
+						  (fastPwmAdcLast > ADC_PWM_CENTER))	||
+			 		     ((fastPwmAdcNow >= ADC_PWM_CENTER)		&&
+					      (fastPwmAdcLast < ADC_PWM_CENTER)))	&&
+						 (fabsf(fastPwmAdcNow - ADC_PWM_CENTER) < ((float) ADC_PWM_CENTER_AREA))) {
+						/* crossing the CENTER line */
+						cli();
+						uint8_t localPwmThisCenterSub = fastPwmSubCmp;
+						uint8_t localPwmThisCenterVal = pullPwmVal;
+						sei();
+
+						/* calculations */
+						// pwm0 = pwm2 + (( pwm2 - pwm1 ) / ( 1 - ( v2 / v1 )))
+						float calcPwm1 = main_fw_calcTimerToFloat(localPwmLastCenterSub, localPwmLastCenterVal);
+						float calcPwm2 = main_fw_calcTimerToFloat(localPwmThisCenterSub, localPwmThisCenterVal);
+						float calcPwm0 = (calcPwm2 + (0.2f * ((calcPwm2 - calcPwm1)) / (1.0f - (((float) fastPwmAdcNow) - ((float) localSpeedLastCenter)))));
+						uint8_t calcPwmSub = 0;
+						uint8_t calcPwmVal = calcTimerAdj(&calcPwmSub, 0, calcPwm0);
+
+						if (fabsf(calcPwmVal - localPwmThisCenterVal) < 2.0f) {  // validity check
+							/* set PWM */
+							cli();
+							fastPwmSubCmp = calcPwmSub;
+							OCR0B = pullPwmVal = calcPwmVal;
+							sei();
+						}
+
+						/* remember for next crossing */
+						localSpeedLastCenter = fastPwmAdcNow;
+						localPwmLastCenterSub = localPwmThisCenterSub;
+						localPwmLastCenterVal = localPwmThisCenterVal;
+					} else
+#endif
+					if ((fastPwmAdcNow < ADC_PWM_CENTER) && (fastPwmAdcAscendingVal <= -ADC_PWM_SWITCH_SPEED)) {
+						/* try to increase the phase-detector-voltage */
+						if (fastReducer(fastPwmAdcNow, ADC_PWM_REDUCE_RANGE)) {
+							cli();
+							DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+							DEBUG_DN_PORT |=   _BV(DEBUG_DN_NR);		// TODO debugging aid
+
+							/* VCO-Frequency goes lower */
+							register uint8_t localPwmSubCmpLast = fastPwmSubCmp;
+							fastPwmSubCmp -= FAST_PWM_SUB_INC_DEC;
+							if (fastPwmSubCmp > localPwmSubCmpLast) {	// underflow
+								OCR0B = --pullPwmVal;
+							}
+							//DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+							sei();
+						}
+
+					} else if ((fastPwmAdcNow > ADC_PWM_CENTER) && (fastPwmAdcAscendingVal >= ADC_PWM_SWITCH_SPEED)) {
+						/* try to decrease the phase-detector-voltage */
+						if (fastReducer(fastPwmAdcNow, ADC_PWM_REDUCE_RANGE)) {
+							cli();
+							DEBUG_UP_PORT |=   _BV(DEBUG_UP_NR);		// TODO debugging aid
+							DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+
+							/* VCO-Frequency goes higher */
+							register uint8_t localPwmSubCmpLast = fastPwmSubCmp;
+							fastPwmSubCmp += FAST_PWM_SUB_INC_DEC;
+							if (fastPwmSubCmp < localPwmSubCmpLast) {	// overflow
+								OCR0B = ++pullPwmVal;
+							}
+							//DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+							sei();
+						}
+
+					} else {
+						DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+						DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+					}
+				}
+				/* try to advance the phase */
+				/* try to retard the phase */
+
+			} else {
+				/* got outside of locked phase */
+				if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
+					mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
+
+					DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+					DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+				}
+			}
+		}
+
+	} else {
+		/* APC switched off, leave this precision mode */
+		if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
+			mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
+
+			DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
+			DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+		}
+	}
+#endif
 
 		if (main_bf.mainIsTimerTest && isTimerTestPrintCtr) {
 			/* enter this block just n times per second */
@@ -1030,7 +1163,6 @@ int main(void)
 		clkPullPwm_fw_init();
 		clkFastCtr_fw_init();
 		anlgComp_fw_init();
-		clkSlowCtr_fw_init();
 		serial_fw_init();
 		usb_fw_init();
 		sei();
@@ -1086,7 +1218,6 @@ int main(void)
 		wdt_close();
 		usb_fw_close();
 		serial_fw_close();
-		clkSlowCtr_fw_close();
 		anlgComp_fw_close();
 		clkFastCtr_fw_close();
 		clkPullPwm_fw_close();

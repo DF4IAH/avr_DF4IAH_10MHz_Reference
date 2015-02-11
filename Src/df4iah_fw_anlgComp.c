@@ -6,7 +6,7 @@
  */
 
 
-/* this modules uses the Analog Comparator to generate interrupts based on GPS (10 kHz) */
+/* this modules uses the Analog Comparator to generate interrupts based on GPS-PPS (1 Hz) */
 
 
 #include <avr/interrupt.h>
@@ -16,8 +16,8 @@
 #include "df4iah_fw_anlgComp.h"
 
 
-extern uint8_t  acAdcConvertNowCh;
-extern uint8_t  acAdcConvertNowTempStep;
+extern uint8_t  acAdcConvertNowState;
+extern uint8_t  acAdcConvertNowCntr;
 extern uint16_t acAdcCh[AC_ADC_CH_COUNT + 1];				// plus one for the temperature sensor
 
 
@@ -29,6 +29,9 @@ void anlgComp_fw_init()
 	/* enable power for ADC, reference voltage and analog comparator */
 	PRR &= ~(_BV(PRADC));
 
+	/* init the ADC counter */
+	acAdcConvertNowCntr = 0;
+
 	/* disable digital input buffers on AIN0, AIN1, ADC0 and ADC1 */
 	DIDR1 |= (0b11 << AIN0D);
 	DIDR0  = (0b000011 << ADC0D);
@@ -39,18 +42,11 @@ void anlgComp_fw_init()
 
 	/* enable comparator AIN0 pin */
 	ACSR  = (ACSR &  ~(_BV(ACBG) | _BV(ACD)	|	 		  	// disable bandgap reference voltage, switch off Analog Comparator Disable
-			_BV(ACO) | _BV(ACIE)))			| 				// no Analog Comparator Output
+			_BV(ACO) | _BV(ACIE)))			| 				// no Analog Comparator Output, disable Interrupt
 			_BV(ACIC)						|				// Analog Comparator Input Capture for the Counter1
 			(0b11 << ACIS0);								// disable ACIE for interrupt as long interrupt source is changed, interrupt on Rising Edge
 	ACSR |= _BV(ACI);										// clear any pending interrupt
 	ACSR |= _BV(ACIE);										// now set ACIE for interrupt
-
-
-	/* ADC reference set to AREF */
-	ADMUX = (0b01 << REFS0);								// keep ADLAR off
-
-	/* start the initial conversion */
-	ADCSRA |= _BV(ADSC);
 }
 
 #ifdef RELEASE
@@ -70,86 +66,135 @@ void anlgComp_fw_close()
 
 	/* disable power for ADC, reference voltage and analog comparator */
 	PRR |= _BV(PRADC);
+
+	/* ADC reference set to AREF */
+	acAdcConvertNowState = 0x11;								// set FSM address to "discard next conversion"
+	ADMUX = (0b01 << REFS0) | 1;							// keep ADLAR off, switch to channel ADC1 (phase input)
+
+	/* start the initial conversion */
+	ADCSRA |= _BV(ADIF);									// clear any pending ADC interrupt flag
+	ADCSRA |= _BV(ADSC) | _BV(ADIE);						// start first conversion of the conversion train and activate the interrupt handler
 }
 
 /*
  * x	Mnemonics	clocks	resulting clocks
  * ------------------------------------------------
- * 9	push		2		18
+ * 6	push		2		12
  * 1	in			1		 1
  * 1	eor			1		 1
- * 2	lds			2		 2
+ * 2	ldi			1		 2
+ * 2	ld(Z)		2		 4
+ * 2	ori			1		 2
+ * 2	st(Z)		2		 4
  * 1	sei			1		 1
  *
- * = 23 clocks --> 1.15 µs until sei() is done
+ * = 27 clocks --> 1.35 µs until sei() is done
  */
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
 #endif
-//void anlgComp_ISR_ANALOG_COMP() - __vector_23
+//void anlgComp_fw_ISR_ANALOG_COMP() - __vector_23
 ISR(ANALOG_COMP_vect, ISR_BLOCK)
 {
-	/* timer strobe is taken from df4iah_fw_clkFastCtr.h */
-	/* use compare interrupt to handle the ADC */
+	/* timer strobe is sent to df4iah_fw_clkFastCtr.c */
+	/* this compare interrupt handles the ADC only */
 
+	/* start the conversion train - channel 1 set, already */
+	ADCSRA |= _BV(ADIF);									// clear any pending ADC interrupt flag
+	ADCSRA |= _BV(ADSC) | _BV(ADIE);						// start conversion train and activate the interrupt handler
+
+	sei();
+}
+
+/*
+ * x	Mnemonics	clocks	resulting clocks
+ * ------------------------------------------------
+ * 6	push		2		12
+ * 1	in			1		 1
+ * 1	eor			1		 1
+ * 2	lds			2		 4
+ * 1	sei			1		 1
+ *
+ * = 19 clocks --> 0.95 µs until sei() is done
+ */
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
+#endif
+//void anlgComp_fw_ISR_ADC() - __vector_21
+ISR(ADC_vect, ISR_BLOCK)
+{
 	/* read the ADC value */
 	uint8_t localADCL = ADCL;								// read LSB first
 	uint8_t localADCH = ADCH;
 
 	sei();
 
-	/* when ADC has finished with previous conversion (it should be), store the value and restart new job */
-	if (!(ADCSRA & _BV(ADSC))) {
-		uint16_t adVal  =  localADCL | (localADCH << 8);
+	uint16_t adVal  =  localADCL | (localADCH << 8);
 
-		switch (acAdcConvertNowTempStep)
-		{
-		case 0:
-			// store last measurement
-			acAdcCh[acAdcConvertNowCh] = adVal;
+	switch (acAdcConvertNowState)
+	{
+	case 0x01:
+		/* store PHASE value */
+		acAdcCh[1] = adVal;
 
-			// switch to next ADC input channel (ADMUX)
-			acAdcConvertNowCh++;
-			acAdcConvertNowCh = acAdcConvertNowCh % AC_ADC_CH_COUNT;
-			ADMUX = 0b01000000 | (acAdcConvertNowCh & 0x07);  // = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
-			break;
+		/* switch to ADC input channel 0 - PWM analog value */
+		acAdcConvertNowState = 0x10;
+		ADMUX = 0b01000000;  								// = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
 
-		case 1:
-			// store last measurement
-			acAdcCh[acAdcConvertNowCh] = adVal;
-
-			// calculate next ADC input channel (ADMUX)
-			acAdcConvertNowCh++;
-			acAdcConvertNowCh = acAdcConvertNowCh % AC_ADC_CH_COUNT;
-
-			// switch over to temperature conversion
-			ADMUX = 0b11001000;  // = (0b11 << REFS0) | (0x08 << MUX0);
-			acAdcConvertNowTempStep = 2;
-			break;
-
-		case 2:
-			// first sample to be discarded
-			acAdcConvertNowTempStep = 3;
-			break;
-
-		case 3:
-			acAdcCh[AC_ADC_CH_COUNT] = adVal;
-			// no break
-		default:
-			// switch to next ADC input channel (ADMUX)
-			acAdcConvertNowCh++;
-			acAdcConvertNowCh = acAdcConvertNowCh % AC_ADC_CH_COUNT;
-			ADMUX = 0b01000000 | (acAdcConvertNowCh & 0x07);  // = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
-			acAdcConvertNowTempStep = 4;
-			break;
-
-		case 4:
-			// first sample to be discarded
-			acAdcConvertNowTempStep = 0;
-			break;
-		}
-
-		// start next ADC conversion and reset ADIF flag
+		/* start next ADC conversion and reset ADIF flag */
 		ADCSRA |= _BV(ADSC) | _BV(ADIF);
+		break;
+
+	case 0x10:
+		/* sample after switching MUX to be discarded */
+		acAdcConvertNowState = 0x00;
+
+		/* start next ADC conversion and reset ADIF flag */
+		ADCSRA |= _BV(ADSC) | _BV(ADIF);
+		break;
+
+	case 0x00:
+		/* store PWM analog value */
+		acAdcCh[0] = adVal;
+
+		/* switch to ADC input channel for temperature */
+		acAdcConvertNowState = 0x18;
+
+		/* switch over to temperature conversion */
+		ADMUX = 0b11001000;  								// = (0b11 << REFS0) | (0x08 << MUX0);
+
+		/* start next ADC conversion and reset ADIF flag */
+		ADCSRA |= _BV(ADSC) | _BV(ADIF);
+		break;
+
+	case 0x18:
+		/* sample after switching MUX to be discarded */
+		acAdcConvertNowState = 0x08;
+
+		/* start next ADC conversion and reset ADIF flag */
+		ADCSRA |= _BV(ADSC) | _BV(ADIF);
+		break;
+
+	case 0x08:
+		acAdcCh[2] = adVal;
+		// no break
+	default:
+		/* switch to ADC input channel 1 - PHASE value */
+		acAdcConvertNowState = 0x11;
+		ADMUX = 0b01000000 | 1;  							// = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
+
+		/* start next ADC conversion and reset ADIF flag */
+		ADCSRA |= _BV(ADSC) | _BV(ADIF);
+		break;
+
+	case 0x11:
+		/* sample after switching MUX to be discarded */
+		acAdcConvertNowState = 0x01;
+
+		/* update ADC counter to inform about a new conversion train is ready to be read */
+		acAdcConvertNowCntr++;
+
+		/* end of conversion train - no more ADSC. Woken up by the next rising edge of PPS in ISR(ANALOG_COMP_vect, ISR_BLOCK) */
+		break;
 	}
 }
