@@ -38,7 +38,7 @@
 #define EEPROM_DEFAULT_CONTENT_B01	\
 		4.4742f,									/* b01_ref_AREF_V					4.4742 V */											\
 		1.085f,										/* b01_ref_1V1_V					1.085  V */											\
-		367.0f,										/* b01_temp_ofs_adc_25C_steps		0367 = 25°C */										\
+		349.0f,										/* b01_temp_ofs_adc_25C_steps		0349 = 25°C */										\
 		1.0595703f,									/* b01_temp_k_p1step_adc_K			1mv / K  -->  abt.  1K / step */					\
 		0xffff,						\
 		0xffff,						\

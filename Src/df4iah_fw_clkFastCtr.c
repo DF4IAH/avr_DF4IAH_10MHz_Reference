@@ -155,13 +155,12 @@ ISR(TIMER1_CAPT_vect, ISR_BLOCK)
 	/* rising edge of the PPS signal from df4iah_fw_anlgComp.c detected */
 
 	/* take the current timestamp of the free floating 20 MHz timer */
-	uint8_t localICR1L = ICR1L;									// low byte first
+	uint8_t localICR1L = ICR1L;									// capture timer value - low byte first
 	uint8_t localICR1H = ICR1H;
+	fastStampCtr1ms = fastCtr1ms;
+	sei();
 
 	fastStampTCNT1  = localICR1L | (localICR1H << 8);
-	fastStampCtr1ms = fastCtr1ms;
-
-	sei();														// since here we can accept interruptions
 }
 
 #if 0

@@ -10,6 +10,7 @@
 
 
 #include <avr/interrupt.h>
+#include <avr/sleep.h>
 
 #include "chipdef.h"
 
@@ -76,6 +77,16 @@ void anlgComp_fw_close()
 	ADCSRA |= _BV(ADSC) | _BV(ADIE);						// start first conversion of the conversion train and activate the interrupt handler
 }
 
+void startAdcConvertion() {
+#if 0
+	set_sleep_mode(SLEEP_MODE_ADC);							// do not use SLEEP_MODE_ADC due to the fact that the timers stop
+	sleep_enable();
+	sleep_cpu();
+#else
+	ADCSRA |= _BV(ADSC);									// start conversion
+#endif
+}
+
 /*
  * x	Mnemonics	clocks	resulting clocks
  * ------------------------------------------------
@@ -101,9 +112,10 @@ ISR(ANALOG_COMP_vect, ISR_BLOCK)
 
 	/* start the conversion train - channel 1 set, already */
 	ADCSRA |= _BV(ADIF);									// clear any pending ADC interrupt flag
-	ADCSRA |= _BV(ADSC) | _BV(ADIE);						// start conversion train and activate the interrupt handler
-
+	ADCSRA |= _BV(ADIE);									// activate the interrupt handler
 	sei();
+
+	startAdcConvertion();
 }
 
 /*
@@ -123,6 +135,8 @@ __attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
 //void anlgComp_fw_ISR_ADC() - __vector_21
 ISR(ADC_vect, ISR_BLOCK)
 {
+	//sleep_disable();
+
 	/* read the ADC value */
 	uint8_t localADCL = ADCL;								// read LSB first
 	uint8_t localADCH = ADCH;
@@ -142,7 +156,7 @@ ISR(ADC_vect, ISR_BLOCK)
 		ADMUX = 0b01000000;  								// = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
 
 		/* start next ADC conversion and reset ADIF flag */
-		ADCSRA |= _BV(ADSC) | _BV(ADIF);
+		startAdcConvertion();
 		break;
 
 	case 0x10:
@@ -150,7 +164,7 @@ ISR(ADC_vect, ISR_BLOCK)
 		acAdcConvertNowState = 0x00;
 
 		/* start next ADC conversion and reset ADIF flag */
-		ADCSRA |= _BV(ADSC) | _BV(ADIF);
+		startAdcConvertion();
 		break;
 
 	case 0x00:
@@ -164,7 +178,7 @@ ISR(ADC_vect, ISR_BLOCK)
 		ADMUX = 0b11001000;  								// = (0b11 << REFS0) | (0x08 << MUX0);
 
 		/* start next ADC conversion and reset ADIF flag */
-		ADCSRA |= _BV(ADSC) | _BV(ADIF);
+		startAdcConvertion();
 		break;
 
 	case 0x18:
@@ -172,7 +186,7 @@ ISR(ADC_vect, ISR_BLOCK)
 		acAdcConvertNowState = 0x08;
 
 		/* start next ADC conversion and reset ADIF flag */
-		ADCSRA |= _BV(ADSC) | _BV(ADIF);
+		startAdcConvertion();
 		break;
 
 	case 0x08:
@@ -184,7 +198,7 @@ ISR(ADC_vect, ISR_BLOCK)
 		ADMUX = 0b01000000 | 1;  							// = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
 
 		/* start next ADC conversion and reset ADIF flag */
-		ADCSRA |= _BV(ADSC) | _BV(ADIF);
+		startAdcConvertion();
 		break;
 
 	case 0x11:
