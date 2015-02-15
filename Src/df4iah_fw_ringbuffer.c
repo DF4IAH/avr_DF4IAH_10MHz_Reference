@@ -20,6 +20,13 @@
 
 #define min(a,b) ((a) < (b) ?  (a) : (b))
 
+#ifndef false
+# define false					0
+#endif
+#ifndef true
+# define true					1
+#endif
+
 
 extern uint8_t usbRingBufferSendPushIdx;
 extern uint8_t usbRingBufferSendPullIdx;
@@ -89,8 +96,12 @@ static uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[
 {
 	uint8_t retLen = 0;
 	uint8_t bufferSize = (isSend ?  RINGBUFFER_SEND_SIZE : RINGBUFFER_RCV_SIZE);
+
+	uint8_t sreg = SREG;
+	cli();
 	uint8_t pushIdx = (isSend ?  usbRingBufferSendPushIdx : usbRingBufferRcvPushIdx);
 	uint8_t pullIdx = (isSend ?  usbRingBufferSendPullIdx : usbRingBufferRcvPullIdx);
+	SREG = sreg;
 
 	if (!(((pushIdx + 1) == pullIdx) || (((pushIdx + 1) == bufferSize) && !pullIdx))) {
 		uchar* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
@@ -109,11 +120,18 @@ static uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[
 
 		// advance the index
 		if (isSend) {
+			uint8_t sreg = SREG;
+			cli();
 			usbRingBufferSendPushIdx += retLen;
 			usbRingBufferSendPushIdx %= bufferSize;
+			SREG = sreg;
+
 		} else {
+			uint8_t sreg = SREG;
+			cli();
 			usbRingBufferRcvPushIdx += retLen;
 			usbRingBufferRcvPushIdx %= bufferSize;
+			SREG = sreg;
 		}
 	}
 	return retLen;
@@ -125,8 +143,12 @@ __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 uint8_t ringbuffer_fw_ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size)
 {
 	uint8_t len = 0;
+
+	uint8_t sreg = SREG;
+	cli();
 	uint8_t pushIdx = (isSend ?  usbRingBufferSendPushIdx : usbRingBufferRcvPushIdx);
 	uint8_t pullIdx = (isSend ?  usbRingBufferSendPullIdx : usbRingBufferRcvPullIdx);
+	SREG = sreg;
 
 	if ((pushIdx != pullIdx) && (size > 1)) {
 		uchar* ringBuffer = (isSend ?  usbRingBufferSend : usbRingBufferRcv);
@@ -148,11 +170,18 @@ uint8_t ringbuffer_fw_ringBufferPull(uint8_t isSend, uchar outData[], uint8_t si
 
 		// advance the index
 		if (isSend) {
+			uint8_t sreg = SREG;
+			cli();
 			usbRingBufferSendPullIdx += len;
 			usbRingBufferSendPullIdx %= bufferSize;
+			SREG = sreg;
+
 		} else {
+			uint8_t sreg = SREG;
+			cli();
 			usbRingBufferRcvPullIdx += len;
 			usbRingBufferRcvPullIdx %= bufferSize;
+			SREG = sreg;
 		}
 	} else if (!size) {
 		outData[0] = 0;
@@ -166,8 +195,12 @@ __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 enum RINGBUFFER_MSG_STATUS_t ringbuffer_fw_getStatusNextMsg(uint8_t isSend)
 {
 	enum RINGBUFFER_MSG_STATUS_t status = 0;
+
+	uint8_t sreg = SREG;
+	cli();
 	uint8_t pushIdx = (isSend ?  usbRingBufferSendPushIdx : usbRingBufferRcvPushIdx);
 	uint8_t pullIdx = (isSend ?  usbRingBufferSendPullIdx : usbRingBufferRcvPullIdx);
+	SREG = sreg;
 
 	if (pullIdx != pushIdx) {
 		status |= RINGBUFFER_MSG_STATUS_AVAIL;
@@ -188,20 +221,40 @@ void ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend)
 {
 	for (;;) {
 		if (ringbuffer_fw_getSemaphore(isSend)) {
-			uint8_t pushIdx = (isSend ?  usbRingBufferSendPushIdx : usbRingBufferRcvPushIdx);
-			uint8_t pullIdx = (isSend ?  usbRingBufferSendPullIdx : usbRingBufferRcvPullIdx);
+			uint8_t pushIdx;
+			uint8_t pullIdx;
+
+			if (isSend) {
+				uint8_t sreg = SREG;
+				cli();
+				pushIdx = usbRingBufferSendPushIdx;
+				pullIdx = usbRingBufferSendPullIdx;
+				SREG = sreg;
+
+			} else {
+				uint8_t sreg = SREG;
+				cli();
+				pushIdx = usbRingBufferRcvPushIdx;
+				pullIdx = usbRingBufferRcvPullIdx;
+				SREG = sreg;
+			}
 
 			if (pullIdx == pushIdx) {
 				// buffer is empty, break loop and hold semaphore
 				break;
 			}
+
 			ringbuffer_fw_freeSemaphore(isSend);
+
+			// give the CPU away for a moment to delay, do not use giveAway() that would make a loop
+		    wdt_reset();
+		    usbPoll();
 		}
 
 		// give the CPU away for a moment to delay, do not use giveAway() that would make a loop
 	    wdt_reset();
 	    usbPoll();
-	};
+	}
 }
 
 #ifdef RELEASE
@@ -210,7 +263,7 @@ __attribute__((section(".df4iah_fw_memory"), aligned(2)))
 uint8_t ringbuffer_fw_ringBufferWaitAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
 {
 	ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(isSend);
-	uint8_t retLen = ringBufferPush(isSend, isPgm, inData, len);
+    uint8_t retLen = ringBufferPush(isSend, isPgm, inData, len);
 	ringbuffer_fw_freeSemaphore(isSend);
-	return retLen;
+    return retLen;
 }

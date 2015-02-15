@@ -84,35 +84,34 @@ PROGMEM const uchar PM_INTERPRETER_HELP01[]					= "\n" \
 															  "\n" \
 															  "=== HELP ===\n" \
 															  "\n" \
-															  "$ <NMEA-Message>\t\tsends message to the GPS module.";
+															  "$ <NMEA-Message>\t\tsends message to the GPS module.\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP02[] 				= "\n" \
-															  "AFCOFF\t\t\t\tswitch AFC (automatic frequency control) off.\n" \
-															  "AFCON\t\t\t\tswitch AFC (automatic frequency control) on.";
+PROGMEM const uchar PM_INTERPRETER_HELP02[] 				= "AFCOFF\t\t\t\tswitch AFC (automatic frequency control) off.\n" \
+															  "AFCON\t\t\t\tswitch AFC (automatic frequency control) on.\n";
 
 PROGMEM const uchar PM_INTERPRETER_HELP03[] 				= "APCOFF\t\t\t\tswitch APC (automatic phase control) off.\n" \
-															  "APCON\t\t\t\tswitch APC (automatic phase control) on.";
+															  "APCON\t\t\t\tswitch APC (automatic phase control) on.\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP04[] 				= "HALT\t\t\t\tpowers the device down (sleep mode).";
+PROGMEM const uchar PM_INTERPRETER_HELP04[] 				= "HALT\t\t\t\tpowers the device down (sleep mode).\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP05[] 				= "HELP\t\t\t\tthis message.";
+PROGMEM const uchar PM_INTERPRETER_HELP05[] 				= "HELP\t\t\t\tthis message.\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP06[] 				= "INFO\t\t\t\ttoggles additional printed infos.";
+PROGMEM const uchar PM_INTERPRETER_HELP06[] 				= "INFO\t\t\t\ttoggles additional printed infos.\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP07[] 				= "LOADER\t\t\t\tenter bootloader.";
+PROGMEM const uchar PM_INTERPRETER_HELP07[] 				= "LOADER\t\t\t\tenter bootloader.\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP08[] 				= "REBOOT\t\t\t\treboot the firmware.";
+PROGMEM const uchar PM_INTERPRETER_HELP08[] 				= "REBOOT\t\t\t\treboot the firmware.\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP09[] 				= "SERBAUD <baud>\t\t\tsetting serial baud rate.";
+PROGMEM const uchar PM_INTERPRETER_HELP09[] 				= "\nSERBAUD <baud>\t\t\tsetting serial baud rate.\n";
 
 PROGMEM const uchar PM_INTERPRETER_HELP10[] 				= "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SERON\t\t\t\tswitch serial communication ON.";
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SERON\t\t\t\tswitch serial communication ON.\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "TEST\t\t\t\ttoggles counter test.";
+PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "TEST\t\t\t\ttoggles counter test.\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "WRITEPWM\t\t\tstore current PWM as default value.";
+PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "WRITEPWM\t\t\tstore current PWM as default value.\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP13[] 				= "+/- <PWM value>\t\tcorrection value to be added.";
+PROGMEM const uchar PM_INTERPRETER_HELP13[] 				= "+/- <PWM value>\t\tcorrection value to be added.\n";
 
 PROGMEM const uchar PM_INTERPRETER_HELP14[] 				= "===========\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n" \
@@ -122,21 +121,21 @@ PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "*?*  unknown command '%s' re
 															  "\n" \
 															  ">";
 
-PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n\n\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d\n";
+PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d\n";
 
-PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA1: localClockDiff = %+4ld @20MHz, \tlocalClockAvg = %+4.2f @20MHz, \tqrgDev_Hz = %+4dHz @10MHz, \tppm = %+02.3f\n";
-PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA2: mainPwmHistAvg = %03.3f, \tpwmDevLin_steps = %+03.3f, \tpwmDevWght_steps = %+03.3f, \tnewPwmVal = %03.3f\n\n";
+PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA01: ADC0 = %04u (%0.3fV)\n";
+PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA02: ADC1 = %04u (%0.3fV)\n";
+PROGMEM const uchar PM_FORMAT_TA03[]						= "#TA03: Temp = %04u (%0.1fC)\n";
+PROGMEM const uchar PM_FORMAT_TA11[]						= "#TA11: localFastCtr1ms = %09lu, \tlocalFastTCNT1 = %05u, \tfastStampCtr1ms = %09lu, \tfastStampTCNT1 = %05u\n";
+PROGMEM const uchar PM_FORMAT_TA12[]						= "#TA12: PWM = %03u, \tSub-PWM = %03u\n";
+PROGMEM const uchar PM_FORMAT_TA13[]						= "#TA13: mainRefClkState = %u\n";
+PROGMEM const uchar PM_FORMAT_TA14[]						= "#TA14: =======\n\n";
 
-PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA1: localFastCtr1ms = %09lu, \tlocalFastTCNT1 = %05u, \tfastStampCtr1ms = %09lu, \tfastStampTCNT1 = %05u\n";
-PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA2: PWM = %03u, \tSub-PWM = %03u\n";
-PROGMEM const uchar PM_FORMAT_TA03[]						= "#TA3: mainRefClkState = %u\n";
-PROGMEM const uchar PM_FORMAT_TA04[]						= "#TA4: ADC0 = %04u (%0.3fV)\n";
-PROGMEM const uchar PM_FORMAT_TA05[]						= "#TA5: ADC1 = %04u (%0.3fV)\n";
-PROGMEM const uchar PM_FORMAT_TA06[]						= "#TA6: Temp = %04u (%0.1fC)\n";
-PROGMEM const uchar PM_FORMAT_TA07[]						= "#TA7: =======\n\n";
+PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID01: +/- KEY \tmainPwmTerminalAdj = %f, \tpullPwmValBefore    = %03u + fastPwmSubCmpBefore    = %03u\n";
+PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID02: +/- KEY \tmainPwmTerminalAdj = %f, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n\n";
 
-PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID1: +/- KEY \tmainPwmTerminalAdj = %f, \tpullPwmValBefore    = %03u + fastPwmSubCmpBefore    = %03u\n";
-PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID2: +/- KEY \tmainPwmTerminalAdj = %f, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n\n";
+PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: localClockDiff = %+4ld @20MHz, \tlocalClockAvg = %+4.2f @20MHz, \tqrgDev_Hz = %+4dHz @10MHz, \tppm = %+02.3f\n";
+PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: mainPwmHistAvg = %03.3f, \tpwmDevLin_steps = %+03.3f, \tpwmDevWght_steps = %+03.3f, \tnewPwmVal = %03.3f\n\n";
 
 PROGMEM const uchar PM_FORMAT_GPIB_SCM_IDN[] 				= "DF4IAH,%s,%05u,V20%03u%03u.";
 
@@ -160,7 +159,7 @@ uint8_t mainIsJumperBlSet									= false;
 uint8_t mainPwmHistIdx 										= 0;
 float mainPwmHistAvg										= 0.0f;
 float mainPwmHistWghtSum									= 0.0f;
-//uint8_t  mainInterpreterBufferIdx 							= 0;
+//uint8_t  mainInterpreterBufferIdx 						= 0;
 enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
 float mainPwmTerminalAdj									= 0.0f;
 volatile uint8_t  timer0Snapshot 							= 0x00;
@@ -169,9 +168,9 @@ usbTxStatus_t usbTxStatus1 									= { 0 },
 
 /* bit fields */
 main_bf_t main_bf											= {
-									/* mainIsAFC			= */	true,
-									/* mainIsAPC			= */	true,
-									/* mainIsTimerTest		= */	true,
+									/* mainIsAFC			= */	false,
+									/* mainIsAPC			= */	false,
+									/* mainIsTimerTest		= */	false,
 									/* mainIsSerComm		= */	false,
 									/* mainIsUsbCommTest	= */	false,
 									/* mainStopAvr			= */	false,
@@ -975,7 +974,6 @@ __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
 static void doJobs()
 {
-	//const uint8_t isSend = false;							// USB Function --> host: USB IN
 	const uint16_t LocalCtr1msSpan = 1000 * DEBUG_DELAY_CNT;// wake up every DEBUG_DELAY_CNT second
 	const uint8_t  LocalCtr1msBorder = 1;					// 1 ms time span
 	static uint8_t localAdcConvertNowCntrLast = 0;
@@ -1014,7 +1012,7 @@ static void doJobs()
 	if (acAdcConvertNowCntr != localAdcConvertNowCntrLast) {  // a new PPS impulse has arrived
 		localAdcConvertNowCntrLast = acAdcConvertNowCntr;
 		localPpsReceived = true;
-		localFastCtr1ms_next = localStampCtr1ms + LocalCtr1msSpan + LocalCtr1msBorder;
+		//localFastCtr1ms_next = localStampCtr1ms + LocalCtr1msSpan + LocalCtr1msBorder;
 
 	} else if (localFastCtr1ms >= localFastCtr1ms_next) {  	//  the timer has elapsed without a PPS impulse
 		//localTimerElapsed = true;
@@ -1035,8 +1033,8 @@ static void doJobs()
 	 * ATTENTION: Floating vfprint() and friends needs changes to the linker
 	 * @see http://winavr.scienceprog.com/avr-gcc-tutorial/using-sprintf-function-for-float-numbers-in-avr-gcc.html
 	 *
-	 * 1)	Linker option:		     --Wl,-u,vfprintf  --Wl,-u,vfscanf
-	 * 2)	Linker libraries:	-lm  -lprintf_flt      -lscanf_flt
+	 * 1)	Linker option:		--Wl,-u,vfprintf  --Wl,-u,vfscanf
+	 * 2)	Linker libraries:	-lm  -lprintf_flt  -lscanf_flt
 	 */
 
 	if (localPpsReceived) {
@@ -1049,19 +1047,19 @@ static void doJobs()
 		if (main_bf.mainIsTimerTest) {
 			/* print ADC values - only valid when a PPS has arrived */
 
-			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA04, sizeof(PM_FORMAT_TA04));
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA01, sizeof(PM_FORMAT_TA01));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[ADC_CH_PWMPULL],
 					adcCh0Volts);
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
-			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA05, sizeof(PM_FORMAT_TA05));
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA02, sizeof(PM_FORMAT_TA02));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[ADC_CH_PHASE],
 					adcCh1Volts);
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
-			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA06, sizeof(PM_FORMAT_TA06));
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA03, sizeof(PM_FORMAT_TA03));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[ADC_CH_TEMP],
 					adcCh2C);
@@ -1073,13 +1071,12 @@ static void doJobs()
 
 		/* APC = automatic phase control */
 		main_fw_calcPhase();
-
 	}
 
 	if (main_bf.mainIsTimerTest) {
 		/* print timer values */
 
-		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA01, sizeof(PM_FORMAT_TA01));
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA11, sizeof(PM_FORMAT_TA11));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				localFastCtr1ms,
 				localFastTCNT1,
@@ -1087,19 +1084,19 @@ static void doJobs()
 				fastStampTCNT1);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
-		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA02, sizeof(PM_FORMAT_TA02));
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA12, sizeof(PM_FORMAT_TA12));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				pullPwmVal,
 				fastPwmSubCmp);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
-		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA03, sizeof(PM_FORMAT_TA03));
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA13, sizeof(PM_FORMAT_TA13));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				mainRefClkState);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
-		memory_fw_copyBuffer(true, mainPrepareBuffer, PM_FORMAT_TA07, sizeof(PM_FORMAT_TA07) + 1);
-		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, sizeof(PM_FORMAT_TA07) + 1);
+		memory_fw_copyBuffer(true, mainPrepareBuffer, PM_FORMAT_TA14, sizeof(PM_FORMAT_TA14) + 1);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, sizeof(PM_FORMAT_TA14) + 1);
 	}
 
 	if (mainPwmTerminalAdj) {

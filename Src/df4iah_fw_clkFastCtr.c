@@ -56,7 +56,8 @@ void clkFastCtr_fw_init()
 			 (0b001<<CS10);									// since now the timer runs
 
 	/* ICF1 and OCF1A interrupt enable */
-	TIMSK1 = _BV(ICIE1) | _BV(OCIE1A);
+	TIMSK1 = _BV(ICIE1) 					|				// ICF1   - GPS PPS rising edge event
+			 _BV(OCIE1A);									// OCIE1A - timer overflow --> every 1 ms
 
 #if 0
 	/* activate PCINT20 interrupt for PIN PD4 (T0) */

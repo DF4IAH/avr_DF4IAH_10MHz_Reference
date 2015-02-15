@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
 #include <avr/pgmspace.h>									// required by usbdrv.h
 #include <avr/wdt.h>
 #include <avr/boot.h>
@@ -162,12 +163,18 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
     		len = 4;
 
     	} else if (rq->bRequest == USBCUSTOMRQ_RECV) {		// receive data from this USB function
-    		cntRcv = rq->wLength.word;
-        	return USB_NO_MSG;								// use usbFunctionRead() to obtain the data
+    		uint8_t sreg = SREG;
+    		cli();
+			cntRcv = rq->wLength.word;
+			len = USB_NO_MSG;								// use usbFunctionRead() to obtain the data
+    		SREG = sreg;
 
     	} else if (rq->bRequest == USBCUSTOMRQ_SEND) {		// send data from host to this USB function
-    		cntSend = rq->wLength.word;
-            return USB_NO_MSG;								// use usbFunctionWrite() to receive data from host
+    		uint8_t sreg = SREG;
+    		cli();
+			cntSend = rq->wLength.word;
+			len = USB_NO_MSG;								// use usbFunctionWrite() to receive data from host
+    		SREG = sreg;
     	}
     }
 
@@ -206,19 +213,24 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 		}
 	}
 
-	signed int readCnt = min(cntRcv, len) + 1 - retLen;
+	signed int readCnt = min(cntRcv, len) - retLen;			// number of characters to be sent - no trailing \0 character counted
 	if (readCnt > 0) {
-		if (ringbuffer_fw_getSemaphore(false)) {
-			/* pull next message from the ring buffer and send it to the host IN */
-			uint8_t pullLen = ringbuffer_fw_ringBufferPull(false, data + retLen, readCnt);	// we accept that the final null byte is written behind the buffer
-			ringbuffer_fw_freeSemaphore(false);
-			cntRcv -= retLen + pullLen;
-			return retLen + pullLen;
+		uint8_t hasSemaphore;
+		do {
+			hasSemaphore = ringbuffer_fw_getSemaphore(false);
+#if 0
+			if (!hasSemaphore) {
+			    wdt_reset();
+			    usbPoll();
+			}
+#endif
+		} while(!hasSemaphore);
 
-		} else {
-			strcpy((char*) data, "SemInUse");
-			return min(len, 8);
-		}
+		/* pull next part of the message from the ring buffer and send it to the host IN */
+		uint8_t pullLen = ringbuffer_fw_ringBufferPull(false, data + retLen, readCnt + 1);
+		ringbuffer_fw_freeSemaphore(false);
+		cntRcv -= retLen + pullLen;
+		return retLen + pullLen;
 
 	} else {
 		return retLen;
@@ -236,21 +248,31 @@ USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 	if (cntSend > len) {
 		/* append first or any substring to the inBuffer */
 		cntSend -= len;
+
+		uint8_t sreg = SREG;
+		cli();
 		memcpy(&(usbIsrCtxtBuffer[usbIsrCtxtBufferIdx]), data, len);
 		usbIsrCtxtBufferIdx += len;
+		SREG = sreg;
 		return 0;											// go ahead with more transfer requests
 
 	} else {
 		/* append last substring to the inBuffer and push it to the OUT ring buffer (host --> USB function) */
 		if (cntSend > 0) {
+			uint8_t sreg = SREG;
+			cli();
 			memcpy(&(usbIsrCtxtBuffer[usbIsrCtxtBufferIdx]), data, cntSend);
 			usbIsrCtxtBufferIdx += cntSend;
+			SREG = sreg;
 		}
 
 		/* push OUT string (send) from host to the USB function's ring buffer */
 		ringbuffer_fw_ringBufferWaitAppend(true, false, usbIsrCtxtBuffer, usbIsrCtxtBufferIdx);
 
+		uint8_t sreg = SREG;
+		cli();
 		usbIsrCtxtBufferIdx = cntSend = 0;
+		SREG = sreg;
 		return 1;											// no more data transfers accepted
 	}
 }
