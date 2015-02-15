@@ -22,6 +22,9 @@ enum ADC_CH_t {
 void anlgComp_fw_init();
 void anlgComp_fw_close();
 
+void anlgComp_fw_startAdcConvertion();
+
+
 /* the following functions are direct __vector_xx calls to reduce some clocks */
 //void clkFastCtr_ISR_T1_CompA();
 //void anlgComp_fw_ISR_ADC();

@@ -4,8 +4,8 @@
 		<cconfiguration id="de.innot.avreclipse.configuration.app.debug.517072529">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.debug.517072529" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<macros>
-					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
 					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
+					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
 					<stringMacro name="DEBUG" type="VALUE_TEXT" value="1"/>
 				</macros>
 				<externalSettings/>
@@ -89,16 +89,16 @@
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.1034531880">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.1034531880" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<macros>
-					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
 					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
-					<stringMacro name="MT_Bootloader_Memory" type="VALUE_TEXT" value="0x7900"/>
+					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
 					<stringMacro name="MT_Firmware_ClkPullPwm" type="VALUE_TEXT" value="0x5900"/>
-					<stringMacro name="MT_Firmware_Memory" type="VALUE_TEXT" value="0x5000"/>
+					<stringMacro name="MT_Bootloader_Memory" type="VALUE_TEXT" value="0x7900"/>
 					<stringMacro name="MT_Firmware_Main" type="VALUE_TEXT" value="0x3000"/>
+					<stringMacro name="MT_Firmware_Memory" type="VALUE_TEXT" value="0x5000"/>
 					<stringMacro name="MT_Firmware_ClkFastCtr" type="VALUE_TEXT" value="0x5A00"/>
 					<stringMacro name="MT_Firmware_Usb" type="VALUE_TEXT" value="0x4A00"/>
-					<stringMacro name="MT_Bootloader_ClkPullPwm" type="VALUE_TEXT" value="0x7780"/>
 					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x4D00"/>
+					<stringMacro name="MT_Bootloader_ClkPullPwm" type="VALUE_TEXT" value="0x7780"/>
 					<stringMacro name="MT_Bootloader_Probe" type="VALUE_TEXT" value="0x78C0"/>
 					<stringMacro name="RELEASE" type="VALUE_TEXT" value="1"/>
 					<stringMacro name="MT_Firmware_AnlgComp" type="VALUE_TEXT" value="0x5680"/>
@@ -178,7 +178,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="hostware/|hostware_MinGW/|hostware_MAC/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Src"/>
+						<entry excluding="hostware_MinGW/|hostware_MAC/|hostware_Ubuntu/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

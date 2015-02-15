@@ -996,13 +996,13 @@ static void doJobs()
 		cli();
 
 		/* get the current ms and ticks timer */
-		localFastCtr1ms = fastCtr1ms;						// make a timestamp of the running clock
+		localFastCtr1ms = fastCtr1ms;						// make a copy of the running clock
 		uint8_t localTCNT1L = TCNT1L;						// low byte first
 		uint8_t localTCNT1H = TCNT1H;
 
 		/* get the last stamped time as ms and ticks */
-		localStampCtr1ms = fastStampCtr1ms;					// make a timestamp of the running clock
-		//uint8_t localICR1L = ICR1L;						// capture timer value - low byte first
+		localStampCtr1ms = fastStampCtr1ms;					// make a copy of the captured / timestamped clock
+		//uint8_t localICR1L = ICR1L;						// low byte first
 		//uint8_t localICR1H = ICR1H;
 
 		sei();

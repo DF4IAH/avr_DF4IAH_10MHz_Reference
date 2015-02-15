@@ -51,7 +51,9 @@ void clkFastCtr_fw_init()
 	/* no ICNC1 input filtering */
 	/* ICES is set to trigger on the rising edge of the Comparator output --> rising edge of AIN0 */
 	/* set the timer-1 clock source to 20 MHz XTAL */
-	TCCR1B = (0b01<<WGM12) | (0b001<<CS10);					// since now the timer runs
+	TCCR1B = _BV(ICES1)						|				// select rising edge of the ICP1/AIN0 input to trigger
+			 (0b01<<WGM12)					|				// WGM03 WGM02
+			 (0b001<<CS10);									// since now the timer runs
 
 	/* ICF1 and OCF1A interrupt enable */
 	TIMSK1 = _BV(ICIE1) | _BV(OCIE1A);
@@ -129,24 +131,27 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 	fastPwmSubCnt += localSubPwmInc;
 	//fastPwmSubCnt %= localSubPwmMax;
 
-	sei();														// since here we can accept interruptions
+	sei();													// since here we can accept interruptions
 }
+
 
 /*
  * x	Mnemonics	clocks	resulting clocks
  * ------------------------------------------------
- * 8	push		2		16
+ * 12	push		2		24
  * 1	in			1		 1
  * 1	eor			1		 1
  * 6	lds			2		12
- * 1	ldi			1		 1
- * 1	or			1		 1
- * 6	sts			2		12
- * 1	sei			1		 1
+ * 0	ldi			1		 0
+ * 0	or			1		 0
+ * 0	sts			2		 0
+ * 0	sei			1		 0
  *
- * = 45 clocks --> 2.25 µs until sei() is done
+ * = 38 clocks --> 1.90 µs until sei() is done
  */
 #ifdef RELEASE
+//static void clkFastCtr_fw_ISR_T1_Capt_Body(uint8_t localICR1L, uint8_t localICR1H, uint32_t localFastCtr1ms)  __attribute__((noinline));
+
 __attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
 #endif
 //void clkFastCtr_fw_ISR_T1_Capt() - __vector_10
@@ -155,13 +160,48 @@ ISR(TIMER1_CAPT_vect, ISR_BLOCK)
 	/* rising edge of the PPS signal from df4iah_fw_anlgComp.c detected */
 
 	/* take the current timestamp of the free floating 20 MHz timer */
-	uint8_t localICR1L = ICR1L;									// capture timer value - low byte first
-	uint8_t localICR1H = ICR1H;
-	fastStampCtr1ms = fastCtr1ms;
+	register uint8_t  localICR1L = ICR1L;					// capture timer value - low byte first
+	register uint8_t  localICR1H = ICR1H;
+	register uint32_t localFastCtr1ms = fastCtr1ms;
+
 	sei();
 
+#if 0
+	clkFastCtr_fw_ISR_T1_Capt_Body(localICR1L, localICR1H, localFastCtr1ms);
+#else
+	/* inline it - it gives a lower time until the first sei() */
+
+	PORTC |= _BV(PORTC4);  // TODO: ON - testing PHASE ADC
+	//anlgComp_fw_startAdcConvertion();
+	ADCSRA |= _BV(ADSC);									// start conversion
+
+	cli();
 	fastStampTCNT1  = localICR1L | (localICR1H << 8);
+	fastStampCtr1ms = localFastCtr1ms;
+	sei();
+#endif
 }
+
+#if 0
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
+#endif
+static void clkFastCtr_fw_ISR_T1_Capt_Body(uint8_t localICR1L, uint8_t localICR1H, uint32_t localFastCtr1ms)
+{
+	PORTC |= _BV(PORTC4);  // TODO: ON - testing PHASE ADC
+	//anlgComp_fw_startAdcConvertion();
+	ADCSRA |= _BV(ADSC);									// start conversion
+
+	cli();
+	fastStampTCNT1  = localICR1L | (localICR1H << 8);
+	fastStampCtr1ms = localFastCtr1ms;
+	sei();
+
+	/* do not optimize this function away */
+	asm("");
+}
+#endif
+
 
 #if 0
 /*

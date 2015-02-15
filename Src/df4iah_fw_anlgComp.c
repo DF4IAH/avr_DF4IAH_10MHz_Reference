@@ -27,6 +27,9 @@ __attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
 #endif
 void anlgComp_fw_init()
 {
+	// TODO: Debugging PHASE ADC at pin C5
+	DDRC |= _BV(PIN4);  // TODO: testing PHASE ADC
+
 	/* enable power for ADC, reference voltage and analog comparator */
 	PRR &= ~(_BV(PRADC));
 
@@ -45,9 +48,17 @@ void anlgComp_fw_init()
 	ACSR  = (ACSR &  ~(_BV(ACBG) | _BV(ACD)	|	 		  	// disable bandgap reference voltage, switch off Analog Comparator Disable
 			_BV(ACO) | _BV(ACIE)))			| 				// no Analog Comparator Output, disable Interrupt
 			_BV(ACIC)						|				// Analog Comparator Input Capture for the Counter1
+			_BV(ACI)						|				// clear any pending interrupt
 			(0b11 << ACIS0);								// disable ACIE for interrupt as long interrupt source is changed, interrupt on Rising Edge
-	ACSR |= _BV(ACI);										// clear any pending interrupt
-	ACSR |= _BV(ACIE);										// now set ACIE for interrupt
+	// ACSR |= _BV(ACIE);									// now set ACIE for interrupt (disabled --> done within Timer1)
+
+	/* ADC reference set to AREF */
+	acAdcConvertNowState = 0x11;							// set FSM address to "discard next conversion"
+	ADMUX = (0b01 << REFS0) | 0x1;							// keep ADLAR off, switch to channel ADC1 (phase input)
+
+	/* start the initial conversion */
+	ADCSRA |= _BV(ADSC) | _BV(ADIF);						// start first conversion of the conversion train and clear pending interrupt flag
+	ADCSRA |= _BV(ADIE);									// enable ADC interrupt
 }
 
 #ifdef RELEASE
@@ -68,18 +79,13 @@ void anlgComp_fw_close()
 	/* disable power for ADC, reference voltage and analog comparator */
 	PRR |= _BV(PRADC);
 
-	/* ADC reference set to AREF */
-	acAdcConvertNowState = 0x11;								// set FSM address to "discard next conversion"
-	ADMUX = (0b01 << REFS0) | 1;							// keep ADLAR off, switch to channel ADC1 (phase input)
-
-	/* start the initial conversion */
-	ADCSRA |= _BV(ADIF);									// clear any pending ADC interrupt flag
-	ADCSRA |= _BV(ADSC) | _BV(ADIE);						// start first conversion of the conversion train and activate the interrupt handler
+	// TODO: Debugging PHASE ADC at pin C5
+	DDRC &= ~(_BV(PIN4));  // TODO: testing PHASE ADC
 }
 
-void startAdcConvertion() {
+void anlgComp_fw_startAdcConvertion() {
 #if 0
-	set_sleep_mode(SLEEP_MODE_ADC);							// do not use SLEEP_MODE_ADC due to the fact that the timers stop
+	set_sleep_mode(SLEEP_MODE_ADC);							// do not use SLEEP_MODE_ADC due to the fact that the timers are stopped
 	sleep_enable();
 	sleep_cpu();
 #else
@@ -87,6 +93,7 @@ void startAdcConvertion() {
 #endif
 }
 
+#if 0
 /*
  * x	Mnemonics	clocks	resulting clocks
  * ------------------------------------------------
@@ -113,10 +120,12 @@ ISR(ANALOG_COMP_vect, ISR_BLOCK)
 	/* start the conversion train - channel 1 set, already */
 	ADCSRA |= _BV(ADIF);									// clear any pending ADC interrupt flag
 	ADCSRA |= _BV(ADIE);									// activate the interrupt handler
-	sei();
 
-	startAdcConvertion();
+	anlgComp_fw_startAdcConvertion();
+
+	sei();
 }
+#endif
 
 /*
  * x	Mnemonics	clocks	resulting clocks
@@ -136,6 +145,7 @@ __attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
 ISR(ADC_vect, ISR_BLOCK)
 {
 	//sleep_disable();
+	PORTC &= ~(_BV(PORTC4));  // TODO: OFF - testing PHASE ADC
 
 	/* read the ADC value */
 	uint8_t localADCL = ADCL;								// read LSB first
@@ -156,7 +166,7 @@ ISR(ADC_vect, ISR_BLOCK)
 		ADMUX = 0b01000000;  								// = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
 
 		/* start next ADC conversion and reset ADIF flag */
-		startAdcConvertion();
+		anlgComp_fw_startAdcConvertion();
 		break;
 
 	case 0x10:
@@ -164,7 +174,7 @@ ISR(ADC_vect, ISR_BLOCK)
 		acAdcConvertNowState = 0x00;
 
 		/* start next ADC conversion and reset ADIF flag */
-		startAdcConvertion();
+		anlgComp_fw_startAdcConvertion();
 		break;
 
 	case 0x00:
@@ -178,7 +188,7 @@ ISR(ADC_vect, ISR_BLOCK)
 		ADMUX = 0b11001000;  								// = (0b11 << REFS0) | (0x08 << MUX0);
 
 		/* start next ADC conversion and reset ADIF flag */
-		startAdcConvertion();
+		anlgComp_fw_startAdcConvertion();
 		break;
 
 	case 0x18:
@@ -186,7 +196,7 @@ ISR(ADC_vect, ISR_BLOCK)
 		acAdcConvertNowState = 0x08;
 
 		/* start next ADC conversion and reset ADIF flag */
-		startAdcConvertion();
+		anlgComp_fw_startAdcConvertion();
 		break;
 
 	case 0x08:
@@ -198,7 +208,7 @@ ISR(ADC_vect, ISR_BLOCK)
 		ADMUX = 0b01000000 | 1;  							// = (0b01 << REFS0) | ((ac_adc_convertNowCh & 0x07) << MUX0);
 
 		/* start next ADC conversion and reset ADIF flag */
-		startAdcConvertion();
+		anlgComp_fw_startAdcConvertion();
 		break;
 
 	case 0x11:
