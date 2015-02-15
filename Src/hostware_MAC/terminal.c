@@ -342,8 +342,12 @@ void terminal()
 # ifdef TEST_DATATRANSFER_USB_TEST2
 		if (inLineCnt) {
 			char debugBuffer[MSGBUFFER_SIZE] = { 0 };
-			sprintf(debugBuffer, " usb_controlIn:   inLineCnt=%03d ", inLineCnt);
+			sprintf(debugBuffer, " usb_controlIn:  inLineCnt=%03d \n", inLineCnt);
 			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_DEBUGGING_IN, 0);
+			sprintf(debugBuffer, "%s\n", inLine);
+			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_RCV_MAIN, 0);
+			inLineCnt = 0;   // TODO: remove me!
+			ncurses_update(win_rxborder, win_rx, win_tx);  // TODO: remove me!
 		}
 # endif
 #endif
