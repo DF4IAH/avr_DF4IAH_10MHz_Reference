@@ -23,9 +23,6 @@
 extern uint16_t fastStampTCNT1;
 extern uint32_t fastStampCtr1ms;
 extern uint32_t fastCtr1ms;
-extern uint8_t  fastPwmSubCnt;
-extern uint8_t  fastPwmSubCmp;
-extern uint8_t  pullPwmVal;
 
 
 #ifdef RELEASE
@@ -114,23 +111,8 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 {
 	/* this ISR is called every 20.000 clocks - repeating each ms again */
 
-	/* minimal Sub-PWM value for its FAST_PWM_SUB_BITCNT */
-	const uint8_t localSubPwmInc = (1 << FAST_PWM_SUB_BITCNT);
-
 	/* the 32 bit timer overflows every 3 1/4 year */
 	fastCtr1ms++;
-
-	/* set the compare A register with the new integer PWM value */
-	OCR0B = pullPwmVal;
-
-	/* increment if counter is lower than the sub-compare value to get a Sub-PWM (fractional part) */
-	if (fastPwmSubCnt < fastPwmSubCmp) {
-		OCR0B++;
-	}
-
-	/* sub-counter increment */
-	fastPwmSubCnt += localSubPwmInc;
-	//fastPwmSubCnt %= localSubPwmMax;
 
 	sei();													// since here we can accept interruptions
 }
@@ -146,9 +128,9 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
  * 0	ldi			1		 0
  * 0	or			1		 0
  * 0	sts			2		 0
- * 0	sei			1		 0
+ * 1	sei			1		 1
  *
- * = 38 clocks --> 1.90 µs until sei() is done
+ * = 39 clocks --> 1.95 µs until sei() is done
  */
 #ifdef RELEASE
 //static void clkFastCtr_fw_ISR_T1_Capt_Body(uint8_t localICR1L, uint8_t localICR1H, uint32_t localFastCtr1ms)  __attribute__((noinline));
@@ -167,11 +149,6 @@ ISR(TIMER1_CAPT_vect, ISR_BLOCK)
 
 	sei();
 
-#if 0
-	clkFastCtr_fw_ISR_T1_Capt_Body(localICR1L, localICR1H, localFastCtr1ms);
-#else
-	/* inline it - it gives a lower time until the first sei() */
-
 	PORTC |= _BV(PORTC4);  // TODO: ON - testing PHASE ADC
 	//anlgComp_fw_startAdcConvertion();
 	ADCSRA |= _BV(ADSC);									// start conversion
@@ -180,28 +157,7 @@ ISR(TIMER1_CAPT_vect, ISR_BLOCK)
 	fastStampTCNT1  = localICR1L | (localICR1H << 8);
 	fastStampCtr1ms = localFastCtr1ms;
 	sei();
-#endif
 }
-
-#if 0
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
-#endif
-static void clkFastCtr_fw_ISR_T1_Capt_Body(uint8_t localICR1L, uint8_t localICR1H, uint32_t localFastCtr1ms)
-{
-	PORTC |= _BV(PORTC4);  // TODO: ON - testing PHASE ADC
-	//anlgComp_fw_startAdcConvertion();
-	ADCSRA |= _BV(ADSC);									// start conversion
-
-	cli();
-	fastStampTCNT1  = localICR1L | (localICR1H << 8);
-	fastStampCtr1ms = localFastCtr1ms;
-	sei();
-
-	/* do not optimize this function away */
-	asm("");
-}
-#endif
 
 
 #if 0
