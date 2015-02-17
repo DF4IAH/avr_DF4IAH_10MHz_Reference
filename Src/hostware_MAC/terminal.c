@@ -174,10 +174,10 @@ void usb_do_transfers()
 #ifdef TEST_DATATRANSFER_USB
         mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 #endif
-        if (usbRetLen > 0) {
+        if ((usbRetLen > 0) && (usbRetLen != sizeof(usbMsg))) {
         	ringBufferPush(false, usbMsg, usbRetLen);
 #ifdef TEST_DATATRANSFER_USB
-			mvprintw(LINES - 7 + (errLine++ % 7), 20, "IN  Data: usbRetLen=%d msg=%s.   ", usbRetLen, usbMsg);
+			mvprintw(LINES - 7 + (errLine++ % 7), 20, "IN  Data: usbRetLen=%d msg=%16s.   ", usbRetLen, usbMsg);
 #endif
 
         } else if (usbRetLen < 0) {
