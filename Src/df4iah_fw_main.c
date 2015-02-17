@@ -126,15 +126,16 @@ PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference 
 PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA01: ADC0 = %04u (%0.3fV)\n";
 PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA02: ADC1 = %04u (%0.3fV)\n";
 PROGMEM const uchar PM_FORMAT_TA03[]						= "#TA03: Temp = %04u (%0.1fC)\n";
-PROGMEM const uchar PM_FORMAT_TA11[]						= "#TA11: localFastCtr1ms = %09lu, \tlocalFastTCNT1 = %05u, \tlocalStampCtr1ms = %09lu, \tlocalStampTCNT1 = %05u\n";
-PROGMEM const uchar PM_FORMAT_TA12[]						= "#TA12: PWM = %03u, \tSub-PWM = %03u\n";
-PROGMEM const uchar PM_FORMAT_TA13[]						= "#TA13: mainRefClkState = %u\n";
-PROGMEM const uchar PM_FORMAT_TA14[]						= "#TA14: =======\n\n";
+PROGMEM const uchar PM_FORMAT_TA11[]						= "#TA11: localFastCtr1ms = %09lu, \tlocalFastTCNT1 = %05u\n";
+PROGMEM const uchar PM_FORMAT_TA12[]						= "#TA12: ppsStampCtr1ms  = %09lu, \tppsStampICR1   = %05u, \tppsStampCtr1ms_last  = %09lu, \tppsStampICR1_last   = %05u\n";
+PROGMEM const uchar PM_FORMAT_TA13[]						= "#TA13: PWM = %03u, \tSub-PWM = %03u\n";
+PROGMEM const uchar PM_FORMAT_TA14[]						= "#TA14: mainRefClkState = %u\n";
+PROGMEM const uchar PM_FORMAT_TA15[]						= "#TA15: =======\n\n";
 
 PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID01: +/- KEY \tmainPwmTerminalAdj = %f, \tpullPwmValBefore    = %03u + fastPwmSubCmpBefore    = %03u\n";
 PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID02: +/- KEY \tmainPwmTerminalAdj = %f, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n\n";
 
-PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: localClockDiff = %+4ld @20MHz, \tlocalClockAvg = %+4.2f @20MHz, \tqrgDev_Hz = %+4dHz @10MHz, \tppm = %+02.3f\n";
+PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: localMeanFloatClockDiff = %+03.3f @20MHz, \tqrgDev_Hz = %+03.3fHz @10MHz, \tppm = %+02.6f\n";
 PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: mainPwmHistAvg = %03.3f, \tpwmDevLin_steps = %+03.3f, \tpwmDevWght_steps = %+03.3f, \tnewPwmVal = %03.3f\n\n";
 
 PROGMEM const uchar PM_FORMAT_GPIB_SCM_IDN[] 				= "DF4IAH,%s,%05u,V20%03u%03u.";
@@ -165,7 +166,10 @@ float mainPwmTerminalAdj									= 0.0f;
 volatile uint8_t  timer0Snapshot 							= 0x00;
 usbTxStatus_t usbTxStatus1 									= { 0 },
 			  usbTxStatus3 									= { 0 };
-
+uint32_t ppsStampCtr1ms 									= 0;
+uint16_t ppsStampICR1 										= 0;
+uint32_t ppsStampCtr1ms_last 								= 0;
+uint16_t ppsStampICR1_last 									= 0;
 /* bit fields */
 main_bf_t main_bf											= {
 									/* mainIsAFC			= */	false,
@@ -377,9 +381,9 @@ float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t subVal)
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
-uint8_t calcTimerAdj(uint8_t* subVal, uint8_t intValBefore, float pwmAdjust)
+uint8_t calcTimerAdj(float pwmAdjust, uint8_t intValBefore, uint8_t* subVal)
 {
-	const float maxLimit = 256.0f - (1.0f / (1 << FAST_PWM_SUB_BITCNT));
+	const float maxLimit = 255.0f - (1.0f / (1 << FAST_PWM_SUB_BITCNT));
 
 	/* add the current PWM values to the adjust value to get the next value */
 	pwmAdjust += main_fw_calcTimerToFloat(intValBefore, *subVal);
@@ -446,55 +450,45 @@ void main_fw_calcPwmWghtAvg()
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
-static void main_fw_calcQrg(
-			uint32_t localStampCtr1ms,
-			uint16_t localStampTCNT1,
-			uint32_t localStampCtr1ms_last,
-			uint16_t localStampTCNT1_last)
+static void main_fw_calcQrg()
 {
 	/* frequency shift calculation */
 	{
-		uint8_t localIsOffset = false;
-		int32_t localClockDiff = ((20000L * (localStampCtr1ms - localStampCtr1ms_last))
-							   + ((((int32_t) localStampCtr1ms) - ((int32_t) localStampTCNT1_last))))
-							   - 20000000L;
-#if 0
+		static float localMeanClockDiffSum = 0.0f;
+		uint8_t localIsOffset  = false;
+		int32_t localClockDiff =   (20000L * (((int32_t) ppsStampCtr1ms) - ((int32_t) ppsStampCtr1ms_last)))
+							     +           (((int32_t) ppsStampICR1)   - ((int32_t) ppsStampICR1_last))
+							     - 20000000L;
+
+		float localMeanFloatClockDiff = localMeanClockDiffSum / 5.0f;
+		if ((-1000L < localClockDiff) && (localClockDiff < 1000L)) {
+			localMeanClockDiffSum += (((float) localClockDiff) - localMeanFloatClockDiff);
+		}
+
 		if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 			/* Help APC to find its phase - when found, stop offset */
-			localClockDiff += 1L;					// 1 clock (= 0.5 Hz @ 10 MHz) below center frequency to let the phase wander and
+			localMeanFloatClockDiff += 0.1f;		// 0.1 Hz @ 20 MHz below center frequency to let the phase wander and
 													// the phase locker find its position to lock in
 			localIsOffset = true;
 		}
-#endif
 
-		if ((-1000 < localClockDiff) &&
-			( 1000 > localClockDiff)) {
+		if ((-1000.0f < localMeanFloatClockDiff) &&
+			( 1000.0f > localMeanFloatClockDiff)) {
 			/* keep measuring window between +/-50ppm */
-			int16_t localClockDiffSum = 0;
-			int16_t qrgDev_Hz = ((int16_t) (localClockDiff >> 1));
-			float ppm = (localClockDiff / 20.0f) - (localIsOffset ?  0.01f : 0.0f);				// correct the clock offset
-
-			/* shift register with three last localClockDiff's */
-			for (int idx = MAIN_CLOCK_DIFF_COUNT - 1; idx; --idx) {
-				mainClockDiffs[idx] = mainClockDiffs[idx - 1];
-				localClockDiffSum += mainClockDiffs[idx - 1];
-			}
-			mainClockDiffs[0] = ((uint16_t) localClockDiff) - (localIsOffset ?  1 : 0);
-			localClockDiffSum += mainClockDiffs[0];
-			float localClockDiffAvg = localClockDiffSum / ((float) MAIN_CLOCK_DIFF_COUNT);
-			float localClockDiffUse = ((mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) ?  localClockDiffAvg : localClockDiff);
+			float qrgDev_Hz = (localMeanFloatClockDiff / 2.0f);
+			float ppm = (localMeanFloatClockDiff / 20.0f) - (localIsOffset ?  0.005f : 0.0f);	// correct the clock offset
 
 			main_fw_calcPwmWghtAvg();
-			float pwmDevLin_steps  = -localClockDiffUse * 128.0f / (mainCoef_b02_qrg_k_p1v_25C_Hz * mainCoef_b01_ref_AREF_V);
+			float pwmDevLin_steps  = -localMeanFloatClockDiff * 128.0f / (mainCoef_b02_qrg_k_p1v_25C_Hz * mainCoef_b01_ref_AREF_V);
 			float pwmDevWght_steps = main_fw_calcPwmWghtDiff(pwmDevLin_steps);
 
 			/* determine the new state of the FSM */
-			if ((-0.25f <= ppm) && (ppm <= 0.15f)) {  // single step tuning with counter stabilizer
+			if ((-0.015f <= ppm) && (ppm <= 0.015f)) {  // single step tuning with counter stabilizer
 				if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 					/* Upgrading: switch on the frequency mean value counter */
 					mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
 				}
-			} else if ((-0.35f <= ppm) && (ppm <= 0.35f)) {  // single step tuning
+			} else if ((-0.025f <= ppm) && (ppm <= 0.025f)) {  // single step tuning
 				if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE) {
 					/* Upgrading: hand-over to the phase lock loop */
 					mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
@@ -504,7 +498,7 @@ static void main_fw_calcQrg(
 					mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
 				}
 
-			} else if ((-0.5f <= ppm) && (ppm <= 0.5f)) {  // phase lock loop locked out again
+			} else if ((-0.030f <= ppm) && (ppm <= 0.030f)) {  // phase lock loop locked out again
 				if (mainRefClkState > REFCLK_STATE_SEARCH_QRG) {
 					/* Downgrading: frequency search and lock loop entering QRG area */
 					mainRefClkState = REFCLK_STATE_SEARCH_QRG;
@@ -530,9 +524,9 @@ static void main_fw_calcQrg(
 			uint8_t localPwmSubVal  = fastPwmSubCmp;
 			sei();
 
-			if (main_bf.mainIsAFC && (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
+			if (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 				/* adjusting the PWM registers and make the new value public - do not modify when handover to APC is made */
-				localPullPwmVal = calcTimerAdj(&localPwmSubVal, localPullPwmVal, pwmDevWght_steps);
+				localPullPwmVal = calcTimerAdj(pwmDevWght_steps, localPullPwmVal, &localPwmSubVal);
 
 				cli();
 				pullPwmVal    = localPullPwmVal;
@@ -550,8 +544,7 @@ static void main_fw_calcQrg(
 				int len;
 				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA01, sizeof(PM_FORMAT_IA01));
 				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-						localClockDiff,
-						localClockDiffAvg,
+						localMeanFloatClockDiff,
 						qrgDev_Hz,
 						ppm);
 				ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
@@ -986,19 +979,13 @@ static void doJobs()
 	static uint32_t localFastCtr1ms_next = 0;
 	uint32_t localFastCtr1ms;
 	uint16_t localFastTCNT1;
+	uint16_t localStampCtr1ms;
+	uint16_t localStampICR1;
 	uint8_t len = 0;
 	uint8_t localPpsReceived = false;
-	uint32_t localStampCtr1ms = 0;
-	uint16_t localStampTCNT1 = 0;
-	uint32_t localStampCtr1ms_last = 0;
-	uint16_t localStampTCNT1_last = 0;
 
 	{
 		/* get the timers */
-
-		localStampCtr1ms_last = localStampCtr1ms;
-		localStampTCNT1_last  = localStampTCNT1;
-
 		cli();
 
 		/* get the current ms and ticks timer */
@@ -1014,12 +1001,19 @@ static void doJobs()
 		sei();
 
 		localFastTCNT1	= localTCNT1L | (localTCNT1H << 8);
-		localStampTCNT1	= localICR1L  | (localICR1H  << 8);
+		localStampICR1	= localICR1L  | (localICR1H  << 8);
 	}
 
-	if (acAdcConvertNowCntr != localAdcConvertNowCntrLast) {  // a new PPS impulse has arrived
+	if (localAdcConvertNowCntrLast != acAdcConvertNowCntr) {  // a new PPS impulse has arrived
 		localAdcConvertNowCntrLast = acAdcConvertNowCntr;
 		localPpsReceived = true;
+
+		ppsStampCtr1ms_last = ppsStampCtr1ms;
+		ppsStampICR1_last   = ppsStampICR1;
+
+		ppsStampCtr1ms = localStampCtr1ms;
+		ppsStampICR1   = localStampICR1;
+
 		localFastCtr1ms_next = localStampCtr1ms + LocalCtr1msSpan + LocalCtr1msBorder;
 
 	} else if (localFastCtr1ms >= localFastCtr1ms_next) {  	//  the timer has elapsed without a PPS impulse
@@ -1076,24 +1070,30 @@ static void doJobs()
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA11, sizeof(PM_FORMAT_TA11));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				localFastCtr1ms,
-				localFastTCNT1,
-				localStampCtr1ms,
-				localStampTCNT1);
+				localFastTCNT1);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA12, sizeof(PM_FORMAT_TA12));
+		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				ppsStampCtr1ms,
+				ppsStampICR1,
+				ppsStampCtr1ms_last,
+				ppsStampICR1_last);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA13, sizeof(PM_FORMAT_TA13));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				pullPwmVal,
 				fastPwmSubCmp);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
-		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA13, sizeof(PM_FORMAT_TA13));
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA14, sizeof(PM_FORMAT_TA14));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				mainRefClkState);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
-		memory_fw_copyBuffer(true, mainPrepareBuffer, PM_FORMAT_TA14, sizeof(PM_FORMAT_TA14) + 1);
-		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, sizeof(PM_FORMAT_TA14) + 1);
+		memory_fw_copyBuffer(true, mainPrepareBuffer, PM_FORMAT_TA15, sizeof(PM_FORMAT_TA15) + 1);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, sizeof(PM_FORMAT_TA15) + 1);
 	}
 
 	if (localPpsReceived) {
@@ -1101,12 +1101,7 @@ static void doJobs()
 
 		if (main_bf.mainIsAFC) {
 			/* frequency shift calculation */
-			main_fw_calcQrg(
-					localStampCtr1ms_last,
-					localStampTCNT1_last,
-					localStampCtr1ms,
-					localStampCtr1ms
-			);
+			main_fw_calcQrg();
 		}
 
 		if (main_bf.mainIsAPC) {
@@ -1132,7 +1127,7 @@ static void doJobs()
 
 			/* calculate next value */
 			localFastPwmSubCmpNext	= localFastPwmSubCmpBefore;
-			localFastPwmValNext		= calcTimerAdj(&localFastPwmSubCmpNext, localFastPwmValBefore, mainPwmTerminalAdj);
+			localFastPwmValNext		= calcTimerAdj(mainPwmTerminalAdj, localFastPwmValBefore, &localFastPwmSubCmpNext);
 
 			/* write back the global variables for PWM and sub-PWM */
 			cli();

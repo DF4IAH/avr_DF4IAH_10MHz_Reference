@@ -13,7 +13,7 @@
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										150
-#define VERSION_LOW											216
+#define VERSION_LOW											217
 
 
 /* MCU frequency */
@@ -83,7 +83,7 @@ enum ENTER_MODE_t {
 
 
 float main_fw_calcTimerToFloat(uint8_t subVal, uint8_t intVal);
-uint8_t calcTimerAdj(uint8_t* subVal, uint8_t intValBefore, float pwmAdjust);
+uint8_t calcTimerAdj(float pwmAdjust, uint8_t intValBefore, uint8_t* subVal);
 float main_fw_calcPwmWghtDiff(float pwmDiff);
 void  main_fw_calcPwmWghtAvg();
 int   main_fw_strncmp(const unsigned char* msg, const unsigned char* cmpProg, size_t size);
