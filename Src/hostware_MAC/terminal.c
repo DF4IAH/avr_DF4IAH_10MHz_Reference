@@ -153,7 +153,7 @@ void usb_do_transfers()
 	if (handle && (usbRingBufferSendPushIdx != usbRingBufferSendPullIdx)) {
 		int lenTx = ringBufferPull(true, usbMsg, sizeof(usbMsg));
 #ifdef TEST_DATATRANSFER_USB
-		int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
+		int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, (char *) usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
 		mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 		if (usbRetLen >= 0) {
 			mvprintw(LINES - 7 + (errLine++ % 7), 20, "OUT Data: usbRetLen=%d of lenTx=%d .   ", usbRetLen, lenTx);
@@ -464,7 +464,7 @@ void terminal()
 		/* timer */
 		gettimeofday(&nowTime, NULL);
 		time_t deltaTime = (time_t) (nextTime - nowTime.tv_sec * 1000000 - nowTime.tv_usec);
-#ifdef __APPLE_CC__
+#if defined(__APPLE_CC__) || defined(__linux__)
 		if (deltaTime > 0) {
 			usleep(deltaTime);
 		} else if (deltaTime < -1000) {
@@ -475,6 +475,10 @@ void terminal()
 		if (deltaTime > 0) {
 		   unsigned int usSleepTime = deltaTime * (1000000 / CLOCKS_PER_SEC);
 		   nanosleep(usSleepTime * 1000);
+
+		} else if (deltaTime < -1000) {
+			/* adjust to now time */
+			nextTime += -deltaTime;
 		}
 #endif
 
