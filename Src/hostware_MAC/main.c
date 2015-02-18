@@ -102,9 +102,9 @@ void closeDevice()
 static void usage(char *name)
 {
     fprintf(stderr, "usage:\n");
-    fprintf(stderr, "  %s terminal.. activates terminal transfer\n", name);
+    fprintf(stderr, "  %s -terminal.. activates terminal transfer\n", name);
 #ifdef ENABLE_TEST
-    fprintf(stderr, "  %s test ..... run driver reliability test\n", name);
+    fprintf(stderr, "  %s -test ..... run driver reliability test\n", name);
 #endif /* ENABLE_TEST */
 }
 
@@ -202,11 +202,11 @@ int main(int argc, char **argv)
     /* open the USB device */
     openDevice(false);
 
-	if (strcasecmp(argv[1], "terminal") == 0) {
+	if (strcasecmp(argv[1], "-terminal") == 0) {
 		terminal();
 
 #ifdef ENABLE_TEST
-	} else if (strcasecmp(argv[1], "test") == 0) {
+	} else if (strcasecmp(argv[1], "-test") == 0) {
 		/* testing USB messaging */
 #ifdef __APPLE_CC__
 		srandomdev();
