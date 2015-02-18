@@ -498,7 +498,7 @@ static void main_fw_calcQrg()
 					mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
 				}
 
-			} else if ((-0.030f <= ppm) && (ppm <= 0.030f)) {  // phase lock loop locked out again
+			} else if ((-0.040f <= ppm) && (ppm <= 0.040f)) {  // phase lock loop locked out again
 				if (mainRefClkState > REFCLK_STATE_SEARCH_QRG) {
 					/* Downgrading: frequency search and lock loop entering QRG area */
 					mainRefClkState = REFCLK_STATE_SEARCH_QRG;
@@ -572,6 +572,34 @@ static void main_fw_calcPhase()
 {
 	/* APC = automatic phase control */
 	if (main_bf.mainIsAPC && (mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
+		uint8_t adcPhase = acAdcCh[ADC_CH_PHASE];
+
+		if ((ADC_PHASE_LO_LOCKING <= adcPhase) && (adcPhase <= ADC_PHASE_HI_LOCKING)) {
+			if (mainRefClkState < REFCLK_STATE_LOCKING_PHASE) {
+				/* up-grading */
+				mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
+			} else if (mainRefClkState > REFCLK_STATE_LOCKING_PHASE) {
+				/* down-grading */
+				mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
+			}
+
+			if ((ADC_PHASE_LO_INSYNC <= adcPhase) && (adcPhase <= ADC_PHASE_HI_INSYNC)) {
+				if (mainRefClkState < REFCLK_STATE_IN_SYNC) {
+					mainRefClkState = REFCLK_STATE_IN_SYNC;
+				}
+
+			}
+
+		} else {
+			/* lost phase: hand-over to AFC */
+			if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
+				mainRefClkState = REFCLK_STATE_SEARCH_QRG;
+			}
+		}
+
+
+
+#if 0
 		static uint8_t  localSpeedCtr = 0;
 		static uint32_t localSpeedSum = 0;
 #ifdef EXPERIMENTAL
@@ -700,6 +728,7 @@ static void main_fw_calcPhase()
 			DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
 			DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
 		}
+#endif
 	}
 }
 
