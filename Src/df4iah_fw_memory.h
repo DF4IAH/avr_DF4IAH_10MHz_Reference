@@ -56,15 +56,14 @@ typedef struct eeprom_b01 {
 typedef struct eeprom_b02 {
 	/* BLOCK_02:    REFERENCE OSCILLATOR (REFOSC) */
 
-	float			b02_qrg_ofs_0v_25C_Hz;
-	float			b02_qrg_ofs_5v_25C_Hz;
-	float			b02_qrg_ofs_10MHz_25C_V;
-	float			b02_qrg_ofs_0v_drift_1K_Hz;
-	float			b02_qrg_k_p1v_25C_Hz;
-	float			b02_qrg_k_p1v_drift_1K;
+	float			b02_qrg_ofs_minV_25C_ppm;
+	float			b02_qrg_ofs_maxV_25C_ppm;
+	float			b02_qrg_k_pPwmStep_25C_ppm;
+	uint16_t		b02_reserved[3];
+	float			b02_pwm_minV_V;
+	float			b02_pwm_maxV_V;
 	uint8_t			b02_pwm_initial;
-	uint8_t			b02_pwm_initial_LO_reserved;
-	uint16_t		b02_reserved[1];
+	uint8_t			b02_pwm_initial_sub;
 	uint16_t		b02_regen_ctr;
 	uint16_t		b02_crc;
 } eeprom_b02_t;

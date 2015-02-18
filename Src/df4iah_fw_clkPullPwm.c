@@ -37,7 +37,9 @@ extern uint8_t  pullPwmVal;
 
 
 extern uint8_t pullCoef_b02_pwm_initial;
+extern uint8_t pullCoef_b02_pwm_initial_sub;
 extern uint8_t pullPwmVal;
+extern uint8_t fastPwmSubCmp;
 
 
 #ifdef RELEASE
@@ -53,8 +55,13 @@ void clkPullPwm_fw_init()
 	/* single memory access */
 	if (memory_fw_isEepromBlockValid(BLOCK_REFOSC_NR)) {
 		memory_fw_readEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial));
+		memory_fw_readEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial_sub, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial_sub));
+
 		pullPwmVal = pullCoef_b02_pwm_initial;
 		clkPullPwm_fw_setRatio(pullPwmVal);
+		cli();
+		fastPwmSubCmp = pullCoef_b02_pwm_initial_sub;
+		sei();
 	}
 
 	/* init interrupt */

@@ -4,21 +4,21 @@
 		<cconfiguration id="de.innot.avreclipse.configuration.app.debug.517072529">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.debug.517072529" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<macros>
-					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
+					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="DEBUG" type="VALUE_TEXT" value="1"/>
 				</macros>
 				<externalSettings/>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" description="" id="de.innot.avreclipse.configuration.app.debug.517072529" name="Debug" parent="de.innot.avreclipse.configuration.app.debug">
+				<configuration artifactName="${ProjName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app" description="" id="de.innot.avreclipse.configuration.app.debug.517072529" name="Debug" parent="de.innot.avreclipse.configuration.app.debug">
 					<folderInfo id="de.innot.avreclipse.configuration.app.debug.517072529." name="/" resourcePath="">
 						<toolChain id="de.innot.avreclipse.toolchain.winavr.app.debug.84082295" name="AVR-GCC Toolchain" superClass="de.innot.avreclipse.toolchain.winavr.app.debug">
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.debug.2011210180" name="Generate HEX file for Flash memory" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.debug" value="true" valueType="boolean"/>
@@ -89,27 +89,27 @@
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.1034531880">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.1034531880" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<macros>
-					<stringMacro name="MT_Bootloader_ClkPullPwm" type="VALUE_TEXT" value="0x7780"/>
-					<stringMacro name="MT_Bootloader_Probe" type="VALUE_TEXT" value="0x78C0"/>
-					<stringMacro name="MT_Firmware_AnlgComp" type="VALUE_TEXT" value="0x5680"/>
+					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
+					<stringMacro name="MT_Firmware_Main" type="VALUE_TEXT" value="0x3000"/>
+					<stringMacro name="MT_Firmware_Memory" type="VALUE_TEXT" value="0x5000"/>
+					<stringMacro name="MT_Firmware_ClkFastCtr" type="VALUE_TEXT" value="0x5A00"/>
+					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
 					<stringMacro name="MT_Firmware_ClkPullPwm" type="VALUE_TEXT" value="0x5900"/>
 					<stringMacro name="MT_Bootloader_Memory" type="VALUE_TEXT" value="0x7900"/>
-					<stringMacro name="RELEASE" type="VALUE_TEXT" value="1"/>
-					<stringMacro name="MT_Firmware_Address" type="VALUE_TEXT" value="0x0000"/>
-					<stringMacro name="Bootsize" type="VALUE_TEXT" value="2048"/>
-					<stringMacro name="MT_Firmware_Memory" type="VALUE_TEXT" value="0x5000"/>
 					<stringMacro name="MT_Firmware_Usb" type="VALUE_TEXT" value="0x4A00"/>
-					<stringMacro name="MT_Firmware_ClkFastCtr" type="VALUE_TEXT" value="0x5A00"/>
+					<stringMacro name="MT_Bootloader_ClkPullPwm" type="VALUE_TEXT" value="0x7780"/>
 					<stringMacro name="MT_Firmware_Serial" type="VALUE_TEXT" value="0x4D00"/>
-					<stringMacro name="MT_Firmware_Main" type="VALUE_TEXT" value="0x3000"/>
+					<stringMacro name="MT_Bootloader_Probe" type="VALUE_TEXT" value="0x78C0"/>
+					<stringMacro name="RELEASE" type="VALUE_TEXT" value="1"/>
+					<stringMacro name="MT_Firmware_AnlgComp" type="VALUE_TEXT" value="0x5680"/>
 				</macros>
 				<externalSettings/>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">

@@ -9,6 +9,9 @@
 #define DF4IAH_FW_MEMORY_EEPROMDATA_H_
 
 
+#include "df4iah_bl_clkPullPwm.h"
+
+
 #define DEFAULT_PARITY_N0_E2_O3_BITPOS						12
 #define DEFAULT_PARITY_N0_E2_O3_MASK						0xf000
 #define DEFAULT_STOPBITS_BITPOS								8
@@ -38,7 +41,7 @@
 #define EEPROM_DEFAULT_CONTENT_B01	\
 		4.4742f,									/* b01_ref_AREF_V					4.4742 V */											\
 		1.085f,										/* b01_ref_1V1_V					1.085  V */											\
-		349.0f,										/* b01_temp_ofs_adc_25C_steps		0349 = 25°C */										\
+		346.0f,										/* b01_temp_ofs_adc_25C_steps		0346 = 25°C */										\
 		1.0595703f,									/* b01_temp_k_p1step_adc_K			1mv / K  -->  abt.  1K / step */					\
 		0xffff,						\
 		0xffff,						\
@@ -50,15 +53,16 @@
 		0xb01c										/* b01_crc */																			\
 
 #define EEPROM_DEFAULT_CONTENT_B02	\
-		 9999520.0f,								/* b02_qrg_ofs_0v_25C_Hz				 9.999 520 MHz (-48 ppm) */						\
-		10000240.0f,								/* b02_qrg_ofs_5v_25C_Hz				10.000 240 MHz (+24 ppm) */						\
-		3.000f,										/* b02_qrg_ofs_10MHz_25C_V				3.000 V for 10 MHz */							\
-		0.0f,										/* b02_qrg_ofs_0v_drift_1K_Hz */														\
-		190.0f,										/* b02_qrg_k_p1v_25C_Hz					delta 190 Hz / delta 1 V   @ 10 MHz */			\
-		0.0f,										/* b02_qrg_k_p1v_drift_1K */															\
-		DEFAULT_PWM_COUNT,							/* b02_pwm_initial */																	\
-		0xff,						\
+		-4.65f,										/* b02_qrg_ofs_minV_25C_ppm				-4.65ppm @000PWM_step (= 1.08V) */				\
+		 1.52f,										/* b02_qrg_ofs_maxV_25C_ppm				+1.52ppm @255PWM_step (= 2.30V) */				\
+		0.0222f,									/* b02_qrg_k_pPwmStep_25C_ppm			(0.0222ppm/PWM_Step) --> delta 0.22Hz/PWM_Step @ 10 MHz */	\
 		0xffff,						\
+		0xffff,						\
+		0xffff,						\
+		1.08f,										/* b02_pwm_minV_V */																	\
+		2.30f,										/* b02_pwm_maxV_V */																	\
+		155,										/* b02_pwm_initial = DEFAULT_PWM_COUNT */												\
+		0,											/* b02_pwm_initial_sub */																\
 		0x0000,										/* b02_regen_ctr */																		\
 		0xb02c										/* b02_crc */																			\
 

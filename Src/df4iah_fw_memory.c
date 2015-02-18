@@ -6,6 +6,7 @@
  */
 
 #include <string.h>
+#include <stdbool.h>
 #include <avr/eeprom.h>
 
 #include "df4iah_fw_main.h"
