@@ -13,7 +13,7 @@
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										150
-#define VERSION_LOW											218
+#define VERSION_LOW											219
 
 
 /* MCU frequency */
@@ -42,11 +42,13 @@
 #define MAIN_FORMAT_BUFFER_SIZE								128
 
 // PHASE-ADC: 1.00V --> ADC-Value = 229 /1024 (Full-Scale = 4.47V)
-#define ADC_PHASE_LO_LOCKING  								 34		// @ 0.15V
+#define ADC_PHASE_LO_LOCKING  								 20		// @<0.15V
 #define ADC_PHASE_LO_INSYNC   								 80		// @ 0.35V
 #define ADC_PHASE_CENTER									137		// @ 0.60V
 #define ADC_PHASE_HI_INSYNC   								195		// @ 0.85V
 #define ADC_PHASE_HI_LOCKING  								241		// @ 1.05V
+
+#define ADC_PHASE_PUSH_BORDER								2
 
 
 #ifndef true

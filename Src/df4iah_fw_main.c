@@ -134,6 +134,7 @@ PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID02: +/- KEY \tmainPwmTerminalAdj
 
 PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: localMeanFloatClockDiff = %+03.3f @20MHz, \tqrgDev_Hz = %+03.3fHz @10MHz, \tppm = %+02.6f\n";
 PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: mainPwmHistAvg = %03.3f, \tpwmDevLin_steps = %+03.3f, \tpwmDevWght_steps = %+03.3f, \tnewPwmVal = %03.3f\n";
+PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: phaseCor = %03.3f°, \tphaseSteps = %+03.3f\n";
 
 PROGMEM const uchar PM_FORMAT_GPIB_SCM_IDN[] 				= "DF4IAH,%s,%05u,V20%03u%03u.";
 
@@ -471,7 +472,7 @@ static void main_fw_calcQrg(float meanFloatClockDiff, float qrgDev_Hz, float ppm
 		ppm -=  (localIsOffset ?  0.005f : 0.0f);			// correct the clock offset
 
 		main_fw_calcPwmWghtAvg();
-		float pwmDevLin_steps  = -meanFloatClockDiff * 0.22f;	// magic value 0.22f for optimized time with no overshoot
+		float pwmDevLin_steps  = -meanFloatClockDiff * 0.30f;	// magic value 0.30f for optimized time with no overshoot
 		float pwmDevWght_steps = main_fw_calcPwmWghtDiff(pwmDevLin_steps);
 
 		/* determine the new state of the FSM */
@@ -561,10 +562,13 @@ __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
 static void main_fw_calcPhase()
 {
-	/* APC = automatic phase control */
-	if (main_bf.mainIsAPC && (mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED)) {
-		uint8_t adcPhase = acAdcCh[ADC_CH_PHASE];
+	static uint8_t adcPhaseOld = 0;
+	uint8_t adcPhase = acAdcCh[ADC_CH_PHASE];
+	uint8_t adcPhasePushUp = false;
+	uint8_t adcPhasePushDn = false;
 
+	/* APC = automatic phase control */
+	if (mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 		if ((ADC_PHASE_LO_LOCKING <= adcPhase) && (adcPhase <= ADC_PHASE_HI_LOCKING)) {
 			if (mainRefClkState < REFCLK_STATE_LOCKING_PHASE) {
 				/* up-grading */
@@ -588,139 +592,51 @@ static void main_fw_calcPhase()
 			}
 		}
 
-
-
-#if 0
-		static uint8_t  localSpeedCtr = 0;
-		static uint32_t localSpeedSum = 0;
-#ifdef EXPERIMENTAL
-		static uint32_t localSpeedLastCenter = 0;
-		static uint8_t  localPwmLastCenterVal = 0;
-		static uint8_t  localPwmLastCenterSub = 0;
-#endif
-
-		localSpeedSum += acAdcCh[ADC_CH_PHASE];
-		if (localSpeedCtr++ == ADC_PWM_SAMPLING_CNT) {
-			/* subsampling data reduction */
-			localSpeedCtr = 0;
-			fastPwmAdcLast = fastPwmAdcNow;
-			fastPwmAdcNow = localSpeedSum;
-			localSpeedSum = 0;
-
-			if ((ADC_PWM_LO < fastPwmAdcNow) && (fastPwmAdcNow < ADC_PWM_HI)) {
-				/* indicator valid inside this range only */
-				fastPwmAdcAscendingVal = ((int16_t) fastPwmAdcNow) - ((int16_t) fastPwmAdcLast);
-				if ((fastPwmAdcAscendingVal < -ADC_PWM_SWITCH_OUT) || (ADC_PWM_SWITCH_OUT < fastPwmAdcAscendingVal)) {
-					fastPwmAdcAscendingVal = 0;
-				}
-
-				/* inside of measuring phase */
-				if (mainRefClkState < REFCLK_STATE_LOCKING_PHASE) {
-					mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
-				}
-
-				{ /* keeping the phase at 2.4 volts */
-#ifdef EXPERIMENTAL
-					if ((((fastPwmAdcNow <= ADC_PWM_CENTER)		&&
-						  (fastPwmAdcLast > ADC_PWM_CENTER))	||
-						 ((fastPwmAdcNow >= ADC_PWM_CENTER)		&&
-						  (fastPwmAdcLast < ADC_PWM_CENTER)))	&&
-						 (fabsf(fastPwmAdcNow - ADC_PWM_CENTER) < ((float) ADC_PWM_CENTER_AREA))) {
-						/* crossing the CENTER line */
-						cli();
-						uint8_t localPwmThisCenterSub = fastPwmSubCmp;
-						uint8_t localPwmThisCenterVal = pullPwmVal;
-						sei();
-
-						/* calculations */
-						// pwm0 = pwm2 + (( pwm2 - pwm1 ) / ( 1 - ( v2 / v1 )))
-						float calcPwm1 = main_fw_calcTimerToFloat(localPwmLastCenterVal, localPwmLastCenterSub);
-						float calcPwm2 = main_fw_calcTimerToFloat(localPwmThisCenterVal, localPwmThisCenterSub);
-						float calcPwm0 = (calcPwm2 + (0.2f * ((calcPwm2 - calcPwm1)) / (1.0f - (((float) fastPwmAdcNow) - ((float) localSpeedLastCenter)))));
-						uint8_t calcPwmSub = 0;
-						uint8_t calcPwmVal = calcTimerAdj(&calcPwmSub, 0, calcPwm0);
-
-						if (fabsf(calcPwmVal - localPwmThisCenterVal) < 2.0f) {  // validity check
-							/* set PWM */
-							cli();
-							fastPwmSubCmp = calcPwmSub;
-							OCR0B = pullPwmVal = calcPwmVal;
-							sei();
-						}
-
-						/* remember for next crossing */
-						localSpeedLastCenter = fastPwmAdcNow;
-						localPwmLastCenterSub = localPwmThisCenterSub;
-						localPwmLastCenterVal = localPwmThisCenterVal;
-					} else
-#endif
-					if ((fastPwmAdcNow < ADC_PWM_CENTER) && (fastPwmAdcAscendingVal <= -ADC_PWM_SWITCH_SPEED)) {
-						/* try to increase the phase-detector-voltage */
-#ifdef TODO
-						if (fastReducer(fastPwmAdcNow, ADC_PWM_REDUCE_RANGE)) {
-							cli();
-							DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
-							DEBUG_DN_PORT |=   _BV(DEBUG_DN_NR);		// TODO debugging aid
-
-							/* VCO-Frequency goes lower */
-							register uint8_t localPwmSubCmpLast = fastPwmSubCmp;
-							fastPwmSubCmp -= FAST_PWM_SUB_INC_DEC;
-							if (fastPwmSubCmp > localPwmSubCmpLast) {	// underflow
-								OCR0B = --pullPwmVal;
-							}
-							//DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
-							sei();
-						}
-#endif
-
-					} else if ((fastPwmAdcNow > ADC_PWM_CENTER) && (fastPwmAdcAscendingVal >= ADC_PWM_SWITCH_SPEED)) {
-						/* try to decrease the phase-detector-voltage */
-#ifdef TODO
-						if (fastReducer(fastPwmAdcNow, ADC_PWM_REDUCE_RANGE)) {
-							cli();
-							DEBUG_UP_PORT |=   _BV(DEBUG_UP_NR);		// TODO debugging aid
-							DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
-
-							/* VCO-Frequency goes higher */
-							register uint8_t localPwmSubCmpLast = fastPwmSubCmp;
-							fastPwmSubCmp += FAST_PWM_SUB_INC_DEC;
-							if (fastPwmSubCmp < localPwmSubCmpLast) {	// overflow
-								OCR0B = ++pullPwmVal;
-							}
-							//DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
-							sei();
-						}
-#endif
-
-					} else {
-						DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
-						DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
-					}
-				}
-				/* try to advance the phase */
-				/* try to retard the phase */
-
-			} else {
-				/* got outside of locked phase */
-				if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
-					mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
-
-					DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
-					DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
-				}
-			}
+		if ((adcPhase > (adcPhaseOld + ADC_PHASE_PUSH_BORDER)) && (adcPhase > ADC_PHASE_CENTER)) {
+			adcPhasePushDn = true;
+		} else if (((adcPhase + ADC_PHASE_PUSH_BORDER) < adcPhaseOld) && (adcPhase < ADC_PHASE_CENTER)) {
+			adcPhasePushUp = true;
 		}
 
-	} else {
-		/* APC switched off, leave this precision mode */
+		float phaseCor = ((((float) adcPhase) - ADC_PHASE_CENTER) / (((float) ADC_PHASE_HI_LOCKING) - ADC_PHASE_LO_LOCKING)) * 450.0f;
+		float phaseSteps = 0.0f;
+
 		if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
-			mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
+			if (adcPhasePushUp) {
+				phaseSteps = (float) (-pow(fabs(phaseCor) * 0.00220f, 1.5f));  // magic values
+			} else if (adcPhasePushDn) {
+				phaseSteps = (float) ( pow(fabs(phaseCor) * 0.00220f, 1.5f));  // magic values
+			}
 
-			DEBUG_UP_PORT &= ~(_BV(DEBUG_UP_NR));		// TODO debugging aid
-			DEBUG_DN_PORT &= ~(_BV(DEBUG_DN_NR));		// TODO debugging aid
+			/* windowing and adding of the new PWM value */
+			cli();
+			uint8_t localPullPwmVal = pullPwmVal;
+			uint8_t localPwmSubVal  = fastPwmSubCmp;
+			sei();
+
+			/* adjusting the PWM registers and make the new value public */
+			localPullPwmVal = calcTimerAdj(phaseSteps, localPullPwmVal, &localPwmSubVal);
+
+			cli();
+			pullPwmVal    = localPullPwmVal;
+			fastPwmSubCmp = localPwmSubVal;
+			clkPullPwm_fw_setRatio(pullPwmVal);
+			sei();
 		}
-#endif
+
+		if (main_bf.mainIsTimerTest) {
+			/* monitoring */
+			int len;
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA11, sizeof(PM_FORMAT_IA11));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+					phaseCor,
+					phaseSteps);
+			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+		}
 	}
+
+	/* store value */
+	adcPhaseOld = adcPhase;
 }
 
 #ifdef RELEASE
