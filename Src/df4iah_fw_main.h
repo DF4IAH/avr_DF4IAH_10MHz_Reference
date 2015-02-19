@@ -33,7 +33,7 @@
  */
 #define EXIT_WDT_TIME										WDTO_250MS
 
-#define PWM_HIST_COUNT										16
+#define PWM_HIST_COUNT										8
 #define MAIN_CLOCK_DIFF_COUNT								3
 
 #define DEBUG_DELAY_CNT										1
@@ -48,7 +48,12 @@
 #define ADC_PHASE_HI_INSYNC   								195		// @ 0.85V
 #define ADC_PHASE_HI_LOCKING  								241		// @ 1.05V
 
-#define ADC_PHASE_PUSH_BORDER								2
+#define MEAN_CLOCK_STAGES_F									  3.0f;
+#define PWM_COR_STEPS_FINE_DIV_F							 10.0f;
+#define CLOCK_DIFF_OUT										100l
+#define CLOCK_DIFF_COARSE_FINE								 20l
+#define CLOCK_DIFF_FAST_FRAME								  3
+#define ADC_PHASE_PUSH_BORDER								  2
 
 
 #ifndef true

@@ -132,8 +132,9 @@ PROGMEM const uchar PM_FORMAT_TA14[]						= "#TA14: mainRefClkState = %u\n";
 PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID01: +/- KEY \tmainPwmTerminalAdj = %f, \tpullPwmValBefore    = %03u + fastPwmSubCmpBefore    = %03u\n";
 PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID02: +/- KEY \tmainPwmTerminalAdj = %f, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n";
 
-PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: localMeanFloatClockDiff = %+03.3f @20MHz, \tqrgDev_Hz = %+03.3fHz @10MHz, \tppm = %+02.6f\n";
-PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: mainPwmHistAvg = %03.3f, \tpwmDevLin_steps = %+03.3f, \tpwmDevWght_steps = %+03.3f, \tnewPwmVal = %03.3f\n";
+PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: int20MHzClockDiff       =   %+04liHz @20MHz\n";
+PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: localMeanFloatClockDiff = %+03.3fHz @20MHz, \tqrgDev_Hz = %+03.3fHz @10MHz, \tppm = %+02.6f\n";
+PROGMEM const uchar PM_FORMAT_IA03[]						= "#IA03: pwmCorSteps = %+03.3f, \tnewPwmVal = %03.3f\n";
 PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: phaseCor = %03.3f°, \tphaseSteps = %+03.3f\n";
 
 PROGMEM const uchar PM_FORMAT_GPIB_SCM_IDN[] 				= "DF4IAH,%s,%05u,V20%03u%03u.";
@@ -160,10 +161,11 @@ float mainCoef_b02_pwm_minV_V								= 0.0f;
 float mainCoef_b02_pwm_maxV_V								= 0.0f;
 
 uint8_t mainIsJumperBlSet									= false;
+#if 0
 uint8_t mainPwmHistIdx 										= 0;
 float mainPwmHistAvg										= 0.0f;
 float mainPwmHistWghtSum									= 0.0f;
-//uint8_t  mainInterpreterBufferIdx 						= 0;
+#endif
 enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
 float mainPwmTerminalAdj									= 0.0f;
 volatile uint8_t  timer0Snapshot 							= 0x00;
@@ -231,8 +233,10 @@ uint8_t  usbIsrCtxtBufferIdx 								= 0;
 // ARRAYS - due to overwriting hazards they are following the controlling variables
 
 /* df4iah_fw_main */
+#if 0
 uint8_t mainPwmHist[PWM_HIST_COUNT]							= { 0 };
 uint16_t mainClockDiffs[MAIN_CLOCK_DIFF_COUNT]				= { 0 };
+#endif
 uchar mainInterpreterBuffer[MAIN_FORMAT_BUFFER_SIZE]		= { 0 };
 uchar mainPrepareBuffer[MAIN_PREPARE_BUFFER_SIZE] 			= { 0 };
 uchar mainFormatBuffer[MAIN_FORMAT_BUFFER_SIZE]				= { 0 };
@@ -408,6 +412,7 @@ uint8_t calcTimerAdj(float pwmAdjust, uint8_t intValBefore, uint8_t* subVal)
 	return (uint8_t) pwmAdjust;
 }
 
+#if 0
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
@@ -418,7 +423,9 @@ static float calcPwmWghtDiff(float* calcWght, float localDiff)
 	*calcWght = log10f(10.0f + localDiffForWght)	* 0.5f;	// XXX adjust the coefficients
 	return localDiff * (*calcWght)					* 0.71f;
 }
+#endif
 
+#if 0
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
@@ -427,7 +434,9 @@ float main_fw_calcPwmWghtDiff(float pwmDiff)
 	float localWght = 0.0f;
 	return calcPwmWghtDiff(&localWght, pwmDiff);
 }
+#endif
 
+#if 0
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
@@ -450,11 +459,12 @@ void main_fw_calcPwmWghtAvg()
 	mainPwmHistAvg += (diffSum / wghtSum);
 	mainPwmHistWghtSum = wghtSum;
 }
+#endif
 
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
-static void main_fw_calcQrg(float meanFloatClockDiff, float qrgDev_Hz, float ppm)
+static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float qrgDev_Hz, float ppm)
 {
 	/* frequency shift calculation */
 	uint8_t localIsOffset = false;
@@ -471,9 +481,16 @@ static void main_fw_calcQrg(float meanFloatClockDiff, float qrgDev_Hz, float ppm
 		/* keep measuring window between +/-50ppm */
 		ppm -=  (localIsOffset ?  0.005f : 0.0f);			// correct the clock offset
 
-		main_fw_calcPwmWghtAvg();
-		float pwmDevLin_steps  = -meanFloatClockDiff * 0.30f;	// magic value 0.30f for optimized time with no overshoot
-		float pwmDevWght_steps = main_fw_calcPwmWghtDiff(pwmDevLin_steps);
+		float pwmCorSteps;
+		if ((-CLOCK_DIFF_FAST_FRAME <= int20MHzClockDiff) && (int20MHzClockDiff <= CLOCK_DIFF_FAST_FRAME)) {
+			/* fine pitching */
+			pwmCorSteps = ((-meanFloatClockDiff / 20.0f) / mainCoef_b02_qrg_k_pPwmStep_25C_ppm) / PWM_COR_STEPS_FINE_DIV_F;
+
+		} else {
+			/* coarse pitching */
+			pwmCorSteps = (((float) -int20MHzClockDiff) / 20.0f) / mainCoef_b02_qrg_k_pPwmStep_25C_ppm;
+			mainRefClkState = REFCLK_STATE_NOSYNC;
+		}
 
 		/* determine the new state of the FSM */
 		if ((-0.015f <= ppm) && (ppm <= 0.015f)) {  // single step tuning with counter stabilizer
@@ -486,7 +503,7 @@ static void main_fw_calcQrg(float meanFloatClockDiff, float qrgDev_Hz, float ppm
 				/* Upgrading: hand-over to the phase lock loop */
 				mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
 
-			} else if (mainRefClkState > REFCLK_STATE_SEARCH_PHASE) {
+			} else if (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 				/* Downgrading: to shaky for the mean value counter */
 				mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
 			}
@@ -519,7 +536,7 @@ static void main_fw_calcQrg(float meanFloatClockDiff, float qrgDev_Hz, float ppm
 
 		if (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 			/* adjusting the PWM registers and make the new value public - do not modify when handover to APC is made */
-			localPullPwmVal = calcTimerAdj(pwmDevWght_steps, localPullPwmVal, &localPwmSubVal);
+			localPullPwmVal = calcTimerAdj(pwmCorSteps, localPullPwmVal, &localPwmSubVal);
 
 			cli();
 			pullPwmVal    = localPullPwmVal;
@@ -528,25 +545,30 @@ static void main_fw_calcQrg(float meanFloatClockDiff, float qrgDev_Hz, float ppm
 			sei();
 		}
 
+#if 0
 		/* write into history table */
 		mainPwmHist[mainPwmHistIdx++] = pullPwmVal;
 		mainPwmHistIdx %= PWM_HIST_COUNT;
+#endif
 
 		if (main_bf.mainIsTimerTest) {
 			/* monitoring */
 			int len;
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA01, sizeof(PM_FORMAT_IA01));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+					int20MHzClockDiff);
+			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA02, sizeof(PM_FORMAT_IA02));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					meanFloatClockDiff,
 					qrgDev_Hz,
 					ppm);
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
-			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA02, sizeof(PM_FORMAT_IA02));
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA03, sizeof(PM_FORMAT_IA03));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-					mainPwmHistAvg,
-					pwmDevLin_steps,
-					pwmDevWght_steps,
+					pwmCorSteps,
 					main_fw_calcTimerToFloat(localPullPwmVal, localPwmSubVal));
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 		}
@@ -1043,21 +1065,41 @@ static void doJobs()
 		/* PPS - 1 Hz Ref.-Clk. - State Machine */
 
 		static float localMeanClockDiffSum = 0.0f;
-		int32_t localClockDiff =   (20000L * (((int32_t) ppsStampCtr1ms) - ((int32_t) ppsStampCtr1ms_last)))
-							     +           (((int32_t) ppsStampICR1)   - ((int32_t) ppsStampICR1_last))
-							     - 20000000L;
+		float qrgDev_Hz;
+		float ppm;
+		int32_t local20MHzClockDiff =   (20000L * (((int32_t) ppsStampCtr1ms) - ((int32_t) ppsStampCtr1ms_last)))
+							    	  +           (((int32_t) ppsStampICR1)   - ((int32_t) ppsStampICR1_last))
+							    	  -  20000000L;
 
-		float localMeanFloatClockDiff = localMeanClockDiffSum / 5.0f;
-		if ((-1000L < localClockDiff) && (localClockDiff < 1000L)) {
-			localMeanClockDiffSum += (((float) localClockDiff) - localMeanFloatClockDiff);
+		float localMeanFloatClockDiff = localMeanClockDiffSum / MEAN_CLOCK_STAGES_F;
+		if ((local20MHzClockDiff < -CLOCK_DIFF_OUT) || (CLOCK_DIFF_OUT < local20MHzClockDiff)) {
+			/* bad value - ignore */
+			local20MHzClockDiff = 0;
+			qrgDev_Hz = (localMeanFloatClockDiff / 2.0f);
+			ppm = (localMeanFloatClockDiff / 20.0f);
+
+		} else if ((-CLOCK_DIFF_COARSE_FINE < local20MHzClockDiff) && (local20MHzClockDiff < CLOCK_DIFF_COARSE_FINE)) {
+			/* fine mode */
+			localMeanClockDiffSum += (((float) local20MHzClockDiff) - localMeanFloatClockDiff);
+			qrgDev_Hz = (localMeanFloatClockDiff / 2.0f);
+			ppm = (localMeanFloatClockDiff / 20.0f);
+
+		} else {
+			/* re-init the mean value sum when being in coarse mode */
+			localMeanClockDiffSum = 0.0f;
+			qrgDev_Hz = (local20MHzClockDiff / 2.0f);
+			ppm = (local20MHzClockDiff / 20.0f);
 		}
-		float qrgDev_Hz = (localMeanFloatClockDiff / 2.0f);
-		float ppm = (localMeanFloatClockDiff / 20.0f);
 
 		if (main_bf.mainIsTimerTest && (!main_bf.mainIsAFC)) {
 			/* monitoring frequency even when AFC is switched off */
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA01, sizeof(PM_FORMAT_IA01));
 			int len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+					local20MHzClockDiff);
+			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA02, sizeof(PM_FORMAT_IA02));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					localMeanFloatClockDiff,
 					qrgDev_Hz,
 					ppm);
@@ -1067,7 +1109,7 @@ static void doJobs()
 
 		if (main_bf.mainIsAFC) {
 			/* frequency shift calculation */
-			main_fw_calcQrg(localMeanFloatClockDiff, qrgDev_Hz, ppm);
+			main_fw_calcQrg(local20MHzClockDiff, localMeanFloatClockDiff, qrgDev_Hz, ppm);
 		}
 
 		if (main_bf.mainIsAPC) {
@@ -1230,6 +1272,7 @@ int main(void)
 			/* 	b02_pwm_initial_sub		treated by df4iah_fw_clkPullPwm */
 		}
 
+#if 0
 		/* init the PWM history table */
 		for (int idx = PWM_HIST_COUNT; idx; ) {
 			mainPwmHist[--idx] = pullCoef_b02_pwm_initial;
@@ -1237,6 +1280,7 @@ int main(void)
 		// mainPwmHistIdx = 0;								// already initialized
 		mainPwmHistAvg = (float) pullCoef_b02_pwm_initial;
 		mainPwmHistWghtSum = (float) PWM_HIST_COUNT;
+#endif
 
 		/* enter HELP command in USB host OUT queue */
 		main_fw_sendInitialHelp();

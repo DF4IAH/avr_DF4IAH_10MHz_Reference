@@ -55,7 +55,7 @@
 #define EEPROM_DEFAULT_CONTENT_B02	\
 		-4.65f,										/* b02_qrg_ofs_minV_25C_ppm				-4.65ppm @000PWM_step (= 1.08V) */				\
 		 1.52f,										/* b02_qrg_ofs_maxV_25C_ppm				+1.52ppm @255PWM_step (= 2.30V) */				\
-		0.0222f,									/* b02_qrg_k_pPwmStep_25C_ppm			(0.0222ppm/PWM_Step) --> delta 0.22Hz/PWM_Step @ 10 MHz */	\
+		0.0159f,									/* b02_qrg_k_pPwmStep_25C_ppm			(0.0159ppm/PWM_Step) --> delta 0.159Hz/PWM_Step @ 10 MHz */	\
 		0xffff,						\
 		0xffff,						\
 		0xffff,						\
