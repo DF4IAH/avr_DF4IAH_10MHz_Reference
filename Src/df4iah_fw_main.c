@@ -488,7 +488,7 @@ static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff,
 
 		} else {
 			/* coarse pitching */
-			pwmCorSteps = (((float) -int20MHzClockDiff) / 20.0f) / mainCoef_b02_qrg_k_pPwmStep_25C_ppm;
+			pwmCorSteps = ((((float) -int20MHzClockDiff) / 20.0f) / mainCoef_b02_qrg_k_pPwmStep_25C_ppm) / PWM_COR_STEPS_COARSE_DIV_F;
 			mainRefClkState = REFCLK_STATE_NOSYNC;
 		}
 
