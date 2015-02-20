@@ -14,7 +14,7 @@
 
 
 /* UART Baudrate */
-#define DEFAULT_BAUDRATE 											4800
+#define DEFAULT_BAUDRATE 											9600
 #define DEFAULT_DATABITS											8
 #define DEFAULT_PARITY_N0_E2_O3										0
 #define DEFAULT_STOPBITS											1
