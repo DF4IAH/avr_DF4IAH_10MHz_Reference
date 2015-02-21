@@ -562,10 +562,10 @@ static void main_fw_calcPhase(int32_t int20MHzClockDiff, float meanFloatClockDif
 
 		if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
 			if (adcPhasePushUp) {
-				phaseSteps = (float) (-pow(fabs(phaseCor) * 0.00050f, 1.25f));  // magic values
+				phaseSteps = (float) (-pow(fabs(phaseCor) * 0.00100f, 1.25f));  // magic values
 //				phaseSteps = (float) (-pow(fabs(phaseCor) * 0.00220f, 1.5f));  // magic values
 			} else if (adcPhasePushDn) {
-				phaseSteps = (float) ( pow(fabs(phaseCor) * 0.00050f, 1.25f));  // magic values
+				phaseSteps = (float) ( pow(fabs(phaseCor) * 0.00100f, 1.25f));  // magic values
 			}
 
 			/* additional frequency correction added */
