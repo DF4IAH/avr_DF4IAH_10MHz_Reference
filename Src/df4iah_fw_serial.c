@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <avr/interrupt.h>
 
 #include "chipdef.h"
@@ -41,6 +42,8 @@ extern uint8_t  serialCtxtRxBufferLen;
 extern uint8_t  serialCtxtTxBufferLen;
 extern uint8_t  serialCtxtTxBufferIdx;
 
+extern uint8_t  serialCtxtBufferState;
+
 extern uchar serialCtxtRxBuffer[SERIALCTXT_RX_BUFFER_SIZE];
 extern uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE];
 
@@ -70,6 +73,25 @@ __attribute__((section(".df4iah_fw_serial"), aligned(2)))
 static uint16_t getCommDataBits(uint16_t val)
 {
 	return (val & DEFAULT_DATABITS_MASK) >> DEFAULT_DATABITS_BITPOS;
+}
+
+#ifdef RELEASE
+__attribute__((section(".df4iah_fw_serial"), aligned(2)))
+#endif
+void serial_fw_serIsrOn(uint8_t flag)
+{
+	if (flag) {
+		// interrupt: clearing Global Interrupt Flag when interrupts are changed
+		cli();
+		UART_CTRL |= _BV(RXCIE0);											// UCSR0B: enable interrupts for RX data received
+		sei();
+
+	} else {
+		// interrupt: clearing Global Interrupt Flag when interrupts are changed
+		cli();
+		UART_CTRL &= ~(_BV(RXCIE0));										// UCSR0B: disable interrupts for RX data received
+		sei();
+	}
 }
 
 #ifdef RELEASE
@@ -111,11 +133,9 @@ void serial_fw_init()
 
 	// this is a dummy operation to clear the RX ready bit
 	serialCtxtTxBufferIdx = UDR0;
+	serialCtxtTxBufferIdx = 0;
 
-	// interrupt: clearing Global Interrupt Flag when interrupts are changed
-	cli();
-	UART_CTRL |= _BV(RXCIE0);											// UCSR0B: enable interrupts for RX data received
-	sei();
+	serial_fw_serIsrOn(true);
 }
 
 #ifdef RELEASE
@@ -241,14 +261,26 @@ ISR(USART_RX_vect, ISR_BLOCK)
 	/* since here we can allow global interrupts again */
 	sei();
 
-	/* append data to the buffer */
-	serialCtxtRxBuffer[serialCtxtRxBufferLen++] = rxData;
+	if (main_bf.mainIsSerComm && !serialCtxtBufferState && (serialCtxtRxBufferLen < (SERIALCTXT_RX_BUFFER_SIZE - 3))) {
+		serialCtxtBufferState = SERIAL_CTXT_BUFFER_STATE_BLOCK;
 
-	/* if the end of a NMEA sentence is detected, send this serial RX buffer to the receive (IN) ring buffer */
-	if (rxData == '\n') {  // a NMEA sentence stops with:  <sentence...*checksum\r\n>
-		if (main_bf.mainIsSerComm) {
-			ringbuffer_fw_ringBufferWaitAppend(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
-			serialCtxtRxBufferLen = 0;
+		/* append data to the buffer */
+		serialCtxtRxBuffer[serialCtxtRxBufferLen++] = rxData;
+
+		if (serialCtxtRxBufferLen >= (SERIALCTXT_RX_BUFFER_SIZE - 3)) {
+			serialCtxtRxBuffer[serialCtxtRxBufferLen++] = '\r';
+			rxData = '\n';
+			serialCtxtRxBuffer[serialCtxtRxBufferLen++] = rxData;
+		}
+
+		/* if the end of a NMEA sentence is detected, send this serial RX buffer to the receive (IN) ring buffer */
+		if (rxData == '\n') {  // a NMEA sentence stops with:  <sentence...*checksum\r\n>
+			/* mark this job to be done in the main context */
+			serialCtxtBufferState = SERIAL_CTXT_BUFFER_STATE_SEND;
+
+		} else {
+			/* append more data */
+			serialCtxtBufferState = 0;
 		}
 	}
 }

@@ -10,8 +10,10 @@
 
 
 #define SERIALCTXT_TX_BUFFER_SIZE									64
-#define SERIALCTXT_RX_BUFFER_SIZE									64
+#define SERIALCTXT_RX_BUFFER_SIZE									120
 
+#define SERIAL_CTXT_BUFFER_STATE_BLOCK								1
+#define SERIAL_CTXT_BUFFER_STATE_SEND								2
 
 /* UART Baudrate */
 #define DEFAULT_BAUDRATE 											9600
@@ -37,6 +39,8 @@
 
 #include "chipdef.h"
 
+
+void serial_fw_serIsrOn(uint8_t flag);
 
 void serial_fw_init();
 void serial_fw_close();

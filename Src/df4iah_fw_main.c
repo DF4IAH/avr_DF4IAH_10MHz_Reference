@@ -222,6 +222,7 @@ uint16_t serialCoef_b03_gps_comm_mode						= 0;
 uint8_t  serialCtxtRxBufferLen								= 0;
 uint8_t  serialCtxtTxBufferLen								= 0;
 uint8_t  serialCtxtTxBufferIdx								= 0;
+uint8_t  serialCtxtBufferState								= 0;
 
 /* df4iah_fw_usb */
 //uint16_t usbSetupCntr										= 0;
@@ -991,7 +992,18 @@ static void doJobs()
 			localFastCtr1ms_next = localFastCtr1ms + LocalCtr1sSpanMs + LocalCtr250msBorderMs;
 		}
 
-	} else {												// nothing has happened
+	} else {
+		/* nothing has happened - do some bulk data if a job is ready to be done */
+
+		if (serialCtxtBufferState == SERIAL_CTXT_BUFFER_STATE_SEND) {
+			ringbuffer_fw_ringBufferWaitAppend(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
+			serialCtxtRxBufferLen = 0;
+
+			/* mark the serial buffer as to be ready again to receive GPS data */
+			serialCtxtBufferState = 0;
+		}
+
+		/* leave here */
 		return;
 	}
 
