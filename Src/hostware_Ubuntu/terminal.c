@@ -174,7 +174,7 @@ void usb_do_transfers()
 #ifdef TEST_DATATRANSFER_USB
         mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 #endif
-        if (usbRetLen > 0) {
+        if ((usbRetLen > 0) && (usbRetLen != sizeof(usbMsg))) {
         	ringBufferPush(false, usbMsg, usbRetLen);
 #ifdef TEST_DATATRANSFER_USB
 			mvprintw(LINES - 7 + (errLine++ % 7), 20, "IN  Data: usbRetLen=%d msg=%s.   ", usbRetLen, usbMsg);
@@ -201,10 +201,10 @@ static void ncurses_init(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_tx
 		start_color();
 		use_default_colors();
 		init_pair(E_COLOR_PAIR_TITLE,			COLOR_WHITE,  COLOR_RED);
-		init_pair(E_COLOR_PAIR_SEND_MAIN,		COLOR_BLUE,  511);
-		init_pair(E_COLOR_PAIR_SEND_GPS,		COLOR_BLUE,   15);
+		init_pair(E_COLOR_PAIR_SEND_MAIN,		COLOR_BLUE,   511);
+		init_pair(E_COLOR_PAIR_SEND_GPS,		COLOR_BLUE,   511);  // 15
 		init_pair(E_COLOR_PAIR_RCV_MAIN,		COLOR_BLACK,  511);
-		init_pair(E_COLOR_PAIR_RCV_GPS,			COLOR_BLACK,   15);
+		init_pair(E_COLOR_PAIR_RCV_GPS,			COLOR_BLACK,  511);  // 15
 		init_pair(E_COLOR_PAIR_DEBUGGING_IN,	COLOR_YELLOW, COLOR_BLACK);
 		init_pair(E_COLOR_PAIR_DEBUGGING_OUT,	COLOR_WHITE,  COLOR_BLACK);
 	}
