@@ -460,7 +460,7 @@ void terminal()
 		/* timer */
 		gettimeofday(&nowTime, NULL);
 		time_t deltaTime = (time_t) (nextTime - nowTime.tv_sec * 1000000 - nowTime.tv_usec);
-#ifdef __APPLE_CC__
+#if defined(__APPLE_CC__) || defined(__linux__)
 		if (deltaTime > 0) {
 			usleep(deltaTime);
 		} else if (deltaTime < -1000) {
