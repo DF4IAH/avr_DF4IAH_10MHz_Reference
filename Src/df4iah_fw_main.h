@@ -51,10 +51,11 @@
 #define MEAN_CLOCK_STAGES_F									  5.0f;
 #define PWM_COR_STEPS_COARSE_DIV_F							  1.1f;
 #define PWM_COR_STEPS_FINE_DIV_F							 10.0f;
+#define PWM_COR_STEPS_PHASE_DIV_F							 20.0f;
 #define CLOCK_DIFF_OUT										100l
 #define CLOCK_DIFF_COARSE_FINE								 20l
 #define CLOCK_DIFF_FAST_FRAME								  3
-#define ADC_PHASE_PUSH_BORDER								  2
+#define ADC_PHASE_PUSH_BORDER								  0
 
 
 #ifndef true

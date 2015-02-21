@@ -161,11 +161,6 @@ float mainCoef_b02_pwm_minV_V								= 0.0f;
 float mainCoef_b02_pwm_maxV_V								= 0.0f;
 
 uint8_t mainIsJumperBlSet									= false;
-#if 0
-uint8_t mainPwmHistIdx 										= 0;
-float mainPwmHistAvg										= 0.0f;
-float mainPwmHistWghtSum									= 0.0f;
-#endif
 enum REFCLK_STATE_t mainRefClkState							= REFCLK_STATE_NOSYNC;
 float mainPwmTerminalAdj									= 0.0f;
 volatile uint8_t  timer0Snapshot 							= 0x00;
@@ -234,10 +229,6 @@ uint8_t  usbIsrCtxtBufferIdx 								= 0;
 // ARRAYS - due to overwriting hazards they are following the controlling variables
 
 /* df4iah_fw_main */
-#if 0
-uint8_t mainPwmHist[PWM_HIST_COUNT]							= { 0 };
-uint16_t mainClockDiffs[MAIN_CLOCK_DIFF_COUNT]				= { 0 };
-#endif
 uchar mainInterpreterBuffer[MAIN_FORMAT_BUFFER_SIZE]		= { 0 };
 uchar mainPrepareBuffer[MAIN_PREPARE_BUFFER_SIZE] 			= { 0 };
 uchar mainFormatBuffer[MAIN_FORMAT_BUFFER_SIZE]				= { 0 };
@@ -413,55 +404,6 @@ uint8_t calcTimerAdj(float pwmAdjust, uint8_t intValBefore, uint8_t* subVal)
 	return (uint8_t) pwmAdjust;
 }
 
-#if 0
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
-static float calcPwmWghtDiff(float* calcWght, float localDiff)
-{
-	float localDiffForWght = (localDiff >= 0.0f ?  localDiff : -localDiff);
-
-	*calcWght = log10f(10.0f + localDiffForWght)	* 0.5f;	// XXX adjust the coefficients
-	return localDiff * (*calcWght)					* 0.71f;
-}
-#endif
-
-#if 0
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
-float main_fw_calcPwmWghtDiff(float pwmDiff)
-{
-	float localWght = 0.0f;
-	return calcPwmWghtDiff(&localWght, pwmDiff);
-}
-#endif
-
-#if 0
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
-void main_fw_calcPwmWghtAvg()
-{
-	/* for the 1st step calculate the global average and sum of all weights */
-	float diffSum = 0.0f;
-	float wghtSum = 0.0f;
-
-	for (uint8_t idx = PWM_HIST_COUNT; idx; ) {
-		float localDiff = (mainPwmHist[--idx] - mainPwmHistAvg);
-		float localWght = 0.0f;
-
-		/* culminate each entry with its weight */
-		diffSum += calcPwmWghtDiff(&localWght, localDiff);
-		wghtSum += localWght;
-	}
-
-	/* setting the global variables */
-	mainPwmHistAvg += (diffSum / wghtSum);
-	mainPwmHistWghtSum = wghtSum;
-}
-#endif
-
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
@@ -489,7 +431,7 @@ static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff,
 
 		} else {
 			/* coarse pitching */
-			pwmCorSteps = ((((float) -int20MHzClockDiff) / 20.0f) / mainCoef_b02_qrg_k_pPwmStep_25C_ppm) / PWM_COR_STEPS_COARSE_DIV_F;
+			pwmCorSteps = ((((float) -int20MHzClockDiff) / 20.0f) / mainCoef_b02_qrg_k_pPwmStep_25C_ppm) / PWM_COR_STEPS_COARSE_DIV_F;  // XXX used also in main_fw_calcPhase()
 			mainRefClkState = REFCLK_STATE_NOSYNC;
 		}
 
@@ -546,12 +488,6 @@ static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff,
 			sei();
 		}
 
-#if 0
-		/* write into history table */
-		mainPwmHist[mainPwmHistIdx++] = pullPwmVal;
-		mainPwmHistIdx %= PWM_HIST_COUNT;
-#endif
-
 		if (main_bf.mainIsTimerTest) {
 			/* monitoring */
 			int len;
@@ -583,7 +519,7 @@ static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff,
 #ifdef RELEASE
 __attribute__((section(".df4iah_fw_main"), aligned(2)))
 #endif
-static void main_fw_calcPhase()
+static void main_fw_calcPhase(int32_t int20MHzClockDiff, float meanFloatClockDiff)
 {
 	static uint8_t adcPhaseOld = 0;
 	uint8_t adcPhase = acAdcCh[ADC_CH_PHASE];
@@ -626,10 +562,14 @@ static void main_fw_calcPhase()
 
 		if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
 			if (adcPhasePushUp) {
-				phaseSteps = (float) (-pow(fabs(phaseCor) * 0.00220f, 1.5f));  // magic values
+				phaseSteps = (float) (-pow(fabs(phaseCor) * 0.00050f, 1.25f));  // magic values
+//				phaseSteps = (float) (-pow(fabs(phaseCor) * 0.00220f, 1.5f));  // magic values
 			} else if (adcPhasePushDn) {
-				phaseSteps = (float) ( pow(fabs(phaseCor) * 0.00220f, 1.5f));  // magic values
+				phaseSteps = (float) ( pow(fabs(phaseCor) * 0.00050f, 1.25f));  // magic values
 			}
+
+			/* additional frequency correction added */
+			//phaseSteps += ((-meanFloatClockDiff / 20.0f) / mainCoef_b02_qrg_k_pPwmStep_25C_ppm) / PWM_COR_STEPS_PHASE_DIV_F;  // XXX @see fine pitching of main_fw_calcQrg()
 
 			/* windowing and adding of the new PWM value */
 			cli();
@@ -1126,7 +1066,7 @@ static void doJobs()
 
 		if (main_bf.mainIsAPC) {
 			/* APC = automatic phase control */
-			main_fw_calcPhase();
+			main_fw_calcPhase(local20MHzClockDiff, localMeanFloatClockDiff);
 		}
 	}
 
@@ -1283,16 +1223,6 @@ int main(void)
 			/*	b02_pwm_initial			treated by df4iah_fw_clkPullPwm */
 			/* 	b02_pwm_initial_sub		treated by df4iah_fw_clkPullPwm */
 		}
-
-#if 0
-		/* init the PWM history table */
-		for (int idx = PWM_HIST_COUNT; idx; ) {
-			mainPwmHist[--idx] = pullCoef_b02_pwm_initial;
-		}
-		// mainPwmHistIdx = 0;								// already initialized
-		mainPwmHistAvg = (float) pullCoef_b02_pwm_initial;
-		mainPwmHistWghtSum = (float) PWM_HIST_COUNT;
-#endif
 
 		/* enter HELP command in USB host OUT queue */
 		main_fw_sendInitialHelp();
