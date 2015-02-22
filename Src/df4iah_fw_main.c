@@ -72,6 +72,7 @@ PROGMEM const uchar PM_COMMAND_REBOOT[]						= "REBOOT";
 PROGMEM const uchar PM_COMMAND_SEROFF[]						= "SEROFF";
 PROGMEM const uchar PM_COMMAND_SERON[]						= "SERON";
 PROGMEM const uchar PM_COMMAND_SERBAUD[]					= "SERBAUD";
+PROGMEM const uchar PM_COMMAND_STACK[]						= "STACK";
 PROGMEM const uchar PM_COMMAND_TEST[]						= "TEST";
 PROGMEM const uchar PM_COMMAND_WRITEPWM[]					= "WRITEPWM";
 PROGMEM const uchar PM_COMMAND_PLUSSIGN[]					= "+";
@@ -106,13 +107,15 @@ PROGMEM const uchar PM_INTERPRETER_HELP09[] 				= "\nSERBAUD <baud>\t\t\tsetting
 PROGMEM const uchar PM_INTERPRETER_HELP10[] 				= "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SERON\t\t\t\tswitch serial communication ON.\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "TEST\t\t\t\ttoggles counter test.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "STACK\t\t\t\ttoggles stack mung-wall test.\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "WRITEPWM\t\t\tstore current PWM as default value.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "TEST\t\t\t\ttoggles counter test.\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP13[] 				= "+/- <PWM value>\t\tcorrection value to be added.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP13[] 				= "WRITEPWM\t\t\tstore current PWM as default value.\n";
 
-PROGMEM const uchar PM_INTERPRETER_HELP14[] 				= "===========\n" \
+PROGMEM const uchar PM_INTERPRETER_HELP14[] 				= "+/- <PWM value>\t\tcorrection value to be added.\n";
+
+PROGMEM const uchar PM_INTERPRETER_HELP15[] 				= "===========\n" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  ">";
 
 PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "*?*  unknown command '%s' received, try HELP.\n" \
@@ -136,6 +139,8 @@ PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: int20MHzClockDiff       =   
 PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: localMeanFloatClockDiff = %+03.3fHz @20MHz, \tqrgDev_Hz = %+03.3fHz @10MHz, \tppm = %+02.6f\n";
 PROGMEM const uchar PM_FORMAT_IA03[]						= "#IA03: pwmCorSteps = %+03.3f, \tnewPwmVal = %03.3f\n";
 PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: phaseCor = %03.3f°, \tphaseSteps = %+03.3f\n";
+
+PROGMEM const uchar PM_FORMAT_SC01[]						= "#SC01: Stack-Check: lowest used stack-address: %04x\n";
 
 PROGMEM const uchar PM_FORMAT_GPIB_SCM_IDN[] 				= "DF4IAH,%s,%05u,V20%03u%03u.";
 
@@ -166,6 +171,7 @@ float mainPwmTerminalAdj									= 0.0f;
 volatile uint8_t  timer0Snapshot 							= 0x00;
 usbTxStatus_t usbTxStatus1 									= { 0 },
 			  usbTxStatus3 									= { 0 };
+uint16_t mainStackCheckAddr									= 0x1fff;
 uint32_t ppsStampCtr1ms 									= 0;
 uint16_t ppsStampICR1 										= 0;
 uint32_t ppsStampCtr1ms_last 								= 0;
@@ -175,11 +181,13 @@ main_bf_t main_bf											= {
 									/* mainIsAFC			= */	false,
 									/* mainIsAPC			= */	false,
 									/* mainIsTimerTest		= */	false,
-									/* mainIsSerComm		= */	true,
+									/* mainIsSerComm		= */	false,
 									/* mainIsUsbCommTest	= */	false,
 									/* mainStopAvr			= */	false,
-									/* mainEnterMode		= */	ENTER_MODE_SLEEP,
+									/* mainStackCheck		= */	false,
+									/* mainFree01			= */	false,
 
+									/* mainEnterMode		= */	ENTER_MODE_SLEEP,
 									/* mainHelpConcatNr		= */	0
 															  };
 
@@ -249,6 +257,9 @@ uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE] 		= { 0 };
 /* df4iah_fw_usb */
 uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE] 				= { 0 };  // 128
 uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] 	= { 0 };
+
+/* LAST IN RAM: Stack Check mung-wall */
+uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
 
 
 // CODE SECTION
@@ -722,6 +733,10 @@ static void doInterpret(uchar msg[], uint8_t len)
 				serialCoef_b03_serial_baud);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_STACK, sizeof(PM_COMMAND_STACK))) {
+		/* Stack Check facility */
+		main_bf.mainStackCheck = !(main_bf.mainStackCheck);
+
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_TEST, sizeof(PM_COMMAND_TEST))) {
 		/* special communication TEST */
 		main_bf.mainIsUsbCommTest = !(main_bf.mainIsUsbCommTest);
@@ -860,6 +875,11 @@ static void workInQueue()
 
 			case 13:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP14, sizeof(PM_INTERPRETER_HELP14));
+				main_bf.mainHelpConcatNr = 14;
+				break;
+
+			case 14:
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP15, sizeof(PM_INTERPRETER_HELP15));
 				// no break
 			default:
 				main_bf.mainHelpConcatNr = 0;
@@ -947,6 +967,29 @@ static void doJobs()
 		return;
 	}
 
+	/* HERE: every second once a second */
+
+	if (main_bf.mainStackCheck) {
+		/* do a Stack Check when active */
+		for (int idx = 0; idx < MAIN_STACK_CHECK_SIZE; ++idx) {
+			if (stackCheckMungWall[idx] != 0x5a) {
+				uint16_t localCheckAddr = (uint16_t) (&(stackCheckMungWall[idx]));
+				if (mainStackCheckAddr > localCheckAddr) {
+					mainStackCheckAddr = localCheckAddr;
+				}
+
+				/* leave loop body */
+				break;
+			}
+		}
+
+		// mung-wall memory array[] = 0x05a7 .. 0x15a6
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_SC01, sizeof(PM_FORMAT_SC01));
+		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				mainStackCheckAddr);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+	}
+
 	/*
 	 * ATTENTION: Floating vfprint() and friends needs changes to the linker
 	 * @see http://winavr.scienceprog.com/avr-gcc-tutorial/using-sprintf-function-for-float-numbers-in-avr-gcc.html
@@ -1016,6 +1059,7 @@ static void doJobs()
 	if (localPpsReceived) {
 		/* PPS - 1 Hz Ref.-Clk. - State Machine */
 
+		/* central calculations */
 		static float localMeanClockDiffSum = 0.0f;
 		float qrgDev_Hz;
 		float ppm;
@@ -1059,8 +1103,10 @@ static void doJobs()
 		}
 
 
+		/* frequency & phase correction modules */
+
 		if (main_bf.mainIsAFC) {
-			/* frequency shift calculation */
+			/* AFC = automatic frequency calculation */
 			main_fw_calcQrg(local20MHzClockDiff, localMeanFloatClockDiff, qrgDev_Hz, ppm);
 		}
 
@@ -1159,6 +1205,7 @@ void main_fw_giveAway(void)
 	}
 #else
 	/* due to the fact that the clkFastCtr interrupts every 12.8 µs there is no chance to power down */
+
 	clkPullPwm_fw_togglePin();									// XXX for debugging purposes only
 #endif
 }
@@ -1181,6 +1228,11 @@ int main(void)
 
 		/* switch off Pull-Up Disable */
 		MCUCR &= ~(_BV(PUD));
+
+		// Stack Check init
+		for (int idx = MAIN_STACK_CHECK_SIZE; idx;) {
+			stackCheckMungWall[--idx] = 0x5a;
+		}
 
 		clkPullPwm_fw_init();
 		clkFastCtr_fw_init();

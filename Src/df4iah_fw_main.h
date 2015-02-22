@@ -13,7 +13,7 @@
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										150
-#define VERSION_LOW											221
+#define VERSION_LOW											222
 
 
 /* MCU frequency */
@@ -40,6 +40,8 @@
 
 #define MAIN_PREPARE_BUFFER_SIZE							128
 #define MAIN_FORMAT_BUFFER_SIZE								128
+
+#define MAIN_STACK_CHECK_SIZE								0x1000
 
 // PHASE-ADC: 1.00V --> ADC-Value = 229 /1024 (Full-Scale = 4.47V)
 #define ADC_PHASE_LO_LOCKING  								 20		// @<0.15V
@@ -74,11 +76,12 @@ typedef struct main_bf_struct
      uint8_t  mainIsSerComm									: 1;
      uint8_t  mainIsUsbCommTest 							: 1;
      uint8_t  mainStopAvr		 							: 1;
-     uint8_t  mainEnterMode									: 2;
-     //uint8_t												: 0; // fill to 8 bits
+     uint8_t  mainStackCheck								: 1;
+     uint8_t  mainFree01									: 1; // fill to 8 bits
 
+     uint8_t  mainEnterMode									: 2;
      uint8_t  mainHelpConcatNr								: 4;
-     uint8_t												: 4; // fill to 8 bits
+     uint8_t												: 2; // fill to 8 bits
 } main_bf_t;
 
 
