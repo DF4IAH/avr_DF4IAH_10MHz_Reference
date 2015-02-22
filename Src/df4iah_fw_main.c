@@ -81,47 +81,46 @@ PROGMEM const uchar PM_COMMAND_MINUSSIGN[]					= "-";
 PROGMEM const uchar PM_GPIB_SCM_IDN[]						= "*IDN?";
 PROGMEM const uchar PM_GPIB_SCM_RST[]						= "*RST";
 
-PROGMEM const uchar PM_INTERPRETER_HELP01[]					= "\n" \
-															  "=== HELP ===\n" \
+PROGMEM const uchar PM_INTERPRETER_HELP01[]					= "\n=== HELP ===" \
 															  "\n" \
-															  "$ <NMEA-Message>\t\tsends message to the GPS module.\n";
+															  "\n$ <NMEA-Message>\t\tsends message to the GPS module.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP02[] 				= "AFCOFF\t\t\t\tswitch AFC (automatic frequency control) off.\n" \
-															  "AFCON\t\t\t\tswitch AFC (automatic frequency control) on.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP02[] 				= "\nAFCOFF\t\t\t\tswitch AFC (automatic frequency control) off." \
+															  "\nAFCON\t\t\t\tswitch AFC (automatic frequency control) on.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP03[] 				= "APCOFF\t\t\t\tswitch APC (automatic phase control) off.\n" \
-															  "APCON\t\t\t\tswitch APC (automatic phase control) on.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP03[] 				= "\nAPCOFF\t\t\t\tswitch APC (automatic phase control) off." \
+															  "\nAPCON\t\t\t\tswitch APC (automatic phase control) on.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP04[] 				= "HALT\t\t\t\tpowers the device down (sleep mode).\n";
+PROGMEM const uchar PM_INTERPRETER_HELP04[] 				= "\nHALT\t\t\t\tpowers the device down (sleep mode).";
 
-PROGMEM const uchar PM_INTERPRETER_HELP05[] 				= "HELP\t\t\t\tthis message.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP05[] 				= "\nHELP\t\t\t\tthis message.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP06[] 				= "INFO\t\t\t\ttoggles additional printed infos.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP06[] 				= "\nINFO\t\t\t\ttoggles additional printed infos.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP07[] 				= "LOADER\t\t\t\tenter bootloader.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP07[] 				= "\nLOADER\t\t\t\tenter bootloader.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP08[] 				= "REBOOT\t\t\t\treboot the firmware.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP08[] 				= "\nREBOOT\t\t\t\treboot the firmware.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP09[] 				= "\nSERBAUD <baud>\t\t\tsetting serial baud rate.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP09[] 				= "\nSERBAUD <baud>\t\t\tsetting serial baud rate.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP10[] 				= "SEROFF\t\t\t\tswitch serial communication OFF.\n" \
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  "SERON\t\t\t\tswitch serial communication ON.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP10[] 				= "\nSEROFF\t\t\t\tswitch serial communication OFF." \
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\nSERON\t\t\t\tswitch serial communication ON.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "STACK\t\t\t\ttoggles stack mung-wall test.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "\nSTACK\t\t\t\ttoggles stack mung-wall test.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "TEST\t\t\t\ttoggles counter test.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "\nTEST\t\t\t\ttoggles counter test.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP13[] 				= "WRITEPWM\t\t\tstore current PWM as default value.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP13[] 				= "\nWRITEPWM\t\t\tstore current PWM as default value.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP14[] 				= "+/- <PWM value>\t\tcorrection value to be added.\n";
+PROGMEM const uchar PM_INTERPRETER_HELP14[] 				= "\n+/- <PWM value>\t\tcorrection value to be added.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP15[] 				= "===========\n" \
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  ">";
+PROGMEM const uchar PM_INTERPRETER_HELP15[] 				= "\n===========" \
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n>";
 
-PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "*?*  unknown command '%s' received, try HELP.\n" \
-															  ">";
+PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "\n*?*  unknown command '%s' received, try HELP." \
+															  "\n>";
 
-PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d\n";
+PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d";
 
 PROGMEM const uchar PM_FORMAT_TA00[]						= "\n#TA00: =======";
 PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA01: ADC0 = %04u (%0.3fV)\n";
@@ -140,7 +139,7 @@ PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: localMeanFloatClockDiff = %+
 PROGMEM const uchar PM_FORMAT_IA03[]						= "#IA03: pwmCorSteps = %+03.3f, \tnewPwmVal = %03.3f\n";
 PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: phaseCor = %03.3f°, \tphaseSteps = %+03.3f\n";
 
-PROGMEM const uchar PM_FORMAT_SC01[]						= "#SC01: Stack-Check: lowest used stack-address: %04x\n";
+PROGMEM const uchar PM_FORMAT_SC01[]						= "#SC01: Stack-Check: mung-wall address: 0x%04x, lowest-stack: 0x%04x\n";
 
 PROGMEM const uchar PM_FORMAT_GPIB_SCM_IDN[] 				= "DF4IAH,%s,%05u,V20%03u%03u.";
 
@@ -171,7 +170,8 @@ float mainPwmTerminalAdj									= 0.0f;
 volatile uint8_t  timer0Snapshot 							= 0x00;
 usbTxStatus_t usbTxStatus1 									= { 0 },
 			  usbTxStatus3 									= { 0 };
-uint16_t mainStackCheckAddr									= 0x1fff;
+uint16_t mainSCStackAddr									= 0x1fff;
+uint16_t mainSCMungwallAddr									= 0x1fff;
 uint32_t ppsStampCtr1ms 									= 0;
 uint16_t ppsStampICR1 										= 0;
 uint32_t ppsStampCtr1ms_last 								= 0;
@@ -185,7 +185,7 @@ main_bf_t main_bf											= {
 									/* mainIsUsbCommTest	= */	false,
 									/* mainStopAvr			= */	false,
 									/* mainStackCheck		= */	false,
-									/* mainFree01			= */	false,
+									/* mainReserved01		= */	false,
 
 									/* mainEnterMode		= */	ENTER_MODE_SLEEP,
 									/* mainHelpConcatNr		= */	0
@@ -255,11 +255,14 @@ uchar serialCtxtRxBuffer[SERIALCTXT_RX_BUFFER_SIZE] 		= { 0 };
 uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE] 		= { 0 };
 
 /* df4iah_fw_usb */
-uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE] 				= { 0 };  // 128
+uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE] 				= { 0 };
 uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] 	= { 0 };
 
 /* LAST IN RAM: Stack Check mung-wall */
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
+// mung-wall memory array[0x0400] = 0x05a9 .. 0x09a8
+// lowest stack:	0x0865
+// mung-wall low:	0x085b
 
 
 // CODE SECTION
@@ -974,8 +977,8 @@ static void doJobs()
 		for (int idx = 0; idx < MAIN_STACK_CHECK_SIZE; ++idx) {
 			if (stackCheckMungWall[idx] != 0x5a) {
 				uint16_t localCheckAddr = (uint16_t) (&(stackCheckMungWall[idx]));
-				if (mainStackCheckAddr > localCheckAddr) {
-					mainStackCheckAddr = localCheckAddr;
+				if (mainSCMungwallAddr > localCheckAddr) {
+					mainSCMungwallAddr = localCheckAddr;
 				}
 
 				/* leave loop body */
@@ -983,10 +986,10 @@ static void doJobs()
 			}
 		}
 
-		// mung-wall memory array[] = 0x05a7 .. 0x15a6
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_SC01, sizeof(PM_FORMAT_SC01));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				mainStackCheckAddr);
+				mainSCMungwallAddr,
+				mainSCStackAddr);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 	}
 

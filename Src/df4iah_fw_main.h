@@ -41,7 +41,7 @@
 #define MAIN_PREPARE_BUFFER_SIZE							128
 #define MAIN_FORMAT_BUFFER_SIZE								128
 
-#define MAIN_STACK_CHECK_SIZE								0x1000
+#define MAIN_STACK_CHECK_SIZE								0x0400
 
 // PHASE-ADC: 1.00V --> ADC-Value = 229 /1024 (Full-Scale = 4.47V)
 #define ADC_PHASE_LO_LOCKING  								 20		// @<0.15V

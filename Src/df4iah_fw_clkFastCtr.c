@@ -23,6 +23,8 @@
 extern uint16_t fastStampTCNT1;
 extern uint32_t fastStampCtr1ms;
 extern uint32_t fastCtr1ms;
+extern main_bf_t main_bf;
+extern uint16_t mainSCStackAddr;
 
 
 #ifdef RELEASE
@@ -115,6 +117,18 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 	fastCtr1ms++;
 
 	sei();													// since here we can accept interruptions
+
+	if (main_bf.mainStackCheck) {
+		cli();
+		uint8_t localStackLo = SPL;
+		uint8_t localStackHi = SPH;
+		sei();
+
+		uint16_t localStackAddr = (localStackHi << 8) | localStackLo;
+		if (mainSCStackAddr > localStackAddr) {
+			mainSCStackAddr = localStackAddr;
+		}
+	}
 }
 
 
