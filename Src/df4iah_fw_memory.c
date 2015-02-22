@@ -49,9 +49,6 @@ eeprom_layout_t eeprom_content = {
 #pragma GCC diagnostic pop
 
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 void* memory_fw_copyBuffer(uint8_t isPgm, void* destPtr, const void* srcPtr, size_t len)
 {
 	if (!isPgm) {
@@ -65,9 +62,6 @@ void* memory_fw_copyBuffer(uint8_t isPgm, void* destPtr, const void* srcPtr, siz
 	}
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 uint16_t memory_fw_calcBlockCrc(uint8_t* block)
 {
 	uint16_t crc = CRC_SALT_VALUE;
@@ -75,9 +69,6 @@ uint16_t memory_fw_calcBlockCrc(uint8_t* block)
 	return crc;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 uint8_t memory_fw_isEepromBlockValid(uint8_t blockNr)	// initializes eepromBlockCopy
 {
 	if (blockNr < BLOCK_COUNT) {
@@ -101,17 +92,11 @@ uint8_t memory_fw_isEepromBlockValid(uint8_t blockNr)	// initializes eepromBlock
 	return false;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 uint16_t memory_fw_getSealMarker(uint8_t blockNr)
 {
 	return (0xb00c | (blockNr << 4));
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 uint8_t memory_fw_makeEepromBlockValid(uint8_t* block, uint8_t blockNr)
 {
 	if (blockNr < BLOCK_COUNT) {
@@ -147,9 +132,6 @@ uint8_t memory_fw_makeEepromBlockValid(uint8_t* block, uint8_t blockNr)
 	return false;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 uint8_t memory_fw_writeEepromBlockMakeValid(uint8_t* source, uint8_t blockNr)
 {
 	if (blockNr < BLOCK_COUNT) {
@@ -162,9 +144,6 @@ uint8_t memory_fw_writeEepromBlockMakeValid(uint8_t* source, uint8_t blockNr)
 	return false;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 uint8_t memory_fw_readEepromValidBlock(uint8_t* target, uint8_t blockNr)
 {
 	if (blockNr < BLOCK_COUNT) {
@@ -181,9 +160,6 @@ uint8_t memory_fw_readEepromValidBlock(uint8_t* target, uint8_t blockNr)
 	return false;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 uint8_t memory_fw_checkAndInitBlock(uint8_t blockNr)
 {
 	if (blockNr < BLOCK_COUNT) {
@@ -211,9 +187,6 @@ uint8_t memory_fw_checkAndInitBlock(uint8_t blockNr)
 	return 0;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 uint8_t memory_fw_checkAndInitAllBlocks()
 {
 	uint8_t ret = 0;
@@ -226,25 +199,16 @@ uint8_t memory_fw_checkAndInitAllBlocks()
 	return ret;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 void memory_fw_eraseFlash(void)
 {
 	memory_bl_eraseFlash();
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 void memory_fw_readFlashPage(uint8_t target[], pagebuf_t size, uint32_t baddr)
 {
 	memory_bl_readFlashPage(target, size, baddr);
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 void memory_fw_readEEpromPage(uint8_t target[], pagebuf_t size, uint16_t baddr)
 {
 	uint8_t idx = 0;
@@ -255,17 +219,11 @@ void memory_fw_readEEpromPage(uint8_t target[], pagebuf_t size, uint16_t baddr)
 	}
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 void memory_fw_writeFlashPage(uint8_t source[], pagebuf_t size, uint32_t baddr)
 {
 	memory_bl_writeFlashPage(source, size, baddr);
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 void memory_fw_writeEEpromPage(uint8_t source[], pagebuf_t size, uint16_t baddr)
 {
 	uint8_t idx = 0;

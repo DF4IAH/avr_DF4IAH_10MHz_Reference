@@ -42,9 +42,6 @@ extern uint8_t pullPwmVal;
 extern uint8_t fastPwmSubCmp;
 
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
-#endif
 void clkPullPwm_fw_init()
 {
 	/* power up this module */
@@ -69,9 +66,6 @@ void clkPullPwm_fw_init()
 	TIMSK0 |= _BV(TOIE0);
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
-#endif
 void clkPullPwm_fw_close()
 {
 	/* disable interrupts */
@@ -83,17 +77,11 @@ void clkPullPwm_fw_close()
 	//PRR |= _BV(PRTIM0);									// already done in clkPullPwm_bl_close()
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
-#endif
 void clkPullPwm_fw_setRatio(uint8_t ratio)
 {
 	clkPullPwm_bl_setRatio(ratio);
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
-#endif
 inline void clkPullPwm_fw_setPin(uint8_t isSet)
 {
 	if (isSet) {
@@ -104,17 +92,11 @@ inline void clkPullPwm_fw_setPin(uint8_t isSet)
 	}
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
-#endif
 void clkPullPwm_fw_togglePin()
 {
 	clkPullPwm_bl_togglePin();
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
-#endif
 void clkPullPwm_fw_endlessTogglePin()
 {
 	clkPullPwm_bl_endlessTogglePin();
@@ -136,9 +118,6 @@ void clkPullPwm_fw_endlessTogglePin()
  *
  * = 26 clocks --> 1.30 µs until sei() is done
  */
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_clkpullpwm"), aligned(2)))
-#endif
 //void clkPullPwm_fw_ISR_T0_OVF() - __vector_16
 ISR(TIMER0_OVF_vect, ISR_BLOCK)
 {

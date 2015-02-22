@@ -22,9 +22,6 @@ extern uint8_t  acAdcConvertNowCntr;
 extern uint16_t acAdcCh[AC_ADC_CH_COUNT + 1];				// plus one for the temperature sensor
 
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
-#endif
 void anlgComp_fw_init()
 {
 	// TODO: Debugging PHASE ADC at pin C5
@@ -61,9 +58,6 @@ void anlgComp_fw_init()
 	ADCSRA |= _BV(ADIE);									// enable ADC interrupt
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
-#endif
 void anlgComp_fw_close()
 {
 	/* disable interrupt, disable analog comparator */
@@ -108,9 +102,6 @@ void anlgComp_fw_startAdcConvertion() {
  *
  * = 27 clocks --> 1.35 µs until sei() is done
  */
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
-#endif
 //void anlgComp_fw_ISR_ANALOG_COMP() - __vector_23
 ISR(ANALOG_COMP_vect, ISR_BLOCK)
 {
@@ -138,9 +129,6 @@ ISR(ANALOG_COMP_vect, ISR_BLOCK)
  *
  * = 19 clocks --> 0.95 µs until sei() is done
  */
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_anlgcomp"), aligned(2)))
-#endif
 //void anlgComp_fw_ISR_ADC() - __vector_21
 ISR(ADC_vect, ISR_BLOCK)
 {

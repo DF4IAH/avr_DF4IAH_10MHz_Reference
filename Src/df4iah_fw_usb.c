@@ -81,9 +81,6 @@ PROGMEM const char usbDescriptorHidReport[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] 
 #endif
 
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_usb"), aligned(2)))
-#endif
 void usb_fw_replyContent(uchar replyBuffer[], uchar data[])
 {
 	replyBuffer[0] = data[2];
@@ -95,9 +92,6 @@ void usb_fw_replyContent(uchar replyBuffer[], uchar data[])
 /* Send IN-Interrupts to the host regular in case
  * any data is to be sent.
  */
-# ifdef RELEASE
-__attribute__((section(".df4iah_fw_usb"), aligned(2)))
-# endif
 void usb_fw_sendInInterrupt()
 {
 	static uchar bufferInt[5] = "<INT>";
@@ -110,9 +104,6 @@ void usb_fw_sendInInterrupt()
 
 /*  -- 8< -- */
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_usb"), aligned(2)))
-#endif
 void usb_fw_init()
 {
 	usbInit();
@@ -129,9 +120,6 @@ void usb_fw_init()
 	USB_INTR_ENABLE |= _BV(USB_INTR_ENABLE_BIT);
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_usb"), aligned(2)))
-#endif
 void usb_fw_close()
 {
 	USB_INTR_ENABLE &= ~(_BV(USB_INTR_ENABLE_BIT));
@@ -143,9 +131,6 @@ void usb_fw_close()
 /* usbFunctionSetup() is called when the host does a setup of the USB function. For more
  * information see the documentation in usbdrv/usbdrv.h.
  */
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_usb"), aligned(2)))
-#endif
 USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
 {
 	const usbRequest_t* rq = (usbRequest_t*) data;
@@ -185,9 +170,6 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
 /* usbFunctionRead() is called when the host requests a chunk of data from
  * the device. For more information see the documentation in usbdrv/usbdrv.h.
  */
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_usb"), aligned(2)))
-#endif
 USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 {
 	uint8_t retLen = 0;
@@ -240,9 +222,6 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len)
 /* usbFunctionWrite() is called when the host sends a chunk of data to the
  * device. For more information see the documentation in usbdrv/usbdrv.h.
  */
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_usb"), aligned(2)))
-#endif
 USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 {
 	if (cntSend > len) {
@@ -278,9 +257,6 @@ USB_PUBLIC uchar usbFunctionWrite(uchar *data, uchar len)
 }
 
 #if USB_CFG_IMPLEMENT_FN_WRITEOUT
-# ifdef RELEASE
-__attribute__((section(".df4iah_fw_usb"), aligned(2)))
-# endif
 USB_PUBLIC void usbFunctionWriteOut(uchar *data, uchar len)
 {
 	// interrupt(/bulk) data comes in here

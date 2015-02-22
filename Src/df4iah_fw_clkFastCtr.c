@@ -27,9 +27,6 @@ extern main_bf_t main_bf;
 extern uint16_t mainSCStackAddr;
 
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
-#endif
 void clkFastCtr_fw_init()
 {
 	/* power up this module */
@@ -65,9 +62,6 @@ void clkFastCtr_fw_init()
 #endif
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
-#endif
 void clkFastCtr_fw_close()
 {
 #if 0
@@ -105,9 +99,6 @@ void clkFastCtr_fw_close()
  *
  * = 54 clocks --> 2.70 µs until sei() is done
  */
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
-#endif
 //void clkFastCtr_fw_ISR_T1_CompA() - __vector_11
 ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 {
@@ -146,11 +137,6 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
  *
  * = 39 clocks --> 1.95 µs until sei() is done
  */
-#ifdef RELEASE
-//static void clkFastCtr_fw_ISR_T1_Capt_Body(uint8_t localICR1L, uint8_t localICR1H, uint32_t localFastCtr1ms)  __attribute__((noinline));
-
-__attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
-#endif
 //void clkFastCtr_fw_ISR_T1_Capt() - __vector_10
 ISR(TIMER1_CAPT_vect, ISR_BLOCK)
 {
@@ -191,9 +177,6 @@ ISR(TIMER1_CAPT_vect, ISR_BLOCK)
  *
  * = 58 clocks --> 2.40 µs until sei() is done
  */
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_clkfastctr"), aligned(2)))
-#endif
 //void clkSlowCtr_fw_ISR_PCI2() - __vector_5
 ISR(PCINT2_vect, ISR_BLOCK)
 {

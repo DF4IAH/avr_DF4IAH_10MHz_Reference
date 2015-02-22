@@ -39,9 +39,6 @@ extern uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE];
 extern uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
 
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 uint8_t ringbuffer_fw_getSemaphore(uint8_t isSend)
 {
 	uint8_t isLocked;
@@ -74,9 +71,6 @@ uint8_t ringbuffer_fw_getSemaphore(uint8_t isSend)
 
 // forward declaration
 static uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len);
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 void ringbuffer_fw_freeSemaphore(uint8_t isSend)
 {
 	/* free semaphore */
@@ -89,9 +83,6 @@ void ringbuffer_fw_freeSemaphore(uint8_t isSend)
 	}
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 static uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
 {
 	uint8_t retLen = 0;
@@ -137,9 +128,6 @@ static uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[
 	return retLen;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 uint8_t ringbuffer_fw_ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size)
 {
 	uint8_t len = 0;
@@ -189,9 +177,6 @@ uint8_t ringbuffer_fw_ringBufferPull(uint8_t isSend, uchar outData[], uint8_t si
 	return len;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 enum RINGBUFFER_MSG_STATUS_t ringbuffer_fw_getStatusNextMsg(uint8_t isSend)
 {
 	enum RINGBUFFER_MSG_STATUS_t status = 0;
@@ -214,9 +199,6 @@ enum RINGBUFFER_MSG_STATUS_t ringbuffer_fw_getStatusNextMsg(uint8_t isSend)
 	return status;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 void ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend)
 {
 	for (;;) {
@@ -257,9 +239,6 @@ void ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend)
 	}
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_memory"), aligned(2)))
-#endif
 uint8_t ringbuffer_fw_ringBufferWaitAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
 {
 	ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(isSend);

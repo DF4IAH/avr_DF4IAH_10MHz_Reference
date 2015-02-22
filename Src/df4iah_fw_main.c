@@ -342,17 +342,11 @@ void __vector_default(void) { ; }
 /* assign interrupt routines to vectors */
 /* due to optimizations the ISRs are set at the function block directly */
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 ISR(WDT_vect, ISR_NAKED) {  // vector_6 - nothing to do, resets WDIF bit
 	__asm__ __volatile__ ("reti" ::: "memory");
 }
 
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 static inline void vectortable_to_firmware(void) {
 	cli();
 	asm volatile											// set active vector table into the Firmware section
@@ -369,32 +363,20 @@ static inline void vectortable_to_firmware(void) {
 	);
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 static inline void wdt_init() {
 	wdt_disable();
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 static inline void wdt_close() {
 	wdt_disable();
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t subVal)
 {
 	/* the fractional part depends on the bit count used for the sub-PWM */
 	return intVal + (subVal / 256.0f);
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 uint8_t calcTimerAdj(float pwmAdjust, uint8_t intValBefore, uint8_t* subVal)
 {
 	const float maxLimit = 255.0f - (1.0f / (1 << FAST_PWM_SUB_BITCNT));
@@ -418,9 +400,6 @@ uint8_t calcTimerAdj(float pwmAdjust, uint8_t intValBefore, uint8_t* subVal)
 	return (uint8_t) pwmAdjust;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float qrgDev_Hz, float ppm)
 {
 	/* frequency shift calculation */
@@ -530,9 +509,6 @@ static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff,
 	}
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 static void main_fw_calcPhase(int32_t int20MHzClockDiff, float meanFloatClockDiff)
 {
 	static uint8_t adcPhaseOld = 0;
@@ -577,7 +553,7 @@ static void main_fw_calcPhase(int32_t int20MHzClockDiff, float meanFloatClockDif
 		if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
 			if (adcPhasePushUp) {
 				phaseSteps = (float) (-pow(fabs(phaseCor) * 0.00100f, 1.25f));  // magic values
-//				phaseSteps = (float) (-pow(fabs(phaseCor) * 0.00220f, 1.5f));  // magic values
+//				phaseSteps = (float) (-pow(fabs(phaseCor) * 0.00100f, 1.25f));  // magic values
 			} else if (adcPhasePushDn) {
 				phaseSteps = (float) ( pow(fabs(phaseCor) * 0.00100f, 1.25f));  // magic values
 			}
@@ -616,27 +592,18 @@ static void main_fw_calcPhase(int32_t int20MHzClockDiff, float meanFloatClockDif
 	adcPhaseOld = adcPhase;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 int main_fw_strncmp(const unsigned char* msg, const unsigned char* cmpProg, size_t size)
 {
 	memory_fw_copyBuffer(true, mainFormatBuffer, cmpProg, size);
 	return strncmp((const char*) msg, (const char*) mainFormatBuffer, size);
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 int main_fw_memcmp(const unsigned char* msg, const unsigned char* cmpProg, size_t size)
 {
 	memory_fw_copyBuffer(true, mainFormatBuffer, cmpProg, size);
 	return memcmp((const char*) msg, (const char*) mainFormatBuffer, size);
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 static void doInterpret(uchar msg[], uint8_t len)
 {
 	if (!main_fw_strncmp(msg, PM_GPIB_SCM_IDN, sizeof(PM_GPIB_SCM_IDN))) {
@@ -780,9 +747,6 @@ static void doInterpret(uchar msg[], uint8_t len)
 	}
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 static void workInQueue()
 {
 	if (ringbuffer_fw_getSemaphore(true)) {
@@ -894,9 +858,6 @@ static void workInQueue()
 	}
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 static void doJobs()
 {
 	const uint16_t LocalCtr1sSpanMs = 1000 * DEBUG_DELAY_CNT;// wake up every DEBUG_DELAY_CNT second
@@ -1163,17 +1124,11 @@ static void doJobs()
 	}
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 void main_fw_sendInitialHelp()
 {
 	ringbuffer_fw_ringBufferWaitAppend(true, true, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP));
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 void main_fw_giveAway(void)
 {
     wdt_reset();
@@ -1212,9 +1167,6 @@ void main_fw_giveAway(void)
 }
 
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_main"), aligned(2)))
-#endif
 int main(void)
 {
 

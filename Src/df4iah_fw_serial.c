@@ -51,33 +51,21 @@ extern main_bf_t main_bf;
 extern uchar mainFormatBuffer[MAIN_FORMAT_BUFFER_SIZE];
 
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_serial"), aligned(2)))
-#endif
 static uint16_t getCommParity(uint16_t val)
 {
 	return (val & DEFAULT_PARITY_N0_E2_O3_MASK) >> DEFAULT_PARITY_N0_E2_O3_BITPOS;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_serial"), aligned(2)))
-#endif
 static uint16_t getCommStopBits(uint16_t val)
 {
 	return (val & DEFAULT_STOPBITS_MASK) >> DEFAULT_STOPBITS_BITPOS;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_serial"), aligned(2)))
-#endif
 static uint16_t getCommDataBits(uint16_t val)
 {
 	return (val & DEFAULT_DATABITS_MASK) >> DEFAULT_DATABITS_BITPOS;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_serial"), aligned(2)))
-#endif
 void serial_fw_serIsrOn(uint8_t flag)
 {
 	if (flag) {
@@ -94,9 +82,6 @@ void serial_fw_serIsrOn(uint8_t flag)
 	}
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_serial"), aligned(2)))
-#endif
 void serial_fw_init()
 {
 	/* power up this module */
@@ -138,9 +123,6 @@ void serial_fw_init()
 	serial_fw_serIsrOn(true);
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_serial"), aligned(2)))
-#endif
 void serial_fw_close()
 {
 	// interrupt: clearing Global Interrupt Flag when interrupts are changed
@@ -164,18 +146,12 @@ void serial_fw_close()
 }
 
 #if 0
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_serial"), aligned(2)))
-#endif
 void serial_fw_sendchar(uint8_t data)
 {
 	while (!(UART_STATUS & _BV(UART_TXREADY)));
 	UART_DATA = data;
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_serial"), aligned(2)))
-#endif
 uint8_t serial_fw_recvchar(void)
 {
 	while (!(UART_STATUS & _BV(UART_RXREADY)));
@@ -183,18 +159,12 @@ uint8_t serial_fw_recvchar(void)
 }
 #endif
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_serial"), aligned(2)))
-#endif
 void serial_fw_setCommBaud(uint16_t baud)
 {
 	UART_BAUD_HIGH = ((UART_CALC_BAUDRATE(baud)>>8) & 0xff);
 	UART_BAUD_LOW  = ( UART_CALC_BAUDRATE(baud)     & 0xff);
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_serial"), aligned(2)))
-#endif
 void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 {
 	/* check if serial TX buffer is clear and the USART0 is ready for a new character to be sent */
@@ -249,9 +219,6 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
  *
  * = 35 clocks --> 1.75 µs until sei() is done
  */
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_serial"), aligned(2)))
-#endif
 //void serial_ISR_RXC0(void) - __vector_18
 ISR(USART_RX_vect, ISR_BLOCK)
 {
@@ -304,9 +271,6 @@ ISR(USART_RX_vect, ISR_BLOCK)
  *
  * = 34 clocks --> 1.70 µs until sei() is done
  */
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_serial"), aligned(2)))
-#endif
 //void serial_ISR_UDRE0(void) - __vector_19
 ISR(USART_UDRE_vect, ISR_BLOCK)
 {
@@ -328,9 +292,6 @@ ISR(USART_UDRE_vect, ISR_BLOCK)
 	}
 }
 
-#ifdef RELEASE
-__attribute__((section(".df4iah_fw_serial"), aligned(2)))
-#endif
 //void serial_ISR_TXC0(void) - __vector_20
 ISR(USART_TX_vect, ISR_NOBLOCK)
 {
