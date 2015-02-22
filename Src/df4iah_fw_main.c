@@ -260,9 +260,9 @@ uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] 	= { 0 };
 
 /* LAST IN RAM: Stack Check mung-wall */
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
-// mung-wall memory array[0x0400] = 0x05a9 .. 0x09a8
+// mung-wall memory array[0x0300] = 0x05a9 .. 0x08a8
 // lowest stack:	0x0865
-// mung-wall low:	0x085b
+// mung-wall low:	0x0857
 
 
 // CODE SECTION
@@ -765,14 +765,12 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else if (msg[0] == PM_COMMAND_PLUSSIGN[0]) {
 		/* correct the PWM value up */
-		sscanf((char*) msg + 1, "%f", &mainPwmTerminalAdj);
-		main_bf.mainIsUsbCommTest = false;
+		sscanf(((char*) msg) + 1, "%f", &mainPwmTerminalAdj);
 
 	} else if (msg[0] == PM_COMMAND_MINUSSIGN[0]) {
 		/* correct the PWM value down */
-		sscanf((char*) msg + 1, "%f", &mainPwmTerminalAdj);
+		sscanf(((char*) msg) + 1, "%f", &mainPwmTerminalAdj);
 		mainPwmTerminalAdj = -mainPwmTerminalAdj;
-		main_bf.mainIsUsbCommTest = false;
 
 	} else {
 		/* unknown command */
