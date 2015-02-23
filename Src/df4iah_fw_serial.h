@@ -40,7 +40,7 @@
 #include "chipdef.h"
 
 
-void serial_fw_serIsrOn(uint8_t flag);
+void serial_fw_serRxIsrOn(uint8_t flag);
 
 void serial_fw_init();
 void serial_fw_close();
@@ -51,7 +51,7 @@ uint8_t serial_fw_recvchar(void);
 #endif
 
 void serial_fw_setCommBaud(uint16_t baud);
-void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend);
+void serial_fw_pullAndSendNmea_havingSemaphore(uint8_t isSend);
 
 /* the following functions are direct __vector_xx calls to reduce some clocks */
 //void serial_ISR_RXC0(void);

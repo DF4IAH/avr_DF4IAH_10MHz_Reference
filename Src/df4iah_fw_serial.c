@@ -66,22 +66,6 @@ static uint16_t getCommDataBits(uint16_t val)
 	return (val & DEFAULT_DATABITS_MASK) >> DEFAULT_DATABITS_BITPOS;
 }
 
-void serial_fw_serIsrOn(uint8_t flag)
-{
-	if (flag) {
-		// interrupt: clearing Global Interrupt Flag when interrupts are changed
-		cli();
-		UART_CTRL |= _BV(RXCIE0);											// UCSR0B: enable interrupts for RX data received
-		sei();
-
-	} else {
-		// interrupt: clearing Global Interrupt Flag when interrupts are changed
-		cli();
-		UART_CTRL &= ~(_BV(RXCIE0));										// UCSR0B: disable interrupts for RX data received
-		sei();
-	}
-}
-
 void serial_fw_init()
 {
 	/* power up this module */
@@ -120,7 +104,7 @@ void serial_fw_init()
 	serialCtxtTxBufferIdx = UDR0;
 	serialCtxtTxBufferIdx = 0;
 
-	serial_fw_serIsrOn(true);
+	serial_fw_serRxIsrOn(true);
 }
 
 void serial_fw_close()
@@ -145,19 +129,21 @@ void serial_fw_close()
 	PRR |= _BV(PRUSART0);
 }
 
-#if 0
-void serial_fw_sendchar(uint8_t data)
+void serial_fw_serRxIsrOn(uint8_t flag)
 {
-	while (!(UART_STATUS & _BV(UART_TXREADY)));
-	UART_DATA = data;
-}
+	if (flag) {
+		// interrupt: clearing Global Interrupt Flag when interrupts are changed
+		cli();
+		UART_CTRL |= _BV(RXCIE0);											// UCSR0B: enable interrupts for RX data received
+		sei();
 
-uint8_t serial_fw_recvchar(void)
-{
-	while (!(UART_STATUS & _BV(UART_RXREADY)));
-	return UART_DATA;
+	} else {
+		// interrupt: clearing Global Interrupt Flag when interrupts are changed
+		cli();
+		UART_CTRL &= ~(_BV(RXCIE0));										// UCSR0B: disable interrupts for RX data received
+		sei();
+	}
 }
-#endif
 
 void serial_fw_setCommBaud(uint16_t baud)
 {
@@ -165,27 +151,32 @@ void serial_fw_setCommBaud(uint16_t baud)
 	UART_BAUD_LOW  = ( UART_CALC_BAUDRATE(baud)     & 0xff);
 }
 
-void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
+void serial_fw_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 {
 	/* check if serial TX buffer is clear and the USART0 is ready for a new character to be sent */
-	if (!serialCtxtTxBufferLen && (UCSR0A & _BV(UDRE0))) {
+	cli();
+	uint8_t isTxRdy = UCSR0A & _BV(UDRE0);
+	sei();
+
+	if (!serialCtxtTxBufferLen && isTxRdy) {
 		/* get message and free semaphore */
-		serialCtxtTxBufferLen = ringbuffer_fw_ringBufferPull(isSend, serialCtxtTxBuffer, (uint8_t) sizeof(serialCtxtTxBuffer));
+		serialCtxtTxBufferLen = ringbuffer_fw_ringBufferPull(isSend, serialCtxtTxBuffer, SERIALCTXT_TX_BUFFER_SIZE - 3);
 		ringbuffer_fw_freeSemaphore(isSend);
 
-		/* drop serial RX data if transportation is not activated */
+		/* drop serial TX data if transportation is not activated */
 		if (!(main_bf.mainIsSerComm)) {
 			serialCtxtTxBufferLen = 0;
 		}
-		serialCtxtTxBufferIdx = 0;
 
+		serialCtxtTxBufferIdx = 0;
 		if (serialCtxtTxBufferLen) {
-			uint8_t restoreIdx = serialCtxtTxBufferLen;
 			if (serialCtxtTxBuffer[--serialCtxtTxBufferLen]) {  // chop off trailing NULL char
-				serialCtxtTxBufferLen = restoreIdx;				// restore index, if not NULL
+				serialCtxtTxBufferLen++;						// restore length, if not NULL
 			}
 			serialCtxtTxBuffer[serialCtxtTxBufferLen++] = '\r';	// obligatory NMEA message ends with CR LF
 			serialCtxtTxBuffer[serialCtxtTxBufferLen++] = '\n';
+
+			cli();
 
 			/* clear TRANSMIT COMPLETE */
 			UCSR0A &= ~(_BV(TXC0));
@@ -193,18 +184,14 @@ void serial_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 			/* initial load of USART data register, after this the ISR will handle it until the serial TX buffer is completed */
 			UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
 
+			sei();
+
 			/* enable DATA REGISTER EMPTY INTERRUPT - the interrupt will arrive after initial UDSR0 loading */
 			UCSR0B |= _BV(UDRIE0);								// this will shoot an interrupt because UDR0 is ready again to be filled (UDRE0 is true)
 		}
 
 	} else {  // now we are not ready yet, call us later again
 		ringbuffer_fw_freeSemaphore(isSend);
-
-#if 0
-		int len = sprintf((char*) serialCtxtTxBuffer, "E: can not enter SERIAL SEND - UCSR0A=0x%02x, serialCtxtTxBufferLen=%d, serialCtxtTxBufferIdx=%d\n", UCSR0A, serialCtxtTxBufferLen, serialCtxtTxBufferIdx);
-		ringBufferAppend(!isSend, false, serialCtxtTxBuffer, len);
-		serialCtxtTxBufferLen = serialCtxtTxBufferIdx = 0;
-#endif
 	}
 }
 
@@ -258,34 +245,33 @@ ISR(USART_RX_vect, ISR_BLOCK)
  * 7	push		2		14
  * 1	in			1		 1
  * 1	eor			1		 1
- * 2	lds			2		 4
- * 1	cp			1		 1
- * 1	brcc		1		 1
- * 2	ldi			1		 2
- * 1	add			1		 1
- * 2	sts			2		 4
- * 1	subi		1		 1
- * 1	sbci		1		 1
- * 1	ld (Z)		2		 2
+ * 1	lds			2		 2
+ * 1	andi		1		 1
+ * 1	sts			2		 2
  * 1	sei			1		 1
  *
- * = 34 clocks --> 1.70 µs until sei() is done
+ * = 22 clocks --> 1.10 µs until sei() is done
  */
 //void serial_ISR_UDRE0(void) - __vector_19
 ISR(USART_UDRE_vect, ISR_BLOCK)
 {
-	/* first look if the serial buffer is filled */
-	if (serialCtxtTxBufferIdx < serialCtxtTxBufferLen) {
-		UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
-	}
-
-	/* since here we can allow global interrupts again, see table above */
+	UCSR0B &= ~(_BV(UDRIE0));								// disable interrupt for register empty
 	sei();
 
-	/* check if job is done */
+	/* first look if the serial buffer is filled */
+	if (serialCtxtTxBufferIdx < serialCtxtTxBufferLen) {
+		cli();
+		UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];	// UDRE0 becomes cleared
+		UCSR0B |= _BV(UDRIE0);								// enables interrupt for register empty
+		sei();
+	}
+
+	/* then check if job is now done */
 	if (serialCtxtTxBufferIdx >= serialCtxtTxBufferLen) {
-		/* turn off data register empty interrupt */
-		UART_CTRL &= _BV(UDRIE0);								// UCSR0B: disable interrupt for register empty
+		/* job is done - turn off data register empty interrupt */
+		cli();
+		UCSR0B &= ~(_BV(UDRIE0));							// disable interrupt for register empty
+		sei();
 
 		/* mark buffer as free */
 		serialCtxtTxBufferLen = 0;
