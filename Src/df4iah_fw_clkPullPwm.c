@@ -25,10 +25,6 @@
 #include "df4iah_bl_clkPullPwm.h"
 #include "df4iah_fw_clkPullPwm.h"
 
-extern uint8_t  fastPwmSubCnt;
-extern uint8_t  fastPwmSubCmp;
-extern uint8_t  pullPwmVal;
-
 
 /* only to silence Eclipse */
 #ifndef DEFAULT_PWM_COUNT
@@ -36,10 +32,16 @@ extern uint8_t  pullPwmVal;
 #endif
 
 
-extern uint8_t pullCoef_b02_pwm_initial;
-extern uint8_t pullCoef_b02_pwm_initial_sub;
-extern uint8_t pullPwmVal;
-extern uint8_t fastPwmSubCmp;
+extern uint8_t  fastPwmLoopVal;
+extern uint8_t  fastPwmSingleVal;
+
+extern uint8_t  fastPwmSubLoopVal;
+extern uint8_t  fastPwmSubSingleVal;
+extern uint8_t  fastPwmSubCmp;
+extern uint8_t  fastPwmSubCnt;
+
+extern uint8_t  pullCoef_b02_pwm_initial;
+extern uint8_t  pullCoef_b02_pwm_initial_sub;
 
 
 void clkPullPwm_fw_init()
@@ -54,10 +56,14 @@ void clkPullPwm_fw_init()
 		memory_fw_readEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial));
 		memory_fw_readEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial_sub, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial_sub));
 
-		pullPwmVal = pullCoef_b02_pwm_initial;
-		clkPullPwm_fw_setRatio(pullPwmVal);
+#if 0
+		/* load value at once */
+		clkPullPwm_fw_setRatio(pullCoef_b02_pwm_initial, pullCoef_b02_pwm_initial_sub);
+#endif
+
 		cli();
-		fastPwmSubCmp = pullCoef_b02_pwm_initial_sub;
+		fastPwmLoopVal		= pullCoef_b02_pwm_initial;
+		fastPwmSubLoopVal	= pullCoef_b02_pwm_initial_sub;
 		sei();
 	}
 
@@ -77,10 +83,13 @@ void clkPullPwm_fw_close()
 	//PRR |= _BV(PRTIM0);									// already done in clkPullPwm_bl_close()
 }
 
-void clkPullPwm_fw_setRatio(uint8_t ratio)
+#if 0
+void clkPullPwm_fw_setRatio(uint8_t ratio, uint8_t sub)
 {
 	clkPullPwm_bl_setRatio(ratio);
+	fastPwmSubCmp = sub;
 }
+#endif
 
 inline void clkPullPwm_fw_setPin(uint8_t isSet)
 {
@@ -107,31 +116,42 @@ void clkPullPwm_fw_endlessTogglePin()
  * x	Mnemonics	clocks	resulting clocks
  * ------------------------------------------------
  * 5	push		2		10
- * 2	in			1		 2
+ * 1	in			1		 1
  * 1	eor			1		 1
- * 3	lds			2		 6
- * 2	out			1		 2
- * 1	cp			1		 1
- * 1	brcc		2		 2
- * 1	subi		1		 1
  * 1	sei			1		 1
  *
- * = 26 clocks --> 1.30 µs until sei() is done
+ * = 13 clocks --> 0.65 µs until sei() is done
  */
 //void clkPullPwm_fw_ISR_T0_OVF() - __vector_16
 ISR(TIMER0_OVF_vect, ISR_BLOCK)
 {
+	sei();
+
 	/* minimal Sub-PWM value for its FAST_PWM_SUB_BITCNT */
 	const uint8_t localSubPwmInc = (1 << (8 - FAST_PWM_SUB_BITCNT));
 
-	/* set the T0 compare B register with the current setting of the integer PWM value */
-	OCR0B = pullPwmVal;
+	if (fastPwmSingleVal) {
+		cli();
+		OCR0B			= fastPwmSingleVal;
+		fastPwmSubCmp	= fastPwmSubSingleVal;
+		sei();
+
+		/* mark the variable to be inactive again */
+		fastPwmSingleVal = 0;
+
+	} else {
+		/* set the T0 compare B register with the current setting of the integer PWM value */
+		cli();
+		OCR0B			= fastPwmLoopVal;
+		fastPwmSubCmp	= fastPwmSubLoopVal;
+		sei();
+	}
 
 	/* increment if counter is lower than the sub-compare value to get a Sub-PWM (fractional part) */
+	cli();
 	if (fastPwmSubCnt < fastPwmSubCmp) {
 		OCR0B++;
 	}
-
 	sei();
 
 	/* sub-counter increment */

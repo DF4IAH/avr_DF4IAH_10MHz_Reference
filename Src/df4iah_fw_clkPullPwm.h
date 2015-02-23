@@ -21,7 +21,9 @@ enum ENUM_CLKOUT_t {
 void clkPullPwm_fw_init();
 void clkPullPwm_fw_close();
 
-void clkPullPwm_fw_setRatio(uint8_t ratio);
+#if 0
+void clkPullPwm_fw_setRatio(uint8_t ratio, uint8_t sub);
+#endif
 
 void clkPullPwm_fw_setPin(uint8_t isSet);
 void clkPullPwm_fw_togglePin();
