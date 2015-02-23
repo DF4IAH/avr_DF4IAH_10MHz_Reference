@@ -51,6 +51,8 @@ uint8_t serial_fw_recvchar(void);
 #endif
 
 void serial_fw_setCommBaud(uint16_t baud);
+uint8_t serial_fw_isTxRunning();
+void serial_fw_copyAndSendNmea(uint8_t isPgm, const uchar inData[], uint8_t len);
 void serial_fw_pullAndSendNmea_havingSemaphore(uint8_t isSend);
 
 /* the following functions are direct __vector_xx calls to reduce some clocks */

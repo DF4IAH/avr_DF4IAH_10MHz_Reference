@@ -122,6 +122,8 @@ PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "\n*?*  unknown command '%s' 
 
 PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d";
 
+PROGMEM const uchar PM_FORMAT_GPS_STBY[]					= "$PMTK161,0*28\r\n";
+
 PROGMEM const uchar PM_FORMAT_TA00[]						= "\n#TA00: =======";
 PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA01: ADC0 = %04u (%0.3fV)\n";
 PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA02: ADC1 = %04u (%0.3fV)\n";
@@ -134,8 +136,8 @@ PROGMEM const uchar PM_FORMAT_TA14[]						= "#TA14: mainRefClkState = %u\n";
 PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID01: +/- KEY \tmainPwmTerminalAdj = %f, \tpullPwmValBefore    = %03u + fastPwmSubCmpBefore    = %03u\n";
 PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID02: +/- KEY \tmainPwmTerminalAdj = %f, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n";
 
-PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: QRG   int20MHzClockDiff       =   %+04liHz @20MHz\n";
-PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: QRG   localMeanFloatClockDiff = %+03.3fHz @20MHz, \tqrgDev_Hz = %+03.3fHz @10MHz, \tppm = %+02.6f\n";
+PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: Clock int20MHzClockDiff       =   %+04liHz @20MHz\n";
+PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: Clock localMeanFloatClockDiff = %+03.3fHz @20MHz, \tqrgDev_Hz = %+03.3fHz @10MHz, \tppm = %+02.6f\n";
 PROGMEM const uchar PM_FORMAT_IA03[]						= "#IA03: QRG   newPwmVal = %03.3f, \tpwmCorSteps         = %+03.3f\n";
 PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: PHASE phaseCor  = %03.3f°, \t phaseStepsFrequency = %+03.3f, \tphaseStepsPhase = %+03.3f\n";
 
@@ -579,8 +581,10 @@ static void main_fw_calcPhase(int32_t int20MHzClockDiff, float meanFloatClockDif
 				cli();
 				fastPwmSingleVal	= localFastPwmSingleVal;
 				fastPwmSubSingleVal	= localFastPwmSubSingleVal;
-				//fastPwmLoopVal		= localFastPwmLoopVal;
-				//fastPwmSubLoopVal	= localFastPwmSubLoopVal;
+#if 0
+				fastPwmLoopVal		= localFastPwmLoopVal;	// TODO re-enable me!
+				fastPwmSubLoopVal	= localFastPwmSubLoopVal;
+#endif
 				sei();
 			}
 		}
@@ -640,9 +644,26 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_HALT, sizeof(PM_COMMAND_HALT))) {
 		/* stop AVR controller and enter sleep state */
-		main_bf.mainIsSerComm = false;
+		uint8_t cnt = 250;
 		main_bf.mainIsTimerTest = false;
 		main_bf.mainIsUsbCommTest = false;
+		main_bf.mainIsSerComm = true;
+		serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_STBY, sizeof(PM_FORMAT_GPS_STBY));
+
+		/* send message until the send buffer is clear */
+		while (serial_fw_isTxRunning()) {
+			wdt_reset();
+			usbPoll();
+		};
+
+		/* give some time for the GPS module before powering down */
+		while (--cnt) {
+			wdt_reset();
+			usbPoll();
+			_delay_ms(1);
+		}
+
+		main_bf.mainIsSerComm = false;
 		main_bf.mainEnterMode = ENTER_MODE_SLEEP;
 		main_bf.mainStopAvr = true;
 

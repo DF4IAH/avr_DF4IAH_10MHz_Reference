@@ -151,6 +151,37 @@ void serial_fw_setCommBaud(uint16_t baud)
 	UART_BAUD_LOW  = ( UART_CALC_BAUDRATE(baud)     & 0xff);
 }
 
+uint8_t serial_fw_isTxRunning()
+{
+	return (serialCtxtTxBufferLen > 0) ?  true : false;
+}
+
+static void serial_fw_sendNmea()
+{
+	cli();
+
+	/* clear TRANSMIT COMPLETE */
+	UCSR0A &= ~(_BV(TXC0));
+
+	/* initial load of USART data register, after this the ISR will handle it until the serial TX buffer is completed */
+	UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
+
+	sei();
+
+	/* enable DATA REGISTER EMPTY INTERRUPT - the interrupt will arrive after initial UDSR0 loading */
+	UCSR0B |= _BV(UDRIE0);								// this will shoot an interrupt because UDR0 is ready again to be filled (UDRE0 is true)
+}
+
+void serial_fw_copyAndSendNmea(uint8_t isPgm, const uchar inData[], uint8_t len)
+{
+	if (len) {
+		memory_fw_copyBuffer(isPgm, serialCtxtTxBuffer, inData, len);
+		serialCtxtTxBufferIdx = 0;
+		serialCtxtTxBufferLen = len;
+		serial_fw_sendNmea();
+	}
+}
+
 void serial_fw_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 {
 	/* check if serial TX buffer is clear and the USART0 is ready for a new character to be sent */
@@ -176,18 +207,7 @@ void serial_fw_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 			serialCtxtTxBuffer[serialCtxtTxBufferLen++] = '\r';	// obligatory NMEA message ends with CR LF
 			serialCtxtTxBuffer[serialCtxtTxBufferLen++] = '\n';
 
-			cli();
-
-			/* clear TRANSMIT COMPLETE */
-			UCSR0A &= ~(_BV(TXC0));
-
-			/* initial load of USART data register, after this the ISR will handle it until the serial TX buffer is completed */
-			UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
-
-			sei();
-
-			/* enable DATA REGISTER EMPTY INTERRUPT - the interrupt will arrive after initial UDSR0 loading */
-			UCSR0B |= _BV(UDRIE0);								// this will shoot an interrupt because UDR0 is ready again to be filled (UDRE0 is true)
+			serial_fw_sendNmea();
 		}
 
 	} else {  // now we are not ready yet, call us later again
