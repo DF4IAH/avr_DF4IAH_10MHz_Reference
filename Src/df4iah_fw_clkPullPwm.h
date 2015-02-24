@@ -26,7 +26,5 @@ void clkPullPwm_fw_setRatio(uint8_t ratio, uint8_t sub);
 #endif
 
 void clkPullPwm_fw_setPin(uint8_t isSet);
-void clkPullPwm_fw_togglePin();
-void clkPullPwm_fw_endlessTogglePin();
 
 #endif /* DF4IAH_FW_CLKPULLPWM_H_ */

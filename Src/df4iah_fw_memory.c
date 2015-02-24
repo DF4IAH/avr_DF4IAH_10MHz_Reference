@@ -21,7 +21,7 @@
 
 /* only to silence Eclipse */
 #ifndef DEFAULT_PWM_COUNT
-# define DEFAULT_PWM_COUNT 0
+# define DEFAULT_PWM_COUNT 									90
 #endif
 
 

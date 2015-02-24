@@ -28,15 +28,17 @@
 
 /* only to silence Eclipse */
 #ifndef DEFAULT_PWM_COUNT
-# define DEFAULT_PWM_COUNT 0
+# define DEFAULT_PWM_COUNT 									90
 #endif
 
 
 extern uint8_t  fastPwmLoopVal;
-extern uint8_t  fastPwmSingleVal;
-
 extern uint8_t  fastPwmSubLoopVal;
+
+extern uint8_t  fastPwmSingleLoad;
+extern uint8_t  fastPwmSingleVal;
 extern uint8_t  fastPwmSubSingleVal;
+
 extern uint8_t  fastPwmSubCmp;
 extern uint8_t  fastPwmSubCnt;
 
@@ -55,11 +57,6 @@ void clkPullPwm_fw_init()
 	if (memory_fw_isEepromBlockValid(BLOCK_REFOSC_NR)) {
 		memory_fw_readEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial));
 		memory_fw_readEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial_sub, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial_sub));
-
-#if 0
-		/* load value at once */
-		clkPullPwm_fw_setRatio(pullCoef_b02_pwm_initial, pullCoef_b02_pwm_initial_sub);
-#endif
 
 		cli();
 		fastPwmLoopVal		= pullCoef_b02_pwm_initial;
@@ -83,14 +80,6 @@ void clkPullPwm_fw_close()
 	//PRR |= _BV(PRTIM0);									// already done in clkPullPwm_bl_close()
 }
 
-#if 0
-void clkPullPwm_fw_setRatio(uint8_t ratio, uint8_t sub)
-{
-	clkPullPwm_bl_setRatio(ratio);
-	fastPwmSubCmp = sub;
-}
-#endif
-
 inline void clkPullPwm_fw_setPin(uint8_t isSet)
 {
 	if (isSet) {
@@ -99,16 +88,6 @@ inline void clkPullPwm_fw_setPin(uint8_t isSet)
 	} else {
 		PWMTOGGLEPIN_PIN &= ~(_BV(PWMTOGGLEPIN_PNUM));
 	}
-}
-
-void clkPullPwm_fw_togglePin()
-{
-	clkPullPwm_bl_togglePin();
-}
-
-void clkPullPwm_fw_endlessTogglePin()
-{
-	clkPullPwm_bl_endlessTogglePin();
 }
 
 
@@ -130,14 +109,14 @@ ISR(TIMER0_OVF_vect, ISR_BLOCK)
 	/* minimal Sub-PWM value for its FAST_PWM_SUB_BITCNT */
 	const uint8_t localSubPwmInc = (1 << (8 - FAST_PWM_SUB_BITCNT));
 
-	if (fastPwmSingleVal) {
+	if (fastPwmSingleLoad) {
 		cli();
 		OCR0B			= fastPwmSingleVal;
 		fastPwmSubCmp	= fastPwmSubSingleVal;
 		sei();
 
-		/* mark the variable to be inactive again */
-		fastPwmSingleVal = 0;
+		/* single value loaded */
+		fastPwmSingleLoad = 0;
 
 	} else {
 		/* set the T0 compare B register with the current setting of the integer PWM value */

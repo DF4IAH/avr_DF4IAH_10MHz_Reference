@@ -37,7 +37,7 @@
 # define BOOT_TOKEN											0xb00f
 #endif
 #ifndef DEFAULT_PWM_COUNT									// make Eclipse happy: should be included from chipdef.h --> mega32.h
-# define DEFAULT_PWM_COUNT									0
+# define DEFAULT_PWM_COUNT									90
 #endif
 
 
@@ -139,7 +139,8 @@ PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID02: +/- KEY \tmainPwmTerminalAdj
 PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: Clock int20MHzClockDiff       =   %+04liHz @20MHz\n";
 PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: Clock localMeanFloatClockDiff = %+03.3fHz @20MHz, \tqrgDev_Hz = %+03.3fHz @10MHz, \tppm = %+02.6f\n";
 PROGMEM const uchar PM_FORMAT_IA03[]						= "#IA03: QRG   newPwmVal = %03.3f, \tpwmCorSteps         = %+03.3f\n";
-PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: PHASE phaseCor  = %03.3f°, \t phaseStepsFrequency = %+03.3f, \tphaseStepsPhase = %+03.3f\n";
+PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: PHASE phaseErr  = %03.3f°, \t phaseStepsFrequency = %+03.3f, \tphaseStepsPhase = %+03.3f\n";
+PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_steps = %+03.3f\n";
 
 PROGMEM const uchar PM_FORMAT_SC01[]						= "#SC01: Stack-Check: mung-wall address: 0x%04x, lowest-stack: 0x%04x\n";
 
@@ -151,8 +152,8 @@ PROGMEM const uchar PM_FORMAT_SET_BAUD[]					= "Communication baud rate set to %
 // DATA SECTION
 
 /* df4iah_fw_main */
-void (*mainJumpToFW)(void)	 								= (void*) 0x0000;
-void (*mainJumpToBL)(void)	 								= (void*) 0x7000;
+void (*const mainJumpToFW)(void)							= (void*) 0x0000;
+void (*const mainJumpToBL)(void)							= (void*) 0x7000;
 uchar mainCoef_b00_dev_header[16 + 1]						= { 0 };
 uint16_t mainCoef_b00_dev_serial							= 0;
 uint16_t mainCoef_b00_dev_version							= 0;
@@ -203,11 +204,13 @@ uint32_t fastStampCtr1ms									= 0;
 uint32_t fastCtr1ms											= 0;
 
 uint8_t  fastPwmLoopVal										= 0;
-uint8_t  fastPwmSingleVal									= 0;
 uint8_t  fastPwmSubLoopVal									= 0;
+uint8_t	 fastPwmSingleLoad									= 0;
+uint8_t  fastPwmSingleVal									= 0;
 uint8_t  fastPwmSubSingleVal								= 0;
 uint8_t  fastPwmSubCmp										= 0;
 uint8_t  fastPwmSubCnt										= 0;
+float    fastPwmSingleDiffSum									= 0.0f;
 uint32_t fastPwmAdcNow										= 0;
 uint32_t fastPwmAdcLast										= 0;
 int16_t  fastPwmAdcAscendingVal								= 0;
@@ -266,7 +269,7 @@ uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] 	= { 0 };
 
 /* LAST IN RAM: Stack Check mung-wall */
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
-// mung-wall memory array[0x0300] = 0x05af .. 0x08ae
+// mung-wall memory array[0x0300] = 0x05b3 .. 0x08b2
 // lowest stack:	0x085b
 // mung-wall low:	0x0850
 // --> RAM: free abt. 650 bytes
@@ -378,33 +381,38 @@ static inline void wdt_close() {
 	wdt_disable();
 }
 
-float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t subVal)
+float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
 {
 	/* the fractional part depends on the bit count used for the sub-PWM */
-	return intVal + (subVal / 256.0f);
+	return intVal + (intSubVal / 256.0f);
 }
 
-uint8_t calcTimerAdj(float pwmAdjust, uint8_t intValBefore, uint8_t* subVal)
+float main_fw_calcTimerAdj(float pwmAdjust, uint8_t* intVal, uint8_t* intSubVal)
 {
-	const float maxLimit = 255.0f - (1.0f / (1 << FAST_PWM_SUB_BITCNT));
+	float fltTime = main_fw_calcTimerToFloat(*intVal, *intSubVal);
+	float residue = 0.0f;
+	const float maxLimit = 255.0f - (1.0f / (1 << FAST_PWM_SUB_BITCNT));	// NOT 256.0f due to the compare unit that catches not around the overflow value
 
-	/* add the current PWM values to the adjust value to get the next value */
-	pwmAdjust += main_fw_calcTimerToFloat(intValBefore, *subVal);
+	/* add the time offset to the current PWM settings */
+	fltTime += pwmAdjust;
 
 	/* windowing the next value into the 8-Bit range */
-	if (pwmAdjust < 0.0f) {
-		pwmAdjust = 0.0f;
+	if (fltTime < 0.0f) {
+		residue = fltTime;
+		fltTime = 0.0f;
 
-	} else if (pwmAdjust > maxLimit) {
-		pwmAdjust = maxLimit;
+	} else if (fltTime > maxLimit) {
+		residue = fltTime - maxLimit;
+		fltTime = maxLimit;
 	}
 
 	/* add rounding value */
-	pwmAdjust += 1.0f / 512.0f;
+	fltTime += 1.0f / 512.0f;
 
 	/* break up into integer and fractional parts */
-	*subVal = (uint8_t) ((pwmAdjust - floorf(pwmAdjust)) * 256.0f);
-	return (uint8_t) pwmAdjust;
+	*intVal		= (uint8_t) fltTime;
+	*intSubVal	= (uint8_t) ((fltTime - floorf(fltTime)) * 256.0f);
+	return residue;
 }
 
 static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float qrgDev_Hz, float ppm)
@@ -479,7 +487,7 @@ static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff,
 
 		if (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 			/* adjusting the PWM registers and make the new value public - only when hand-over to Phase Correction is not made */
-			localFastPwmLoopVal = calcTimerAdj(pwmCorSteps, localFastPwmLoopVal, &localFastPwmSubLoopVal);
+			(void) main_fw_calcTimerAdj(pwmCorSteps, &localFastPwmLoopVal, &localFastPwmSubLoopVal);
 
 			cli();
 			fastPwmLoopVal		= localFastPwmLoopVal;
@@ -515,6 +523,8 @@ static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff,
 	}
 }
 
+// forward declaration
+static void main_fw_calcPhaseResidue();
 static void main_fw_calcPhase(int32_t int20MHzClockDiff, float meanFloatClockDiff)
 {
 	static float phaseMeanPhaseErrorSum = 0.0f;
@@ -526,79 +536,130 @@ static void main_fw_calcPhase(int32_t int20MHzClockDiff, float meanFloatClockDif
 			if (mainRefClkState < REFCLK_STATE_LOCKING_PHASE) {
 				/* up-grading */
 				mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
-				phaseMeanPhaseErrorSum = 0.0f;
+				phaseMeanPhaseErrorSum	= 0.0f;
+
+				uint8_t sreg = SREG;
+				cli();
+//				fastPwmSingleDiff = 0.0f;
+				SREG = sreg;
+
 			} else if (mainRefClkState > REFCLK_STATE_LOCKING_PHASE) {
 				/* down-grading */
-				mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
+				//mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
 			}
 
 			if ((ADC_PHASE_LO_INSYNC <= adcPhase) && (adcPhase <= ADC_PHASE_HI_INSYNC)) {
 				if (mainRefClkState < REFCLK_STATE_IN_SYNC) {
 					mainRefClkState = REFCLK_STATE_IN_SYNC;
 				}
-
 			}
 
 		} else {
 			/* lost phase: hand-over to AFC */
 			if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
-				mainRefClkState = REFCLK_STATE_SEARCH_QRG;
-				phaseMeanPhaseErrorSum = 0.0f;
+				//mainRefClkState = REFCLK_STATE_SEARCH_QRG;
+				phaseMeanPhaseErrorSum	= 0.0f;
+
+				uint8_t sreg = SREG;
+				cli();
+//				fastPwmSingleDiff = 0.0f;
+				SREG = sreg;
 			}
 		}
+	}
 
-		float phaseCor = ((((float) adcPhase) - ADC_PHASE_CENTER) / (((float) ADC_PHASE_HI_LOCKING) - ADC_PHASE_LO_LOCKING)) * 450.0f;
-		float phaseStepsPhase = 0.0f;
-		float phaseStepsFrequency = 0.0f;
+	const float PhaseErrAdc		= 450.0f / (((float) ADC_PHASE_HI_LOCKING) - ADC_PHASE_LO_LOCKING);
+	float phaseErr				= PhaseErrAdc * (adcPhase - ADC_PHASE_CENTER);
+	float phaseStepsPhase		= 0.0f;
+	float phaseStepsFrequency	= 0.0f;
 
-		if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
+//		if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
+{
+		{
 			/* phase correction */
-			phaseStepsPhase = (float) (-pow(fabs(phaseCor) * 1.00f, 1.25f));  // magic values
-			if (phaseCor < 0.0f) {
+			phaseStepsPhase = (float) (-pow(fabs(phaseErr) * 10.00f, 1.25f));  // magic values
+			if (phaseErr < 0.0f) {
 				phaseStepsPhase = -phaseStepsPhase;
 			}
 
-			/* frequency drift correction */
-			float phaseMeanPhaseErrorDiff = phaseMeanPhaseErrorSum / MEAN_CLOCK_STAGES_F;
-			phaseMeanPhaseErrorSum += (((float) phaseStepsPhase) - phaseMeanPhaseErrorDiff);
-			phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.00010f;  // magic value
-
-			if (!fastPwmSingleVal) {  // enter only if the last phase correction is done
-				/* set PWM corrected impulse for one PWM cycle - no frequency corrections done */
+			if (!fastPwmSingleDiffSum) {
+				uint8_t sreg = SREG;
 				cli();
-				uint8_t localFastPwmLoopVal			= fastPwmLoopVal;
-				uint8_t localFastPwmSubLoopVal		= fastPwmSubLoopVal;
-				sei();
-				uint8_t localFastPwmSingleVal		= localFastPwmLoopVal;
-				uint8_t localFastPwmSubSingleVal	= localFastPwmSubLoopVal;
+				//fastPwmSingleDiff += phaseStepsPhase;						// phase offset accumulator
+				fastPwmSingleDiffSum = -2000.0f;
+				SREG = sreg;
 
-				/* single phase correction */
-				localFastPwmSingleVal = calcTimerAdj(phaseStepsPhase, localFastPwmSingleVal, &localFastPwmSubSingleVal);
-
-				/* frequency drift correction */
-				localFastPwmLoopVal = calcTimerAdj(phaseStepsFrequency, localFastPwmLoopVal, &localFastPwmSubLoopVal);
-
-				cli();
-				fastPwmSingleVal	= localFastPwmSingleVal;
-				fastPwmSubSingleVal	= localFastPwmSubSingleVal;
-#if 0
-				fastPwmLoopVal		= localFastPwmLoopVal;	// TODO re-enable me!
-				fastPwmSubLoopVal	= localFastPwmSubLoopVal;
-#endif
-				sei();
+				main_fw_calcPhaseResidue();									// first call - to be called many times during the whole second until next pulse comes
 			}
 		}
 
-		if (main_bf.mainIsTimerTest) {
-			/* monitoring */
-			int len;
-			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA11, sizeof(PM_FORMAT_IA11));
-			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-					phaseCor,
-					phaseStepsFrequency,
-					phaseStepsPhase);
-			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+		if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
+			/* frequency drift correction */
+			float phaseMeanPhaseErrorDiff = phaseMeanPhaseErrorSum / MEAN_CLOCK_STAGES_F;
+			phaseMeanPhaseErrorSum += (((float) phaseStepsPhase) - phaseMeanPhaseErrorDiff);
+			phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.00010f; 	// magic value
+
+			cli();
+			uint8_t localFastPwmLoopVal		= fastPwmLoopVal;
+			uint8_t localFastPwmSubLoopVal	= fastPwmSubLoopVal;
+			sei();
+
+			(void) main_fw_calcTimerAdj(phaseStepsFrequency, &localFastPwmLoopVal, &localFastPwmSubLoopVal);
+#if 0
+			cli();
+			fastPwmLoopVal		= localFastPwmLoopVal;					// single frequency correction
+			fastPwmSubLoopVal	= localFastPwmSubLoopVal;
+			sei();
+#endif
 		}
+	}
+
+	if (main_bf.mainIsTimerTest) {
+		/* monitoring */
+		int len;
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA11, sizeof(PM_FORMAT_IA11));
+		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				phaseErr,
+				phaseStepsFrequency,
+				phaseStepsPhase);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA12, sizeof(PM_FORMAT_IA12));
+		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				fastPwmSingleDiffSum);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+	}
+}
+
+static void main_fw_calcPhaseResidue()
+{
+	uint8_t localFastPwmSingleLoad;
+	uint8_t localFastPwmSingleVal;
+	uint8_t localFastPwmSubSingleVal;
+
+	uint8_t sreg = SREG;
+	cli();
+	localFastPwmSingleLoad = fastPwmSingleLoad;
+	SREG = sreg;
+
+	if (fastPwmSingleDiffSum && (!localFastPwmSingleLoad)) {  // enter only if an offset is accumulated and the last phase correction is loaded
+		/* set PWM corrected impulse for one PWM cycle - no frequency corrections done */
+		sreg = SREG;
+		cli();
+		localFastPwmSingleVal		= fastPwmLoopVal;		// make a copy from the current loop settings
+		localFastPwmSubSingleVal	= fastPwmSubLoopVal;
+		SREG = sreg;
+
+		/* calculation with saturation and residue */
+		fastPwmSingleDiffSum = main_fw_calcTimerAdj(fastPwmSingleDiffSum, &localFastPwmSingleVal, &localFastPwmSubSingleVal);
+
+		/* single phase correction */
+		sreg = SREG;
+		cli();
+		fastPwmSingleVal	= localFastPwmSingleVal;
+		fastPwmSubSingleVal	= localFastPwmSubSingleVal;
+		fastPwmSingleLoad	= true;
+		SREG = sreg;
 	}
 }
 
@@ -952,6 +1013,9 @@ static void doJobs()
 			serialCtxtBufferState = 0;
 		}
 
+		/* PWM offset due to phase accumulator */
+		main_fw_calcPhaseResidue();
+
 		/* leave here */
 		return;
 	}
@@ -1121,8 +1185,9 @@ static void doJobs()
 			sei();
 
 			/* calculate next value */
+			localFastPwmLoopValNext		= localFastPwmLoopValBefore;
 			localFastPwmSubLoopValNext	= localFastPwmSubLoopValBefore;
-			localFastPwmLoopValNext		= calcTimerAdj(mainPwmTerminalAdj, localFastPwmLoopValBefore, &localFastPwmSubLoopValNext);
+			(void) main_fw_calcTimerAdj(mainPwmTerminalAdj, &localFastPwmLoopValNext, &localFastPwmSubLoopValNext);
 
 			/* write back the global variables for PWM and sub-PWM */
 			cli();
@@ -1188,7 +1253,7 @@ void main_fw_giveAway(void)
 #else
 	/* due to the fact that the clkFastCtr interrupts every 12.8 µs there is no chance to power down */
 
-	clkPullPwm_fw_togglePin();									// XXX for debugging purposes only
+	clkPullPwm_bl_togglePin();									// XXX for debugging purposes only
 #endif
 }
 
@@ -1267,6 +1332,7 @@ int main(void)
     /* stop AVR */
     {
 		cli();
+
 		wdt_close();
 		usb_fw_close();
 		serial_fw_close();
