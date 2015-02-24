@@ -525,7 +525,7 @@ static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff,
 
 // forward declaration
 static void main_fw_calcPhaseResidue();
-static void main_fw_calcPhase(int32_t int20MHzClockDiff, float meanFloatClockDiff)
+static void main_fw_calcPhase()
 {
 	static float phaseMeanPhaseErrorSum = 0.0f;
 	uint8_t adcPhase = acAdcCh[ADC_CH_PHASE];
@@ -540,12 +540,12 @@ static void main_fw_calcPhase(int32_t int20MHzClockDiff, float meanFloatClockDif
 
 				uint8_t sreg = SREG;
 				cli();
-//				fastPwmSingleDiff = 0.0f;
+				fastPwmSingleDiffSum = 0.0f;
 				SREG = sreg;
 
 			} else if (mainRefClkState > REFCLK_STATE_LOCKING_PHASE) {
 				/* down-grading */
-				//mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
+				mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
 			}
 
 			if ((ADC_PHASE_LO_INSYNC <= adcPhase) && (adcPhase <= ADC_PHASE_HI_INSYNC)) {
@@ -557,12 +557,12 @@ static void main_fw_calcPhase(int32_t int20MHzClockDiff, float meanFloatClockDif
 		} else {
 			/* lost phase: hand-over to AFC */
 			if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
-				//mainRefClkState = REFCLK_STATE_SEARCH_QRG;
+				mainRefClkState = REFCLK_STATE_SEARCH_QRG;
 				phaseMeanPhaseErrorSum	= 0.0f;
 
 				uint8_t sreg = SREG;
 				cli();
-//				fastPwmSingleDiff = 0.0f;
+				fastPwmSingleDiffSum = 0.0f;
 				SREG = sreg;
 			}
 		}
@@ -573,45 +573,41 @@ static void main_fw_calcPhase(int32_t int20MHzClockDiff, float meanFloatClockDif
 	float phaseStepsPhase		= 0.0f;
 	float phaseStepsFrequency	= 0.0f;
 
-//		if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
-{
-		{
-			/* phase correction */
-			phaseStepsPhase = (float) (-pow(fabs(phaseErr) * 10.00f, 1.25f));  // magic values
-			if (phaseErr < 0.0f) {
-				phaseStepsPhase = -phaseStepsPhase;
-			}
-
-			if (!fastPwmSingleDiffSum) {
-				uint8_t sreg = SREG;
-				cli();
-				//fastPwmSingleDiff += phaseStepsPhase;						// phase offset accumulator
-				fastPwmSingleDiffSum = -2000.0f;
-				SREG = sreg;
-
-				main_fw_calcPhaseResidue();									// first call - to be called many times during the whole second until next pulse comes
-			}
+	if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
+		/* phase correction */
+		phaseStepsPhase = (float) (pow(fabs(phaseErr) * 45.00f, 1.25f));  // magic values
+		if (phaseErr < 0.0f) {
+			phaseStepsPhase = -phaseStepsPhase;
 		}
 
-		if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
-			/* frequency drift correction */
-			float phaseMeanPhaseErrorDiff = phaseMeanPhaseErrorSum / MEAN_CLOCK_STAGES_F;
-			phaseMeanPhaseErrorSum += (((float) phaseStepsPhase) - phaseMeanPhaseErrorDiff);
-			phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.00010f; 	// magic value
-
+		if (!fastPwmSingleDiffSum) {
+			uint8_t sreg = SREG;
 			cli();
-			uint8_t localFastPwmLoopVal		= fastPwmLoopVal;
-			uint8_t localFastPwmSubLoopVal	= fastPwmSubLoopVal;
-			sei();
+			fastPwmSingleDiffSum += phaseStepsPhase;						// phase offset accumulator
+			SREG = sreg;
 
-			(void) main_fw_calcTimerAdj(phaseStepsFrequency, &localFastPwmLoopVal, &localFastPwmSubLoopVal);
-#if 0
-			cli();
-			fastPwmLoopVal		= localFastPwmLoopVal;					// single frequency correction
-			fastPwmSubLoopVal	= localFastPwmSubLoopVal;
-			sei();
-#endif
+			main_fw_calcPhaseResidue();									// first call - to be called many times during the whole second until next pulse comes
 		}
+	}
+
+	if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
+		/* frequency drift correction */
+		float phaseMeanPhaseErrorDiff = phaseMeanPhaseErrorSum / MEAN_PHASE_CLOCK_STAGES_F;
+		phaseMeanPhaseErrorSum += (((float) phaseStepsPhase) - phaseMeanPhaseErrorDiff);
+		phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.0000003f; 	// magic value
+
+		cli();
+		uint8_t localFastPwmLoopVal		= fastPwmLoopVal;
+		uint8_t localFastPwmSubLoopVal	= fastPwmSubLoopVal;
+		sei();
+
+		(void) main_fw_calcTimerAdj(phaseStepsFrequency, &localFastPwmLoopVal, &localFastPwmSubLoopVal);
+
+		uint8_t sreg = SREG;
+		cli();
+		fastPwmLoopVal		= localFastPwmLoopVal;					// single frequency correction
+		fastPwmSubLoopVal	= localFastPwmSubLoopVal;
+		SREG = sreg;
 	}
 
 	if (main_bf.mainIsTimerTest) {
@@ -1120,7 +1116,7 @@ static void doJobs()
 							    	  +           (((int32_t) ppsStampICR1)   - ((int32_t) ppsStampICR1_last))
 							    	  -  20000000L;
 
-		float localMeanFloatClockDiff = localMeanClockDiffSum / MEAN_CLOCK_STAGES_F;
+		float localMeanFloatClockDiff = localMeanClockDiffSum / MEAN_QRG_CLOCK_STAGES_F;
 		if ((local20MHzClockDiff < -CLOCK_DIFF_OUT) || (CLOCK_DIFF_OUT < local20MHzClockDiff)) {
 			/* bad value - ignore */
 			local20MHzClockDiff = 0;
@@ -1165,7 +1161,7 @@ static void doJobs()
 
 		if (main_bf.mainIsAPC) {
 			/* APC = automatic phase control */
-			main_fw_calcPhase(local20MHzClockDiff, localMeanFloatClockDiff);
+			main_fw_calcPhase();
 		}
 	}
 

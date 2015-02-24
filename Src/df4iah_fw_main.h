@@ -13,7 +13,7 @@
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										150
-#define VERSION_LOW											224
+#define VERSION_LOW											225
 
 
 /* MCU frequency */
@@ -50,7 +50,8 @@
 #define ADC_PHASE_HI_INSYNC   								195		// @ 0.85V
 #define ADC_PHASE_HI_LOCKING  								241		// @ 1.05V
 
-#define MEAN_CLOCK_STAGES_F									  5.0f;
+#define MEAN_QRG_CLOCK_STAGES_F								  5.0f;
+#define MEAN_PHASE_CLOCK_STAGES_F							  3.0f;
 #define PWM_COR_STEPS_COARSE_DIV_F							  1.1f;
 #define PWM_COR_STEPS_FINE_DIV_F							 10.0f;
 #define PWM_COR_STEPS_PHASE_DIV_F							 20.0f;
