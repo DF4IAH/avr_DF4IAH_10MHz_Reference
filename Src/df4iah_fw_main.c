@@ -1266,30 +1266,44 @@ int main(void)
 	/* init AVR */
 	{
 		cli();
+    	clkPullPwm_fw_setPin_ID(true);						// DEBUG
+    	clkPullPwm_fw_setPin_ID(0x01);						// DEBUG
 		vectortable_to_firmware();
+    	clkPullPwm_fw_setPin_ID(0x02);						// DEBUG
 		wdt_init();
+    	clkPullPwm_fw_setPin_ID(0x03);						// DEBUG
 
 		PRR    = 0xEF;										// disable all modules within the Power Reduction Register
 		ACSR  |= _BV(ACD);									// switch on Analog Comparator Disable
 		DIDR1 |= (0b11 << AIN0D);							// disable digital input buffers on AIN0 and AIN1
+    	clkPullPwm_fw_setPin_ID(0x04);						// DEBUG
 
 		/* switch off Pull-Up Disable */
 		MCUCR &= ~(_BV(PUD));
+    	clkPullPwm_fw_setPin_ID(0x05);						// DEBUG
 
 		// Stack Check init
 		for (int idx = MAIN_STACK_CHECK_SIZE; idx;) {
 			stackCheckMungWall[--idx] = 0x5a;
 		}
+    	clkPullPwm_fw_setPin_ID(0x06);						// DEBUG
 
 		clkPullPwm_fw_init();
+    	clkPullPwm_fw_setPin_ID(0x11);						// DEBUG
 		clkFastCtr_fw_init();
+    	clkPullPwm_fw_setPin_ID(0x12);						// DEBUG
 		anlgComp_fw_init();
+    	clkPullPwm_fw_setPin_ID(0x13);						// DEBUG
 		serial_fw_init();
+    	clkPullPwm_fw_setPin_ID(0x14);						// DEBUG
 		usb_fw_init();
+    	clkPullPwm_fw_setPin_ID(0x15);						// DEBUG
 		sei();
+    	clkPullPwm_fw_setPin_ID(0x16);						// DEBUG
 
 		/* check CRC of all blocks and update with default values if the data is non-valid */
 		memory_fw_checkAndInitAllBlocks();
+    	clkPullPwm_fw_setPin_ID(0x21);						// DEBUG
 
 		/* read MEASURING coefficients */
 		if (memory_fw_readEepromValidBlock(mainFormatBuffer, BLOCK_HEADER_NR)) {
@@ -1322,26 +1336,36 @@ int main(void)
 			/*	b02_pwm_initial			treated by df4iah_fw_clkPullPwm */
 			/* 	b02_pwm_initial_sub		treated by df4iah_fw_clkPullPwm */
 		}
+    	clkPullPwm_fw_setPin_ID(0x22);						// DEBUG
 
 		/* enter HELP command in USB host OUT queue */
 		main_fw_sendInitialHelp();
+    	clkPullPwm_fw_setPin_ID(0x23);						// DEBUG
 	}
 
 	/* run the chip */
     while (!(main_bf.mainStopAvr)) {
+    	static uint8_t ctr = 0;								// DEBUG
+    	clkPullPwm_fw_setPin_ID((++ctr) | 0x80);			// DEBUG
     	main_fw_giveAway();
     }
 
     /* stop AVR */
     {
+    	clkPullPwm_fw_setPin_ID(0x41);						// DEBUG
 		cli();
 
 		wdt_close();
 		usb_fw_close();
+    	clkPullPwm_fw_setPin_ID(0x42);						// DEBUG
 		serial_fw_close();
+    	clkPullPwm_fw_setPin_ID(0x43);						// DEBUG
 		anlgComp_fw_close();
+    	clkPullPwm_fw_setPin_ID(0x44);						// DEBUG
 		clkFastCtr_fw_close();
-		clkPullPwm_fw_close();
+    	clkPullPwm_fw_setPin_ID(0x45);						// DEBUG
+		// clkPullPwm_fw_close();							// DEBUG
+    	clkPullPwm_fw_setPin_ID(0x46);						// DEBUG
 
 		// all pins are set to be input
 		DDRB = 0x00;
@@ -1356,16 +1380,20 @@ int main(void)
 		// switch off Pull-Up Disable
 		MCUCR &= ~(_BV(PUD));
 
+		clkPullPwm_fw_setPin_ID(0x47);						// DEBUG
 		if (main_bf.mainEnterMode) {
 			if (main_bf.mainEnterMode == ENTER_MODE_BL) {
+		    	clkPullPwm_fw_setPin_ID(0x51);						// DEBUG
 				/* write BOOT one time token to the EEPROM to INHIBIT restart into this Firmware again */
 				uint16_t tokenVal = BOOT_TOKEN;
 				memory_fw_writeEEpromPage((uint8_t*) &tokenVal, sizeof(tokenVal), offsetof(eeprom_layout_t, bootMarker));
+		    	clkPullPwm_fw_setPin_ID(0x52);						// DEBUG
 
 				/* enter bootloader */
 				mainJumpToBL();										// jump to bootloader section
 
 			} else if (main_bf.mainEnterMode == ENTER_MODE_FW) {
+		    	clkPullPwm_fw_setPin_ID(0x61);						// DEBUG
 #if 1
 				/* restart firmware */
 				mainJumpToFW();										// jump to firmware section (REBOOT)
@@ -1373,12 +1401,14 @@ int main(void)
 				/* reset with the help of the WDT */
 				wdt_enable(WDTO_250MS);
 				for (;;) {
+			    	clkPullPwm_fw_setPin_ID(0x62);					// DEBUG
 			        _delay_ms(1000);
 				}
 #endif
 			}
 
 		} else {
+	    	clkPullPwm_fw_setPin_ID(0x71);							// DEBUG
 			/* enter and keep in sleep mode */
 			for (;;) {
 				set_sleep_mode(SLEEP_MODE_PWR_DOWN);
@@ -1392,6 +1422,7 @@ int main(void)
 					sleep_disable();
 				// }
 				SREG = sreg;
+		    	clkPullPwm_fw_setPin_ID(0x72);						// DEBUG
 			}
 		}
     }

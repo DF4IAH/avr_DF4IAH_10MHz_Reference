@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include <avr/io.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
@@ -81,7 +82,7 @@ void clkPullPwm_fw_close()
 	//PRR |= _BV(PRTIM0);									// already done in clkPullPwm_bl_close()
 }
 
-inline void clkPullPwm_fw_setPin(uint8_t isSet)
+void clkPullPwm_fw_setPin(uint8_t isSet)
 {
 	if (isSet) {
 		PWMTOGGLEPIN_PIN |=   _BV(PWMTOGGLEPIN_PNUM);
@@ -89,6 +90,25 @@ inline void clkPullPwm_fw_setPin(uint8_t isSet)
 	} else {
 		PWMTOGGLEPIN_PIN &= ~(_BV(PWMTOGGLEPIN_PNUM));
 	}
+}
+
+void clkPullPwm_fw_setPin_ID(uint8_t id)
+{
+	uint8_t sreg = SREG;
+	cli();
+
+	/* first: start bit */
+	clkPullPwm_fw_setPin(false);
+
+	/* MSB first */
+	for (int8_t cnt = 7; cnt >= 0; --cnt) {
+		clkPullPwm_fw_setPin(id & _BV(cnt));
+	}
+
+	/* last: 1 stop bit */
+	clkPullPwm_fw_setPin(true);
+
+	SREG = sreg;
 }
 
 
