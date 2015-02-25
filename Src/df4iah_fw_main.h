@@ -16,6 +16,47 @@
 #define VERSION_LOW											225
 
 
+#define UART_PORT			PORTD						// port D register
+#define UART_DDR			DDRD						// DDR for port D
+#define UART_TX_PIN			PIND						// PIN for TX pin at port D
+#define UART_TX_PNUM		PIN1						// PIN number for TX pin
+#define UART_RX_PIN			PIND						// PIN for RX pin at port D
+#define UART_RX_PNUM		PIN0						// PIN number for RX pin
+
+/* Timer-n compare output */
+#define DDR_OC0A_REG		DDRD
+#define DDR_OC0A			PD6
+#define DDR_OC0B_REG		DDRD
+#define DDR_OC0B			PD5
+#define DDR_OC1A_REG		DDRB
+#define DDR_OC1A			PB1
+#define DDR_OC1B_REG		DDRB
+#define DDR_OC1B			PB2
+#define DDR_OC2A_REG		DDRB
+#define DDR_OC2A			PB3
+#define DDR_OC2B_REG		DDRD
+#define DDR_OC2B			PD3
+
+/*
+ * Pin "STARTPIN" on port "STARTPORT" in this port has to grounded
+ * (active low) to start the bootloader
+ */
+#define PROBE_DDR			DDRD
+#define PROBE_PORT			PORTD
+#define PROBE_PIN			PIND
+#define PROBE_PNUM			PIN3						// JP3 BootLoader
+
+/* Debugging toggle pin */
+#define PWMTOGGLEPIN_DDR	DDRC
+#define PWMTOGGLEPIN_PORT	PORTC
+#define PWMTOGGLEPIN_PIN	PINC
+#define PWMTOGGLEPIN_PNUM	PIN5						// PC5(ADC5/SCL) - Pin 28
+
+/* BOOT token and place of BOOT token as offset before RAMEND */
+# define BOOT_TOKEN			0xb00f
+# define BOOT_TOKEN_EE_ADR	0x3fa						// @see df4iah_fw_memory.h
+
+
 /* MCU frequency */
 #ifndef F_CPU
 // #define F_CPU 7372800
