@@ -58,10 +58,11 @@ void clkPullPwm_fw_init()
 		memory_fw_readEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial));
 		memory_fw_readEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial_sub, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial_sub));
 
+		uint8_t sreg = SREG;
 		cli();
 		fastPwmLoopVal		= pullCoef_b02_pwm_initial;
 		fastPwmSubLoopVal	= pullCoef_b02_pwm_initial_sub;
-		sei();
+		SREG = sreg;
 	}
 
 	/* init interrupt */

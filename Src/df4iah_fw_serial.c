@@ -110,13 +110,14 @@ void serial_fw_init()
 void serial_fw_close()
 {
 	// interrupt: clearing Global Interrupt Flag when interrupts are changed
+	uint8_t sreg = SREG;
 	cli();
 	UART_CTRL = UART_CTRL & ~(_BV(RXCIE0)					|			// UCSR0B: disable all serial interrupts,
 							  _BV(TXCIE0)					|
 							  _BV(UDRIE0)					|
 							  _BV(RXEN0)					|			// and TX/RX ports
 							  _BV(TXEN0));
-	sei();
+	SREG = sreg;
 
 #ifdef UART_DOUBLESPEED
 		UART_STATUS &= ~(_BV(UART_DOUBLE));
@@ -133,15 +134,17 @@ void serial_fw_serRxIsrOn(uint8_t flag)
 {
 	if (flag) {
 		// interrupt: clearing Global Interrupt Flag when interrupts are changed
+		uint8_t sreg = SREG;
 		cli();
 		UART_CTRL |= _BV(RXCIE0);											// UCSR0B: enable interrupts for RX data received
-		sei();
+		SREG = sreg;
 
 	} else {
 		// interrupt: clearing Global Interrupt Flag when interrupts are changed
+		uint8_t sreg = SREG;
 		cli();
 		UART_CTRL &= ~(_BV(RXCIE0));										// UCSR0B: disable interrupts for RX data received
-		sei();
+		SREG = sreg;
 	}
 }
 
@@ -158,6 +161,7 @@ uint8_t serial_fw_isTxRunning()
 
 static void serial_fw_sendNmea()
 {
+	uint8_t sreg = SREG;
 	cli();
 
 	/* clear TRANSMIT COMPLETE */
@@ -166,7 +170,7 @@ static void serial_fw_sendNmea()
 	/* initial load of USART data register, after this the ISR will handle it until the serial TX buffer is completed */
 	UDR0 = serialCtxtTxBuffer[serialCtxtTxBufferIdx++];
 
-	sei();
+	SREG = sreg;
 
 	/* enable DATA REGISTER EMPTY INTERRUPT - the interrupt will arrive after initial UDSR0 loading */
 	UCSR0B |= _BV(UDRIE0);								// this will shoot an interrupt because UDR0 is ready again to be filled (UDRE0 is true)
@@ -185,9 +189,10 @@ void serial_fw_copyAndSendNmea(uint8_t isPgm, const uchar inData[], uint8_t len)
 void serial_fw_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 {
 	/* check if serial TX buffer is clear and the USART0 is ready for a new character to be sent */
+	uint8_t sreg = SREG;
 	cli();
 	uint8_t isTxRdy = UCSR0A & _BV(UDRE0);
-	sei();
+	SREG = sreg;
 
 	if (!serialCtxtTxBufferLen && isTxRdy) {
 		/* get message and free semaphore */

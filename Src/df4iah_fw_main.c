@@ -480,19 +480,22 @@ static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff,
 		}
 
 		/* windowing and adding of the new PWM value */
+
+		uint8_t sreg = SREG;
 		cli();
 		uint8_t localFastPwmLoopVal		= fastPwmLoopVal;
 		uint8_t localFastPwmSubLoopVal	= fastPwmSubLoopVal;
-		sei();
+		SREG = sreg;
 
 		if (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 			/* adjusting the PWM registers and make the new value public - only when hand-over to Phase Correction is not made */
 			(void) main_fw_calcTimerAdj(pwmCorSteps, &localFastPwmLoopVal, &localFastPwmSubLoopVal);
 
+			uint8_t sreg = SREG;
 			cli();
 			fastPwmLoopVal		= localFastPwmLoopVal;
 			fastPwmSubLoopVal	= localFastPwmSubLoopVal;
-			sei();
+			SREG = sreg;
 		}
 
 		if (main_bf.mainIsTimerTest) {
@@ -596,14 +599,14 @@ static void main_fw_calcPhase()
 		phaseMeanPhaseErrorSum += (((float) phaseStepsPhase) - phaseMeanPhaseErrorDiff);
 		phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.0000003f; 	// magic value
 
+		uint8_t sreg = SREG;
 		cli();
 		uint8_t localFastPwmLoopVal		= fastPwmLoopVal;
 		uint8_t localFastPwmSubLoopVal	= fastPwmSubLoopVal;
-		sei();
+		SREG = sreg;
 
 		(void) main_fw_calcTimerAdj(phaseStepsFrequency, &localFastPwmLoopVal, &localFastPwmSubLoopVal);
 
-		uint8_t sreg = SREG;
 		cli();
 		fastPwmLoopVal		= localFastPwmLoopVal;					// single frequency correction
 		fastPwmSubLoopVal	= localFastPwmSubLoopVal;
@@ -801,10 +804,11 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_WRITEPWM, sizeof(PM_COMMAND_WRITEPWM))) {
 		/* write current PWM value as the default/startup value to the EEPROM */
+		uint8_t sreg = SREG;
 		cli();
 		pullCoef_b02_pwm_initial		= fastPwmLoopVal;
 		pullCoef_b02_pwm_initial_sub	= fastPwmSubLoopVal;
-		sei();
+		SREG = sreg;
 
 		memory_fw_writeEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial));
 		memory_fw_writeEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial_sub, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial_sub));
@@ -957,6 +961,7 @@ static void doJobs()
 
 	{
 		/* get the timers */
+		uint8_t sreg = SREG;
 		cli();
 
 		/* get the current ms and ticks timer */
@@ -969,7 +974,7 @@ static void doJobs()
 		uint8_t localICR1H = ICR1H;
 		localStampCtr1ms = fastStampCtr1ms;					// make a copy of the captured / timestamped clock
 
-		sei();
+		SREG = sreg;
 
 		localFastTCNT1	= localTCNT1L | (localTCNT1H << 8);
 		localStampICR1	= localICR1L  | (localICR1H  << 8);
@@ -1175,10 +1180,11 @@ static void doJobs()
 
 		{
 			/* correct PWM with  +/- <value> */
+			uint8_t sreg = SREG;
 			cli();
 			localFastPwmLoopValBefore		= fastPwmLoopVal;
 			localFastPwmSubLoopValBefore	= fastPwmSubLoopVal;
-			sei();
+			SREG = sreg;
 
 			/* calculate next value */
 			localFastPwmLoopValNext		= localFastPwmLoopValBefore;
@@ -1189,7 +1195,7 @@ static void doJobs()
 			cli();
 			fastPwmLoopVal		= localFastPwmLoopValNext;
 			fastPwmSubLoopVal	= localFastPwmSubLoopValNext;
-			sei();
+			SREG = sreg;
 		}
 
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_ID01, sizeof(PM_FORMAT_ID01));
@@ -1230,9 +1236,10 @@ void main_fw_giveAway(void)
 	{
 		clkPullPwm_fw_setPin(false);							// XXX for debugging purposes only
 
+		uint8_t sreg = SREG;
 		cli();
 		WDTCSR |= _BV(WDIE);
-		sei();
+		SREG = sreg;
 
 		wdt_enable(WDTO_15MS);
 
@@ -1241,7 +1248,7 @@ void main_fw_giveAway(void)
 
 		cli();
 		WDTCSR &= ~(_BV(WDIE));
-		sei();
+		SREG = sreg;
 
 		wdt_disable();
 		clkPullPwm_fw_setPin(true);								// XXX for debugging purposes only
@@ -1256,9 +1263,9 @@ void main_fw_giveAway(void)
 
 int main(void)
 {
-
 	/* init AVR */
 	{
+		cli();
 		vectortable_to_firmware();
 		wdt_init();
 
@@ -1375,15 +1382,16 @@ int main(void)
 			/* enter and keep in sleep mode */
 			for (;;) {
 				set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+				uint8_t sreg = SREG;
 				cli();
 				// if (some_condition) {
 					sleep_enable();
 					sleep_bod_disable();
-				//	sei();
+				//	SREG = sreg;
 					sleep_cpu();
 					sleep_disable();
 				// }
-				sei();
+				SREG = sreg;
 			}
 		}
     }
