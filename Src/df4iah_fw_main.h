@@ -121,9 +121,8 @@ typedef struct main_bf_struct
      uint8_t  mainStackCheck								: 1;
      uint8_t  mainReserved01								: 1; // fill to 8 bits
 
-     uint8_t  mainEnterMode									: 2;
      uint8_t  mainHelpConcatNr								: 4;
-     uint8_t  mainReserved11								: 2; // fill to 8 bits
+     uint8_t  mainReserved11								: 4; // fill to 8 bits
 } main_bf_t;
 
 
