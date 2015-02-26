@@ -24,9 +24,6 @@ extern uint16_t acAdcCh[AC_ADC_CH_COUNT + 1];				// plus one for the temperature
 
 void anlgComp_fw_init()
 {
-	// TODO: Debugging PHASE ADC at pin C5
-	DDRC |= _BV(PIN4);  // TODO: testing PHASE ADC
-
 	/* enable power for ADC, reference voltage and analog comparator */
 	PRR &= ~(_BV(PRADC));
 
@@ -72,9 +69,6 @@ void anlgComp_fw_close()
 
 	/* disable power for ADC, reference voltage and analog comparator */
 	PRR |= _BV(PRADC);
-
-	// TODO: Debugging PHASE ADC at pin C5
-	DDRC &= ~(_BV(PIN4));  // TODO: testing PHASE ADC
 }
 
 void anlgComp_fw_startAdcConvertion() {

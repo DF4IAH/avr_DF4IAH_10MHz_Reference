@@ -74,7 +74,7 @@ void clkPullPwm_fw_init()
 void clkPullPwm_fw_close()
 {
 	/* disable interrupts */
-	TIMSK0 |= 0;
+	TIMSK0 = 0;
 
 	clkPullPwm_bl_close();
 

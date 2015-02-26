@@ -21,16 +21,16 @@
 
 /* to make the compiler happy - @see chipdef.h --> mega32.h */
 #ifndef UART_DDR
-# define UART_DDR	DDRD
+# define UART_DDR											DDRD
 #endif
 #ifndef UART_PORT
-# define UART_PORT	PORTD
+# define UART_PORT											PORTD
 #endif
 #ifndef UART_RX_PNUM
-# define UART_RX_PNUM	0
+# define UART_RX_PNUM										0
 #endif
 #ifndef UART_TX_PNUM
-# define UART_TX_PNUM	1
+# define UART_TX_PNUM										1
 #endif
 
 
@@ -173,7 +173,7 @@ static void serial_fw_sendNmea()
 	SREG = sreg;
 
 	/* enable DATA REGISTER EMPTY INTERRUPT - the interrupt will arrive after initial UDSR0 loading */
-	UCSR0B |= _BV(UDRIE0);								// this will shoot an interrupt because UDR0 is ready again to be filled (UDRE0 is true)
+	UART_CTRL |= _BV(UDRIE0);								// this will shoot an interrupt because UDR0 is ready again to be filled (UDRE0 is true)
 }
 
 void serial_fw_copyAndSendNmea(uint8_t isPgm, const uchar inData[], uint8_t len)
