@@ -173,8 +173,8 @@ uint32_t ppsStampCtr1ms_last 								= 0;
 uint16_t ppsStampICR1_last 									= 0;
 /* bit fields */
 main_bf_t main_bf											= {
-									/* mainIsAFC			= */	false,
-									/* mainIsAPC			= */	false,
+									/* mainIsAFC			= */	true,
+									/* mainIsAPC			= */	true,
 									/* mainIsTimerTest		= */	false,
 									/* mainIsSerComm		= */	false,
 									/* mainIsUsbCommTest	= */	false,
@@ -201,7 +201,7 @@ uint8_t  fastPwmSingleVal									= 0;
 uint8_t  fastPwmSubSingleVal								= 0;
 uint8_t  fastPwmSubCmp										= 0;
 uint8_t  fastPwmSubCnt										= 0;
-float    fastPwmSingleDiffSum									= 0.0f;
+float    fastPwmSingleDiffSum								= 0.0f;
 uint32_t fastPwmAdcNow										= 0;
 uint32_t fastPwmAdcLast										= 0;
 int16_t  fastPwmAdcAscendingVal								= 0;
@@ -260,9 +260,9 @@ uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] 	= { 0 };
 
 /* LAST IN RAM: Stack Check mung-wall */
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
-// mung-wall memory array[0x0300] = 0x05b3 .. 0x08b2
-// lowest stack:	0x085b
-// mung-wall low:	0x0850
+// mung-wall memory array[0x0300] = 0x05b0 .. 0x08af
+// lowest stack:	0x0858
+// mung-wall low:	0x0862
 // --> RAM: free abt. 650 bytes
 // --> ROM: free abt. 7kB (FW section only)
 
