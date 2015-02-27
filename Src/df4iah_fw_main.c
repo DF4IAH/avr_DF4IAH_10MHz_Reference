@@ -228,7 +228,7 @@ uint8_t  serialCtxtTxBufferIdx								= 0;
 uint8_t  serialCtxtBufferState								= 0;
 
 /* df4iah_fw_usb */
-//uint16_t usbSetupCntr										= 0;
+uint16_t usbSetupCntr										= 0;
 uint16_t cntRcv 											= 0;
 uint16_t cntSend 											= 0;
 uint8_t  usbIsrCtxtBufferIdx 								= 0;
@@ -704,13 +704,11 @@ static void doInterpret(uchar msg[], uint8_t len)
 		/* send message until the send buffer is clear */
 		while (serial_fw_isTxRunning()) {
 			wdt_reset();
-			usbPoll();
 		};
 
 		/* give some time for the GPS module before powering down */
 		while (--cnt) {
 			wdt_reset();
-			usbPoll();
 			_delay_ms(1);
 		}
 
@@ -1188,8 +1186,8 @@ void main_fw_sendInitialHelp()
 void main_fw_giveAway(void)
 {
     wdt_reset();
+	usbPoll();
 
-    usbPoll();
 	usb_fw_sendInInterrupt();
 	workInQueue();
 	doJobs();
@@ -1218,8 +1216,6 @@ void main_fw_giveAway(void)
 	}
 #else
 	/* due to the fact that the clkFastCtr interrupts every 12.8 µs there is no chance to power down */
-
-	clkPullPwm_bl_togglePin();									// XXX for debugging purposes only
 #endif
 }
 
@@ -1228,24 +1224,29 @@ int main(void)
 {
 	/* init AVR */
 	{
+		/* initial interrupt set-up */
 		cli();
 		vectortable_to_firmware();
 		wdt_init();
 
+		/* activate hardware for this configuration */
 		PRR    = 0xEF;										// disable all modules within the Power Reduction Register
 		ACSR  |= _BV(ACD);									// switch on Analog Comparator Disable
 		DIDR1 |= (0b11 << AIN0D);							// disable digital input buffers on AIN0 and AIN1
 		MCUCR &= ~(_BV(PUD));								// switch off Pull-Up Disable
 
+		/* PWM & debugging first */
 		clkPullPwm_fw_init();
 
-		// Stack Check init
-		for (int idx = MAIN_STACK_CHECK_SIZE; idx;) {
+		/* Stack-Check init before the modules */
+		for (int idx = MAIN_STACK_CHECK_SIZE; idx;) {		// DEBUG
 			stackCheckMungWall[--idx] = 0x5a;
 		}
 
 		usb_fw_init();
 		sei();
+
+		/* init the other modules */
 		clkFastCtr_fw_init();
 		anlgComp_fw_init();
 		serial_fw_init();
@@ -1262,6 +1263,7 @@ int main(void)
 			mainCoef_b00_dev_serial					= b00->b00_device_serial;
 			mainCoef_b00_dev_version				= b00->b00_version;
 		}
+		usbPoll();
 
 		/* read MEASURING coefficients */
 		if (memory_fw_readEepromValidBlock(mainFormatBuffer, BLOCK_MEASURING_NR)) {
@@ -1271,6 +1273,7 @@ int main(void)
 			mainCoef_b01_temp_ofs_adc_25C_steps		= b01->b01_temp_ofs_adc_25C_steps;
 			mainCoef_b01_temp_k_p1step_adc_K		= b01->b01_temp_k_p1step_adc_K;
 		}
+		usbPoll();
 
 		/* read REFERENCE OSCILLATOR (REFOSC) coefficients */
 		if (memory_fw_readEepromValidBlock(mainFormatBuffer, BLOCK_REFOSC_NR)) {
@@ -1301,18 +1304,18 @@ int main(void)
 		serial_fw_close();
 		anlgComp_fw_close();
 		clkFastCtr_fw_close();
-		clkPullPwm_fw_close();
 		usb_fw_close();
+		clkPullPwm_fw_close();
 		wdt_close();
 
 		// all pins are set to be input
 		DDRB = 0x00;
-		DDRC = 0x00;
+		//DDRC = 0x00;										// DEBUG
 		DDRD = 0x00;
 
 		// all pull-ups are being switched off
 		PORTB = 0x00;
-		PORTC = 0x00;
+		//PORTC = 0x00;										// DEBUG
 		PORTD = 0x00;
 
 		// switch off Pull-Up Disable

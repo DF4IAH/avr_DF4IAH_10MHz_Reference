@@ -17,6 +17,7 @@
 #include "df4iah_fw_memory.h"
 #include "df4iah_fw_usb_requests.h"
 #include "df4iah_fw_ringbuffer.h"
+#include "df4iah_fw_clkPullPwm.h"
 
 #include "df4iah_fw_usb.h"
 
@@ -24,7 +25,7 @@
 #define min(a,b) ((a) < (b) ?  (a) : (b))
 
 
-//extern uint16_t usbSetupCntr;
+extern uint16_t usbSetupCntr;
 extern uint16_t cntRcv;
 extern uint16_t cntSend;
 extern uint8_t usbIsrCtxtBufferIdx;
@@ -106,15 +107,8 @@ void usb_fw_sendInInterrupt()
 
 void usb_fw_init()
 {
+	usbSetupCntr = 0;										// re-init counter every time
 	usbInit();
-	USB_INTR_ENABLE &= ~(_BV(USB_INTR_ENABLE_BIT));
-	usbDeviceDisconnect();									// enforce re-enumeration, do this while interrupts are disabled!
-
-    uint8_t i = 250;
-    while (--i) {											// fake USB disconnect for > 250 ms
-        _delay_ms(1);
-        wdt_reset();
-    }
 
     usbDeviceConnect();
 	USB_INTR_ENABLE |= _BV(USB_INTR_ENABLE_BIT);
@@ -124,6 +118,22 @@ void usb_fw_close()
 {
 	USB_INTR_ENABLE &= ~(_BV(USB_INTR_ENABLE_BIT));
 	usbDeviceDisconnect();
+
+    uint16_t cnt = 700;
+    while (--cnt) {											// fake USB disconnect for > 700 ms
+        _delay_ms(1);
+        wdt_reset();
+		usbPoll();
+    }
+
+    /* disable interrupts what is done within usbInit() */
+    USB_INTR_ENABLE &= ~(_BV(USB_INTR_ENABLE_BIT));
+    USB_INTR_CFG = 0;
+    usbTxLen1 = USBPID_NAK;
+    usbTxLen3 = USBPID_NAK;
+
+    DDRC &= ~(_BV(USB_CFG_DMINUS_BIT) | _BV(USB_CFG_DPLUS_BIT));
+    DDRB &= ~(_BV(USB_CFG_PULLUP_BIT));
 }
 
 /*  -- 8< -- */
@@ -138,7 +148,7 @@ USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8])
 
     if (((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_VENDOR) &&
     	((rq->bmRequestType & USBRQ_RCPT_MASK) == USBRQ_RCPT_DEVICE)) {
-    	//usbSetupCntr++;
+    	usbSetupCntr++;
 
     	if (rq->bRequest == USBCUSTOMRQ_ECHO) {				// echo -- used for reliability tests
     		usbCtxtSetupReplyBuffer[0] = rq->wValue.bytes[0];
