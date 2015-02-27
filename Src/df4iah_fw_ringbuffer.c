@@ -14,7 +14,6 @@
 
 #include "df4iah_fw_main.h"
 #include "df4iah_fw_memory.h"
-#include "df4iah_fw_clkPullPwm.h"	// DEBUG
 
 #include "df4iah_fw_ringbuffer.h"
 
@@ -231,10 +230,12 @@ void ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend)
 
 			// give the CPU away for a moment to delay, do not use giveAway() that would make a loop
 		    wdt_reset();
+		    usbPoll();
 		}
 
 		// give the CPU away for a moment to delay, do not use giveAway() that would make a loop
 	    wdt_reset();
+	    usbPoll();
 	}
 }
 

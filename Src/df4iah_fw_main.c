@@ -228,7 +228,7 @@ uint8_t  serialCtxtTxBufferIdx								= 0;
 uint8_t  serialCtxtBufferState								= 0;
 
 /* df4iah_fw_usb */
-uint16_t usbSetupCntr										= 0;
+//uint16_t usbSetupCntr										= 0;
 uint16_t cntRcv 											= 0;
 uint16_t cntSend 											= 0;
 uint8_t  usbIsrCtxtBufferIdx 								= 0;
@@ -704,11 +704,13 @@ static void doInterpret(uchar msg[], uint8_t len)
 		/* send message until the send buffer is clear */
 		while (serial_fw_isTxRunning()) {
 			wdt_reset();
+			usbPoll();
 		};
 
 		/* give some time for the GPS module before powering down */
 		while (--cnt) {
 			wdt_reset();
+			usbPoll();
 			_delay_ms(1);
 		}
 
@@ -1243,13 +1245,13 @@ int main(void)
 			stackCheckMungWall[--idx] = 0x5a;
 		}
 
-		usb_fw_init();
-		sei();
-
 		/* init the other modules */
 		clkFastCtr_fw_init();
 		anlgComp_fw_init();
 		serial_fw_init();
+
+		usb_fw_init();
+		sei();
 
 		/* check CRC of all blocks and update with default values if the data is non-valid */
 		memory_fw_checkAndInitAllBlocks();
@@ -1263,7 +1265,6 @@ int main(void)
 			mainCoef_b00_dev_serial					= b00->b00_device_serial;
 			mainCoef_b00_dev_version				= b00->b00_version;
 		}
-		usbPoll();
 
 		/* read MEASURING coefficients */
 		if (memory_fw_readEepromValidBlock(mainFormatBuffer, BLOCK_MEASURING_NR)) {
@@ -1273,7 +1274,6 @@ int main(void)
 			mainCoef_b01_temp_ofs_adc_25C_steps		= b01->b01_temp_ofs_adc_25C_steps;
 			mainCoef_b01_temp_k_p1step_adc_K		= b01->b01_temp_k_p1step_adc_K;
 		}
-		usbPoll();
 
 		/* read REFERENCE OSCILLATOR (REFOSC) coefficients */
 		if (memory_fw_readEepromValidBlock(mainFormatBuffer, BLOCK_REFOSC_NR)) {
@@ -1301,21 +1301,21 @@ int main(void)
     {
 		cli();
 
+		wdt_close();
+		usb_fw_close();
 		serial_fw_close();
 		anlgComp_fw_close();
 		clkFastCtr_fw_close();
-		usb_fw_close();
 		clkPullPwm_fw_close();
-		wdt_close();
 
 		// all pins are set to be input
 		DDRB = 0x00;
-		//DDRC = 0x00;										// DEBUG
+		DDRC = 0x00;
 		DDRD = 0x00;
 
 		// all pull-ups are being switched off
 		PORTB = 0x00;
-		//PORTC = 0x00;										// DEBUG
+		PORTC = 0x00;
 		PORTD = 0x00;
 
 		// switch off Pull-Up Disable

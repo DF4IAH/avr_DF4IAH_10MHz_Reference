@@ -94,14 +94,12 @@ void clkPullPwm_fw_setPin(uint8_t isSet)
 
 void clkPullPwm_fw_setPin_ID(uint8_t id)
 {
-#if 1
 	uint8_t sreg = SREG;
 	cli();
 
 	/* first: start bit */
 	clkPullPwm_fw_setPin(false);
 
-#if 1
 	clkPullPwm_fw_setPin(id & 0x01);
 	clkPullPwm_fw_setPin(id & 0x02);
 	clkPullPwm_fw_setPin(id & 0x04);
@@ -110,17 +108,11 @@ void clkPullPwm_fw_setPin_ID(uint8_t id)
 	clkPullPwm_fw_setPin(id & 0x20);
 	clkPullPwm_fw_setPin(id & 0x40);
 	clkPullPwm_fw_setPin(id & 0x80);
-#else
-	for (uint8_t bit = 0; bit < 8; ++bit) {
-		clkPullPwm_fw_setPin(id & _BV(bit));
-	}
-#endif
 
 	/* last: 1 stop bit */
 	clkPullPwm_fw_setPin(true);
 
 	SREG = sreg;
-#endif
 }
 
 

@@ -120,8 +120,6 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 			mainSCStackAddr = localStackAddr;
 		}
 	}
-
-	usbPoll();
 }
 
 
