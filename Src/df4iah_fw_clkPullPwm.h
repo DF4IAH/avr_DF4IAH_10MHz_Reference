@@ -21,7 +21,9 @@ enum ENUM_CLKOUT_t {
 void clkPullPwm_fw_init();
 void clkPullPwm_fw_close();
 
-void clkPullPwm_fw_setPin(uint8_t isSet);
-void clkPullPwm_fw_setPin_ID(uint8_t id);
+#if 0
+void clkPullPwm_fw_setPin(uint8_t isSet);  // do not use when TWI is active
+void clkPullPwm_fw_setPin_ID(uint8_t id);  // do not use when TWI is active
+#endif
 
 #endif /* DF4IAH_FW_CLKPULLPWM_H_ */

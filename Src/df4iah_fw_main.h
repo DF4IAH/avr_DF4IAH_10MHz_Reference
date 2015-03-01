@@ -16,6 +16,7 @@
 #define VERSION_LOW											301
 
 
+/* GPS NMEA */
 #define UART_PORT			PORTD						// port D register
 #define UART_DDR			DDRD						// DDR for port D
 #define UART_TX_PIN			PIND						// PIN for TX pin at port D
@@ -37,6 +38,14 @@
 #define DDR_OC2B_REG		DDRD
 #define DDR_OC2B			PD3
 
+/* TWI ports (I2C compatible) */
+#define TWI_PORT			PORTC
+#define TWI_PIN				PINC
+#define TWI_DDR				DDRC
+#define TWI_SDA_PNUM		PC4
+#define TWI_SCL_PNUM		PC5
+
+
 /*
  * Pin "STARTPIN" on port "STARTPORT" in this port has to grounded
  * (active low) to start the bootloader
@@ -46,11 +55,13 @@
 #define PROBE_PIN			PIND
 #define PROBE_PNUM			PIN3						// JP3 BootLoader
 
-/* Debugging toggle pin */
-#define PWMTOGGLEPIN_DDR	DDRC
-#define PWMTOGGLEPIN_PORT	PORTC
-#define PWMTOGGLEPIN_PIN	PINC
-#define PWMTOGGLEPIN_PNUM	PIN5						// PC5(ADC5/SCL) - Pin 28
+#if 0
+  /* Debugging toggle pin */
+# define PWMTOGGLEPIN_DDR	DDRC
+# define PWMTOGGLEPIN_PORT	PORTC
+# define PWMTOGGLEPIN_PIN	PINC
+# define PWMTOGGLEPIN_PNUM	PIN5						// PC5(ADC5/SCL) - Pin 28
+#endif
 
 /* BOOT token and place of BOOT token as offset before RAMEND */
 # define BOOT_TOKEN			0xb00f
@@ -125,7 +136,6 @@ typedef struct main_bf_struct
      uint8_t  mainReserved11								: 4; // fill to 8 bits
 } main_bf_t;
 
-
 enum REFCLK_STATE_t {
 	REFCLK_STATE_NOSYNC										= 0b0000,
 	REFCLK_STATE_SEARCH_QRG									= 0b0001,
@@ -140,6 +150,34 @@ enum ENTER_MODE_t {
 	ENTER_MODE_BL,
 	ENTER_MODE_FW
 };
+
+
+typedef struct twiStatus_struct
+{
+     uint8_t  doStart										: 1;
+     uint8_t  isProcessing									: 1;
+     uint8_t  state											: 3; // one of TWI_STATE_t
+	 uint8_t  errStart										: 1;
+     uint8_t  reserved01									: 2; // fill to 8 bits
+
+     uint8_t  adrAckValid									: 1;
+     uint8_t  adrAck										: 1;
+     uint8_t  dataAckValid									: 1;
+     uint8_t  dataAck										: 1;
+     uint8_t  reserved02									: 4; // fill to 8 bits
+} twiStatus_t;
+
+enum TWI_STATE_t {
+	TWI_STATE_READY											= 0,
+	TWI_STATE_START_SENT,
+	TWI_STATE_REPEATEDSTART_SENT,
+	TWI_STATE_ADR_SENT,
+	TWI_STATE_DATA_SENT,
+	TWI_STATE_DATA_RCVD,
+	TWI_STATE_STOP
+};
+
+#define TWI_DATA_BUFFER_SIZE								4
 
 
 float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal);

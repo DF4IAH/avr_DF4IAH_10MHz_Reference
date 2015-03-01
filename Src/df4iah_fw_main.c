@@ -29,6 +29,7 @@
 #include "df4iah_fw_clkFastCtr.h"
 #include "df4iah_fw_anlgComp.h"
 #include "df4iah_fw_serial.h"
+#include "df4iah_fw_twi.h"
 
 #include "df4iah_fw_main.h"
 
@@ -260,6 +261,12 @@ uint16_t cntRcv 											= 0;
 uint16_t cntSend 											= 0;
 uint8_t  usbIsrCtxtBufferIdx 								= 0;
 
+/* df4iah_fw_twi */
+uint8_t	 twiSeq1Adr											= 0;
+uint8_t	 twiSeq2DataCnt										= 0;
+uint8_t	 twiSeq2DataIdx										= 0;
+uint8_t	 twiSeq2DataTxRxBitmaskLSB							= 0;  // first data byte output: 0bxxxxxxx1, second data byte output: 0bxxxxxxx1x / input: 0bxx0xx
+
 
 // ARRAYS - due to overwriting hazards they are following the controlling variables
 
@@ -286,13 +293,18 @@ uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE] 		= { 0 };
 uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE] 				= { 0 };
 uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] 	= { 0 };
 
+/* df4iah_fw_twi */
+twiStatus_t twiState										= { 0 };
+uint8_t	 twiSeq2Data[TWI_DATA_BUFFER_SIZE]					= { 0 };
+
+
 /* LAST IN RAM: Stack Check mung-wall */
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
-// mung-wall memory array[0x0300] = 0x05e3 .. 0x08e2
+// mung-wall memory array[0x0300] = 0x05ed .. 0x08ec
 // lowest stack:	0x0843
 // mung-wall low:	0x0844
-// --> RAM: free abt. 650 bytes
-// --> ROM: free abt. 7kB (FW section only)
+// --> RAM: free abt. 210 bytes
+// --> ROM: free abt. 4.4kB (FW section only)
 
 // CODE SECTION
 
@@ -1365,6 +1377,7 @@ int main(void)
 		clkFastCtr_fw_init();
 		anlgComp_fw_init();
 		serial_fw_init();
+		twi_fw_init();
 
 		usb_fw_init();
 		sei();
@@ -1415,10 +1428,12 @@ int main(void)
 
     /* stop AVR */
     {
-		cli();
-
 		wdt_close();
+
+		cli();
 		usb_fw_close();
+
+		twi_fw_close();
 		serial_fw_close();
 		anlgComp_fw_close();
 		clkFastCtr_fw_close();

@@ -83,7 +83,8 @@ void clkPullPwm_fw_close()
 	//PRR |= _BV(PRTIM0);									// already done in clkPullPwm_bl_close()
 }
 
-void clkPullPwm_fw_setPin(uint8_t isSet)
+#if 0
+void clkPullPwm_fw_setPin(uint8_t isSet)  // do not use when TWI is active
 {
 	if (isSet) {
 		PWMTOGGLEPIN_PORT |=   _BV(PWMTOGGLEPIN_PNUM);
@@ -93,7 +94,7 @@ void clkPullPwm_fw_setPin(uint8_t isSet)
 	}
 }
 
-void clkPullPwm_fw_setPin_ID(uint8_t id)
+void clkPullPwm_fw_setPin_ID(uint8_t id)  // do not use when TWI is active
 {
 	uint8_t sreg = SREG;
 	cli();
@@ -115,6 +116,7 @@ void clkPullPwm_fw_setPin_ID(uint8_t id)
 
 	SREG = sreg;
 }
+#endif
 
 
 /*
