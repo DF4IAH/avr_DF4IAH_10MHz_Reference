@@ -122,7 +122,7 @@ PROGMEM const uchar PM_FORMAT_GPS_STBY[]					= "$PMTK161,0*28\r\n";
 PROGMEM const uchar PM_FORMAT_GP00[]						= "\n#GP00: =======";
 PROGMEM const uchar PM_FORMAT_GP01[]						= "#GP01: Mode2 = %d, PosFixInd = %d, SatsUsed = %d\n";
 PROGMEM const uchar PM_FORMAT_GP02[]						= "#GP02: PDOP = %.2f, HDOP = %.2f, VDOP = %.2f,\n";
-PROGMEM const uchar PM_FORMAT_GP03[]						= "#GP03: Date = %08ld, Time = %010.3f\n";
+PROGMEM const uchar PM_FORMAT_GP03[]						= "#GP03: Date = %08ld, Time = %06ld.%03d\n";
 PROGMEM const uchar PM_FORMAT_GP04[]						= "#GP04: Lat = %c %09.4f, Lon = %c %010.4f, Height = %.1f m\n";
 
 PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA01: ADC0 = %04u (%0.3fV)\n";
@@ -148,10 +148,10 @@ PROGMEM const uchar PM_FORMAT_GPIB_SCM_IDN[] 				= "DF4IAH,%s,%05u,V20%03u%03u."
 
 PROGMEM const uchar PM_FORMAT_SET_BAUD[]					= "Communication baud rate set to %5u baud.\n";
 
-PROGMEM const uchar PM_PARSE_NMEA_MSG01[]					= "$GPGGA,%f,%f,%c,%f,%c,%d,%d,%f,%f,%*c,%*f,%*c,%*d,%*d*%d";
+PROGMEM const uchar PM_PARSE_NMEA_MSG01[]					= "$GPGGA,%ld.%d,%f,%c,%f,%c,%d,%d,%f,%f,%*c,%*f,%*c,%*d,%*d*%d";
 PROGMEM const uchar PM_PARSE_NMEA_MSG11[]					= "$GPGSA,%*c,%d,";
 PROGMEM const uchar PM_PARSE_NMEA_MSG12[]					= "%f,%f,%f*%d";
-PROGMEM const uchar PM_PARSE_NMEA_MSG21[]					= "$GPRMC,%f,%*c,%f,%c,%f,%c,%*f,%*f,%ld,,,%*c*%d";
+PROGMEM const uchar PM_PARSE_NMEA_MSG21[]					= "$GPRMC,%ld.%d,%*c,%f,%c,%f,%c,%*f,%*f,%ld,,,%*c*%d";
 
 
 // DATA SECTION
@@ -190,7 +190,8 @@ float main_nmeaPdop 										= 0.0f;
 float main_nmeaHdop 										= 0.0f;
 float main_nmeaVdop 										= 0.0f;
 long  main_nmeaDate											= 0l;
-float main_nmeaTimeUtc 										= 0.0f;
+long  main_nmeaTimeUtcSec									= 0l;
+int   main_nmeaTimeUtcMilsec								= 0;
 float main_nmeaPosLat 										= 0.0f;
 char  main_nmeaPosLatSign 									= 0;
 float main_nmeaPosLon 										= 0.0f;
@@ -300,9 +301,9 @@ uint8_t	 twiSeq2Data[TWI_DATA_BUFFER_SIZE]					= { 0 };
 
 /* LAST IN RAM: Stack Check mung-wall */
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
-// mung-wall memory array[0x0300] = 0x05ed .. 0x08ec
+// mung-wall memory array[0x0300] = 0x05ef .. 0x08ee
 // lowest stack:	0x0843
-// mung-wall low:	0x0844
+// mung-wall low:	0x083c
 // --> RAM: free abt. 210 bytes
 // --> ROM: free abt. 4.4kB (FW section only)
 
@@ -707,8 +708,9 @@ int main_fw_memcmp(const unsigned char* msg, const unsigned char* cmpProg, size_
 
 void main_fw_parseNmeaLineData() {
 	memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG01, sizeof(PM_PARSE_NMEA_MSG01));
-	sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
-			&main_nmeaTimeUtc,
+	int len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
+			&main_nmeaTimeUtcSec,
+			&main_nmeaTimeUtcMilsec,
 			&main_nmeaPosLat,
 			&main_nmeaPosLatSign,
 			&main_nmeaPosLon,
@@ -720,7 +722,7 @@ void main_fw_parseNmeaLineData() {
 			&main_checksum);
 
 	memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG11, sizeof(PM_PARSE_NMEA_MSG11));
-	int len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
+	len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
 			&main_nmeaMode2);
 	if (len > 0) {
 		int ofs = 0, commaCnt = 0;
@@ -748,7 +750,8 @@ void main_fw_parseNmeaLineData() {
 
 	memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG21, sizeof(PM_PARSE_NMEA_MSG21));
 	len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
-			&main_nmeaTimeUtc,
+			&main_nmeaTimeUtcSec,
+			&main_nmeaTimeUtcMilsec,
 			&main_nmeaPosLat,
 			&main_nmeaPosLatSign,
 			&main_nmeaPosLon,
@@ -1141,7 +1144,8 @@ static void doJobs()
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP03, sizeof(PM_FORMAT_GP03));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				main_nmeaDate,
-				main_nmeaTimeUtc);
+				main_nmeaTimeUtcSec,
+				main_nmeaTimeUtcMilsec);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP04, sizeof(PM_FORMAT_GP04));
