@@ -308,9 +308,9 @@ uint8_t	 twiSeq2Data[TWI_DATA_BUFFER_SIZE]					= { 0 };
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
 // mung-wall memory array[0x0300] = 0x05f3 .. 0x08f2
 // lowest stack:	0x0843
-// mung-wall low:	0x083c
-// --> RAM: free abt. 210 bytes
-// --> ROM: free abt. 4.4kB (FW section only)
+// mung-wall low:	0x083a
+// --> RAM: free abt. 200 bytes
+// --> ROM: free abt. 3.9kB (FW section only)
 
 // CODE SECTION
 
