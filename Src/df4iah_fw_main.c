@@ -120,10 +120,11 @@ PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference 
 PROGMEM const uchar PM_FORMAT_GPS_STBY[]					= "$PMTK161,0*28\r\n";
 
 PROGMEM const uchar PM_FORMAT_GP00[]						= "\n#GP00: =======";
-PROGMEM const uchar PM_FORMAT_GP01[]						= "#GP01: Mode2 = %d, PosFixInd = %d, SatsUsed = %d\n";
-PROGMEM const uchar PM_FORMAT_GP02[]						= "#GP02: PDOP = %.2f, HDOP = %.2f, VDOP = %.2f,\n";
-PROGMEM const uchar PM_FORMAT_GP03[]						= "#GP03: Date = %08ld, Time = %06ld.%03d\n";
-PROGMEM const uchar PM_FORMAT_GP04[]						= "#GP04: Lat = %c %09.4f, Lon = %c %010.4f, Height = %.1f m\n";
+PROGMEM const uchar PM_FORMAT_GP01[]						= "#GP01: Date = %08ld, Time = %06ld.%03d\n";
+PROGMEM const uchar PM_FORMAT_GP02[]						= "#GP02: Mode2 = %1d, PosFixInd = %1d\n";
+PROGMEM const uchar PM_FORMAT_GP03[]						= "#GP03: SatsUsed = %02d, SatsEphim_GpsGalileoQzz = %02d, SatsEphim_Glonass = %02d\n";
+PROGMEM const uchar PM_FORMAT_GP04[]						= "#GP04: PDOP = %.2f, HDOP = %.2f, VDOP = %.2f,\n";
+PROGMEM const uchar PM_FORMAT_GP05[]						= "#GP05: Lat = %c %09.4f, Lon = %c %010.4f, Height = %.1f m\n";
 
 PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA01: ADC0 = %04u (%0.3fV)\n";
 PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA02: ADC1 = %04u (%0.3fV)\n";
@@ -152,6 +153,8 @@ PROGMEM const uchar PM_PARSE_NMEA_MSG01[]					= "$GPGGA,%ld.%d,%f,%c,%f,%c,%d,%d
 PROGMEM const uchar PM_PARSE_NMEA_MSG11[]					= "$GPGSA,%*c,%d,";
 PROGMEM const uchar PM_PARSE_NMEA_MSG12[]					= "%f,%f,%f*%d";
 PROGMEM const uchar PM_PARSE_NMEA_MSG21[]					= "$GPRMC,%ld.%d,%*c,%f,%c,%f,%c,%*f,%*f,%ld,,,%*c*%d";
+PROGMEM const uchar PM_PARSE_NMEA_MSG31[]					= "$GPGSV,%*d,1,%d,";
+PROGMEM const uchar PM_PARSE_NMEA_MSG41[]					= "$GLGSV,%*d,1,%d,";
 
 
 // DATA SECTION
@@ -185,6 +188,8 @@ uint16_t ppsStampICR1_last 									= 0;
 /* NMEA parsed message data */
 int   main_nmeaMode2										= 0;
 int   main_nmeaPosFixIndicator 								= 0;
+int   main_nmeaSatsEphemerisGpsGalileoQzss					= 0;
+int   main_nmeaSatsEphemerisGlonass							= 0;
 int   main_nmeaSatsUsed 									= 0;
 float main_nmeaPdop 										= 0.0f;
 float main_nmeaHdop 										= 0.0f;
@@ -301,7 +306,7 @@ uint8_t	 twiSeq2Data[TWI_DATA_BUFFER_SIZE]					= { 0 };
 
 /* LAST IN RAM: Stack Check mung-wall */
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
-// mung-wall memory array[0x0300] = 0x05ef .. 0x08ee
+// mung-wall memory array[0x0300] = 0x05f3 .. 0x08f2
 // lowest stack:	0x0843
 // mung-wall low:	0x083c
 // --> RAM: free abt. 210 bytes
@@ -706,6 +711,20 @@ int main_fw_memcmp(const unsigned char* msg, const unsigned char* cmpProg, size_
 	return memcmp((const char*) msg, (const char*) mainFormatBuffer, size);
 }
 
+void main_fw_nmeaUtcPlusOneSec() {
+	++main_nmeaTimeUtcSec;
+
+	if ((main_nmeaTimeUtcSec % 100) > 59) {
+		main_nmeaTimeUtcSec -= main_nmeaTimeUtcSec % 100;
+		main_nmeaTimeUtcSec += 100;
+	}
+
+	if ((main_nmeaTimeUtcSec % 10000) > 5959) {
+		main_nmeaTimeUtcSec -= (main_nmeaTimeUtcSec % 10000)  /* - (main_nmeaTimeUtcSec % 100) */ ;  // with +1 this can be cut out
+		main_nmeaTimeUtcSec +=  10000;
+	}
+}
+
 void main_fw_parseNmeaLineData() {
 	memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG01, sizeof(PM_PARSE_NMEA_MSG01));
 	int len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
@@ -725,6 +744,8 @@ void main_fw_parseNmeaLineData() {
 	len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
 			&main_nmeaMode2);
 	if (len > 0) {
+		main_fw_nmeaUtcPlusOneSec();
+
 		int ofs = 0, commaCnt = 0;
 		for (int idx = serialCtxtRxBufferLen - 1; idx; --idx) {
 			if (serialCtxtRxBuffer[idx] == '*') {
@@ -759,12 +780,22 @@ void main_fw_parseNmeaLineData() {
 			&main_nmeaDate,
 			&main_checksum);
 	if (len > 0) {
+		main_fw_nmeaUtcPlusOneSec();
+
 		if ((main_nmeaDate >= 010100) && (main_nmeaDate < 311299)) {
 			main_nmeaDate = ((main_nmeaDate - (main_nmeaDate % 100)) * 100) + 2000 + (main_nmeaDate % 100);
 		} else {
 			main_nmeaDate = 0;
 		}
 	}
+
+	memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG31, sizeof(PM_PARSE_NMEA_MSG31));
+	len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
+			&main_nmeaSatsEphemerisGpsGalileoQzss);
+
+	memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG41, sizeof(PM_PARSE_NMEA_MSG41));
+	len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
+			&main_nmeaSatsEphemerisGlonass);
 }
 
 static void doInterpret(uchar msg[], uint8_t len)
@@ -1129,26 +1160,32 @@ static void doJobs()
 
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP01, sizeof(PM_FORMAT_GP01));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				main_nmeaMode2,
-				main_nmeaPosFixIndicator,
-				main_nmeaSatsUsed);
+				main_nmeaDate,
+				main_nmeaTimeUtcSec,
+				main_nmeaTimeUtcMilsec);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP02, sizeof(PM_FORMAT_GP02));
+		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				main_nmeaMode2,
+				main_nmeaPosFixIndicator);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP03, sizeof(PM_FORMAT_GP03));
+		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				main_nmeaSatsUsed,
+				main_nmeaSatsEphemerisGpsGalileoQzss,
+				main_nmeaSatsEphemerisGlonass);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP04, sizeof(PM_FORMAT_GP04));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				main_nmeaPdop,
 				main_nmeaHdop,
 				main_nmeaVdop);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
-		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP03, sizeof(PM_FORMAT_GP03));
-		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				main_nmeaDate,
-				main_nmeaTimeUtcSec,
-				main_nmeaTimeUtcMilsec);
-		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
-
-		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP04, sizeof(PM_FORMAT_GP04));
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP05, sizeof(PM_FORMAT_GP05));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				(main_nmeaPosLatSign > 0 ?  main_nmeaPosLatSign : '-'),
 				main_nmeaPosLat,

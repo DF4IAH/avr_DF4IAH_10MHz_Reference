@@ -182,10 +182,10 @@ enum TWI_STATE_t {
 
 float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal);
 float main_fw_calcTimerAdj(float pwmAdjust, uint8_t* intVal, uint8_t* intSubVal);
-float main_fw_calcPwmWghtDiff(float pwmDiff);
-void  main_fw_calcPwmWghtAvg();
 int   main_fw_strncmp(const unsigned char* msg, const unsigned char* cmpProg, size_t size);
 int   main_fw_memcmp(const unsigned char* msg, const unsigned char* cmpProg, size_t size);
+void  main_fw_nmeaUtcPlusOneSec();
+void  main_fw_parseNmeaLineData();
 void  main_fw_sendInitialHelp();
 void  main_fw_giveAway(void);
 int   main(void);
