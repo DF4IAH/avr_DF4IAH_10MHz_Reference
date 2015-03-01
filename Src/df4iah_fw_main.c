@@ -756,7 +756,11 @@ void main_fw_parseNmeaLineData() {
 			&main_nmeaDate,
 			&main_checksum);
 	if (len > 0) {
-		main_nmeaDate = ((main_nmeaDate - (main_nmeaDate % 100)) * 100) + 2000 + (main_nmeaDate % 100);
+		if ((main_nmeaDate >= 010100) && (main_nmeaDate < 311299)) {
+			main_nmeaDate = ((main_nmeaDate - (main_nmeaDate % 100)) * 100) + 2000 + (main_nmeaDate % 100);
+		} else {
+			main_nmeaDate = 0;
+		}
 	}
 }
 
