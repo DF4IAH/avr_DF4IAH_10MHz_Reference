@@ -39,12 +39,14 @@ extern uint16_t serialCoef_b03_bitsParityStopbits;
 extern uint16_t serialCoef_b03_gps_comm_mode;
 
 extern uint8_t  serialCtxtRxBufferLen;
+extern uint8_t	serialCtxtNmeaRxHookBufIdx;
 extern uint8_t  serialCtxtTxBufferLen;
 extern uint8_t  serialCtxtTxBufferIdx;
 
 extern uint8_t  serialCtxtBufferState;
 
 extern uchar serialCtxtRxBuffer[SERIALCTXT_RX_BUFFER_SIZE];
+extern uchar serialCtxtNmeaRxHookBuf[SERIALCTXT_NMEA_RX_HOOK_SIZE];
 extern uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE];
 
 extern main_bf_t main_bf;
@@ -240,8 +242,23 @@ ISR(USART_RX_vect, ISR_BLOCK)
 	/* since here we can allow global interrupts again */
 	sei();
 
-	if (main_bf.mainIsSerComm && !serialCtxtBufferState && (serialCtxtRxBufferLen < (SERIALCTXT_RX_BUFFER_SIZE - 3))) {
+	if (!serialCtxtBufferState && (serialCtxtRxBufferLen < (SERIALCTXT_RX_BUFFER_SIZE - 3))) {
 		serialCtxtBufferState = SERIAL_CTXT_BUFFER_STATE_BLOCK;
+
+		/* if data is at the hook, get it first */
+		if (serialCtxtNmeaRxHookBufIdx) {
+			uint8_t sreg = SREG;
+			cli();
+
+			for (int idx = 0; idx < serialCtxtNmeaRxHookBufIdx; ++idx) {
+				serialCtxtRxBuffer[serialCtxtRxBufferLen++] = serialCtxtNmeaRxHookBuf[idx];
+			}
+
+			/* hook is processed and cleared */
+			serialCtxtNmeaRxHookBufIdx = 0;
+
+			SREG = sreg;
+		}
 
 		/* append data to the buffer */
 		serialCtxtRxBuffer[serialCtxtRxBufferLen++] = rxData;
@@ -261,6 +278,11 @@ ISR(USART_RX_vect, ISR_BLOCK)
 			/* append more data */
 			serialCtxtBufferState = 0;
 		}
+	} else if (serialCtxtNmeaRxHookBufIdx < SERIALCTXT_NMEA_RX_HOOK_SIZE) {
+		uint8_t sreg = SREG;
+		cli();
+		serialCtxtNmeaRxHookBuf[serialCtxtNmeaRxHookBufIdx++] = rxData;
+		SREG = sreg;
 	}
 }
 

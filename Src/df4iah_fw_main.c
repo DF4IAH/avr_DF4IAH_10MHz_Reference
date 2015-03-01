@@ -118,7 +118,12 @@ PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference 
 
 PROGMEM const uchar PM_FORMAT_GPS_STBY[]					= "$PMTK161,0*28\r\n";
 
-PROGMEM const uchar PM_FORMAT_TA00[]						= "\n#TA00: =======";
+PROGMEM const uchar PM_FORMAT_GP00[]						= "\n#GP00: =======";
+PROGMEM const uchar PM_FORMAT_GP01[]						= "#GP01: Mode2 = %d, PosFixInd = %d, SatsUsed = %d\n";
+PROGMEM const uchar PM_FORMAT_GP02[]						= "#GP02: PDOP = %.2f, HDOP = %.2f, VDOP = %.2f,\n";
+PROGMEM const uchar PM_FORMAT_GP03[]						= "#GP03: Date = %08ld, Time = %010.3f\n";
+PROGMEM const uchar PM_FORMAT_GP04[]						= "#GP04: Lat = %c %09.4f, Lon = %c %010.4f, Height = %.1f m\n";
+
 PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA01: ADC0 = %04u (%0.3fV)\n";
 PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA02: ADC1 = %04u (%0.3fV)\n";
 PROGMEM const uchar PM_FORMAT_TA03[]						= "#TA03: Temp = %04u (%0.1fC)\n";
@@ -141,6 +146,11 @@ PROGMEM const uchar PM_FORMAT_SC01[]						= "#SC01: Stack-Check: mung-wall addre
 PROGMEM const uchar PM_FORMAT_GPIB_SCM_IDN[] 				= "DF4IAH,%s,%05u,V20%03u%03u.";
 
 PROGMEM const uchar PM_FORMAT_SET_BAUD[]					= "Communication baud rate set to %5u baud.\n";
+
+PROGMEM const uchar PM_PARSE_NMEA_MSG01[]					= "$GPGGA,%f,%f,%c,%f,%c,%d,%d,%f,%f,%*c,%*f,%*c,%*d,%*d*%d";
+PROGMEM const uchar PM_PARSE_NMEA_MSG11[]					= "$GPGSA,%*c,%d,";
+PROGMEM const uchar PM_PARSE_NMEA_MSG12[]					= "%f,%f,%f*%d";
+PROGMEM const uchar PM_PARSE_NMEA_MSG21[]					= "$GPRMC,%f,%*c,%f,%c,%f,%c,%*f,%*f,%ld,,,%*c*%d";
 
 
 // DATA SECTION
@@ -171,6 +181,22 @@ uint32_t ppsStampCtr1ms 									= 0;
 uint16_t ppsStampICR1 										= 0;
 uint32_t ppsStampCtr1ms_last 								= 0;
 uint16_t ppsStampICR1_last 									= 0;
+/* NMEA parsed message data */
+int   main_nmeaMode2										= 0;
+int   main_nmeaPosFixIndicator 								= 0;
+int   main_nmeaSatsUsed 									= 0;
+float main_nmeaPdop 										= 0.0f;
+float main_nmeaHdop 										= 0.0f;
+float main_nmeaVdop 										= 0.0f;
+long  main_nmeaDate											= 0l;
+float main_nmeaTimeUtc 										= 0.0f;
+float main_nmeaPosLat 										= 0.0f;
+char  main_nmeaPosLatSign 									= 0;
+float main_nmeaPosLon 										= 0.0f;
+char  main_nmeaPosLonSign 									= 0;
+float main_nmeaAltitudeM 									= 0.0f;
+int   main_checksum 										= 0;
+
 /* bit fields */
 main_bf_t main_bf											= {
 									/* mainIsAFC			= */	true,
@@ -226,6 +252,7 @@ uint8_t  serialCtxtRxBufferLen								= 0;
 uint8_t  serialCtxtTxBufferLen								= 0;
 uint8_t  serialCtxtTxBufferIdx								= 0;
 uint8_t  serialCtxtBufferState								= 0;
+uint8_t	 serialCtxtNmeaRxHookBufIdx							= 0;
 
 /* df4iah_fw_usb */
 //uint16_t usbSetupCntr										= 0;
@@ -252,6 +279,7 @@ uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE] 				= { 0 };
 
 /* df4iah_fw_serial */
 uchar serialCtxtRxBuffer[SERIALCTXT_RX_BUFFER_SIZE] 		= { 0 };
+uchar serialCtxtNmeaRxHookBuf[SERIALCTXT_NMEA_RX_HOOK_SIZE]	= { 0 };
 uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE] 		= { 0 };
 
 /* df4iah_fw_usb */
@@ -260,9 +288,9 @@ uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] 	= { 0 };
 
 /* LAST IN RAM: Stack Check mung-wall */
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
-// mung-wall memory array[0x0300] = 0x05b0 .. 0x08af
-// lowest stack:	0x0858
-// mung-wall low:	0x0862
+// mung-wall memory array[0x0300] = 0x05e3 .. 0x08e2
+// lowest stack:	0x0843
+// mung-wall low:	0x0844
 // --> RAM: free abt. 650 bytes
 // --> ROM: free abt. 7kB (FW section only)
 
@@ -430,7 +458,7 @@ static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff,
 
 		} else {
 			/* coarse pitching */
-			pwmCorSteps = ((((float) -int20MHzClockDiff) / 20.0f) / mainCoef_b02_qrg_k_pPwmStep_25C_ppm) / PWM_COR_STEPS_COARSE_DIV_F;  // XXX used also in main_fw_calcPhase()
+			pwmCorSteps = ((((float) -int20MHzClockDiff) / 20.0f) / mainCoef_b02_qrg_k_pPwmStep_25C_ppm) / PWM_COR_STEPS_COARSE_DIV_F;  // used also in main_fw_calcPhase()
 			mainRefClkState = REFCLK_STATE_NOSYNC;
 		}
 
@@ -663,6 +691,61 @@ int main_fw_memcmp(const unsigned char* msg, const unsigned char* cmpProg, size_
 {
 	memory_fw_copyBuffer(true, mainFormatBuffer, cmpProg, size);
 	return memcmp((const char*) msg, (const char*) mainFormatBuffer, size);
+}
+
+void main_fw_parseNmeaLineData() {
+	memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG01, sizeof(PM_PARSE_NMEA_MSG01));
+	sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
+			&main_nmeaTimeUtc,
+			&main_nmeaPosLat,
+			&main_nmeaPosLatSign,
+			&main_nmeaPosLon,
+			&main_nmeaPosLonSign,
+			&main_nmeaPosFixIndicator,
+			&main_nmeaSatsUsed,
+			&main_nmeaHdop,
+			&main_nmeaAltitudeM,
+			&main_checksum);
+
+	memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG11, sizeof(PM_PARSE_NMEA_MSG11));
+	int len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
+			&main_nmeaMode2);
+	if (len > 0) {
+		int ofs = 0, commaCnt = 0;
+		for (int idx = serialCtxtRxBufferLen - 1; idx; --idx) {
+			if (serialCtxtRxBuffer[idx] == '*') {
+				ofs = idx;
+				break;
+			}
+		}
+		for (int idx = ofs; idx > 0; --idx) {
+			if (serialCtxtRxBuffer[idx] == ',') {
+				if (++commaCnt == 3) {
+					ofs = ++idx;
+					break;
+				}
+			}
+		}
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG12, sizeof(PM_PARSE_NMEA_MSG12));
+		sscanf((char*) serialCtxtRxBuffer + ofs, (char*) mainFormatBuffer,
+				&main_nmeaPdop,
+				&main_nmeaHdop,
+				&main_nmeaVdop,
+				&main_checksum);
+	}
+
+	memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG21, sizeof(PM_PARSE_NMEA_MSG21));
+	len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
+			&main_nmeaTimeUtc,
+			&main_nmeaPosLat,
+			&main_nmeaPosLatSign,
+			&main_nmeaPosLon,
+			&main_nmeaPosLonSign,
+			&main_nmeaDate,
+			&main_checksum);
+	if (len > 0) {
+		main_nmeaDate = ((main_nmeaDate - (main_nmeaDate % 100)) * 100) + 2000 + (main_nmeaDate % 100);
+	}
 }
 
 static void doInterpret(uchar msg[], uint8_t len)
@@ -970,10 +1053,15 @@ static void doJobs()
 		/* nothing has happened - do some bulk data if a job is ready to be done */
 
 		if (serialCtxtBufferState == SERIAL_CTXT_BUFFER_STATE_SEND) {
-			ringbuffer_fw_ringBufferWaitAppend(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
-			serialCtxtRxBufferLen = 0;
+			main_fw_parseNmeaLineData();
 
-			/* mark the serial buffer as to be ready again to receive GPS data */
+			/* if serial data from the GPS module is required, send it to USB in-port */
+			if (main_bf.mainIsSerComm) {
+				ringbuffer_fw_ringBufferWaitAppend(false, false, serialCtxtRxBuffer, serialCtxtRxBufferLen);
+			}
+
+			/* mark the serial buffer as to be ready again for receiving GPS data */
+			serialCtxtRxBufferLen = 0;
 			serialCtxtBufferState = 0;
 		}
 
@@ -1016,10 +1104,38 @@ static void doJobs()
 	 */
 
 	if (main_bf.mainIsTimerTest) {
-		/* print timer values */
+		/* print NMEA data */
+		memory_fw_copyBuffer(true, mainPrepareBuffer, PM_FORMAT_GP00, sizeof(PM_FORMAT_GP00) + 1);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, sizeof(PM_FORMAT_GP00) + 1);
 
-		memory_fw_copyBuffer(true, mainPrepareBuffer, PM_FORMAT_TA00, sizeof(PM_FORMAT_TA00) + 1);
-		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, sizeof(PM_FORMAT_TA00) + 1);
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP01, sizeof(PM_FORMAT_GP01));
+		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				main_nmeaMode2,
+				main_nmeaPosFixIndicator,
+				main_nmeaSatsUsed);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP02, sizeof(PM_FORMAT_GP02));
+		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				main_nmeaPdop,
+				main_nmeaHdop,
+				main_nmeaVdop);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP03, sizeof(PM_FORMAT_GP03));
+		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				main_nmeaDate,
+				main_nmeaTimeUtc);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP04, sizeof(PM_FORMAT_GP04));
+		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				(main_nmeaPosLatSign > 0 ?  main_nmeaPosLatSign : '-'),
+				main_nmeaPosLat,
+				(main_nmeaPosLonSign > 0 ?  main_nmeaPosLonSign : '-'),
+				main_nmeaPosLon,
+				main_nmeaAltitudeM);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 		if (localPpsReceived) {
 			float adcCh0Volts = ( acAdcCh[ADC_CH_PWMPULL] * mainCoef_b01_ref_AREF_V) / 1024.0f;

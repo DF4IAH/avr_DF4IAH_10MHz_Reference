@@ -13,7 +13,7 @@
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										150
-#define VERSION_LOW											227
+#define VERSION_LOW											301
 
 
 #define UART_PORT			PORTD						// port D register
