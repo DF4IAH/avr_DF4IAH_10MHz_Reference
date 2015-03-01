@@ -1,5 +1,5 @@
 /*
- * df4iah_usb.h
+ * df4iah_fw_usb.h
  *
  *  Created on: 01.11.2014
  *      Author: DF4IAH, Ulrich Habel

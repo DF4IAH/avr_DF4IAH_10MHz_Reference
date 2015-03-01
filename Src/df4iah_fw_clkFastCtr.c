@@ -4,6 +4,7 @@
  *  Created on: 26.12.2014
  *      Author: espero
  */
+// tabsize: 4
 
 
 /* this modules uses the T1 timer/counter/pwm-generator of the AVR controller as timer */

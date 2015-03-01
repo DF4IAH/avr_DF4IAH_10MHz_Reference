@@ -1,9 +1,10 @@
 /*
- * df4iah_clkPullPwm.c
+ * df4iah_fw_clkPullPwm.c
  *
  *  Created on: 24.11.2014
  *      Author: DF4IAH, Ulrich Habel
  */
+// tabsize: 4
 
 
 /* this modules uses the T0-OC0B (Pin 11) timer/counter/pwm-generator of the AVR controller as 8-bit PWM generator */

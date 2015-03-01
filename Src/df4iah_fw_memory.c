@@ -1,9 +1,10 @@
 /*
- * df4iah_commands.c
+ * df4iah_fw_memory.c
  *
  *  Created on: 01.11.2014
  *      Author: DF4IAH, Ulrich Habel
  */
+// tabsize: 4
 
 #include <string.h>
 #include <stdbool.h>

@@ -4,7 +4,7 @@
  *  Created on: 19.12.2014
  *      Author: DF4IAH, Ulrich Habel
  */
-
+// tabsize: 4
 
 #include <string.h>
 #include <util/delay.h>

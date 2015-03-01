@@ -1,9 +1,10 @@
 /*
- * df4iah_usb.c
+ * df4iah_fw_usb.c
  *
  *  Created on: 01.11.2014
  *      Author: DF4IAH, Ulrich Habel
  */
+// tabsize: 4
 
 #include <stdint.h>
 #include <string.h>

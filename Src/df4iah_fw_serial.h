@@ -1,5 +1,5 @@
 /*
- * df4iah_serial.h
+ * df4iah_fw_serial.h
  *
  *  Created on: 01.11.2014
  *      Author: DF4IAH, Ulrich Habel

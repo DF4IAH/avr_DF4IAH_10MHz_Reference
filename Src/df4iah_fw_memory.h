@@ -1,5 +1,5 @@
 /*
- * df4iah_commands.h
+ * df4iah_fw_memory.h
  *
  *  Created on: 01.11.2014
  *      Author: DF4IAH, Ulrich Habel

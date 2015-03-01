@@ -4,6 +4,7 @@
  *  Created on: 26.12.2014
  *      Author: espero
  */
+// tabsize: 4
 
 
 /* this modules uses the Analog Comparator to generate interrupts based on GPS-PPS (1 Hz) */
