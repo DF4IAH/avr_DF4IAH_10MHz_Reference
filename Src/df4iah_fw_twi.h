@@ -45,7 +45,7 @@
 void twi_fw_init();
 void twi_fw_close();
 
-void twi_fw_xxx();
+void twi_fw_start();
 
 /* the following functions are direct __vector_xx calls to reduce some clocks */
 //void twi_ISR_TWI(void);
