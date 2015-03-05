@@ -83,6 +83,43 @@ void twi_fw_start()
 	}
 }
 
+uint8_t twi_fw_sendCmdSendData1(uint8_t addr, uint8_t cmd, uint8_t data1)
+{
+	twiSeq1Adr = addr;
+	twiSeq2DataCnt = 0;
+	twiSeq2Data[twiSeq2DataCnt++] = cmd;
+	twiSeq2Data[twiSeq2DataCnt++] = data1;
+	twiSeq2DataTxRxBitmaskLSB = 0b00000011;
+	twi_fw_start();
+
+	return twiState.dataAckValid;
+}
+
+uint8_t twi_fw_sendCmdSendData1SendData2(uint8_t addr, uint8_t cmd, uint8_t data1, uint8_t data2)
+{
+	twiSeq1Adr = addr;
+	twiSeq2DataCnt = 0;
+	twiSeq2Data[twiSeq2DataCnt++] = cmd;
+	twiSeq2Data[twiSeq2DataCnt++] = data1;
+	twiSeq2Data[twiSeq2DataCnt++] = data2;
+	twiSeq2DataTxRxBitmaskLSB = 0b00000111;
+	twi_fw_start();
+
+	return twiState.dataAckValid;
+}
+
+uint8_t twi_fw_sendCmdReadData1(uint8_t addr, uint8_t cmd)
+{
+	twiSeq1Adr = addr;
+	twiSeq2DataCnt = 0;
+	twiSeq2Data[twiSeq2DataCnt++] = cmd;
+	twiSeq2Data[twiSeq2DataCnt++] = 0;
+	twiSeq2DataTxRxBitmaskLSB = 0b00000001;
+	twi_fw_start();
+
+	return twiSeq2Data[1];
+}
+
 
 /*
  * x	Mnemonics	clocks	resulting clocks
