@@ -128,7 +128,6 @@ ISR(ANALOG_COMP_vect, ISR_BLOCK)
 ISR(ADC_vect, ISR_BLOCK)
 {
 	//sleep_disable();
-	PORTC &= ~(_BV(PORTC4));  // TODO: OFF - testing PHASE ADC
 
 	/* read the ADC value */
 	uint8_t localADCL = ADCL;								// read LSB first

@@ -81,10 +81,10 @@ void twi_mcp23017_fw_setPortA_DirOut(uint8_t isOut)
 	uint8_t set_data = 0xff;  // set data
 
 	if (isOut) {
-		(void) twi_fw_sendCmdSendData1(TWI_MCP23017_ADDR, TWI_MCP23017_REG_IODIRA, clr_data);  // 0=output - setting port-A and port-B
+		(void) twi_fw_sendCmdSendData1(TWI_MCP23017_ADDR, TWI_MCP23017_REG_IODIRA, clr_data);  // 0=output - setting port-A
 
 	} else {
-		(void) twi_fw_sendCmdSendData1(TWI_MCP23017_ADDR, TWI_MCP23017_REG_IODIRA, set_data);  // 1=input - setting port-A and port-B
+		(void) twi_fw_sendCmdSendData1(TWI_MCP23017_ADDR, TWI_MCP23017_REG_IODIRA, set_data);  // 1=input  - setting port-A
 	}
 }
 
@@ -100,5 +100,5 @@ void twi_mcp23017_fw_setPortBA(uint8_t portB, uint8_t portA)
 
 uint8_t twi_mcp23017_fw_readPortA()
 {
-	return twi_fw_sendCmdReadData1(TWI_MCP23017_ADDR, TWI_MCP23017_REG_OLATB);
+	return twi_fw_sendCmdReadData1(TWI_MCP23017_ADDR, TWI_MCP23017_REG_GPIOA);
 }

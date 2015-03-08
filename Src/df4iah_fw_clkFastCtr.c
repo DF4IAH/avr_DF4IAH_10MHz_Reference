@@ -150,7 +150,6 @@ ISR(TIMER1_CAPT_vect, ISR_BLOCK)
 
 	sei();
 
-	PORTC |= _BV(PORTC4);  // TODO: ON - testing PHASE ADC
 	//anlgComp_fw_startAdcConvertion();
 	ADCSRA |= _BV(ADSC);									// start conversion
 

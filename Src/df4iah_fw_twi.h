@@ -22,8 +22,10 @@
 #define TWI_TWSR_M_SLAW_DATA_ACK								0x28
 #define TWI_TWSR_M_SLAW_DATA_NACK								0x30
 #define TWI_TWSR_M_SLAW_ARBIT_LOST								0x38
-#define TWI_TWSR_M_SLAR_DATA_ACK								0x40
-#define TWI_TWSR_M_SLAR_DATA_NACK								0x48
+#define TWI_TWSR_M_SLAR_ADDR_ACK								0x40
+#define TWI_TWSR_M_SLAR_ADDR_NACK								0x48
+#define TWI_TWSR_M_SLAR_DATA_ACK								0x50
+#define TWI_TWSR_M_SLAR_DATA_NACK								0x58
 
 #define TWI_TWSR_S_SLAW_MYADDR_RECEIVED							0x60
 #define TWI_TWSR_S_SLAW_MYADDR_ARBIT_LOST						0x68
@@ -45,11 +47,12 @@
 void twi_fw_init();
 void twi_fw_close();
 
-void twi_fw_start();
-
 uint8_t twi_fw_sendCmdSendData1(uint8_t addr, uint8_t cmd, uint8_t data1);
 uint8_t twi_fw_sendCmdSendData1SendData2(uint8_t addr, uint8_t cmd, uint8_t data1, uint8_t data2);
 uint8_t twi_fw_sendCmdReadData1(uint8_t addr, uint8_t cmd);
+void twi_fw_sendStart();
+
+void isr_sendStop(uint8_t sendStopSignal);
 
 /* the following functions are direct __vector_xx calls to reduce some clocks */
 //void twi_ISR_TWI(void);

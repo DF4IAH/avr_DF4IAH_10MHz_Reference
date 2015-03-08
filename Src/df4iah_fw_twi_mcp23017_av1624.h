@@ -19,5 +19,7 @@ void twi_mcp23017_av1624_fw_init();
 void twi_mcp23017_av1624_fw_close();
 
 void twi_mcp23017_av1624_fw_waitUntilReady();
+void twi_mcp23017_av1624_fw_gotoPosition(uint8_t line, uint8_t column);
+void twi_mcp23017_av1624_fw_writeString(const uint8_t* buffer, uint8_t len);
 
 #endif /* DF4IAH_FW_TWI_MCP23017_AV1624_H_ */

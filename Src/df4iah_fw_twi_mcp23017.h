@@ -13,7 +13,7 @@
 
 
 // I2C Address
-#define TWI_MCP23017_ADDR									0x40
+#define TWI_MCP23017_ADDR									0x20
 
 // IOCON.BANK = 0
 #define TWI_MCP23017_REG_IODIRA								0x00

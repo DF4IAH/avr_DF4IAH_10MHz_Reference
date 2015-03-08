@@ -30,6 +30,8 @@
 #include "df4iah_fw_anlgComp.h"
 #include "df4iah_fw_serial.h"
 #include "df4iah_fw_twi.h"
+#include "df4iah_fw_twi_mcp23017.h"
+#include "df4iah_fw_twi_mcp23017_av1624.h"
 
 #include "df4iah_fw_main.h"
 
@@ -143,7 +145,13 @@ PROGMEM const uchar PM_FORMAT_IA03[]						= "#IA03: QRG   newPwmVal = %03.3f, \t
 PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: PHASE phaseErr  = %03.3f°, \t phaseStepsFrequency = %+03.3f, \tphaseStepsPhase = %+03.3f\n";
 PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_steps = %+03.3f\n";
 
+PROGMEM const uchar PM_FORMAT_LC01[]						= "+=== DF4IAH ===+";
+PROGMEM const uchar PM_FORMAT_LC02[]						= "+10MHz-Ref-Osc.+";
+PROGMEM const uchar PM_FORMAT_LC11[]						= "b%+07.3f %c%02u %c%02u ";
+PROGMEM const uchar PM_FORMAT_LC12[]						= "%04u%02u%02u U%02u%02u%02u ";
+
 PROGMEM const uchar PM_FORMAT_SC01[]						= "#SC01: Stack-Check: mung-wall address: 0x%04x, lowest-stack: 0x%04x\n";
+PROGMEM const uchar PM_FORMAT_SC02[]						= "#SC02: s=0x%02x,dS=%u,iP=%u,eS=%u,aA=%u,aAV=%u,dA=%u,dAV=%u\n";
 
 PROGMEM const uchar PM_FORMAT_GPIB_SCM_IDN[] 				= "DF4IAH,%s,%05u,V20%03u%03u.";
 
@@ -185,6 +193,7 @@ uint32_t ppsStampCtr1ms 									= 0;
 uint16_t ppsStampICR1 										= 0;
 uint32_t ppsStampCtr1ms_last 								= 0;
 uint16_t ppsStampICR1_last 									= 0;
+float mainPpm												= 0.0f;
 /* NMEA parsed message data */
 int   main_nmeaMode2										= 0;
 int   main_nmeaPosFixIndicator 								= 0;
@@ -195,7 +204,7 @@ float main_nmeaPdop 										= 0.0f;
 float main_nmeaHdop 										= 0.0f;
 float main_nmeaVdop 										= 0.0f;
 long  main_nmeaDate											= 0l;
-long  main_nmeaTimeUtcSec									= 0l;
+long  main_nmeaTimeUtcInt									= 0l;
 int   main_nmeaTimeUtcMilsec								= 0;
 float main_nmeaPosLat 										= 0.0f;
 char  main_nmeaPosLatSign 									= 0;
@@ -262,16 +271,16 @@ uint8_t  serialCtxtBufferState								= 0;
 uint8_t	 serialCtxtNmeaRxHookBufIdx							= 0;
 
 /* df4iah_fw_usb */
+uint8_t  usbIsUp			 								= 0;
 //uint16_t usbSetupCntr										= 0;
 uint16_t cntRcv 											= 0;
 uint16_t cntSend 											= 0;
 uint8_t  usbIsrCtxtBufferIdx 								= 0;
 
 /* df4iah_fw_twi */
-uint8_t	 twiSeq1Adr											= 0;
-uint8_t	 twiSeq2DataCnt										= 0;
-uint8_t	 twiSeq2DataIdx										= 0;
-uint8_t	 twiSeq2DataTxRxBitmaskLSB							= 0;  // first data byte output: 0bxxxxxxx1, second data byte output: 0bxxxxxxx1x / input: 0bxx0xx
+volatile uint8_t twiSeq1Adr									= 0;
+volatile uint8_t twiSeq2DataCnt								= 0;
+volatile uint8_t twiSeq2DataIdx								= 0;
 
 
 // ARRAYS - due to overwriting hazards they are following the controlling variables
@@ -300,17 +309,17 @@ uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE] 				= { 0 };
 uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE] 	= { 0 };
 
 /* df4iah_fw_twi */
-twiStatus_t twiState										= { 0 };
-uint8_t	 twiSeq2Data[TWI_DATA_BUFFER_SIZE]					= { 0 };
+volatile twiStatus_t twiState								= { 0 };
+volatile uint8_t twiSeq2Data[TWI_DATA_BUFFER_SIZE]			= { 0 };
 
 
 /* LAST IN RAM: Stack Check mung-wall */
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
-// mung-wall memory array[0x0300] = 0x05f3 .. 0x08f2
+// mung-wall memory array[0x0300] = 0x05f7.. 0x08f6
 // lowest stack:	0x0843
 // mung-wall low:	0x0834
 // --> RAM: free abt. 550 bytes
-// --> ROM: free abt. 3.2kB (FW section only)
+// --> ROM: free abt. 2.0kB (FW section only)
 
 // CODE SECTION
 
@@ -452,7 +461,7 @@ float main_fw_calcTimerAdj(float pwmAdjust, uint8_t* intVal, uint8_t* intSubVal)
 	return residue;
 }
 
-static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float qrgDev_Hz, float ppm)
+static void calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float qrgDev_Hz, float ppm)
 {
 	/* frequency shift calculation */
 	uint8_t localIsOffset = false;
@@ -564,8 +573,8 @@ static void main_fw_calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff,
 }
 
 // forward declaration
-static void main_fw_calcPhaseResidue();
-static void main_fw_calcPhase()
+static void calcPhaseResidue();
+static void calcPhase()
 {
 	static float phaseMeanPhaseErrorSum = 0.0f;
 	uint8_t adcPhase = acAdcCh[ADC_CH_PHASE];
@@ -626,7 +635,7 @@ static void main_fw_calcPhase()
 			fastPwmSingleDiffSum += phaseStepsPhase;						// phase offset accumulator
 			SREG = sreg;
 
-			main_fw_calcPhaseResidue();									// first call - to be called many times during the whole second until next pulse comes
+			calcPhaseResidue();									// first call - to be called many times during the whole second until next pulse comes
 		}
 	}
 
@@ -667,7 +676,7 @@ static void main_fw_calcPhase()
 	}
 }
 
-static void main_fw_calcPhaseResidue()
+static void calcPhaseResidue()
 {
 	uint8_t localFastPwmSingleLoad;
 	uint8_t localFastPwmSingleVal;
@@ -712,23 +721,23 @@ int main_fw_memcmp(const unsigned char* msg, const unsigned char* cmpProg, size_
 }
 
 void main_fw_nmeaUtcPlusOneSec() {
-	++main_nmeaTimeUtcSec;
+	++main_nmeaTimeUtcInt;
 
-	if ((main_nmeaTimeUtcSec % 100) > 59) {
-		main_nmeaTimeUtcSec -= main_nmeaTimeUtcSec % 100;
-		main_nmeaTimeUtcSec += 100;
+	if ((main_nmeaTimeUtcInt % 100) > 59) {
+		main_nmeaTimeUtcInt -= main_nmeaTimeUtcInt % 100;
+		main_nmeaTimeUtcInt += 100;
 	}
 
-	if ((main_nmeaTimeUtcSec % 10000) > 5959) {
-		main_nmeaTimeUtcSec -= (main_nmeaTimeUtcSec % 10000)  /* - (main_nmeaTimeUtcSec % 100) */ ;  // with +1 this can be cut out
-		main_nmeaTimeUtcSec +=  10000;
+	if ((main_nmeaTimeUtcInt % 10000) > 5959) {
+		main_nmeaTimeUtcInt -= (main_nmeaTimeUtcInt % 10000)  /* - (main_nmeaTimeUtcSec % 100) */ ;  // with +1 this can be cut out
+		main_nmeaTimeUtcInt +=  10000;
 	}
 }
 
 void main_fw_parseNmeaLineData() {
 	memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG01, sizeof(PM_PARSE_NMEA_MSG01));
 	int len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
-			&main_nmeaTimeUtcSec,
+			&main_nmeaTimeUtcInt,
 			&main_nmeaTimeUtcMilsec,
 			&main_nmeaPosLat,
 			&main_nmeaPosLatSign,
@@ -771,7 +780,7 @@ void main_fw_parseNmeaLineData() {
 
 	memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG21, sizeof(PM_PARSE_NMEA_MSG21));
 	len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
-			&main_nmeaTimeUtcSec,
+			&main_nmeaTimeUtcInt,
 			&main_nmeaTimeUtcMilsec,
 			&main_nmeaPosLat,
 			&main_nmeaPosLatSign,
@@ -1116,34 +1125,14 @@ static void doJobs()
 		}
 
 		/* PWM offset due to phase accumulator */
-		main_fw_calcPhaseResidue();
+		calcPhaseResidue();
 
 		/* leave here */
 		return;
 	}
 
+
 	/* HERE: every second once a second */
-
-	if (main_bf.mainStackCheck) {
-		/* do a Stack Check when active */
-		for (int idx = 0; idx < MAIN_STACK_CHECK_SIZE; ++idx) {
-			if (stackCheckMungWall[idx] != 0x5a) {
-				uint16_t localCheckAddr = (uint16_t) (&(stackCheckMungWall[idx]));
-				if (mainSCMungwallAddr > localCheckAddr) {
-					mainSCMungwallAddr = localCheckAddr;
-				}
-
-				/* leave loop body */
-				break;
-			}
-		}
-
-		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_SC01, sizeof(PM_FORMAT_SC01));
-		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				mainSCMungwallAddr,
-				mainSCStackAddr);
-		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
-	}
 
 	/*
 	 * ATTENTION: Floating vfprint() and friends needs changes to the linker
@@ -1161,7 +1150,7 @@ static void doJobs()
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP01, sizeof(PM_FORMAT_GP01));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				main_nmeaDate,
-				main_nmeaTimeUtcSec,
+				main_nmeaTimeUtcInt,
 				main_nmeaTimeUtcMilsec);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
@@ -1252,7 +1241,6 @@ static void doJobs()
 		/* central calculations */
 		static float localMeanClockDiffSum = 0.0f;
 		float qrgDev_Hz;
-		float ppm;
 		int32_t local20MHzClockDiff =   (20000L * (((int32_t) ppsStampCtr1ms) - ((int32_t) ppsStampCtr1ms_last)))
 							    	  +           (((int32_t) ppsStampICR1)   - ((int32_t) ppsStampICR1_last))
 							    	  -  20000000L;
@@ -1262,19 +1250,19 @@ static void doJobs()
 			/* bad value - ignore */
 			local20MHzClockDiff = 0;
 			qrgDev_Hz = (localMeanFloatClockDiff / 2.0f);
-			ppm = (localMeanFloatClockDiff / 20.0f);
+			mainPpm = (localMeanFloatClockDiff / 20.0f);
 
 		} else if ((-CLOCK_DIFF_COARSE_FINE < local20MHzClockDiff) && (local20MHzClockDiff < CLOCK_DIFF_COARSE_FINE)) {
 			/* fine mode */
 			localMeanClockDiffSum += (((float) local20MHzClockDiff) - localMeanFloatClockDiff);
 			qrgDev_Hz = (localMeanFloatClockDiff / 2.0f);
-			ppm = (localMeanFloatClockDiff / 20.0f);
+			mainPpm = (localMeanFloatClockDiff / 20.0f);
 
 		} else {
 			/* re-init the mean value sum when being in coarse mode */
 			localMeanClockDiffSum = 0.0f;
 			qrgDev_Hz = (local20MHzClockDiff / 2.0f);
-			ppm = (local20MHzClockDiff / 20.0f);
+			mainPpm = (local20MHzClockDiff / 20.0f);
 		}
 
 		if (main_bf.mainIsTimerTest && (!main_bf.mainIsAFC)) {
@@ -1288,7 +1276,7 @@ static void doJobs()
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					localMeanFloatClockDiff,
 					qrgDev_Hz,
-					ppm);
+					mainPpm);
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 		}
 
@@ -1297,12 +1285,96 @@ static void doJobs()
 
 		if (main_bf.mainIsAFC) {
 			/* AFC = automatic frequency calculation */
-			main_fw_calcQrg(local20MHzClockDiff, localMeanFloatClockDiff, qrgDev_Hz, ppm);
+			calcQrg(local20MHzClockDiff, localMeanFloatClockDiff, qrgDev_Hz, mainPpm);
 		}
 
 		if (main_bf.mainIsAPC) {
 			/* APC = automatic phase control */
-			main_fw_calcPhase();
+			calcPhase();
+		}
+	}
+
+	if (main_bf.mainStackCheck) {
+		/* do a Stack Check when active */
+
+		for (int idx = 0; idx < MAIN_STACK_CHECK_SIZE; ++idx) {
+			if (stackCheckMungWall[idx] != 0x5a) {
+				uint16_t localCheckAddr = (uint16_t) (&(stackCheckMungWall[idx]));
+				if (mainSCMungwallAddr > localCheckAddr) {
+					mainSCMungwallAddr = localCheckAddr;
+				}
+
+				/* leave loop body */
+				break;
+			}
+		}
+
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_SC01, sizeof(PM_FORMAT_SC01));
+		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				mainSCMungwallAddr,
+				mainSCStackAddr);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_SC02, sizeof(PM_FORMAT_SC02));
+		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				twiState.state,
+				twiState.doStart,
+				twiState.isProcessing,
+				twiState.errStart,
+				twiState.adrAck,
+				twiState.adrAckValid,
+				twiState.dataAck,
+				twiState.dataAckValid);
+		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
+	}
+
+	{
+		/* I2C LCD-Module via MCP23017 16 bit port expander */  // TODO check I2C
+		uint8_t sreg = SREG;
+		cli();
+		uint32_t localFastCtr1ms = fastCtr1ms;
+		SREG = sreg;
+
+		if (localFastCtr1ms < 5000) {
+			/* welcome message */
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC01, sizeof(PM_FORMAT_LC01));
+			twi_mcp23017_av1624_fw_gotoPosition(0, 0);
+			twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
+
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC02, sizeof(PM_FORMAT_LC02));
+			twi_mcp23017_av1624_fw_gotoPosition(1, 0);
+			twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
+
+		} else {
+			/* the status-line */
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC11, sizeof(PM_FORMAT_LC11));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+					(mainPpm * 1000.0f),
+					0xf5,
+					mainRefClkState,
+					0xf4,
+					main_nmeaSatsEphemerisGpsGalileoQzss);
+			twi_mcp23017_av1624_fw_gotoPosition(0, 0);
+			twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+
+
+			/* the timestamp */
+			uint16_t year	=  main_nmeaDate					% 10000;
+			uint8_t month	= (main_nmeaDate		/ 10000)	% 100;
+			uint8_t day		=  main_nmeaDate		/ 1000000;
+			uint8_t hour	=  main_nmeaTimeUtcInt	/ 10000;
+			uint8_t minutes	= (main_nmeaTimeUtcInt	/ 100)		% 100;
+			uint8_t seconds	=  main_nmeaTimeUtcInt				% 100;
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC12, sizeof(PM_FORMAT_LC12));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+					year,
+					month,
+					day,
+					hour,
+					minutes,
+					seconds);
+			twi_mcp23017_av1624_fw_gotoPosition(1, 0);
+			twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
 		}
 	}
 
@@ -1370,7 +1442,7 @@ void main_fw_giveAway(void)
 #if 0
 	/* go into sleep mode */
 	{
-		clkPullPwm_fw_setPin(false);							// XXX for debugging purposes only
+		clkPullPwm_fw_setPin(false);							// for debugging purposes only
 
 		uint8_t sreg = SREG;
 		cli();
@@ -1387,7 +1459,7 @@ void main_fw_giveAway(void)
 		SREG = sreg;
 
 		wdt_disable();
-		clkPullPwm_fw_setPin(true);								// XXX for debugging purposes only
+		clkPullPwm_fw_setPin(true);								// for debugging purposes only
 	}
 #else
 	/* due to the fact that the clkFastCtr interrupts every 12.8 µs there is no chance to power down */
@@ -1423,9 +1495,12 @@ int main(void)
 		anlgComp_fw_init();
 		serial_fw_init();
 		twi_fw_init();
+		twi_mcp23017_fw_init();
+		twi_mcp23017_av1624_fw_init();
 
 		usb_fw_init();
 		sei();
+		usbIsUp = true;
 
 		/* check CRC of all blocks and update with default values if the data is non-valid */
 		memory_fw_checkAndInitAllBlocks();
@@ -1475,9 +1550,12 @@ int main(void)
     {
 		wdt_close();
 
+		usbIsUp = false;
 		cli();
 		usb_fw_close();
 
+		twi_mcp23017_av1624_fw_close();
+		twi_mcp23017_fw_close();
 		twi_fw_close();
 		serial_fw_close();
 		anlgComp_fw_close();
