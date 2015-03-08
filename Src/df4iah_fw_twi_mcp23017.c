@@ -95,6 +95,7 @@ void twi_mcp23017_fw_setPortB(uint8_t portB)
 
 void twi_mcp23017_fw_setPortBA(uint8_t portB, uint8_t portA)
 {
+	portB |= (portA & 0x01) << 7;							// XXX defective MCP23017 work-around
 	(void) twi_fw_sendCmdSendData1SendData2(TWI_MCP23017_ADDR, TWI_MCP23017_REG_OLATA, portA, portB);
 }
 

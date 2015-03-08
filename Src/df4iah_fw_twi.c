@@ -49,12 +49,15 @@ void twi_fw_init()
 	TWI_DDR   &= ~((_BV(TWI_SDA_PNUM) | _BV(TWI_SCL_PNUM)));	// define SDA and SCL pins as input, as long the TWI alternate port function has not taken over
 	TWI_PORT  |=   (_BV(TWI_SDA_PNUM) | _BV(TWI_SCL_PNUM));		// SDA and SCL pull-up
 
+#if 1
 	// SCL frequency: using 400 kHz for SCL @20 MHz clock
 	TWSR = 0; 							 						// prescaler = 1
 	TWBR = 17;													// gives 400 kHz @20 MHz clock
-
-	//TWSR = _BV(TWPS0); 				 						// prescaler = 4
-	//TWBR = 23;												// gives 100 kHz @20 MHz clock
+#else
+	// SCL frequency: using 100 kHz for SCL @20 MHz clock
+	TWSR = _BV(TWPS0); 					 						// prescaler = 4
+	TWBR = 23;													// gives 100 kHz @20 MHz clock
+#endif
 
 	// needed only when TWI is slave - unused and set to default values
 	// TWAR  = 0xfe;

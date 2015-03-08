@@ -134,7 +134,7 @@ PROGMEM const uchar PM_FORMAT_TA03[]						= "#TA03: Temp = %04u (%0.1fC)\n";
 PROGMEM const uchar PM_FORMAT_TA11[]						= "#TA11: localFastCtr1ms = %09lu, \tlocalFastTCNT1 = %05u\n";
 PROGMEM const uchar PM_FORMAT_TA12[]						= "#TA12: ppsStampCtr1ms  = %09lu, \tppsStampICR1   = %05u, \tppsStampCtr1ms_last  = %09lu, \tppsStampICR1_last   = %05u\n";
 PROGMEM const uchar PM_FORMAT_TA13[]						= "#TA13: PWM = %03u, \tSub-PWM = %03u\n";
-PROGMEM const uchar PM_FORMAT_TA14[]						= "#TA14: mainRefClkState = %u\n";
+PROGMEM const uchar PM_FORMAT_TA14[]						= "#TA14: mainRefClkState = 0x%1X\n";
 
 PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID01: +/- KEY \tmainPwmTerminalAdj = %f, \tpullPwmValBefore    = %03u + fastPwmSubCmpBefore    = %03u\n";
 PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID02: +/- KEY \tmainPwmTerminalAdj = %f, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n";
@@ -146,10 +146,11 @@ PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: PHASE phaseErr  = %03.3f°, 
 PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_steps = %+03.3f\n";
 
 PROGMEM const uchar PM_FORMAT_LC01[]						= "+=== DF4IAH ===+";
-PROGMEM const uchar PM_FORMAT_LC02[]						= "+10MHz-Ref-Osc.+";
-PROGMEM const uchar PM_FORMAT_LC11[]						= "b%+07.3f %c%02u %c%02u ";
+PROGMEM const uchar PM_FORMAT_LC02[]						= " 10MHz-Ref-Osc. ";
+PROGMEM const uchar PM_FORMAT_LC11[]						= "%c%+07.2f %c%1X  %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC12[]						= "%04u%02u%02u U%02u%02u%02u ";
 PROGMEM const uchar PM_FORMAT_LC13[]						= "%c%02u  %c%02u %c%02u %c%02u ";
+PROGMEM const uchar PM_FORMAT_LC14[]						= "%c%07.3f %c%5.3fV ";
 
 PROGMEM const uchar PM_FORMAT_SC01[]						= "#SC01: Stack-Check: mung-wall address: 0x%04x, lowest-stack: 0x%04x\n";
 PROGMEM const uchar PM_FORMAT_SC02[]						= "#SC02: s=0x%02x,dS=%u,iP=%u,eS=%u,aA=%u,aAV=%u,dA=%u,dAV=%u\n";
@@ -195,6 +196,9 @@ uint16_t ppsStampICR1 										= 0;
 uint32_t ppsStampCtr1ms_last 								= 0;
 uint16_t ppsStampICR1_last 									= 0;
 float mainPpm												= 0.0f;
+float mainAdcPullVolts										= 0.0f;
+float mainAdcPhaseVolts										= 0.0f;
+float mainAdcTemp											= 0.0f;
 /* NMEA parsed message data */
 int   main_nmeaMode2										= 0;
 int   main_nmeaPosFixIndicator 								= 0;
@@ -295,7 +299,7 @@ uchar mainFormatBuffer[MAIN_FORMAT_BUFFER_SIZE]				= { 0 };
 /* df4iah_fw_clkFastCtr */
 
 /* df4iah_fw_anlgComp (10kHz) */
-uint16_t acAdcCh[AC_ADC_CH_COUNT + 1]						= { 0 };  // plus one for the temperature sensor
+volatile uint16_t acAdcCh[AC_ADC_CH_COUNT + 1]				= { 0 };  // plus one for the temperature sensor
 
 /* df4iah_fw_ringbuffer */
 uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE] 				= { 0 };
@@ -317,11 +321,11 @@ volatile uint8_t twiSeq2Data[TWI_DATA_BUFFER_SIZE]			= { 0 };
 
 /* LAST IN RAM: Stack Check mung-wall */
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
-// mung-wall memory array[0x0300] = 0x05f7.. 0x08f6
-// lowest stack:	0x0843
-// mung-wall low:	0x0834
-// --> RAM: free abt. 550 bytes
-// --> ROM: free abt. 2.0kB (FW section only)
+// mung-wall memory array[0x0240] = 0x0605.. 0x0844
+// lowest stack:	0x082d
+// mung-wall low:	0x080c
+// --> RAM: free abt. 500 bytes
+// --> ROM: free abt. 1.1kB (FW section only)
 
 // CODE SECTION
 
@@ -1144,6 +1148,10 @@ static void doJobs()
 	 * 2)	Linker libraries:	-lm  -lprintf_flt  -lscanf_flt
 	 */
 
+	mainAdcPullVolts	= ( acAdcCh[ADC_CH_PWMPULL] * mainCoef_b01_ref_AREF_V) / 1024.0f;
+	mainAdcPhaseVolts	= ( acAdcCh[ADC_CH_PHASE]	* mainCoef_b01_ref_AREF_V) / 1024.0f;
+	mainAdcTemp			= ((acAdcCh[ADC_CH_TEMP]	- mainCoef_b01_temp_ofs_adc_25C_steps) * mainCoef_b01_temp_k_p1step_adc_K) + 25.0f;
+
 	if (main_bf.mainIsTimerTest) {
 		/* print NMEA data */
 		memory_fw_copyBuffer(true, mainPrepareBuffer, PM_FORMAT_GP00, sizeof(PM_FORMAT_GP00) + 1);
@@ -1186,28 +1194,24 @@ static void doJobs()
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 		if (localPpsReceived) {
-			float adcCh0Volts = ( acAdcCh[ADC_CH_PWMPULL] * mainCoef_b01_ref_AREF_V) / 1024.0f;
-			float adcCh1Volts = ( acAdcCh[ADC_CH_PHASE]	  * mainCoef_b01_ref_AREF_V) / 1024.0f;
-			float adcCh2C     = ((acAdcCh[ADC_CH_TEMP]	  - mainCoef_b01_temp_ofs_adc_25C_steps) * mainCoef_b01_temp_k_p1step_adc_K) + 25.0f;
-
 			/* print ADC values - only valid when a PPS has arrived */
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA01, sizeof(PM_FORMAT_TA01));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[ADC_CH_PWMPULL],
-					adcCh0Volts);
+					mainAdcPullVolts);
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA02, sizeof(PM_FORMAT_TA02));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[ADC_CH_PHASE],
-					adcCh1Volts);
+					mainAdcPhaseVolts);
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA03, sizeof(PM_FORMAT_TA03));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[ADC_CH_TEMP],
-					adcCh2C);
+					mainAdcTemp);
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 		}
 
@@ -1334,10 +1338,10 @@ static void doJobs()
 		/* I2C LCD-Module via MCP23017 16 bit port expander */  // TODO check I2C
 		uint8_t sreg = SREG;
 		cli();
-		uint32_t localFastCtr1s = ((500 + fastCtr1ms) / 1000);
+		uint32_t localFastCtr1ms = fastCtr1ms;
 		SREG = sreg;
 
-		if (localFastCtr1s <= 5) {
+		if (localFastCtr1ms <= 5000) {
 			/* welcome message */
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC01, sizeof(PM_FORMAT_LC01));
 			twi_mcp23017_av1624_fw_gotoPosition(0, 0);
@@ -1348,15 +1352,17 @@ static void doJobs()
 			twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
 
 		} else {
-			uint8_t displayNr = (localFastCtr1s / 3) % 2;
+			static uint8_t displayNr	= 0;
+			static uint8_t displaySubNr	= 0;
 
 			/* the status-line */
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC11, sizeof(PM_FORMAT_LC11));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+					'b',
 					(mainPpm * 1000.0f),
-					0xf5,
+					0xe0,
 					mainRefClkState,
-					0xf4,
+					0xf3,
 					main_nmeaSatsUsed);
 			twi_mcp23017_av1624_fw_gotoPosition(0, 0);
 			twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
@@ -1394,14 +1400,39 @@ static void doJobs()
 							main_nmeaMode2,
 							'F',
 							main_nmeaPosFixIndicator,
-							0xec,
-							main_nmeaSatsEphemerisGpsGalileoQzss,
 							0xdf,
+							main_nmeaSatsEphemerisGpsGalileoQzss,
+							0xeb,
 							main_nmeaSatsEphemerisGlonass);
 					twi_mcp23017_av1624_fw_gotoPosition(1, 0);
 					twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
 				}
 				break;
+
+			case 2:
+				{
+					/* PWM data */
+					uint8_t sreg = SREG;
+					cli();
+					uint8_t localFastPwmLoopVal		= fastPwmLoopVal;
+					uint8_t localFastPwmSubLoopVal	= fastPwmSubLoopVal;
+					SREG = sreg;
+
+					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC14, sizeof(PM_FORMAT_LC14));
+					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+							'P',
+							main_fw_calcTimerToFloat(localFastPwmLoopVal, localFastPwmSubLoopVal),
+							0xab,
+							mainAdcPullVolts);
+					twi_mcp23017_av1624_fw_gotoPosition(1, 0);
+					twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+				}
+				break;
+			}
+			if (++displaySubNr >= 3) {
+				displaySubNr = 0;
+				++displayNr;
+				displayNr %= 3;
 			}
 		}
 	}
