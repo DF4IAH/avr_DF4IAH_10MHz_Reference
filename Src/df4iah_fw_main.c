@@ -119,13 +119,13 @@ PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "\n*?*  unknown command '%s' 
 
 PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d";
 
-PROGMEM const uchar PM_FORMAT_GPS_DGPS_REQ[]				= "$PMTK401*37\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_HOT_RESTART[]				= "$PMTK101*32\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_WARM_RESTART[]			= "$PMTK102*31\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_COLD_RESTART[]			= "$PMTK103*30\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_DEFAULT_RESTORE[]			= "$PMTK104*37\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_STBY[]					= "$PMTK161,0*28\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_ACT[]						= "$PMTK353,1,1*37\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_DGPS_REQ[]				= "\r\n$PMTK401*37\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_HOT_RESTART[]				= "\r\n$PMTK101*32\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_WARM_RESTART[]			= "\r\n$PMTK102*31\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_COLD_RESTART[]			= "\r\n$PMTK103*30\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_DEFAULT_RESTORE[]			= "\r\n$PMTK104*37\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_STBY[]					= "\r\n$PMTK161,0*28\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_ACT[]						= "\r\n$PMTK353,1,1*37\r\n";
 
 PROGMEM const uchar PM_FORMAT_GP00[]						= "\n#GP00: =======";
 PROGMEM const uchar PM_FORMAT_GP01[]						= "#GP01: Date = %08ld, Time = %06ld.%03d\n";
@@ -1155,20 +1155,19 @@ static void doJobs()
 	 * 2)	Linker libraries:	-lm  -lprintf_flt  -lscanf_flt
 	 */
 
-	/* activate GPS module for GPS / GALILEO / QZSS as well as GLONASS reception */
 	if (mainGpsInitVal) {
-		mainGpsInitVal++;
+		/* activate GPS module for GPS / GALILEO / QZSS as well as GLONASS reception */
 
 		switch (mainGpsInitVal) {
-		case 2:
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_DGPS_REQ, sizeof(PM_FORMAT_GPS_DGPS_REQ));  // for resyncing purposes, only
-			break;
-
-		case 3:
+		case 1:
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
 			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
-			break;
 
+			// no break
+		case 2:
+			// no break
+		case 3:
+			// no break
 		case 4:
 			// no break
 		case 5:
@@ -1180,13 +1179,14 @@ static void doJobs()
 		case 8:
 			// no break
 		case 9:
+			mainGpsInitVal++;
 			break;
 
 		case 10:
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also
 			// no break
 		default:
-			mainGpsInitVal = 3;
+			mainGpsInitVal = 0;
 			break;
 		}
 	}
