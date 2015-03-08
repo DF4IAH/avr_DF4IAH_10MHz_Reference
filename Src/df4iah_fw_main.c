@@ -1531,7 +1531,14 @@ static void doJobs()
 
 void main_fw_sendInitialHelp()
 {
+#if 1
 	ringbuffer_fw_ringBufferWaitAppend(true, true, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP));
+#else
+	if (ringbuffer_fw_getSemaphore(true)) {
+		(void) ringbuffer_fw_ringBufferPush(true, true, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP));
+		ringbuffer_fw_freeSemaphore(true);
+	}
+#endif
 }
 
 void main_fw_giveAway(void)
@@ -1642,8 +1649,10 @@ int main(void)
 			/* 	b02_pwm_initial_sub		treated by df4iah_fw_clkPullPwm */
 		}
 
-		/* enter HELP command in USB host OUT queue */
-		main_fw_sendInitialHelp();
+		if (!(main_bf.mainIsLcdAttached)) {
+			/* enter HELP command in USB host OUT queue */
+			main_fw_sendInitialHelp();
+		}
 	}
 
 	/* run the chip */

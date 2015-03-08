@@ -70,7 +70,7 @@ uint8_t ringbuffer_fw_getSemaphore(uint8_t isSend)
 }
 
 // forward declaration
-static uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len);
+//static uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len);
 void ringbuffer_fw_freeSemaphore(uint8_t isSend)
 {
 	/* free semaphore */
@@ -83,7 +83,7 @@ void ringbuffer_fw_freeSemaphore(uint8_t isSend)
 	}
 }
 
-static uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
+/*static*/ uint8_t ringbuffer_fw_ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
 {
 	uint8_t retLen = 0;
 	uint8_t bufferSize = (isSend ?  RINGBUFFER_SEND_SIZE : RINGBUFFER_RCV_SIZE);
@@ -242,7 +242,7 @@ void ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend)
 uint8_t ringbuffer_fw_ringBufferWaitAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
 {
 	ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(isSend);
-    uint8_t retLen = ringBufferPush(isSend, isPgm, inData, len);
+    uint8_t retLen = ringbuffer_fw_ringBufferPush(isSend, isPgm, inData, len);
 	ringbuffer_fw_freeSemaphore(isSend);
     return retLen;
 }

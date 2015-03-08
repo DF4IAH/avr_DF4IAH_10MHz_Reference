@@ -30,6 +30,7 @@ enum RINGBUFFER_MSG_STATUS_t {
 uint8_t ringbuffer_fw_getSemaphore(uint8_t isSend);
 void ringbuffer_fw_freeSemaphore(uint8_t isSend);
 
+uint8_t ringbuffer_fw_ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len);
 uint8_t ringbuffer_fw_ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size);
 
 enum RINGBUFFER_MSG_STATUS_t ringbuffer_fw_getStatusNextMsg(uint8_t isSend);
