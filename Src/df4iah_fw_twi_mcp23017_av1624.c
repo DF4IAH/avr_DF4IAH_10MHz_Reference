@@ -17,6 +17,7 @@
 #include "df4iah_fw_twi_mcp23017_av1624.h"
 
 
+extern volatile main_bf_t main_bf;
 //extern xxx twiMcpAvXxx;
 
 
@@ -53,6 +54,12 @@ void twi_mcp23017_av1624_fw_init()
 	 */
 
 	// wait > 30 ms --> done
+
+	twi_mcp23017_av1624_fw_waitUntilReady();
+	if (!(main_bf.mainIsLcdAttached)) {
+		return;
+	}
+
 
 	// set interface width to 8bits - (1)
 	twi_mcp23017_fw_setPortA_DirOut(true);
@@ -113,6 +120,11 @@ void twi_mcp23017_av1624_fw_init()
 
 void twi_mcp23017_av1624_fw_close()
 {
+	if (!(main_bf.mainIsLcdAttached)) {
+		return;
+	}
+
+
 	// display OFF
 	twi_mcp23017_av1624_fw_waitUntilReady();
 	twi_mcp23017_fw_setPortA_DirOut(true);

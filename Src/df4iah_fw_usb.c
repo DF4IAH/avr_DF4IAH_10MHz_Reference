@@ -29,7 +29,7 @@
 extern uint16_t cntRcv;
 extern uint16_t cntSend;
 extern uint8_t usbIsrCtxtBufferIdx;
-extern main_bf_t main_bf;
+extern volatile main_bf_t main_bf;
 
 extern uchar usbIsrCtxtBuffer[USBISRCTXT_BUFFER_SIZE];
 extern uchar usbCtxtSetupReplyBuffer[USBSETUPCTXT_BUFFER_SIZE];

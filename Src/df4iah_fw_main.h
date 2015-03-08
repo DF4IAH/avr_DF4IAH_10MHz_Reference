@@ -130,7 +130,8 @@ typedef struct main_bf_struct
      uint8_t  mainIsUsbCommTest 							: 1;
      uint8_t  mainStopAvr		 							: 1;
      uint8_t  mainStackCheck								: 1;
-     uint8_t  mainReserved01								: 1; // fill to 8 bits
+     uint8_t  mainIsLcdAttached								: 1;
+//     uint8_t  mainReserved01								: 1; // fill to 8 bits
 
      uint8_t  mainHelpConcatNr								: 4;
      uint8_t  mainReserved11								: 4; // fill to 8 bits

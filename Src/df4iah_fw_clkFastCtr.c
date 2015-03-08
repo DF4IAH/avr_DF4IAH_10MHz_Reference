@@ -24,7 +24,7 @@
 extern uint16_t fastStampTCNT1;
 extern uint32_t fastStampCtr1ms;
 extern uint32_t fastCtr1ms;
-extern main_bf_t main_bf;
+extern volatile main_bf_t main_bf;
 extern uint16_t mainSCStackAddr;
 
 

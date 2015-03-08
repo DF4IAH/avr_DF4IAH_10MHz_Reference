@@ -20,6 +20,7 @@
 
 
 extern uint8_t usbIsUp;
+extern volatile main_bf_t main_bf;
 extern volatile twiStatus_t twiState;
 extern volatile uint8_t twiSeq1Adr;
 extern volatile uint8_t twiSeq2DataCnt;
@@ -120,16 +121,18 @@ uint8_t twi_fw_sendCmdReadData1(uint8_t addr, uint8_t cmd)
 
 	waitUntilDone();
 	if (twiState.adrAck) {
+		main_bf.mainIsLcdAttached = true;
 		cli();
 		twiSeq1Adr = ((addr << 1) | 1);
 		twiSeq2DataCnt = 0;
-		twiSeq2Data[twiSeq2DataCnt++] = 0xa5;
+		twiSeq2Data[twiSeq2DataCnt++] = 0;
 		twiState.doStart = true;
 		twi_fw_sendStart();
 		waitUntilDone();
 		return twiSeq2Data[0];
 
 	} else {
+		//main_bf.mainIsLcdAttached = false;
 		return 0;
 	}
 }

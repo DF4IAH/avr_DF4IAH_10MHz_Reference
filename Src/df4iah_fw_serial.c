@@ -50,7 +50,7 @@ extern uchar serialCtxtRxBuffer[SERIALCTXT_RX_BUFFER_SIZE];
 extern uchar serialCtxtNmeaRxHookBuf[SERIALCTXT_NMEA_RX_HOOK_SIZE];
 extern uchar serialCtxtTxBuffer[SERIALCTXT_TX_BUFFER_SIZE];
 
-extern main_bf_t main_bf;
+extern volatile main_bf_t main_bf;
 extern uchar mainFormatBuffer[MAIN_FORMAT_BUFFER_SIZE];
 
 

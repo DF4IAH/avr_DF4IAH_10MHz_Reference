@@ -149,6 +149,7 @@ PROGMEM const uchar PM_FORMAT_LC01[]						= "+=== DF4IAH ===+";
 PROGMEM const uchar PM_FORMAT_LC02[]						= "+10MHz-Ref-Osc.+";
 PROGMEM const uchar PM_FORMAT_LC11[]						= "b%+07.3f %c%02u %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC12[]						= "%04u%02u%02u U%02u%02u%02u ";
+PROGMEM const uchar PM_FORMAT_LC13[]						= "%c%02u  %c%02u %c%02u %c%02u ";
 
 PROGMEM const uchar PM_FORMAT_SC01[]						= "#SC01: Stack-Check: mung-wall address: 0x%04x, lowest-stack: 0x%04x\n";
 PROGMEM const uchar PM_FORMAT_SC02[]						= "#SC02: s=0x%02x,dS=%u,iP=%u,eS=%u,aA=%u,aAV=%u,dA=%u,dAV=%u\n";
@@ -214,7 +215,7 @@ float main_nmeaAltitudeM 									= 0.0f;
 int   main_checksum 										= 0;
 
 /* bit fields */
-main_bf_t main_bf											= {
+volatile main_bf_t main_bf									= {
 									/* mainIsAFC			= */	true,
 									/* mainIsAPC			= */	true,
 									/* mainIsTimerTest		= */	false,
@@ -222,6 +223,7 @@ main_bf_t main_bf											= {
 									/* mainIsUsbCommTest	= */	false,
 									/* mainStopAvr			= */	false,
 									/* mainStackCheck		= */	false,
+									/* mainIsLcdAttached    = */	false,
 									/* mainReserved01		= */	false,
 
 									/* mainHelpConcatNr		= */	0
@@ -1328,14 +1330,14 @@ static void doJobs()
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 	}
 
-	{
+	if (main_bf.mainIsLcdAttached) {
 		/* I2C LCD-Module via MCP23017 16 bit port expander */  // TODO check I2C
 		uint8_t sreg = SREG;
 		cli();
-		uint32_t localFastCtr1ms = fastCtr1ms;
+		uint32_t localFastCtr1s = ((500 + fastCtr1ms) / 1000);
 		SREG = sreg;
 
-		if (localFastCtr1ms < 5000) {
+		if (localFastCtr1s <= 5) {
 			/* welcome message */
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC01, sizeof(PM_FORMAT_LC01));
 			twi_mcp23017_av1624_fw_gotoPosition(0, 0);
@@ -1346,6 +1348,8 @@ static void doJobs()
 			twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
 
 		} else {
+			uint8_t displayNr = (localFastCtr1s / 3) % 2;
+
 			/* the status-line */
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC11, sizeof(PM_FORMAT_LC11));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
@@ -1353,28 +1357,52 @@ static void doJobs()
 					0xf5,
 					mainRefClkState,
 					0xf4,
-					main_nmeaSatsEphemerisGpsGalileoQzss);
+					main_nmeaSatsUsed);
 			twi_mcp23017_av1624_fw_gotoPosition(0, 0);
 			twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
 
+			switch (displayNr) {
+			default:
+			case 0:
+				{
+					/* the timestamp */
+					uint16_t year	=  main_nmeaDate					% 10000;
+					uint8_t month	= (main_nmeaDate		/ 10000)	% 100;
+					uint8_t day		=  main_nmeaDate		/ 1000000;
+					uint8_t hour	=  main_nmeaTimeUtcInt	/ 10000;
+					uint8_t minutes	= (main_nmeaTimeUtcInt	/ 100)		% 100;
+					uint8_t seconds	=  main_nmeaTimeUtcInt				% 100;
+					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC12, sizeof(PM_FORMAT_LC12));
+					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+							year,
+							month,
+							day,
+							hour,
+							minutes,
+							seconds);
+					twi_mcp23017_av1624_fw_gotoPosition(1, 0);
+					twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+				}
+				break;
 
-			/* the timestamp */
-			uint16_t year	=  main_nmeaDate					% 10000;
-			uint8_t month	= (main_nmeaDate		/ 10000)	% 100;
-			uint8_t day		=  main_nmeaDate		/ 1000000;
-			uint8_t hour	=  main_nmeaTimeUtcInt	/ 10000;
-			uint8_t minutes	= (main_nmeaTimeUtcInt	/ 100)		% 100;
-			uint8_t seconds	=  main_nmeaTimeUtcInt				% 100;
-			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC12, sizeof(PM_FORMAT_LC12));
-			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-					year,
-					month,
-					day,
-					hour,
-					minutes,
-					seconds);
-			twi_mcp23017_av1624_fw_gotoPosition(1, 0);
-			twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+			case 1:
+				{
+					/* SAT data */
+					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC13, sizeof(PM_FORMAT_LC13));
+					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+							'M',
+							main_nmeaMode2,
+							'F',
+							main_nmeaPosFixIndicator,
+							0xec,
+							main_nmeaSatsEphemerisGpsGalileoQzss,
+							0xdf,
+							main_nmeaSatsEphemerisGlonass);
+					twi_mcp23017_av1624_fw_gotoPosition(1, 0);
+					twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+				}
+				break;
+			}
 		}
 	}
 
