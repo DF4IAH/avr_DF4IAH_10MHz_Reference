@@ -153,7 +153,7 @@ PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_step
 
 PROGMEM const uchar PM_FORMAT_LC01[]						= "+=== DF4IAH ===+";
 PROGMEM const uchar PM_FORMAT_LC02[]						= " 10MHz-Ref-Osc. ";
-PROGMEM const uchar PM_FORMAT_LC11[]						= "%c%+07.2f %c%1X  %c%02u ";
+PROGMEM const uchar PM_FORMAT_LC11[]						= "%c%+07.2f %cx%1X %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC12[]						= "%04u%02u%02u U%02u%02u%02u ";
 PROGMEM const uchar PM_FORMAT_LC13[]						= "%c%02u  %c%02u %c%02u %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC14[]						= "%c%07.3f %c%5.3fV ";
@@ -1160,13 +1160,16 @@ static void doJobs()
 
 		switch (mainGpsInitVal) {
 		case 1:
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
-			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also
 
 			// no break
 		case 2:
-			// no break
+			mainGpsInitVal++;
+			break;
+
 		case 3:
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
+			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
 			// no break
 		case 4:
 			// no break
@@ -1183,7 +1186,6 @@ static void doJobs()
 			break;
 
 		case 10:
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also
 			// no break
 		default:
 			mainGpsInitVal = 0;
