@@ -332,7 +332,7 @@ uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
 // lowest stack:	0x082d
 // mung-wall low:	0x080c
 // --> RAM: free abt. 500 bytes
-// --> ROM: free abt. 1.1kB (FW section only)
+// --> ROM: free abt. 1.0kB (FW section only)
 
 // CODE SECTION
 
@@ -1165,16 +1165,28 @@ static void doJobs()
 			break;
 
 		case 3:
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also
+			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
 			break;
 
 		case 4:
-			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
+			// no break
+		case 5:
+			// no break
+		case 6:
+			// no break
+		case 7:
+			// no break
+		case 8:
+			// no break
+		case 9:
+			break;
 
+		case 10:
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also
 			// no break
 		default:
-			mainGpsInitVal = 0;
+			mainGpsInitVal = 3;
 			break;
 		}
 	}
