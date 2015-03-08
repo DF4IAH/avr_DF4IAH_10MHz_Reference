@@ -119,8 +119,13 @@ PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "\n*?*  unknown command '%s' 
 
 PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d";
 
-PROGMEM const uchar PM_FORMAT_GPS_ACT[]						= "$PMTK353,1,1*37\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_DGPS_REQ[]				= "$PMTK401*37\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_HOT_RESTART[]				= "$PMTK101*32\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_WARM_RESTART[]			= "$PMTK102*31\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_COLD_RESTART[]			= "$PMTK103*30\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_DEFAULT_RESTORE[]			= "$PMTK104*37\r\n";
 PROGMEM const uchar PM_FORMAT_GPS_STBY[]					= "$PMTK161,0*28\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_ACT[]						= "$PMTK353,1,1*37\r\n";
 
 PROGMEM const uchar PM_FORMAT_GP00[]						= "\n#GP00: =======";
 PROGMEM const uchar PM_FORMAT_GP01[]						= "#GP01: Date = %08ld, Time = %06ld.%03d\n";
@@ -200,6 +205,7 @@ float mainPpm												= 0.0f;
 float mainAdcPullVolts										= 0.0f;
 float mainAdcPhaseVolts										= 0.0f;
 float mainAdcTemp											= 0.0f;
+uint8_t mainGpsInitVal										= 1;
 /* NMEA parsed message data */
 int   main_nmeaMode2										= 0;
 int   main_nmeaPosFixIndicator 								= 0;
@@ -1149,6 +1155,30 @@ static void doJobs()
 	 * 2)	Linker libraries:	-lm  -lprintf_flt  -lscanf_flt
 	 */
 
+	/* activate GPS module for GPS / GALILEO / QZSS as well as GLONASS reception */
+	if (mainGpsInitVal) {
+		mainGpsInitVal++;
+
+		switch (mainGpsInitVal) {
+		case 2:
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_DGPS_REQ, sizeof(PM_FORMAT_GPS_DGPS_REQ));  // for resyncing purposes, only
+			break;
+
+		case 3:
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also
+			break;
+
+		case 4:
+			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
+
+			// no break
+		default:
+			mainGpsInitVal = 0;
+			break;
+		}
+	}
+
 	mainAdcPullVolts	= ( acAdcCh[ADC_CH_PWMPULL] * mainCoef_b01_ref_AREF_V) / 1024.0f;
 	mainAdcPhaseVolts	= ( acAdcCh[ADC_CH_PHASE]	* mainCoef_b01_ref_AREF_V) / 1024.0f;
 	mainAdcTemp			= ((acAdcCh[ADC_CH_TEMP]	- mainCoef_b01_temp_ofs_adc_25C_steps) * mainCoef_b01_temp_k_p1step_adc_K) + 25.0f;
@@ -1597,9 +1627,6 @@ int main(void)
 			/*	b02_pwm_initial			treated by df4iah_fw_clkPullPwm */
 			/* 	b02_pwm_initial_sub		treated by df4iah_fw_clkPullPwm */
 		}
-
-		/* activate GPS module for GPS / GALILEO / QZSS as well as GLONASS reception */
-		serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));
 
 		/* enter HELP command in USB host OUT queue */
 		main_fw_sendInitialHelp();
