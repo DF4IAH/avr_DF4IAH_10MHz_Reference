@@ -119,6 +119,7 @@ PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "\n*?*  unknown command '%s' 
 
 PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d";
 
+PROGMEM const uchar PM_FORMAT_GPS_ACT[]						= "$PMTK353,1,1*37\r\n";
 PROGMEM const uchar PM_FORMAT_GPS_STBY[]					= "$PMTK161,0*28\r\n";
 
 PROGMEM const uchar PM_FORMAT_GP00[]						= "\n#GP00: =======";
@@ -1553,13 +1554,14 @@ int main(void)
 		clkFastCtr_fw_init();
 		anlgComp_fw_init();
 		serial_fw_init();
-		twi_fw_init();
-		twi_mcp23017_fw_init();
-		twi_mcp23017_av1624_fw_init();
 
 		usb_fw_init();
 		sei();
 		usbIsUp = true;
+
+		twi_fw_init();
+		twi_mcp23017_fw_init();
+		twi_mcp23017_av1624_fw_init();
 
 		/* check CRC of all blocks and update with default values if the data is non-valid */
 		memory_fw_checkAndInitAllBlocks();
@@ -1596,6 +1598,9 @@ int main(void)
 			/* 	b02_pwm_initial_sub		treated by df4iah_fw_clkPullPwm */
 		}
 
+		/* activate GPS module for GPS / GALILEO / QZSS as well as GLONASS reception */
+		serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));
+
 		/* enter HELP command in USB host OUT queue */
 		main_fw_sendInitialHelp();
 	}
@@ -1609,13 +1614,14 @@ int main(void)
     {
 		wdt_close();
 
+		twi_mcp23017_av1624_fw_close();
+		twi_mcp23017_fw_close();
+		twi_fw_close();
+
 		usbIsUp = false;
 		cli();
 		usb_fw_close();
 
-		twi_mcp23017_av1624_fw_close();
-		twi_mcp23017_fw_close();
-		twi_fw_close();
 		serial_fw_close();
 		anlgComp_fw_close();
 		clkFastCtr_fw_close();

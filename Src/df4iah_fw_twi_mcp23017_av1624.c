@@ -125,20 +125,19 @@ void twi_mcp23017_av1624_fw_close()
 	}
 
 
+	// display CLEAR
+	twi_mcp23017_fw_setPortA_DirOut(true);
+	twi_mcp23017_fw_setPortBA(0b0000, 0b00000001);
+	twi_mcp23017_fw_setPortBA(0b0001, 0b00000001);
+	twi_mcp23017_fw_setPortBA(0b0000, 0b00000001);
+	twi_mcp23017_fw_setPortA_DirOut(false);
+
 	// display OFF
 	twi_mcp23017_av1624_fw_waitUntilReady();
 	twi_mcp23017_fw_setPortA_DirOut(true);
 	twi_mcp23017_fw_setPortBA(0b0000, 0b00001000);
 	twi_mcp23017_fw_setPortBA(0b0001, 0b00001000);
 	twi_mcp23017_fw_setPortBA(0b0000, 0b00001000);
-	twi_mcp23017_fw_setPortA_DirOut(false);
-
-	// display CLEAR
-	twi_mcp23017_av1624_fw_waitUntilReady();
-	twi_mcp23017_fw_setPortA_DirOut(true);
-	twi_mcp23017_fw_setPortBA(0b0000, 0b00000001);
-	twi_mcp23017_fw_setPortBA(0b0001, 0b00000001);
-	twi_mcp23017_fw_setPortBA(0b0000, 0b00000001);
 	twi_mcp23017_fw_setPortA_DirOut(false);
 }
 
