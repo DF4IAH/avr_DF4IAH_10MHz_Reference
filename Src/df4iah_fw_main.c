@@ -152,10 +152,10 @@ PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: PHASE phaseErr  = %03.3f°, 
 PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_steps = %+03.3f\n";
 
 PROGMEM const uchar PM_FORMAT_LC01[]						= "+=== DF4IAH ===+";
-PROGMEM const uchar PM_FORMAT_LC02[]						= " 10MHz-Ref-Osc. ";
-PROGMEM const uchar PM_FORMAT_LC11[]						= "%c%+07.2f %cx%1X %c%02u ";
+PROGMEM const uchar PM_FORMAT_LC02[]						= "10MHzRefOsc V2.0";
+PROGMEM const uchar PM_FORMAT_LC11[]						= "%c%+08.4f %c%1X %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC12[]						= "%04u%02u%02u U%02u%02u%02u ";
-PROGMEM const uchar PM_FORMAT_LC13[]						= "%c%02u  %c%02u %c%02u %c%02u ";
+PROGMEM const uchar PM_FORMAT_LC13[]						= "%c%1u %c%1u %3.1f %c%02u%c%02u ";
 PROGMEM const uchar PM_FORMAT_LC14[]						= "%c%07.3f %c%5.3fV ";
 
 PROGMEM const uchar PM_FORMAT_SC01[]						= "#SC01: Stack-Check: mung-wall address: 0x%04x, lowest-stack: 0x%04x\n";
@@ -637,7 +637,7 @@ static void calcPhase()
 
 	if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
 		/* phase correction */
-		phaseStepsPhase = (float) (pow(fabs(phaseErr) * 45.00f, 1.25f));  // magic values
+		phaseStepsPhase = (float) (pow(fabs(phaseErr) * 20.00f, 1.25f));  // magic values  TODO PHASE: trimming needed for phase corrections
 		if (phaseErr < 0.0f) {
 			phaseStepsPhase = -phaseStepsPhase;
 		}
@@ -656,7 +656,7 @@ static void calcPhase()
 		/* frequency drift correction */
 		float phaseMeanPhaseErrorDiff = phaseMeanPhaseErrorSum / MEAN_PHASE_CLOCK_STAGES_F;
 		phaseMeanPhaseErrorSum += (((float) phaseStepsPhase) - phaseMeanPhaseErrorDiff);
-		phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.0000003f; 	// magic value
+		phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.00000020f; 	// magic value  TODO PHASE: trimming needed for frequency corrections
 
 		uint8_t sreg = SREG;
 		cli();
@@ -1158,38 +1158,14 @@ static void doJobs()
 	if (mainGpsInitVal) {
 		/* activate GPS module for GPS / GALILEO / QZSS as well as GLONASS reception */
 
-		switch (mainGpsInitVal) {
-		case 1:
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also
-
-			// no break
-		case 2:
-			mainGpsInitVal++;
-			break;
-
-		case 3:
+		mainGpsInitVal++;
+		if (3 == mainGpsInitVal) {
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
 			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
-			// no break
-		case 4:
-			// no break
-		case 5:
-			// no break
-		case 6:
-			// no break
-		case 7:
-			// no break
-		case 8:
-			// no break
-		case 9:
-			mainGpsInitVal++;
-			break;
 
-		case 10:
-			// no break
-		default:
+		} else if (33 == mainGpsInitVal) {
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also   TODO find correct sequence for enabling GLONASS
 			mainGpsInitVal = 0;
-			break;
 		}
 	}
 
@@ -1445,6 +1421,7 @@ static void doJobs()
 							main_nmeaMode2,
 							'F',
 							main_nmeaPosFixIndicator,
+							main_nmeaPdop,
 							0xdf,
 							main_nmeaSatsEphemerisGpsGalileoQzss,
 							0xeb,
