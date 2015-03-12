@@ -13,7 +13,7 @@
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										150
-#define VERSION_LOW											310
+#define VERSION_LOW											312
 
 
 /* GPS NMEA */
@@ -93,7 +93,7 @@
 #define MAIN_PREPARE_BUFFER_SIZE							128
 #define MAIN_FORMAT_BUFFER_SIZE								128
 
-#define MAIN_STACK_CHECK_SIZE								0x0240
+#define MAIN_STACK_CHECK_SIZE								0x0220
 
 // PHASE-ADC: 1.00V --> ADC-Value = 229 /1024 (Full-Scale = 4.47V)
 #define ADC_PHASE_LO_LOCKING  								 20		// @<0.15V
@@ -104,6 +104,7 @@
 
 #define MEAN_QRG_CLOCK_STAGES_F								  5.0f;
 #define MEAN_PHASE_CLOCK_STAGES_F							  3.0f;
+#define MEAN_PHASE_ERR_CLOCK_STAGES_F						  5.0f;
 #define PWM_COR_STEPS_COARSE_DIV_F							  1.1f;
 #define PWM_COR_STEPS_FINE_DIV_F							 10.0f;
 #define PWM_COR_STEPS_PHASE_DIV_F							 20.0f;

@@ -1,7 +1,6 @@
 /*****************************************************************************
 *
 * DF4IAH     10 MHz Reference Oscillator
-* Version  : 141.224 (24. Dec. 2014)
 *
 ******************************************************************************/
 // tabsize: 4
@@ -153,7 +152,7 @@ PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_step
 
 PROGMEM const uchar PM_FORMAT_LC01[]						= "+=== DF4IAH ===+";
 PROGMEM const uchar PM_FORMAT_LC02[]						= "10MHzRefOsc V2.0";
-PROGMEM const uchar PM_FORMAT_LC11[]						= "%c%+08.3f %c%1X %c%02u ";
+PROGMEM const uchar PM_FORMAT_LC11[]						= "%c% 08.3f %c%1X %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC12[]						= "%04u%02u%02u U%02u%02u%02u ";
 PROGMEM const uchar PM_FORMAT_LC13[]						= "%c%1u %c%1u %3.1f %c%02u%c%02u ";
 PROGMEM const uchar PM_FORMAT_LC14[]						= "%c%07.3f %c%5.3fV ";
@@ -328,11 +327,10 @@ volatile uint8_t twiSeq2Data[TWI_DATA_BUFFER_SIZE]			= { 0 };
 
 /* LAST IN RAM: Stack Check mung-wall */
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
-// mung-wall memory array[0x0240] = 0x0605.. 0x0844
-// lowest stack:	0x082d
-// mung-wall low:	0x080c
+// mung-wall memory array[0x0220] = 0x0609.. 0x0828
+// mung-wall low:	0x080b
 // --> RAM: free abt. 500 bytes
-// --> ROM: free abt. 1.0kB (FW section only)
+// --> ROM: free abt. 0.75kB (FW section only)
 
 // CODE SECTION
 
@@ -589,7 +587,9 @@ static void calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float q
 static void calcPhaseResidue();
 static void calcPhase()
 {
-	static float phaseMeanPhaseErrorSum = 0.0f;
+	static float phaseMeanPhaseErrorSum	= 0.0f;
+	static float phaseStepsErrorSum		= 0.0f;
+
 	uint8_t adcPhase = acAdcCh[ADC_CH_PHASE];
 
 	/* APC = automatic phase control */
@@ -637,7 +637,7 @@ static void calcPhase()
 
 	if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
 		/* phase correction */
-		phaseStepsPhase = (float) (pow(fabs(phaseErr) * 20.00f, 1.25f));  // magic values  TODO PHASE: trimming needed for phase corrections
+		phaseStepsPhase = (float) (pow(fabs(phaseErr) * 20.00f, 1.25f));  // magic values  XXX PHASE: trimming is done here
 		if (phaseErr < 0.0f) {
 			phaseStepsPhase = -phaseStepsPhase;
 		}
@@ -645,10 +645,10 @@ static void calcPhase()
 		if (!fastPwmSingleDiffSum) {
 			uint8_t sreg = SREG;
 			cli();
-			fastPwmSingleDiffSum += phaseStepsPhase;						// phase offset accumulator
+			fastPwmSingleDiffSum += phaseStepsPhase;		// phase offset accumulator
 			SREG = sreg;
 
-			calcPhaseResidue();									// first call - to be called many times during the whole second until next pulse comes
+			calcPhaseResidue();								// first call - to be called many times during the whole second until next pulse comes
 		}
 	}
 
@@ -656,7 +656,15 @@ static void calcPhase()
 		/* frequency drift correction */
 		float phaseMeanPhaseErrorDiff = phaseMeanPhaseErrorSum / MEAN_PHASE_CLOCK_STAGES_F;
 		phaseMeanPhaseErrorSum += (((float) phaseStepsPhase) - phaseMeanPhaseErrorDiff);
-		phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.00000020f; 	// magic value  TODO PHASE: trimming needed for frequency corrections
+		phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.00000020f; 	// magic value  XXX PHASE: trimming is done here
+
+		float phaseStepsErrorDiff = phaseStepsErrorSum / MEAN_PHASE_ERR_CLOCK_STAGES_F;
+		if (phaseStepsFrequency >= 0.0f) {
+			phaseStepsErrorSum += (phaseStepsFrequency - phaseStepsErrorDiff);
+		} else {
+			phaseStepsErrorSum += (-phaseStepsFrequency - phaseStepsErrorDiff);
+		}
+		mainPpm = 2.0f * mainCoef_b02_qrg_k_pPwmStep_25C_ppm * phaseStepsErrorDiff;
 
 		uint8_t sreg = SREG;
 		cli();
@@ -667,7 +675,7 @@ static void calcPhase()
 		(void) main_fw_calcTimerAdj(phaseStepsFrequency, &localFastPwmLoopVal, &localFastPwmSubLoopVal);
 
 		cli();
-		fastPwmLoopVal		= localFastPwmLoopVal;					// single frequency correction
+		fastPwmLoopVal		= localFastPwmLoopVal;			// single frequency correction
 		fastPwmSubLoopVal	= localFastPwmSubLoopVal;
 		SREG = sreg;
 	}
@@ -1159,12 +1167,12 @@ static void doJobs()
 		/* activate GPS module for GPS / GALILEO / QZSS as well as GLONASS reception */
 
 		mainGpsInitVal++;
-		if (3 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
-			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
+		if (3 == mainGpsInitVal) {  // XXX init of GPS-Module is here
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also
 
-		} else if (33 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also   TODO find correct sequence for enabling GLONASS
+		} else if (5 == mainGpsInitVal) {
+			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
 			mainGpsInitVal = 0;
 		}
 	}
@@ -1273,23 +1281,24 @@ static void doJobs()
 							    	  -  20000000L;
 
 		float localMeanFloatClockDiff = localMeanClockDiffSum / MEAN_QRG_CLOCK_STAGES_F;
+		float localPpm = 0.0f;
 		if ((local20MHzClockDiff < -CLOCK_DIFF_OUT) || (CLOCK_DIFF_OUT < local20MHzClockDiff)) {
 			/* bad value - ignore */
 			local20MHzClockDiff = 0;
 			qrgDev_Hz = (localMeanFloatClockDiff / 2.0f);
-			mainPpm = (localMeanFloatClockDiff / 20.0f);
+			localPpm = (localMeanFloatClockDiff / 20.0f);
 
 		} else if ((-CLOCK_DIFF_COARSE_FINE < local20MHzClockDiff) && (local20MHzClockDiff < CLOCK_DIFF_COARSE_FINE)) {
 			/* fine mode */
 			localMeanClockDiffSum += (((float) local20MHzClockDiff) - localMeanFloatClockDiff);
 			qrgDev_Hz = (localMeanFloatClockDiff / 2.0f);
-			mainPpm = (localMeanFloatClockDiff / 20.0f);
+			localPpm = (localMeanFloatClockDiff / 20.0f);
 
 		} else {
 			/* re-init the mean value sum when being in coarse mode */
 			localMeanClockDiffSum = 0.0f;
 			qrgDev_Hz = (local20MHzClockDiff / 2.0f);
-			mainPpm = (local20MHzClockDiff / 20.0f);
+			localPpm = (local20MHzClockDiff / 20.0f);
 		}
 
 		if (main_bf.mainIsTimerTest && (!main_bf.mainIsAFC)) {
@@ -1312,7 +1321,12 @@ static void doJobs()
 
 		if (main_bf.mainIsAFC) {
 			/* AFC = automatic frequency calculation */
-			calcQrg(local20MHzClockDiff, localMeanFloatClockDiff, qrgDev_Hz, mainPpm);
+			calcQrg(local20MHzClockDiff, localMeanFloatClockDiff, qrgDev_Hz, localPpm);
+
+			if (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
+				/* phase corrections are done by the AFC unit */
+				mainPpm = localPpm;
+			}
 		}
 
 		if (main_bf.mainIsAPC) {
