@@ -5,6 +5,26 @@
 ******************************************************************************/
 // tabsize: 4
 
+/**
+ * Memory layout - BOOTLOADER:
+ * 		Start			Length
+ * 		BL: text		0x7000		0x0744
+ * 		bl_ClkPullPwm	0x7780		0x0052
+ * 		bl_Probe		0x78C0		0x003c
+ * 		bl_Memory		0x7900		0x02c8
+ * 		bl_USB			0x7be0		0x03fc
+ */
+
+/**
+ * Memory layout - FIRMWARE:
+ * 		Start			Length
+ * 		FW: text		0x0000		0x6d16
+ * 		FW: free		0x6d18		0x6fff
+ * 		bl_ClkPullPwm	0x7780		0x0052
+ * 		bl_Probe		0x78C0		0x003c
+ * 		bl_Memory		0x7900		0x02c8
+ */
+
 
 #include <stdint.h>
 #include <stdio.h>
