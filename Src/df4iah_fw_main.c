@@ -658,7 +658,7 @@ static void calcPhase()
 		phaseMeanPhaseErrorSum += (((float) phaseStepsPhase) - phaseMeanPhaseErrorDiff);
 		phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.00000020f; 	// magic value  XXX PHASE: trimming is done here
 
-		float phaseStepsErrorDiff = phaseStepsErrorSum / MEAN_PHASE_ERR_CLOCK_STAGES_F;
+		float phaseStepsErrorDiff = phaseStepsErrorSum / MEAN_PHASE_PPM_STAGES_F;
 		if (phaseStepsFrequency >= 0.0f) {
 			phaseStepsErrorSum += (phaseStepsFrequency - phaseStepsErrorDiff);
 		} else {
@@ -1167,12 +1167,15 @@ static void doJobs()
 		/* activate GPS module for GPS / GALILEO / QZSS as well as GLONASS reception */
 
 		mainGpsInitVal++;
-		if (3 == mainGpsInitVal) {  // XXX init of GPS-Module is here
+		if (8 == mainGpsInitVal) {  // XXX init of GPS-Module is here
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also
 
-		} else if (5 == mainGpsInitVal) {
-			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
+		} else if (10 == mainGpsInitVal) {
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
+			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
+
+		} else if (59 == mainGpsInitVal) {
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also
 			mainGpsInitVal = 0;
 		}
 	}

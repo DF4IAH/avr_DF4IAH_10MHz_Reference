@@ -104,7 +104,7 @@
 
 #define MEAN_QRG_CLOCK_STAGES_F								  5.0f;
 #define MEAN_PHASE_CLOCK_STAGES_F							  3.0f;
-#define MEAN_PHASE_ERR_CLOCK_STAGES_F						  5.0f;
+#define MEAN_PHASE_PPM_STAGES_F								  7.0f;
 #define PWM_COR_STEPS_COARSE_DIV_F							  1.1f;
 #define PWM_COR_STEPS_FINE_DIV_F							 10.0f;
 #define PWM_COR_STEPS_PHASE_DIV_F							 20.0f;
