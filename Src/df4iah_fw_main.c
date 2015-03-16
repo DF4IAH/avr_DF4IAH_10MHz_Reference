@@ -138,13 +138,14 @@ PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "\n*?*  unknown command '%s' 
 
 PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d";
 
-PROGMEM const uchar PM_FORMAT_GPS_DGPS_REQ[]				= "\r\n$PMTK401*37\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_HOT_RESTART[]				= "\r\n$PMTK101*32\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_WARM_RESTART[]			= "\r\n$PMTK102*31\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_COLD_RESTART[]			= "\r\n$PMTK103*30\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_DEFAULT_RESTORE[]			= "\r\n$PMTK104*37\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_STBY[]					= "\r\n$PMTK161,0*28\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_ACT[]						= "\r\n$PMTK353,1,1*37\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_CR_LF[]					= "\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_HOT_RESTART[]				= "$PMTK101*32\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_WARM_RESTART[]			= "$PMTK102*31\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_COLD_RESTART[]			= "$PMTK103*30\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_DEFAULT_RESTORE[]			= "$PMTK104*37\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_STBY[]					= "$PMTK161,0*28\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_ACT[]						= "$PMTK353,1,1*37\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_DGPS_REQ[]				= "$PMTK401*37\r\n";
 
 PROGMEM const uchar PM_FORMAT_GP00[]						= "\n#GP00: =======";
 PROGMEM const uchar PM_FORMAT_GP01[]						= "#GP01: Date = %08ld, Time = %06ld.%03d\n";
@@ -678,6 +679,7 @@ static void calcPhase()
 		phaseMeanPhaseErrorSum += (((float) phaseStepsPhase) - phaseMeanPhaseErrorDiff);
 		phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.00000020f; 	// magic value  XXX PHASE: trimming is done here
 
+		/* mainPpm calculations */
 		float phaseStepsErrorDiff = phaseStepsErrorSum / MEAN_PHASE_PPM_STAGES_F;
 		if (phaseStepsFrequency >= 0.0f) {
 			phaseStepsErrorSum += (phaseStepsFrequency - phaseStepsErrorDiff);
@@ -1187,15 +1189,21 @@ static void doJobs()
 		/* activate GPS module for GPS / GALILEO / QZSS as well as GLONASS reception */
 
 		mainGpsInitVal++;
-		if (8 == mainGpsInitVal) {  // XXX init of GPS-Module is here
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also
+		if (10 == mainGpsInitVal) {  // XXX init of GPS-Module is here
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_CR_LF, sizeof(PM_FORMAT_GPS_CR_LF));
 
-		} else if (10 == mainGpsInitVal) {
+		} else if (11 == mainGpsInitVal) {
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (1)
+
+		} else if (13 == mainGpsInitVal) {
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
 			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
 
-		} else if (59 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also
+		} else if (20 == mainGpsInitVal) {
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_CR_LF, sizeof(PM_FORMAT_GPS_CR_LF));
+
+		} else if (21 == mainGpsInitVal) {
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (2)
 			mainGpsInitVal = 0;
 		}
 	}
