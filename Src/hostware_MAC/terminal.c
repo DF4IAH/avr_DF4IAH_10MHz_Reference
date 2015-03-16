@@ -62,7 +62,7 @@ static int errLine = 0;
 
 /* -- 8< --  RINGBUFFERS */
 
-int ringBufferPush(char isSend, uchar inData[], int len)
+int ringbuffer_fw_ringBufferPush(char isSend, uchar inData[], int len)
 {
 	int retLen = 0;
 	int bufferSize = (isSend ?  RINGBUFFER_SEND_SIZE : RINGBUFFER_RCV_SIZE);
@@ -139,7 +139,7 @@ int ringBufferPull(char isSend, uchar outData[], int size)
 
 static void usb_buffer_controlOut(uchar inLine[], int len)
 {
-	ringBufferPush(true, inLine, len);
+	ringbuffer_fw_ringBufferPush(true, inLine, len);
 }
 
 static int usb_buffer_controlIn(uchar outLine[], int size)
@@ -175,7 +175,7 @@ void usb_do_transfers()
         mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 #endif
         if ((usbRetLen > 0) && (usbRetLen != sizeof(usbMsg))) {
-        	ringBufferPush(false, usbMsg, usbRetLen);
+        	ringbuffer_fw_ringBufferPush(false, usbMsg, usbRetLen);
 #ifdef TEST_DATATRANSFER_USB
 			mvprintw(LINES - 7 + (errLine++ % 7), 20, "IN  Data: usbRetLen=%d msg=%16s.   ", usbRetLen, usbMsg);
 #endif

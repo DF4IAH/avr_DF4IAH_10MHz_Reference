@@ -26,7 +26,7 @@ typedef unsigned char  uchar;
 
 
 /* -- 8< --  RINGBUFFERS */
-int ringBufferPush(char isSend, uchar inData[], int len);
+int ringbuffer_fw_ringBufferPush(char isSend, uchar inData[], int len);
 int ringBufferPull(char isSend, uchar outData[], int size);
 
 
