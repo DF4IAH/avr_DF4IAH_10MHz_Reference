@@ -95,6 +95,7 @@ PROGMEM const uchar PM_COMMAND_SERBAUD[]					= "SERBAUD";
 PROGMEM const uchar PM_COMMAND_STACK[]						= "STACK";
 PROGMEM const uchar PM_COMMAND_TEST[]						= "TEST";
 PROGMEM const uchar PM_COMMAND_WRITEPWM[]					= "WRITEPWM";
+PROGMEM const uchar PM_COMMAND_WRITETEMP[]					= "WRITETEMP";
 PROGMEM const uchar PM_COMMAND_PLUSSIGN[]					= "+";
 PROGMEM const uchar PM_COMMAND_MINUSSIGN[]					= "-";
 
@@ -126,7 +127,8 @@ PROGMEM const uchar PM_INTERPRETER_HELP09[] 				= "\nSTACK\t\t\t\ttoggles stack 
 
 PROGMEM const uchar PM_INTERPRETER_HELP10[] 				= "\nTEST\t\t\t\ttoggles counter test.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "\nWRITEPWM\t\t\tstore current PWM as default value.";
+PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "\nWRITEPWM\t\t\tstore current PWM as default value." \
+	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  "\nWRITETEMP <TEMP value>\t\twrite current temperature as default value.";
 
 PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "\n+/- <PWM value>\t\tcorrection value to be added.";
 
@@ -931,7 +933,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else if (!main_fw_memcmp(msg, PM_COMMAND_SERBAUD, sizeof(PM_COMMAND_SERBAUD) - 1)) {
 		/* serial communication baud parameter */
-		sscanf((char*) msg + sizeof(PM_COMMAND_SERBAUD), "%d", &serialCoef_b03_serial_baud);
+		sscanf((char*) msg + sizeof(PM_COMMAND_SERBAUD) - 1, "%d", &serialCoef_b03_serial_baud);
 		serial_fw_setCommBaud(serialCoef_b03_serial_baud);
 
 		/* write current baud rate as the default/startup value to the EEPROM */
@@ -976,6 +978,22 @@ static void doInterpret(uchar msg[], uint8_t len)
 		memory_fw_writeEEpromPage((uint8_t*) &newCrc, sizeof(uint16_t), offsetof(eeprom_layout_t, b02.b02_crc));
 		memory_fw_checkAndInitBlock(BLOCK_REFOSC_NR);
 
+	} else if (!main_fw_memcmp(msg, PM_COMMAND_WRITETEMP, sizeof(PM_COMMAND_WRITETEMP) - 1)) {
+		float localTemp = 0.0f;
+		/* take current temperature value to correct the displayed values */
+		sscanf(((char*) msg) + sizeof(PM_COMMAND_WRITETEMP) - 1, "%f", &localTemp);
+		if (localTemp) {
+			/* calculate the new correction value */
+			mainCoef_b01_temp_ofs_adc_25C_steps = (acAdcCh[ADC_CH_TEMP] - ((localTemp - 25.0f) / mainCoef_b01_temp_k_p1step_adc_K));
+
+			/* write the correction value to the EEPROM */
+			memory_fw_writeEEpromPage((uint8_t*) &mainCoef_b01_temp_ofs_adc_25C_steps, sizeof(float), offsetof(eeprom_layout_t, b01.b01_temp_ofs_adc_25C_steps));
+
+			/* for any modified block add the CRC seal marker and do a  memory_fw_checkAndInitBlock() */
+			uint16_t newCrc = memory_fw_getSealMarker(BLOCK_MEASURING_NR);
+			memory_fw_writeEEpromPage((uint8_t*) &newCrc, sizeof(uint16_t), offsetof(eeprom_layout_t, b01.b01_crc));
+			memory_fw_checkAndInitBlock(BLOCK_MEASURING_NR);
+		}
 	} else if (msg[0] == PM_COMMAND_PLUSSIGN[0]) {
 		/* correct the PWM value up */
 		sscanf(((char*) msg) + 1, "%f", &mainPwmTerminalAdj);
