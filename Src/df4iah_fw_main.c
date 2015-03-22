@@ -150,7 +150,7 @@ PROGMEM const uchar PM_FORMAT_GPS_DGPS_REQ[]				= "$PMTK401*37\r\n";
 PROGMEM const uchar PM_FORMAT_GP00[]						= "\n#GP00: =======";
 PROGMEM const uchar PM_FORMAT_GP01[]						= "#GP01: Date = %08ld, Time = %06ld.%03d\n";
 PROGMEM const uchar PM_FORMAT_GP02[]						= "#GP02: Mode2 = %1d, PosFixInd = %1d\n";
-PROGMEM const uchar PM_FORMAT_GP03[]						= "#GP03: SatsUsed = %02d, SatsEphim_GpsGalileoQzz = %02d, SatsEphim_Glonass = %02d\n";
+PROGMEM const uchar PM_FORMAT_GP03[]						= "#GP03: SatsUsed = %02d, SatsEphim_GpsGalileoQzss = %02d, SatsEphim_Glonass = %02d\n";
 PROGMEM const uchar PM_FORMAT_GP04[]						= "#GP04: PDOP = %.2f, HDOP = %.2f, VDOP = %.2f,\n";
 PROGMEM const uchar PM_FORMAT_GP05[]						= "#GP05: Lat = %c %09.4f, Lon = %c %010.4f, Height = %.1f m\n";
 

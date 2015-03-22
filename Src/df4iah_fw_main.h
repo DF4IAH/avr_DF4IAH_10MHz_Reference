@@ -13,7 +13,7 @@
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										150
-#define VERSION_LOW											312
+#define VERSION_LOW											322
 
 
 /* GPS NMEA */
