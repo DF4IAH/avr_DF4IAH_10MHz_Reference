@@ -350,7 +350,7 @@ volatile uint8_t twiSeq2Data[TWI_DATA_BUFFER_SIZE]			= { 0 };
 
 /* LAST IN RAM: Stack Check mung-wall */
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
-// mung-wall memory array[0x0220] = 0x0609.. 0x0828
+// mung-wall memory array[0x0220] = 0x060a.. 0x0829
 // mung-wall low:	0x080b
 // --> RAM: free abt. 500 bytes
 // --> ROM: free abt. 0.75kB (FW section only)
@@ -1114,16 +1114,16 @@ static void workInQueue()
 
 static void doJobs()
 {
-	const uint16_t LocalCtr1sSpanMs = 1000 * DEBUG_DELAY_CNT;// wake up every DEBUG_DELAY_CNT second
-	const uint8_t  LocalCtr250msBorderMs = 250;				// 250 ms time span
-	static uint8_t localAdcConvertNowCntrLast = 0;
+	const uint16_t  LocalCtr1sSpanMs = 1000 * DEBUG_DELAY_CNT;// wake up every DEBUG_DELAY_CNT second
+	const uint8_t   LocalCtr250msBorderMs = 250;				// 250 ms time span
+	static uint8_t  localAdcConvertNowCntrLast = 0;
 	static uint32_t localFastCtr1ms_next = 0;
+	static uint8_t  localNoPpsCnt = 0;
 	uint32_t localFastCtr1ms;
 	uint16_t localFastTCNT1;
 	uint16_t localStampCtr1ms;
 	uint16_t localStampICR1;
 	uint8_t len = 0;
-	uint8_t localPpsReceived = false;
 
 	{
 		/* get the timers */
@@ -1148,7 +1148,7 @@ static void doJobs()
 
 	if (localAdcConvertNowCntrLast != acAdcConvertNowCntr) {  // a new PPS impulse has arrived
 		localAdcConvertNowCntrLast = acAdcConvertNowCntr;
-		localPpsReceived = true;
+		localNoPpsCnt = 0;
 
 		ppsStampCtr1ms_last = ppsStampCtr1ms;
 		ppsStampICR1_last   = ppsStampICR1;
@@ -1159,7 +1159,15 @@ static void doJobs()
 		/* reload timer */
 		localFastCtr1ms_next = localFastCtr1ms + LocalCtr1sSpanMs + LocalCtr250msBorderMs;
 
-	} else if (localFastCtr1ms >= localFastCtr1ms_next) {  	//  the timer has elapsed without a PPS impulse
+	} else if (localFastCtr1ms >= localFastCtr1ms_next) {  	// the timer has elapsed without a PPS impulse
+		if (++localNoPpsCnt > 180) {
+			localNoPpsCnt = 180;							// clamp to 3 minutes
+		}
+		if (localNoPpsCnt >= 10) {
+			mainRefClkState = REFCLK_STATE_NOSYNC;			// reset clock state when at least 10 seconds without a reference signal
+			mainPpm = 0.0f;
+		}
+
 		if ((localFastCtr1ms_next + LocalCtr1sSpanMs) > localFastCtr1ms) {
 			/* adjust */
 			localFastCtr1ms_next += LocalCtr1sSpanMs;		// +1 second
@@ -1271,7 +1279,7 @@ static void doJobs()
 				main_nmeaAltitudeM);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
-		if (localPpsReceived) {
+		if (!localNoPpsCnt) {
 			/* print ADC values - only valid when a PPS has arrived */
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA01, sizeof(PM_FORMAT_TA01));
@@ -1319,7 +1327,7 @@ static void doJobs()
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 	}
 
-	if (localPpsReceived) {
+	if (!localNoPpsCnt) {
 		/* PPS - 1 Hz Ref.-Clk. - State Machine */
 
 		/* central calculations */
@@ -1419,7 +1427,7 @@ static void doJobs()
 	}
 
 	if (main_bf.mainIsLcdAttached) {
-		/* I2C LCD-Module via MCP23017 16 bit port expander */  // TODO check I2C
+		/* I2C LCD-Module via MCP23017 16 bit port expander */  // XXX I2C LCD-Module displayed fields are here
 		uint8_t sreg = SREG;
 		cli();
 		uint32_t localFastCtr1ms = fastCtr1ms;
