@@ -176,9 +176,10 @@ PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_step
 PROGMEM const uchar PM_FORMAT_LC01[]						= "+=== DF4IAH ===+";
 PROGMEM const uchar PM_FORMAT_LC02[]						= "10MHzRefOsc V2.0";
 PROGMEM const uchar PM_FORMAT_LC11[]						= "%c% 08.3f %c%1X %c%02u ";
-PROGMEM const uchar PM_FORMAT_LC12[]						= "%04u%02u%02u U%02u%02u%02u ";
-PROGMEM const uchar PM_FORMAT_LC13[]						= "%c%1u %c%1u %3.1f %c%02u%c%02u ";
-PROGMEM const uchar PM_FORMAT_LC14[]						= "%c%07.3f %c%5.3fV ";
+PROGMEM const uchar PM_FORMAT_LC12[]						= "b ---.--- %c%1X %c%02u ";
+PROGMEM const uchar PM_FORMAT_LC21[]						= "%04u%02u%02u U%02u%02u%02u ";
+PROGMEM const uchar PM_FORMAT_LC22[]						= "%c%1u %c%1u %3.1f %c%02u%c%02u ";
+PROGMEM const uchar PM_FORMAT_LC23[]						= "%c%07.3f %c%5.3fV ";
 
 PROGMEM const uchar PM_FORMAT_SC01[]						= "#SC01: Stack-Check: mung-wall address: 0x%04x, lowest-stack: 0x%04x\n";
 PROGMEM const uchar PM_FORMAT_SC02[]						= "#SC02: s=0x%02x,dS=%u,iP=%u,eS=%u,aA=%u,aAV=%u,dA=%u,dAV=%u\n";
@@ -1448,14 +1449,23 @@ static void doJobs()
 			static uint8_t displaySubNr	= 0;
 
 			/* the status-line */
-			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC11, sizeof(PM_FORMAT_LC11));
-			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-					'b',
-					(mainPpm * 1000.0f),
-					0xe0,
-					mainRefClkState,
-					0xf3,
-					main_nmeaSatsUsed);
+			if (mainRefClkState > REFCLK_STATE_NOSYNC) {
+				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC11, sizeof(PM_FORMAT_LC11));
+				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+						'b',
+						(mainPpm * 1000.0f),
+						0xe0,
+						mainRefClkState,
+						0xf3,
+						main_nmeaSatsUsed);
+			} else {
+				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC12, sizeof(PM_FORMAT_LC12));
+				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+						0xe0,
+						mainRefClkState,
+						0xf3,
+						main_nmeaSatsUsed);
+			}
 			twi_mcp23017_av1624_fw_gotoPosition(0, 0);
 			twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
 
@@ -1470,7 +1480,7 @@ static void doJobs()
 					uint8_t hour	=  main_nmeaTimeUtcInt	/ 10000;
 					uint8_t minutes	= (main_nmeaTimeUtcInt	/ 100)		% 100;
 					uint8_t seconds	=  main_nmeaTimeUtcInt				% 100;
-					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC12, sizeof(PM_FORMAT_LC12));
+					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC21, sizeof(PM_FORMAT_LC21));
 					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 							year,
 							month,
@@ -1486,7 +1496,7 @@ static void doJobs()
 			case 1:
 				{
 					/* SAT data */
-					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC13, sizeof(PM_FORMAT_LC13));
+					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC22, sizeof(PM_FORMAT_LC22));
 					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 							'M',
 							main_nmeaMode2,
@@ -1511,7 +1521,7 @@ static void doJobs()
 					uint8_t localFastPwmSubLoopVal	= fastPwmSubLoopVal;
 					SREG = sreg;
 
-					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC14, sizeof(PM_FORMAT_LC14));
+					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC23, sizeof(PM_FORMAT_LC23));
 					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 							'P',
 							main_fw_calcTimerToFloat(localFastPwmLoopVal, localFastPwmSubLoopVal),
