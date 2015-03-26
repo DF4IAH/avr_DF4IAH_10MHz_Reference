@@ -13,7 +13,7 @@
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										150
-#define VERSION_LOW											322
+#define VERSION_LOW											327
 
 
 /* GPS NMEA */
@@ -135,7 +135,8 @@ typedef struct main_bf_struct
 //     uint8_t  mainReserved01								: 1; // fill to 8 bits
 
      uint8_t  mainHelpConcatNr								: 4;
-     uint8_t  mainReserved11								: 4; // fill to 8 bits
+     uint8_t  mainLcdLedMode								: 3;
+     uint8_t  mainReserved11								: 1; // fill to 8 bits
 } main_bf_t;
 
 enum REFCLK_STATE_t {
@@ -151,6 +152,15 @@ enum ENTER_MODE_t {
 	ENTER_MODE_SLEEP 										= 0,
 	ENTER_MODE_BL,
 	ENTER_MODE_FW
+};
+
+enum LCD_LED_MODE_t {
+	LCD_LED_MODE_OFF 										= 0,
+	LCD_LED_MODE_ON,
+	LCD_LED_MODE_A1,
+	LCD_LED_MODE_A2,
+	LCD_LED_MODE_A3,
+	LCD_LED_MODE_A4
 };
 
 

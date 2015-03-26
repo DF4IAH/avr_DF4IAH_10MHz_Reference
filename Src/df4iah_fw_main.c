@@ -89,9 +89,11 @@ PROGMEM const uchar PM_COMMAND_APCON[]						= "APCON";
 PROGMEM const uchar PM_COMMAND_HALT[]						= "HALT";
 PROGMEM const uchar PM_COMMAND_HELP[]						= "HELP";
 PROGMEM const uchar PM_COMMAND_INFO[]						= "INFO";
+PROGMEM const uchar PM_COMMAND_LEDOFF[]						= "LEDOFF";
+PROGMEM const uchar PM_COMMAND_LEDON[]						= "LEDON";
+PROGMEM const uchar PM_COMMAND_SERBAUD[]					= "SERBAUD";
 PROGMEM const uchar PM_COMMAND_SEROFF[]						= "SEROFF";
 PROGMEM const uchar PM_COMMAND_SERON[]						= "SERON";
-PROGMEM const uchar PM_COMMAND_SERBAUD[]					= "SERBAUD";
 PROGMEM const uchar PM_COMMAND_STACK[]						= "STACK";
 PROGMEM const uchar PM_COMMAND_TEST[]						= "TEST";
 PROGMEM const uchar PM_COMMAND_WRITEPWM[]					= "WRITEPWM";
@@ -118,21 +120,24 @@ PROGMEM const uchar PM_INTERPRETER_HELP05[] 				= "\nHELP\t\t\t\tthis message.";
 
 PROGMEM const uchar PM_INTERPRETER_HELP06[] 				= "\nINFO\t\t\t\ttoggles additional printed infos.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP07[] 				= "\nSERBAUD <baud>\t\t\tsetting serial baud rate.";
+PROGMEM const uchar PM_INTERPRETER_HELP07[] 				= "\nLEDOFF\t\t\t\tswitch backlight OFF." \
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\nLEDON\t\t\t\tswitch backlight ON.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP08[] 				= "\nSEROFF\t\t\t\tswitch serial communication OFF." \
+PROGMEM const uchar PM_INTERPRETER_HELP08[] 				= "\nSERBAUD <baud>\t\t\tsetting serial baud rate.";
+
+PROGMEM const uchar PM_INTERPRETER_HELP09[] 				= "\nSEROFF\t\t\t\tswitch serial communication OFF." \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\nSERON\t\t\t\tswitch serial communication ON.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP09[] 				= "\nSTACK\t\t\t\ttoggles stack mung-wall test.";
+PROGMEM const uchar PM_INTERPRETER_HELP10[] 				= "\nSTACK\t\t\t\ttoggles stack mung-wall test.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP10[] 				= "\nTEST\t\t\t\ttoggles counter test.";
+PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "\nTEST\t\t\t\ttoggles counter test.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP11[] 				= "\nWRITEPWM\t\t\tstore current PWM as default value." \
+PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "\nWRITEPWM\t\t\tstore current PWM as default value." \
 	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  "\nWRITETEMP <TEMP value>\t\twrite current temperature as default value.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP12[] 				= "\n+/- <PWM value>\t\tcorrection value to be added.";
+PROGMEM const uchar PM_INTERPRETER_HELP13[] 				= "\n+/- <PWM value>\t\tcorrection value to be added.";
 
-PROGMEM const uchar PM_INTERPRETER_HELP13[] 				= "\n===========" \
+PROGMEM const uchar PM_INTERPRETER_HELP14[] 				= "\n===========" \
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  "\n>";
 
 PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "\n*?*  unknown command '%s' received, try HELP." \
@@ -258,9 +263,11 @@ volatile main_bf_t main_bf									= {
 									/* mainStopAvr			= */	false,
 									/* mainStackCheck		= */	false,
 									/* mainIsLcdAttached    = */	false,
-									/* mainReserved01		= */	false,
+									/* mainReserved01		= */	// false,
 
-									/* mainHelpConcatNr		= */	0
+									/* mainHelpConcatNr		= */	0,
+									/* mainLcdLedMode		= */	0,
+									/* mainReserved11		= */	false
 															  };
 
 /* df4iah_fw_clkPullPwm */
@@ -922,6 +929,14 @@ static void doInterpret(uchar msg[], uint8_t len)
 			main_bf.mainIsUsbCommTest = false;
 		}
 
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_LEDOFF, sizeof(PM_COMMAND_LEDOFF))) {
+		/* backlight of the LCD module OFF */
+		main_bf.mainLcdLedMode = LCD_LED_MODE_OFF;
+
+	} else if (!main_fw_strncmp(msg, PM_COMMAND_LEDON, sizeof(PM_COMMAND_LEDON))) {
+		/* backlight of the LCD module ON */
+		main_bf.mainLcdLedMode = LCD_LED_MODE_ON;
+
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_SEROFF, sizeof(PM_COMMAND_SEROFF))) {
 		/* serial communication OFF */
 		main_bf.mainIsSerComm = false;
@@ -1100,6 +1115,11 @@ static void workInQueue()
 
 			case 12:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP13, sizeof(PM_INTERPRETER_HELP13));
+				main_bf.mainHelpConcatNr = 13;
+				break;
+
+			case 13:
+				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP14, sizeof(PM_INTERPRETER_HELP14));
 				// no break
 			default:
 				main_bf.mainHelpConcatNr = 0;

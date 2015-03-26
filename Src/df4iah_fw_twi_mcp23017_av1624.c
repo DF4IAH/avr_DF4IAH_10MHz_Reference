@@ -144,13 +144,15 @@ void twi_mcp23017_av1624_fw_close()
 
 void twi_mcp23017_av1624_fw_waitUntilReady()
 {
+	const uint8_t lightBF = (main_bf.mainLcdLedMode == LCD_LED_MODE_ON) ?  0x08 : 0x00;
+
 	twi_mcp23017_fw_setPortA_DirOut(false);
 
 	for (;;) {
-		twi_mcp23017_fw_setPortB(0b1010);
-		twi_mcp23017_fw_setPortB(0b1011);
+		twi_mcp23017_fw_setPortB(0b0010 | lightBF);
+		twi_mcp23017_fw_setPortB(0b0011 | lightBF);
 		uint8_t status = twi_mcp23017_fw_readPortA();
-		twi_mcp23017_fw_setPortB(0b1010);
+		twi_mcp23017_fw_setPortB(0b0010 | lightBF);
 
 		if (!(status & 0x80)) {
 			break;
@@ -164,20 +166,23 @@ void twi_mcp23017_av1624_fw_waitUntilReady()
 
 void twi_mcp23017_av1624_fw_gotoPosition(uint8_t line, uint8_t column)
 {
+	const uint8_t lightBF = (main_bf.mainLcdLedMode == LCD_LED_MODE_ON) ?  0x08 : 0x00;
 	uint8_t ddramAdrCmd = (0x80 | ((line % 2) << 6) | (column % 16));
 
 	twi_mcp23017_av1624_fw_waitUntilReady();
 
 	// set DDRAM address
 	twi_mcp23017_fw_setPortA_DirOut(true);
-	twi_mcp23017_fw_setPortBA(0b1000, ddramAdrCmd);
-	twi_mcp23017_fw_setPortBA(0b1001, ddramAdrCmd);
-	twi_mcp23017_fw_setPortBA(0b1000, ddramAdrCmd);
+	twi_mcp23017_fw_setPortBA(0b0000 | lightBF, ddramAdrCmd);
+	twi_mcp23017_fw_setPortBA(0b0001 | lightBF, ddramAdrCmd);
+	twi_mcp23017_fw_setPortBA(0b0000 | lightBF, ddramAdrCmd);
 	twi_mcp23017_fw_setPortA_DirOut(false);
 }
 
 void twi_mcp23017_av1624_fw_writeString(const uint8_t* buffer, uint8_t len)
 {
+	const uint8_t lightBF = (main_bf.mainLcdLedMode == LCD_LED_MODE_ON) ?  0x08 : 0x00;
+
 	for (int idx = 0; idx < len; ++idx) {
 		uint8_t c = buffer[idx];
 		c = recodeChar(c);
@@ -186,10 +191,10 @@ void twi_mcp23017_av1624_fw_writeString(const uint8_t* buffer, uint8_t len)
 
 		// write data
 		twi_mcp23017_fw_setPortA_DirOut(true);
-		twi_mcp23017_fw_setPortBA(0b1100, c);
-		twi_mcp23017_fw_setPortBA(0b1101, c);
-		twi_mcp23017_fw_setPortBA(0b1100, c);
-		twi_mcp23017_fw_setPortBA(0b1000, c);
+		twi_mcp23017_fw_setPortBA(0b0100 | lightBF, c);
+		twi_mcp23017_fw_setPortBA(0b0101 | lightBF, c);
+		twi_mcp23017_fw_setPortBA(0b0100 | lightBF, c);
+		twi_mcp23017_fw_setPortBA(0b0000 | lightBF, c);
 		twi_mcp23017_fw_setPortA_DirOut(false);
 	}
 }
