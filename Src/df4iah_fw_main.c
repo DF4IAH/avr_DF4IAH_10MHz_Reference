@@ -361,7 +361,7 @@ uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
 // mung-wall memory array[0x0220] = 0x060a.. 0x0829
 // mung-wall low:	0x080b
 // --> RAM: free abt. 500 bytes
-// --> ROM: free abt. 0.75kB (FW section only)
+// --> ROM: free abt.  16 bytes
 
 // CODE SECTION
 
@@ -467,6 +467,14 @@ static inline void wdt_init() {
 
 static inline void wdt_close() {
 	wdt_disable();
+}
+
+static void recalcEepromCrc(enum BLOCK_NR_t block, uint16_t crcOffset)
+{
+	/* for any modified block add the CRC seal marker and do a  memory_fw_checkAndInitBlock() */
+	uint16_t newCrc = memory_fw_getSealMarker(block);
+	memory_fw_writeEEpromPage((uint8_t*) &newCrc, sizeof(uint16_t), crcOffset);
+	memory_fw_checkAndInitBlock(block);
 }
 
 float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
@@ -931,11 +939,19 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_LEDOFF, sizeof(PM_COMMAND_LEDOFF))) {
 		/* backlight of the LCD module OFF */
-		main_bf.mainLcdLedMode = LCD_LED_MODE_OFF;
+		const uint8_t lcdLedMode = LCD_LED_MODE_OFF;
+		main_bf.mainLcdLedMode = lcdLedMode;
+
+		memory_fw_writeEEpromPage((uint8_t*) &lcdLedMode, sizeof(uint8_t), offsetof(eeprom_layout_t, b00.b00_lcdLedMode));
+		recalcEepromCrc(BLOCK_HEADER_NR, offsetof(eeprom_layout_t, b00.b00_crc));
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_LEDON, sizeof(PM_COMMAND_LEDON))) {
 		/* backlight of the LCD module ON */
-		main_bf.mainLcdLedMode = LCD_LED_MODE_ON;
+		const uint8_t lcdLedMode = LCD_LED_MODE_ON;
+		main_bf.mainLcdLedMode = lcdLedMode;
+
+		memory_fw_writeEEpromPage((uint8_t*) &lcdLedMode, sizeof(uint8_t), offsetof(eeprom_layout_t, b00.b00_lcdLedMode));
+		recalcEepromCrc(BLOCK_HEADER_NR, offsetof(eeprom_layout_t, b00.b00_crc));
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_SEROFF, sizeof(PM_COMMAND_SEROFF))) {
 		/* serial communication OFF */
@@ -954,11 +970,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 		/* write current baud rate as the default/startup value to the EEPROM */
 		memory_fw_writeEEpromPage((uint8_t*) &serialCoef_b03_serial_baud, sizeof(uint16_t), offsetof(eeprom_layout_t, b03.b03_serial_baud));
-
-		/* for any modified block add the CRC seal marker and do a  memory_fw_checkAndInitBlock() */
-		uint16_t newCrc = memory_fw_getSealMarker(BLOCK_GPS_NR);
-		memory_fw_writeEEpromPage((uint8_t*) &newCrc, sizeof(uint16_t), offsetof(eeprom_layout_t, b03.b03_crc));
-		memory_fw_checkAndInitBlock(BLOCK_GPS_NR);
+		recalcEepromCrc(BLOCK_GPS_NR, offsetof(eeprom_layout_t, b03.b03_crc));
 
 		/* user information */
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_SET_BAUD, sizeof(PM_FORMAT_SET_BAUD));
@@ -988,11 +1000,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 		memory_fw_writeEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial));
 		memory_fw_writeEEpromPage((uint8_t*) &pullCoef_b02_pwm_initial_sub, sizeof(uint8_t), offsetof(eeprom_layout_t, b02.b02_pwm_initial_sub));
-
-		/* for any modified block add the CRC seal marker and do a  memory_fw_checkAndInitBlock() */
-		uint16_t newCrc = memory_fw_getSealMarker(BLOCK_REFOSC_NR);
-		memory_fw_writeEEpromPage((uint8_t*) &newCrc, sizeof(uint16_t), offsetof(eeprom_layout_t, b02.b02_crc));
-		memory_fw_checkAndInitBlock(BLOCK_REFOSC_NR);
+		recalcEepromCrc(BLOCK_REFOSC_NR, offsetof(eeprom_layout_t, b02.b02_crc));
 
 	} else if (!main_fw_memcmp(msg, PM_COMMAND_WRITETEMP, sizeof(PM_COMMAND_WRITETEMP) - 1)) {
 		float localTemp = 0.0f;
@@ -1004,11 +1012,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 			/* write the correction value to the EEPROM */
 			memory_fw_writeEEpromPage((uint8_t*) &mainCoef_b01_temp_ofs_adc_25C_steps, sizeof(float), offsetof(eeprom_layout_t, b01.b01_temp_ofs_adc_25C_steps));
-
-			/* for any modified block add the CRC seal marker and do a  memory_fw_checkAndInitBlock() */
-			uint16_t newCrc = memory_fw_getSealMarker(BLOCK_MEASURING_NR);
-			memory_fw_writeEEpromPage((uint8_t*) &newCrc, sizeof(uint16_t), offsetof(eeprom_layout_t, b01.b01_crc));
-			memory_fw_checkAndInitBlock(BLOCK_MEASURING_NR);
+			recalcEepromCrc(BLOCK_MEASURING_NR, offsetof(eeprom_layout_t, b01.b01_crc));
 		}
 	} else if (msg[0] == PM_COMMAND_PLUSSIGN[0]) {
 		/* correct the PWM value up */
@@ -1703,6 +1707,7 @@ int main(void)
 
 			mainCoef_b00_dev_serial					= b00->b00_device_serial;
 			mainCoef_b00_dev_version				= b00->b00_version;
+			main_bf.mainLcdLedMode					= b00->b00_lcdLedMode;
 		}
 
 		/* read MEASURING coefficients */

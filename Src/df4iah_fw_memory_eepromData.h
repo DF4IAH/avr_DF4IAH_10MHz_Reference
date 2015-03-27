@@ -31,7 +31,8 @@
 		'e', 'f',					\
 		(VERSION_HIGH<<8) | VERSION_LOW,			/* b00_version	MSB: yr*10 + month / 10,  LSB: month % 10 + day */						\
 		0x0000,										/* b00_device_serial */ 																\
-		0xffff,						\
+		0x01,										/* b00_lcdLedMode */																	\
+		0xff,						\
 		0xffff,						\
 		0xffff,						\
 		0xffff,						\

@@ -36,7 +36,9 @@ typedef struct eeprom_b00 {
 	uint8_t			b00_header[16];
 	uint16_t		b00_version;
 	uint16_t		b00_device_serial;
-	uint16_t		b00_reserved[4];
+	uint8_t			b00_lcdLedMode;
+	uint8_t			b00_reserved2;
+	uint16_t		b00_reserved[3];
 	uint16_t		b00_regen_ctr;
 	uint16_t		b00_crc;
 } eeprom_b00_t;
