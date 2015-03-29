@@ -46,11 +46,6 @@ void serial_fw_serRxIsrOn(uint8_t flag);
 void serial_fw_init();
 void serial_fw_close();
 
-#if 0
-void serial_fw_sendchar(uint8_t data);
-uint8_t serial_fw_recvchar(void);
-#endif
-
 void serial_fw_setCommBaud(uint16_t baud);
 uint8_t serial_fw_isTxRunning();
 void serial_fw_copyAndSendNmea(uint8_t isPgm, const uchar inData[], uint8_t len);

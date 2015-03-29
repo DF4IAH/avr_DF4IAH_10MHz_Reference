@@ -12,9 +12,6 @@
 #include "chipdef.h"
 
 
-#define TWI_MCP23017_AV1624_XXX								0
-
-
 void twi_mcp23017_av1624_fw_init();
 void twi_mcp23017_av1624_fw_close();
 

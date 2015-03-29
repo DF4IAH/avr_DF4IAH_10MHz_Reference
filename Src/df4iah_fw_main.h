@@ -13,34 +13,21 @@
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										150
-#define VERSION_LOW											327
+#define VERSION_LOW											329
 
 
 /* GPS NMEA */
 #define UART_PORT			PORTD						// port D register
 #define UART_DDR			DDRD						// DDR for port D
-#define UART_TX_PIN			PIND						// PIN for TX pin at port D
 #define UART_TX_PNUM		PIN1						// PIN number for TX pin
-#define UART_RX_PIN			PIND						// PIN for RX pin at port D
 #define UART_RX_PNUM		PIN0						// PIN number for RX pin
 
 /* Timer-n compare output */
-#define DDR_OC0A_REG		DDRD
-#define DDR_OC0A			PD6
 #define DDR_OC0B_REG		DDRD
 #define DDR_OC0B			PD5
-#define DDR_OC1A_REG		DDRB
-#define DDR_OC1A			PB1
-#define DDR_OC1B_REG		DDRB
-#define DDR_OC1B			PB2
-#define DDR_OC2A_REG		DDRB
-#define DDR_OC2A			PB3
-#define DDR_OC2B_REG		DDRD
-#define DDR_OC2B			PD3
 
 /* TWI ports (I2C compatible) */
 #define TWI_PORT			PORTC
-#define TWI_PIN				PINC
 #define TWI_DDR				DDRC
 #define TWI_SDA_PNUM		PC4
 #define TWI_SCL_PNUM		PC5
@@ -54,14 +41,6 @@
 #define PROBE_PORT			PORTD
 #define PROBE_PIN			PIND
 #define PROBE_PNUM			PIN3						// JP3 BootLoader
-
-#if 0
-  /* Debugging toggle pin */
-# define PWMTOGGLEPIN_DDR	DDRC
-# define PWMTOGGLEPIN_PORT	PORTC
-# define PWMTOGGLEPIN_PIN	PINC
-# define PWMTOGGLEPIN_PNUM	PIN5						// PC5(ADC5/SCL) - Pin 28
-#endif
 
 /* BOOT token and place of BOOT token as offset before RAMEND */
 # define BOOT_TOKEN			0xb00f
@@ -83,10 +62,7 @@
  * Watchdog-reset is issued at exit
  * define the timeout-value here (see avr-libc manual)
  */
-#define EXIT_WDT_TIME										WDTO_250MS
-
-#define PWM_HIST_COUNT										8
-#define MAIN_CLOCK_DIFF_COUNT								3
+//#define EXIT_WDT_TIME										WDTO_250MS
 
 #define DEBUG_DELAY_CNT										1
 
@@ -107,19 +83,9 @@
 #define MEAN_PHASE_PPM_STAGES_F								  7.0f;
 #define PWM_COR_STEPS_COARSE_DIV_F							  1.1f;
 #define PWM_COR_STEPS_FINE_DIV_F							 10.0f;
-#define PWM_COR_STEPS_PHASE_DIV_F							 20.0f;
 #define CLOCK_DIFF_OUT										100l
 #define CLOCK_DIFF_COARSE_FINE								 20l
 #define CLOCK_DIFF_FAST_FRAME								  3
-#define ADC_PHASE_PUSH_BORDER								  0
-
-
-#ifndef true
-# define true 1
-#endif
-#ifndef false
-# define false 0
-#endif
 
 
 typedef struct main_bf_struct
