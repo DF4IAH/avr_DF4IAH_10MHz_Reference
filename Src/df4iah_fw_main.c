@@ -676,7 +676,7 @@ static void calcPhase()
 
 	if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
 		/* phase correction */
-		phaseStepsPhase = (float) (pow(fabs(phaseErr) * 20.00f, 1.25f));  	// magic values  XXX PHASE: trimming is done here
+		phaseStepsPhase = (float) (pow(fabs(phaseErr) * 22.50f, 1.25f));  	// magic values  XXX PHASE: trimming is done here
 		if (phaseErr < 0.0f) {
 			phaseStepsPhase = -phaseStepsPhase;
 		}
@@ -684,7 +684,7 @@ static void calcPhase()
 		if (phaseStepsPhase) {
 			uint8_t sreg = SREG;
 			cli();
-			fastPwmSingleDiffSum += phaseStepsPhase * 1.0f;					// phase offset accumulator
+			fastPwmSingleDiffSum += phaseStepsPhase;						// phase offset accumulator
 			SREG = sreg;
 
 			calcPhaseResidue();												// first call - to be called many times during the whole second until next pulse comes
@@ -695,7 +695,7 @@ static void calcPhase()
 		/* frequency drift correction */
 		float phaseMeanPhaseErrorDiff = phaseMeanPhaseErrorSum / MEAN_PHASE_CLOCK_STAGES_F;
 		phaseMeanPhaseErrorSum += (((float) phaseStepsPhase) - phaseMeanPhaseErrorDiff);
-		phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.00000020f; 		// magic value  XXX PHASE: trimming is done here
+		phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.00000010f; 		// magic value  XXX PHASE: trimming is done here
 
 		/* mainPpm calculations */
 		float phaseStepsErrorDiff = phaseStepsErrorSum / MEAN_PHASE_PPM_STAGES_F;
