@@ -676,7 +676,7 @@ static void calcPhase()
 
 	if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
 		/* phase correction */
-		phaseStepsPhase = (float) (pow(fabs(phaseErr) * 22.50f, 1.25f));  	// magic values  XXX PHASE: trimming is done here
+		phaseStepsPhase = (float) (pow(fabs(phaseErr) * 32.00f, 1.25f));  	// magic values  XXX PHASE: trimming is done here
 		if (phaseErr < 0.0f) {
 			phaseStepsPhase = -phaseStepsPhase;
 		}
