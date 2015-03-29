@@ -14,7 +14,7 @@
 //#define EXPERIMENTAL										// ... or not
 
 #define OCR1_TOP_VALUE 										19999
-#define FAST_PWM_SUB_BITCNT									5													// highest X bits are relevant
+#define FAST_PWM_SUB_BITCNT									8													// highest X bits are relevant
 
 
 void clkFastCtr_fw_init();
