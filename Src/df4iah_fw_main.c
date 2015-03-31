@@ -179,7 +179,7 @@ PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: PHASE phaseErr  = %03.3f°, 
 PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_steps = %+03.3f\n";
 
 PROGMEM const uchar PM_FORMAT_LC01[]						= "+=== DF4IAH ===+";
-PROGMEM const uchar PM_FORMAT_LC02[]						= "10MHzRefOsc V2.0";
+PROGMEM const uchar PM_FORMAT_LC02[]						= "10MHzRefOsc V2.x";
 PROGMEM const uchar PM_FORMAT_LC11[]						= "%c% 08.3f %c%1X %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC12[]						= "b ---.--- %c%1X %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC21[]						= "%04u%02u%02u U%02u%02u%02u ";
