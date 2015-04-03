@@ -513,6 +513,9 @@ float main_fw_calcTimerAdj(float pwmAdjust, uint8_t* intVal, uint8_t* intSubVal)
 
 static void calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float qrgDev_Hz, float ppm)
 {
+	const  uint8_t holdOffTimeStart = 5;
+	static uint8_t holdOffTime = 0;
+
 	/* frequency shift calculation */
 	uint8_t localIsOffset = false;
 
@@ -540,39 +543,40 @@ static void calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float q
 		}
 
 		/* determine the new state of the FSM */
-		if ((-0.015f <= ppm) && (ppm <= 0.015f)) {  // single step tuning with counter stabilizer
-			if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
-				/* Upgrading: switch on the frequency mean value counter */
+		if ((-0.015f <= ppm) && (ppm <= 0.015f) && (mainRefClkState == REFCLK_STATE_SEARCH_PHASE)) {  // single step tuning with counter stabilizer
+			/* Upgrading: switch on the frequency mean value counter */
+			if (!holdOffTime) {
 				mainRefClkState = REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED;
 			}
-		} else if ((-0.025f <= ppm) && (ppm <= 0.025f)) {  // single step tuning
-			if (mainRefClkState < REFCLK_STATE_SEARCH_PHASE) {
-				/* Upgrading: hand-over to the phase lock loop */
+
+		} else if ((-0.045f <= ppm) && (ppm <= 0.045f) && (mainRefClkState == REFCLK_STATE_SEARCH_QRG)) {	 // entering phase window (deviation less than 1 Hz @ 20 MHz)
+			/* Upgrading: search phase window */
+			if (!holdOffTime) {
 				mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
-
-			} else if (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
-				/* Downgrading: to shaky for the mean value counter */
-				//mainRefClkState = REFCLK_STATE_SEARCH_PHASE;
+				holdOffTime = holdOffTimeStart;
 			}
 
-		} else if ((-0.040f <= ppm) && (ppm <= 0.040f)) {  // phase lock loop locked out again
+		} else if ((-0.095f <= ppm) && (ppm <= 0.095f) && (mainRefClkState > REFCLK_STATE_SEARCH_QRG)) {  // do not fall out of phase window
+			/* hysteresis: keep state a bit longer */
+
+		} else if ((-25.0 <= ppm) && (ppm <= 25.0f)) {  // searching QRG until 1 Hz resolution is established
 			if (mainRefClkState > REFCLK_STATE_SEARCH_QRG) {
-				/* Downgrading: frequency search and lock loop entering QRG area */
-				//mainRefClkState = REFCLK_STATE_SEARCH_QRG;
-			}
-
-		} else if ((-25.0f <= ppm) && (ppm <= 25.0f)) {	 // entering 10.0 MHz area
-			if (mainRefClkState < REFCLK_STATE_SEARCH_QRG) {
-				/* Upgrading: frequency search and lock loop entering QRG area */
+				/* Downgrading */
 				mainRefClkState = REFCLK_STATE_SEARCH_QRG;
-			} else if (mainRefClkState > REFCLK_STATE_SEARCH_QRG) {
-				/* Downgrading: to shaky for the mean value counter */
-				//mainRefClkState = REFCLK_STATE_SEARCH_QRG;
+				holdOffTime = holdOffTimeStart;
+
+			} else if (mainRefClkState < REFCLK_STATE_SEARCH_QRG) {
+				/* Upgrading */
+				if (!holdOffTime) {
+					mainRefClkState = REFCLK_STATE_SEARCH_QRG;
+					holdOffTime = holdOffTimeStart;
+				}
 			}
 
 		} else {
-			/* frequency search and lock loop - out if sync */
+			/* no valid frequency detected */
 			mainRefClkState = REFCLK_STATE_NOSYNC;
+			holdOffTime = holdOffTimeStart;
 		}
 
 		/* windowing and adding of the new PWM value */
@@ -619,6 +623,10 @@ static void calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float q
 	} else {
 		/* frequency search and lock loop - out if sync */
 		// mainRefClkState = REFCLK_STATE_NOSYNC;  // single spike should not destroy time base - deactivated
+	}
+
+	if (--holdOffTime == 255) {
+		holdOffTime = 0;
 	}
 }
 
@@ -1188,8 +1196,8 @@ static void doJobs()
 		if (++localNoPpsCnt > 180) {
 			localNoPpsCnt = 180;							// clamp to 3 minutes
 		}
-		if (localNoPpsCnt >= 10) {
-			mainRefClkState = REFCLK_STATE_NOSYNC;			// reset clock state when at least 10 seconds without a reference signal
+		if (localNoPpsCnt >= 5) {
+			mainRefClkState = REFCLK_STATE_NOSYNC;			// reset clock state when at least 5 seconds without a reference signal
 			mainPpm = 0.0f;
 		}
 
@@ -1247,8 +1255,8 @@ static void doJobs()
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (1)
 
 		} else if (13 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
-			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
+			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
 
 		} else if (20 == mainGpsInitVal) {
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_CR_LF, sizeof(PM_FORMAT_GPS_CR_LF));
