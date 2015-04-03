@@ -513,7 +513,7 @@ float main_fw_calcTimerAdj(float pwmAdjust, uint8_t* intVal, uint8_t* intSubVal)
 
 static void calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float qrgDev_Hz, float ppm)
 {
-	const  uint8_t holdOffTimeStart = 5;
+	const  uint8_t holdOffTimeStart = 20;
 	static uint8_t holdOffTime = 0;
 
 	/* frequency shift calculation */
