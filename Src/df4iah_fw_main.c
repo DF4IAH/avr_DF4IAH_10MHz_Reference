@@ -358,10 +358,10 @@ volatile uint8_t twiSeq2Data[TWI_DATA_BUFFER_SIZE]			= { 0 };
 
 /* LAST IN RAM: Stack Check mung-wall */
 uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
-// mung-wall memory array[0x0220] = 0x060a.. 0x0829
+// mung-wall memory array[0x0220] = 0x060b.. 0x082a
 // mung-wall low:	0x080b
 // --> RAM: free abt. 500 bytes
-// --> ROM: free abt.  16 bytes
+// --> ROM: free        2 bytes
 
 // CODE SECTION
 
@@ -1256,7 +1256,7 @@ static void doJobs()
 
 		} else if (13 == mainGpsInitVal) {
 			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_HOT_RESTART, sizeof(PM_FORMAT_GPS_HOT_RESTART));
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WARM_RESTART, sizeof(PM_FORMAT_GPS_WARM_RESTART));
 
 		} else if (20 == mainGpsInitVal) {
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_CR_LF, sizeof(PM_FORMAT_GPS_CR_LF));
