@@ -1248,20 +1248,20 @@ static void doJobs()
 		/* activate GPS module for GPS / GALILEO / QZSS as well as GLONASS reception */
 
 		mainGpsInitVal++;
-		if (10 == mainGpsInitVal) {  // XXX init of GPS-Module is here
+		if (7 == mainGpsInitVal) {  // XXX init of GPS-Module is here
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_CR_LF, sizeof(PM_FORMAT_GPS_CR_LF));
 
-		} else if (11 == mainGpsInitVal) {
+		} else if (9 == mainGpsInitVal) {
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (1)
 
-		} else if (13 == mainGpsInitVal) {
+		} else if (12 == mainGpsInitVal) {
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
 			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WARM_RESTART, sizeof(PM_FORMAT_GPS_WARM_RESTART));
 
-		} else if (20 == mainGpsInitVal) {
+		} else if (23 == mainGpsInitVal) {
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_CR_LF, sizeof(PM_FORMAT_GPS_CR_LF));
 
-		} else if (21 == mainGpsInitVal) {
+		} else if (25 == mainGpsInitVal) {
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (2)
 			mainGpsInitVal = 0;
 		}
