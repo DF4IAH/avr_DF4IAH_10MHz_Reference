@@ -1249,20 +1249,21 @@ static void doJobs()
 
 		mainGpsInitVal++;
 		if (7 == mainGpsInitVal) {  // XXX init of GPS-Module is here
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_CR_LF, sizeof(PM_FORMAT_GPS_CR_LF));
+			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_CR_LF, sizeof(PM_FORMAT_GPS_CR_LF));
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (1)
 
 		} else if (9 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (1)
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (2)
 
 		} else if (12 == mainGpsInitVal) {
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
 			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WARM_RESTART, sizeof(PM_FORMAT_GPS_WARM_RESTART));
 
 		} else if (23 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_CR_LF, sizeof(PM_FORMAT_GPS_CR_LF));
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (3)
 
 		} else if (25 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (2)
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (4)
 			mainGpsInitVal = 0;
 		}
 	}
