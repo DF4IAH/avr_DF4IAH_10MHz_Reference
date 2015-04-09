@@ -1255,8 +1255,8 @@ static void doJobs()
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (1)
 
 		} else if (13 == mainGpsInitVal) {
-			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WARM_RESTART, sizeof(PM_FORMAT_GPS_WARM_RESTART));
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
+			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WARM_RESTART, sizeof(PM_FORMAT_GPS_WARM_RESTART));
 
 		} else if (20 == mainGpsInitVal) {
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_CR_LF, sizeof(PM_FORMAT_GPS_CR_LF));
