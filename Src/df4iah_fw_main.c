@@ -361,7 +361,7 @@ uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
 // mung-wall memory array[0x0220] = 0x060b.. 0x082a
 // mung-wall low:	0x080b
 // --> RAM: free abt. 500 bytes
-// --> ROM: free        2 bytes
+// --> ROM: free abt. 030 bytes
 
 // CODE SECTION
 
@@ -1248,23 +1248,13 @@ static void doJobs()
 		/* activate GPS module for GPS / GALILEO / QZSS as well as GLONASS reception */
 
 		mainGpsInitVal++;
-		if (7 == mainGpsInitVal) {  // XXX init of GPS-Module is here
-			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_CR_LF, sizeof(PM_FORMAT_GPS_CR_LF));
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (1)
-
-		} else if (9 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (2)
-
-		} else if (12 == mainGpsInitVal) {
+		if (5 == mainGpsInitVal) {  // XXX init of GPS-Module is here
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
 			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WARM_RESTART, sizeof(PM_FORMAT_GPS_WARM_RESTART));
 
-		} else if (23 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (3)
-
-		} else if (25 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (4)
-			mainGpsInitVal = 0;
+		} else if (70 == mainGpsInitVal) {
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (sent every minute)
+			mainGpsInitVal = 10;
 		}
 	}
 
