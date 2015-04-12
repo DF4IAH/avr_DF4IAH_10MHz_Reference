@@ -145,14 +145,16 @@ PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "\n*?*  unknown command '%s' 
 
 PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d";
 
-PROGMEM const uchar PM_FORMAT_GPS_CR_LF[]					= "\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_HOT_RESTART[]				= "$PMTK101*32\r\n";
+//PROGMEM const uchar PM_FORMAT_GPS_CR_LF[]					= "\r\n";
+//PROGMEM const uchar PM_FORMAT_GPS_HOT_RESTART[]				= "$PMTK101*32\r\n";
 PROGMEM const uchar PM_FORMAT_GPS_WARM_RESTART[]			= "$PMTK102*31\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_COLD_RESTART[]			= "$PMTK103*30\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_DEFAULT_RESTORE[]			= "$PMTK104*37\r\n";
+//PROGMEM const uchar PM_FORMAT_GPS_COLD_RESTART[]			= "$PMTK103*30\r\n";
+//PROGMEM const uchar PM_FORMAT_GPS_DEFAULT_RESTORE[]			= "$PMTK104*37\r\n";
 PROGMEM const uchar PM_FORMAT_GPS_STBY[]					= "$PMTK161,0*28\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_ACT[]						= "$PMTK353,1,1*37\r\n";
-PROGMEM const uchar PM_FORMAT_GPS_DGPS_REQ[]				= "$PMTK401*37\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_WEST0_EAST0[]				= "$PMTK353,0,0*37\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_WEST1_EAST0[]				= "$PMTK353,1,0*36\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_WEST1_EAST1[]				= "$PMTK353,1,1*37\r\n";
+//PROGMEM const uchar PM_FORMAT_GPS_DGPS_REQ[]				= "$PMTK401*37\r\n";
 
 PROGMEM const uchar PM_FORMAT_GP00[]						= "\n#GP00: =======";
 PROGMEM const uchar PM_FORMAT_GP01[]						= "#GP01: Date = %08ld, Time = %06ld.%03d\n";
@@ -361,7 +363,7 @@ uchar stackCheckMungWall[MAIN_STACK_CHECK_SIZE];			// XXX debugging purpose
 // mung-wall memory array[0x0220] = 0x060b.. 0x082a
 // mung-wall low:	0x080b
 // --> RAM: free abt. 500 bytes
-// --> ROM: free abt. 030 bytes
+// --> ROM: free abt. 014 bytes
 
 // CODE SECTION
 
@@ -1249,11 +1251,19 @@ static void doJobs()
 
 		mainGpsInitVal++;
 		if (5 == mainGpsInitVal) {  // XXX init of GPS-Module is here
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_COLD_RESTART, sizeof(PM_FORMAT_GPS_COLD_RESTART));
-			//serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WARM_RESTART, sizeof(PM_FORMAT_GPS_WARM_RESTART));
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WARM_RESTART, sizeof(PM_FORMAT_GPS_WARM_RESTART));
+
+		} else if (10 == mainGpsInitVal) {
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST0_EAST0, sizeof(PM_FORMAT_GPS_WEST0_EAST0));  // disable all GNSS systems
+
+		} else if (11 == mainGpsInitVal) {
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST1_EAST0, sizeof(PM_FORMAT_GPS_WEST1_EAST0));  // activate GPS, QZSS & Galileo
+
+		} else if (12 == mainGpsInitVal) {
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST1_EAST1, sizeof(PM_FORMAT_GPS_WEST1_EAST1));  // activate GLONASS also
 
 		} else if (70 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_ACT, sizeof(PM_FORMAT_GPS_ACT));  // activate GLONASS also (sent every minute)
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST1_EAST1, sizeof(PM_FORMAT_GPS_WEST1_EAST1));  // activate GLONASS also (sent every minute)
 			mainGpsInitVal = 10;
 		}
 	}
