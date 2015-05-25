@@ -23,6 +23,9 @@
 #include "terminal.h"
 
 
+//#define TEST_DATATRANSFER_SLOW
+
+
 #ifdef DEBUG
 uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE] = { 0 };
 uint8_t usbRingBufferSendSemaphore = 0;
@@ -456,26 +459,27 @@ void terminal()
 		usb_do_transfers();
 
 		if (!handle) {
-			usleep(1000000ULL);
+			usleep(1000000LL);
 			openDevice(true);
 		}
 
 		/* timer */
 		gettimeofday(&nowTime, NULL);
-		time_t deltaTime = (time_t) (nextTime - nowTime.tv_sec * 1000000L - nowTime.tv_usec);
+		time_t deltaTime = (time_t) (nextTime - nowTime.tv_sec * 1000000LL - nowTime.tv_usec);
 		if (deltaTime > 0) {
 			usleep(deltaTime);
-		} else if (deltaTime < -1000) {
+
+		} else if (deltaTime < -1000L) {
 			/* adjust to now time */
-			nextTime += -deltaTime;
+			nextTime  = nowTime.tv_sec * 1000000LL + nowTime.tv_usec;
 		}
 
 #ifdef TEST_DATATRANSFER_SLOW
-		nextTime += 250000;
+		nextTime += 25000;
 #else
-		nextTime += (USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000LL;
+		nextTime += (USB_CFG_INTR_POLL_INTERVAL * 1000LL);
 #endif
-		mvprintw(LINES - 1, COLS - 30, "INFO: deltaTime=%09ld ", deltaTime);
+		mvprintw(LINES - 1, COLS - 30, "INFO: deltaTime=%+09ld.", deltaTime);
 		move(LINES - 8, outLineCnt + 2);
 	} while (loop);
 
