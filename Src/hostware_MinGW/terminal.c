@@ -9,8 +9,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <time.h>
+#include <unistd.h>
+#include "usleep.h"
 #include <sys/time.h>
+#include <time.h>
 #include <string.h>
 #include <lusb0_usb.h>										/* this is libusb */
 
@@ -61,7 +63,7 @@ static int errLine = 0;
 
 /* -- 8< --  RINGBUFFERS */
 
-int ringBufferPush(char isSend, uchar inData[], int len)
+int ringbuffer_fw_ringBufferPush(char isSend, uchar inData[], int len)
 {
 	int retLen = 0;
 	int bufferSize = (isSend ?  RINGBUFFER_SEND_SIZE : RINGBUFFER_RCV_SIZE);
@@ -138,7 +140,7 @@ int ringBufferPull(char isSend, uchar outData[], int size)
 
 static void usb_buffer_controlOut(uchar inLine[], int len)
 {
-	ringBufferPush(true, inLine, len);
+	ringbuffer_fw_ringBufferPush(true, inLine, len);
 }
 
 static int usb_buffer_controlIn(uchar outLine[], int size)
@@ -152,7 +154,7 @@ void usb_do_transfers()
 	if (handle && (usbRingBufferSendPushIdx != usbRingBufferSendPullIdx)) {
 		int lenTx = ringBufferPull(true, usbMsg, sizeof(usbMsg));
 #ifdef TEST_DATATRANSFER_USB
-		int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
+		int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, (char *) usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
 		mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 		if (usbRetLen >= 0) {
 			mvprintw(LINES - 7 + (errLine++ % 7), 20, "OUT Data: usbRetLen=%d of lenTx=%d .   ", usbRetLen, lenTx);
@@ -173,10 +175,10 @@ void usb_do_transfers()
 #ifdef TEST_DATATRANSFER_USB
         mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 #endif
-        if (usbRetLen > 0) {
-        	ringBufferPush(false, usbMsg, usbRetLen);
+        if ((usbRetLen > 0) && (usbRetLen != sizeof(usbMsg))) {
+        	ringbuffer_fw_ringBufferPush(false, usbMsg, usbRetLen);
 #ifdef TEST_DATATRANSFER_USB
-			mvprintw(LINES - 7 + (errLine++ % 7), 20, "IN  Data: usbRetLen=%d msg=%s.   ", usbRetLen, usbMsg);
+			mvprintw(LINES - 7 + (errLine++ % 7), 20, "IN  Data: usbRetLen=%d msg=%16s.   ", usbRetLen, usbMsg);
 #endif
 
         } else if (usbRetLen < 0) {
@@ -341,8 +343,12 @@ void terminal()
 # ifdef TEST_DATATRANSFER_USB_TEST2
 		if (inLineCnt) {
 			char debugBuffer[MSGBUFFER_SIZE] = { 0 };
-			sprintf(debugBuffer, " usb_controlIn:   inLineCnt=%03d ", inLineCnt);
+			sprintf(debugBuffer, " usb_controlIn:  inLineCnt=%03d \n", inLineCnt);
 			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_DEBUGGING_IN, 0);
+			sprintf(debugBuffer, "%s\n", inLine);
+			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_RCV_MAIN, 0);
+			inLineCnt = 0;   // TODO: remove me!
+			ncurses_update(win_rxborder, win_rx, win_tx);  // TODO: remove me!
 		}
 # endif
 #endif
@@ -382,7 +388,7 @@ void terminal()
 			break;
 
 		case KEY_F(2):
-			sleep(300);
+			usleep(300000000ULL);							// 5 minutes
 			loop = 0;
 			break;
 
@@ -452,26 +458,19 @@ void terminal()
 		usb_do_transfers();
 
 		if (!handle) {
-			sleep(1);
+			usleep(1000000ULL);
 			openDevice(true);
 		}
 
 		/* timer */
 		gettimeofday(&nowTime, NULL);
 		time_t deltaTime = (time_t) (nextTime - nowTime.tv_sec * 1000000 - nowTime.tv_usec);
-#ifdef __APPLE_CC__
 		if (deltaTime > 0) {
 			usleep(deltaTime);
 		} else if (deltaTime < -1000) {
 			/* adjust to now time */
 			nextTime += -deltaTime;
 		}
-#else
-		if (deltaTime > 0) {
-		   unsigned int usSleepTime = deltaTime * (1000000 / CLOCKS_PER_SEC);
-		   nanosleep(usSleepTime * 1000);
-		}
-#endif
 
 #ifdef TEST_DATATRANSFER_SLOW
 		nextTime += 250000;

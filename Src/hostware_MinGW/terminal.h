@@ -14,7 +14,7 @@
 #define RINGBUFFER_SEND_SIZE	1024
 #define RINGBUFFER_RCV_SIZE		1024
 #define RINGBUFFER_HOOK_SIZE	1024
-#define MSGBUFFER_SIZE			250
+#define MSGBUFFER_SIZE			254
 
 // #define TEST_DATATRANSFER_SLOW							// activate on request
 // #define TEST_DATATRANSFER_USB_TEST2						// activate on request
@@ -26,7 +26,7 @@ typedef unsigned char  uchar;
 
 
 /* -- 8< --  RINGBUFFERS */
-int ringBufferPush(char isSend, uchar inData[], int len);
+int ringbuffer_fw_ringBufferPush(char isSend, uchar inData[], int len);
 int ringBufferPull(char isSend, uchar outData[], int size);
 
 

@@ -15,6 +15,9 @@ This program must be linked with libusb on Unix and libusb-win32 on Windows.
 See http://libusb.sourceforge.net/ or http://libusb-win32.sourceforge.net/
 respectively.
 */
+
+#include "usleep.h"											/* windows does not have such a thing, use own implementation instead */
+
 #include <stdlib.h>
 
 #include <unistd.h>
@@ -137,7 +140,6 @@ int main(int argc, char **argv)
 	 * debugging FIRMWARE code only
 	 */
 	{
-		const uint8_t isSend = false;
 		const uchar bufferTestIn[3] = { '1', '2', '3' };
 
 #ifdef TEST_RINGBUFFER
@@ -146,15 +148,15 @@ int main(int argc, char **argv)
 
 			for (;;) {
 				/* pull data */
-				if (fw_getSemaphore(isSend)) {
-					uint8_t retLen = fw_ringBufferPull(isSend, bufferTestOut1, (uint8_t) sizeof(bufferTestOut1));
-					fw_freeSemaphore(isSend);
+				if (fw_getSemaphore(false)) {
+					uint8_t retLen = fw_ringBufferPull(false, bufferTestOut1, (uint8_t) sizeof(bufferTestOut1));
+					fw_freeSemaphore(false);
 				}
 
 				/* push data */
-				if (fw_getSemaphore(isSend)) {
-					uint8_t retLen = fw_ringBufferPush(isSend, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
-					fw_freeSemaphore(isSend);
+				if (fw_getSemaphore(false)) {
+					uint8_t retLen = fw_ringBufferPush(false, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
+					fw_freeSemaphore(false);
 				}
 			}
 		}
@@ -167,43 +169,43 @@ int main(int argc, char **argv)
 
 			/* STEP 1 */
 			/* push */
-			if (fw_getSemaphore(isSend)) {
-				retLen = fw_ringBufferPush(isSend, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
-				fw_freeSemaphore(isSend);
+			if (fw_getSemaphore(false)) {
+				retLen = fw_ringBufferPush(false, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
+				fw_freeSemaphore(false);
 			}
 
 			/* pull */
-			if (fw_getSemaphore(isSend)) {
-				retLen = fw_ringBufferPull(isSend, bufferTestOut2, (uint8_t) sizeof(bufferTestOut2));
-				fw_freeSemaphore(isSend);
+			if (fw_getSemaphore(false)) {
+				retLen = fw_ringBufferPull(false, bufferTestOut2, (uint8_t) sizeof(bufferTestOut2));
+				fw_freeSemaphore(false);
 			}
 			printf("TEST_SEMAPHORE - STEP1 - RESULT: retLen=%d, '%s'\n", retLen, bufferTestOut2);
 
 			/* STEP 2 */
 			/* pushing ... */
-			if (fw_getSemaphore(isSend)) {
-				retLen = fw_ringBufferPush(isSend, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
-			// fw_freeSemaphore(isSend);	// <-- "FUNCTION ABOVE NOT FINISHED YET"
+			if (fw_getSemaphore(false)) {
+				retLen = fw_ringBufferPush(false, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
+			// fw_freeSemaphore(false);	// <-- "FUNCTION ABOVE NOT FINISHED YET"
 			}
 
 			/* ... during second instance tries to push */
-			if (fw_getSemaphore(isSend)) {
-				retLen = fw_ringBufferPush(isSend, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
-				fw_freeSemaphore(isSend);
+			if (fw_getSemaphore(false)) {
+				retLen = fw_ringBufferPush(false, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
+				fw_freeSemaphore(false);
 			} else {
-				fw_ringBufferPushAddHook(isSend, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
+				fw_ringBufferPushAddHook(false, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
 			}
 
 			/* ... now the first instances completes */
-			// if (fw_getSemaphore(isSend)) {
-			//	retLen = fw_ringBufferPush(isSend, bufferTestIn, sizeof(bufferTestIn));
-				fw_freeSemaphore(isSend);	// <-- this completes the function now
+			// if (fw_getSemaphore(false)) {
+			//	retLen = fw_ringBufferPush(false, bufferTestIn, sizeof(bufferTestIn));
+				fw_freeSemaphore(false);	// <-- this completes the function now
 			// }
 
 			/* ... look, what we get in return */
-			if (fw_getSemaphore(isSend)) {
-				retLen = fw_ringBufferPull(isSend, bufferTestOut2, (uint8_t) sizeof(bufferTestOut2));
-				fw_freeSemaphore(isSend);
+			if (fw_getSemaphore(false)) {
+				retLen = fw_ringBufferPull(false, bufferTestOut2, (uint8_t) sizeof(bufferTestOut2));
+				fw_freeSemaphore(false);
 			}
 			printf("TEST_SEMAPHORE - STEP2 - RESULT: retLen=%d, '%s'\n", retLen, bufferTestOut2);
 		}
@@ -224,15 +226,12 @@ int main(int argc, char **argv)
     /* open the USB device */
     openDevice(false);
 
-	if (strcasecmp(argv[1], "terminal") == 0) {
+	if (strcmp(argv[1], "terminal") == 0) {
 		terminal();
 
 #ifdef ENABLE_TEST
-	} else if (strcasecmp(argv[1], "test") == 0) {
+	} else if (strcmp(argv[1], "test") == 0) {
 		/* testing USB messaging */
-#ifdef __APPLE_CC__
-		srandomdev();
-#endif
 		for (int i = 0; i < 50000; i++) {
 			int value = random() & 0xffff, index = random() & 0xffff;
 			int rxValue, rxIndex;
