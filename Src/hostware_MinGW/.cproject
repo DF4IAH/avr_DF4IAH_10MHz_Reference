@@ -19,7 +19,7 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.macosx.exe.debug.570645120." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.macosx.exe.debug.2054990317" name="MacOSX GCC" superClass="cdt.managedbuild.toolchain.gnu.macosx.exe.debug">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.macosx.exe.debug.1330027333" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.macosx.exe.debug"/>
-							<builder buildPath="${workspace_loc:/c_hostware_to_DF4IAH_10MHz_Reference}/Debug" id="cdt.managedbuild.target.gnu.builder.macosx.exe.debug.1677906335" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.exe.debug"/>
+							<builder buildPath="${workspace_loc:/c_hostware_to_DF4IAH_10MHz_Reference}/Debug" command="mingw32-make" id="cdt.managedbuild.target.gnu.builder.macosx.exe.debug.1677906335" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.debug.1073769092" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.debug">
 								<option id="macosx.c.link.option.paths.1108599860" name="Library search path (-L)" superClass="macosx.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;C:\MinGW\lib&quot;"/>
@@ -90,7 +90,7 @@
 					<folderInfo id="cdt.managedbuild.config.macosx.exe.release.219885860." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.macosx.exe.release.917819924" name="MacOSX GCC" superClass="cdt.managedbuild.toolchain.gnu.macosx.exe.release">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.macosx.exe.release.407001316" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.macosx.exe.release"/>
-							<builder buildPath="${workspace_loc:/c_hostware_to_DF4IAH_10MHz_Reference}/Release" id="cdt.managedbuild.target.gnu.builder.macosx.exe.release.1785955845" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.exe.release"/>
+							<builder buildPath="${workspace_loc:/c_hostware_to_DF4IAH_10MHz_Reference}/Release" command="mingw32-make" id="cdt.managedbuild.target.gnu.builder.macosx.exe.release.1785955845" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.exe.release"/>
 							<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.release.19296487" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.release">
 								<option id="macosx.c.link.option.paths.1445021658" name="Library search path (-L)" superClass="macosx.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;C:\libusb-win32-bin-1.2.6.0\libusb-win32-bin-1.2.6.0\lib\gcc&quot;"/>
