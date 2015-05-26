@@ -464,23 +464,14 @@ void terminal()
 		/* timer */
 		gettimeofday(&nowTime, NULL);
 		time_t deltaTime = (time_t) (nextTime - nowTime.tv_sec * 1000000 - nowTime.tv_usec);
-#if defined(__APPLE_CC__) || defined(__linux__)
+
 		if (deltaTime > 0) {
 			usleep(deltaTime);
-		} else if (deltaTime < -1000) {
-			/* adjust to now time */
-			nextTime += -deltaTime;
-		}
-#else
-		if (deltaTime > 0) {
-		   unsigned int usSleepTime = deltaTime * (1000000 / CLOCKS_PER_SEC);
-		   nanosleep(usSleepTime * 1000);
 
 		} else if (deltaTime < -1000) {
 			/* adjust to now time */
 			nextTime += -deltaTime;
 		}
-#endif
 
 #ifdef TEST_DATATRANSFER_SLOW
 		nextTime += 250000;
