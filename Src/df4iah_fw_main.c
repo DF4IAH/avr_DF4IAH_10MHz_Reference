@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
+#include <math.h>
 #include <util/delay.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -68,7 +69,9 @@
 
 // STRINGS IN CODE SECTION
 
+#ifndef __WINT_TYPE__
 #pragma GCC diagnostic push
+#endif
 #pragma GCC diagnostic ignored "-Wmissing-braces"
 PROGMEM const eeprom_defaultValues_layout_t eeprom_defaultValues_content = {
 		EEPROM_DEFAULT_CONTENT_B00,
@@ -77,7 +80,9 @@ PROGMEM const eeprom_defaultValues_layout_t eeprom_defaultValues_content = {
 		EEPROM_DEFAULT_CONTENT_B03,
 		EEPROM_DEFAULT_CONTENT_B04
 };
+#ifndef __WINT_TYPE__
 #pragma GCC diagnostic pop
+#endif
 
 // PROGMEM const char PM_VENDOR[] 							= "DF4IAH";
 // const uint8_t PM_VENDOR_len = sizeof(PM_VENDOR);
