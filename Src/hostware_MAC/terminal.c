@@ -153,7 +153,7 @@ void usb_do_transfers()
 	if (handle && (usbRingBufferSendPushIdx != usbRingBufferSendPullIdx)) {
 		int lenTx = ringBufferPull(true, usbMsg, sizeof(usbMsg));
 #ifdef TEST_DATATRANSFER_USB
-		int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, (char *) usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
+		int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, (char *) usbMsg, lenTx, (CLOCKS_PER_SEC * (USB_CFG_INTR_POLL_INTERVAL - 5)) / 1000);
 		mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 		if (usbRetLen >= 0) {
 			mvprintw(LINES - 7 + (errLine++ % 7), 20, "OUT Data: usbRetLen=%d of lenTx=%d .   ", usbRetLen, lenTx);
@@ -161,7 +161,7 @@ void usb_do_transfers()
         	mvprintw(LINES - 7 + (errLine++ % 7), 20, "USB error - OUT: %s\n", usb_strerror());
         }
 #else
-		int err = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, (char*) usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
+		int err = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, (char*) usbMsg, lenTx, (CLOCKS_PER_SEC * (USB_CFG_INTR_POLL_INTERVAL - 5)) / 1000);
 		if (err < 0) {
 			closeDevice();
 		}
@@ -170,7 +170,7 @@ void usb_do_transfers()
 
 	/* USB IN */
 	if (handle && !(((usbRingBufferRcvPushIdx + 1) == usbRingBufferRcvPullIdx) || (((usbRingBufferRcvPushIdx + 1) == RINGBUFFER_RCV_SIZE) && !usbRingBufferRcvPullIdx))) {
-        int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_RECV, 0, 0, (char*) usbMsg, sizeof(usbMsg), USB_CFG_INTR_POLL_INTERVAL - 5);
+        int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_RECV, 0, 0, (char*) usbMsg, sizeof(usbMsg), (CLOCKS_PER_SEC * (USB_CFG_INTR_POLL_INTERVAL - 5)) / 1000);
 #ifdef TEST_DATATRANSFER_USB
         mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
 #endif
