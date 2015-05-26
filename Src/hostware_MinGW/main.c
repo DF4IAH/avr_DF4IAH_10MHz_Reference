@@ -16,8 +16,6 @@ See http://libusb.sourceforge.net/ or http://libusb-win32.sourceforge.net/
 respectively.
 */
 
-#include "usleep.h"											/* windows does not have such a thing, use own implementation instead */
-
 #include <stdlib.h>
 
 #include <unistd.h>
@@ -31,6 +29,7 @@ respectively.
 #include "firmware/usbconfig.h"								/* device's VID/PID and names */
 
 #include "main.h"
+#include "usleep_local.h"											/* windows does not have such a thing, use own implementation instead */
 
 
 #define ENABLE_TEST											// activate on request
@@ -119,7 +118,7 @@ void openDevice(bool isReopening)
 void closeDevice()
 {
 	usb_close(handle);
-	usleep(100000);
+	usleep_local(1000000LL);
 	handle = NULL;
 }
 

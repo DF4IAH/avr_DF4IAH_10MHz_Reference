@@ -5,10 +5,10 @@
  *      Author: espero
  */
 
-#include "usleep.h"
+#include "usleep_local.h"
 
 
-void usleep(__int64 usec)
+void usleep_local(__int64 usec)
 {
     HANDLE timer;
     LARGE_INTEGER ft;

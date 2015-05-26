@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <unistd.h>
-#include "usleep.h"
 #include <sys/time.h>
 #include <time.h>
 #include <string.h>
@@ -21,9 +20,7 @@
 #include "main.h"
 
 #include "terminal.h"
-
-
-//#define TEST_DATATRANSFER_SLOW
+#include "usleep_local.h"
 
 
 #ifdef DEBUG
@@ -322,7 +319,7 @@ void terminal()
 
 	/* timing init */
 	gettimeofday(&nowTime, NULL);
-	long long nextTime = nowTime.tv_sec * 1000000 + nowTime.tv_usec + ((USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000);
+	long long nextTime = (nowTime.tv_sec * 1000000LL) + nowTime.tv_usec + (USB_CFG_INTR_POLL_INTERVAL * 1000L);
 
 	ncurses_init(&win_rxborder, &win_rx, &win_tx);
 
@@ -389,7 +386,7 @@ void terminal()
 			break;
 
 		case KEY_F(2):
-			usleep(300000000LL);							// 5 minutes
+			usleep_local(300000000LL);							// 5 minutes
 			loop = 0;
 			break;
 
@@ -459,27 +456,23 @@ void terminal()
 		usb_do_transfers();
 
 		if (!handle) {
-			usleep(1000000LL);
+			usleep_local(1000000LL);
 			openDevice(true);
 		}
 
 		/* timer */
 		gettimeofday(&nowTime, NULL);
-		time_t deltaTime = (time_t) (nextTime - nowTime.tv_sec * 1000000LL - nowTime.tv_usec);
+		__int64 deltaTime = nextTime - (nowTime.tv_sec * 1000000LL + nowTime.tv_usec);
 		if (deltaTime > 0) {
-			usleep(deltaTime);
+			usleep_local(deltaTime);
 
-		} else if (deltaTime < -1000L) {
-			/* adjust to now time */
-			nextTime  = nowTime.tv_sec * 1000000LL + nowTime.tv_usec;
+		} else if (deltaTime < -1000) {
+			/* adjust nextTime based on current time */
+			nextTime = (nowTime.tv_sec * 1000000LL) + nowTime.tv_usec;
 		}
+		nextTime += USB_CFG_INTR_POLL_INTERVAL * 1000LL;
 
-#ifdef TEST_DATATRANSFER_SLOW
-		nextTime += 25000;
-#else
-		nextTime += (USB_CFG_INTR_POLL_INTERVAL * 1000LL);
-#endif
-		mvprintw(LINES - 1, COLS - 30, "INFO: deltaTime=%+09ld.", deltaTime);
+		mvprintw(LINES - 1, COLS - 30, "INFO: deltaTime=%+09lld.", deltaTime);
 		move(LINES - 8, outLineCnt + 2);
 	} while (loop);
 
