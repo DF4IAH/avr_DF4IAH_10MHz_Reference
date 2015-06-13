@@ -173,6 +173,30 @@
 							<tool id="de.innot.avreclipse.tool.avrdude.app.release.1501226823" name="AVRDude" superClass="de.innot.avreclipse.tool.avrdude.app.release"/>
 						</toolChain>
 					</folderInfo>
+					<folderInfo id="de.innot.avreclipse.configuration.app.release.1034531880.1512156311" name="/" resourcePath="Src/hostware_Java">
+						<toolChain id="de.innot.avreclipse.toolchain.winavr.app.release.730528616" name="AVR-GCC Toolchain" superClass="de.innot.avreclipse.toolchain.winavr.app.release" unusedChildren="">
+							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release.914059269.463450093" name="Generate HEX file for Flash memory" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release.914059269"/>
+							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.eeprom.app.release.665560706.504001039" name="Generate HEX file for EEPROM" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.eeprom.app.release.665560706"/>
+							<option id="de.innot.avreclipse.toolchain.options.toolchain.objdump.app.release.1836486737.1488756726" name="Generate Extended Listing (Source + generated Assembler)" superClass="de.innot.avreclipse.toolchain.options.toolchain.objdump.app.release.1836486737"/>
+							<option id="de.innot.avreclipse.toolchain.options.toolchain.size.app.release.1566704400.1765665587" name="Print Size" superClass="de.innot.avreclipse.toolchain.options.toolchain.size.app.release.1566704400"/>
+							<option id="de.innot.avreclipse.toolchain.options.toolchain.avrdude.app.release.901800950.810417031" name="AVRDude" superClass="de.innot.avreclipse.toolchain.options.toolchain.avrdude.app.release.901800950"/>
+							<tool id="de.innot.avreclipse.tool.assembler.winavr.app.release.1036843198" name="AVR Assembler" superClass="de.innot.avreclipse.tool.assembler.winavr.app.release.352360106">
+								<inputType id="de.innot.avreclipse.tool.assembler.input.521583543" superClass="de.innot.avreclipse.tool.assembler.input"/>
+							</tool>
+							<tool id="de.innot.avreclipse.tool.compiler.winavr.app.release.385979385" name="AVR Compiler" superClass="de.innot.avreclipse.tool.compiler.winavr.app.release.2040620041">
+								<inputType id="de.innot.avreclipse.compiler.winavr.input.386367266" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
+							</tool>
+							<tool id="de.innot.avreclipse.tool.cppcompiler.app.release.367010381" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.release.1486633910"/>
+							<tool id="de.innot.avreclipse.tool.linker.winavr.app.release.1941759857" name="AVR C Linker" superClass="de.innot.avreclipse.tool.linker.winavr.app.release.132280847"/>
+							<tool id="de.innot.avreclipse.tool.cpplinker.app.release.876620579" name="AVR C++ Linker" superClass="de.innot.avreclipse.tool.cpplinker.app.release.905963073"/>
+							<tool id="de.innot.avreclipse.tool.archiver.winavr.base.1482352632" name="AVR Archiver" superClass="de.innot.avreclipse.tool.archiver.winavr.base.1296886246"/>
+							<tool id="de.innot.avreclipse.tool.objdump.winavr.app.release.1399262908" name="AVR Create Extended Listing" superClass="de.innot.avreclipse.tool.objdump.winavr.app.release.1225413073"/>
+							<tool id="de.innot.avreclipse.tool.objcopy.flash.winavr.app.release.1891624517" name="AVR Create Flash image" superClass="de.innot.avreclipse.tool.objcopy.flash.winavr.app.release.682397032"/>
+							<tool id="de.innot.avreclipse.tool.objcopy.eeprom.winavr.app.release.1324344616" name="AVR Create EEPROM image" superClass="de.innot.avreclipse.tool.objcopy.eeprom.winavr.app.release.1027597011"/>
+							<tool id="de.innot.avreclipse.tool.size.winavr.app.release.1832364875" name="Print Size" superClass="de.innot.avreclipse.tool.size.winavr.app.release.305953159"/>
+							<tool id="de.innot.avreclipse.tool.avrdude.app.release.1640321605" name="AVRDude" superClass="de.innot.avreclipse.tool.avrdude.app.release.1501226823"/>
+						</toolChain>
+					</folderInfo>
 					<sourceEntries>
 						<entry excluding="hostware_MinGW/|hostware_MAC/|hostware_Ubuntu/|hostware_Java/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Src"/>
 					</sourceEntries>
@@ -188,10 +212,10 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="Release">
+		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/avr_DF4IAH_10MHz_Reference"/>
 		</configuration>
-		<configuration configurationName="Debug">
+		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/avr_DF4IAH_10MHz_Reference"/>
 		</configuration>
 	</storageModule>
