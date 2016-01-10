@@ -87,6 +87,7 @@ void serout(int mode)
 	int inLineCnt = 0;
 	int outLineCnt = 0;
 	long loopCtr = 0L;
+	FILE* fh = fopen("10MHz-Ref-Osc_dump.txt", "w");
 
 	/* timing init */
 	gettimeofday(&nowTime, NULL);
@@ -98,7 +99,8 @@ void serout(int mode)
 		/* transfer field */
 		inLineCnt = usb_buffer_controlIn(inLine, sizeof(inLine));
 		if (inLineCnt) {
-			printf((char*) &(inLine[0]));
+			printf("%s", (char*) &(inLine[0]));
+			fprintf(fh, "%s", (char*) &(inLine[0]));
 		}
 
 		/* spare time for USB jobs to be done */
@@ -127,9 +129,10 @@ void serout(int mode)
 		nextTime += (USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000;
 #endif
 
-		if (++loopCtr == 10) {
+		if (++loopCtr == 300) {
 			outLineCnt += switchMode(mode);
 		}
 	} while (loop);
 
+	fclose(fh);
 }
