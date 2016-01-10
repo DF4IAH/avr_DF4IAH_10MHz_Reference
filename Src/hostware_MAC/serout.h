@@ -21,14 +21,11 @@
 
 typedef unsigned char  uchar;
 
-#if 0
-static void usb_buffer_controlOut(uchar inLine[], int len);
-static int usb_buffer_controlIn(uchar outLine[], int size);
-#endif
+int switchMode(int mode);
 
 
 /* -- 8< --  SEROUT - LOOP */
-void serout();
+void serout(int mode);
 
 
 #endif /* SEROUT_H_ */

@@ -103,8 +103,9 @@ void closeDevice()
 static void usage(char *name)
 {
     fprintf(stderr, "usage:\n");
-    fprintf(stderr, "  %s -serout.. dumps NMEA0183 messages\n", name);
     fprintf(stderr, "  %s -terminal.. activates terminal transfer\n", name);
+    fprintf(stderr, "  %s -gpsout.. dumps NMEA0183 messages\n", name);
+    fprintf(stderr, "  %s -infoout.. dumps Ref-Clk INFO messages\n", name);
 #ifdef ENABLE_TEST
     fprintf(stderr, "  %s -test ..... run driver reliability test\n", name);
 #endif /* ENABLE_TEST */
@@ -204,8 +205,12 @@ int main(int argc, char **argv)
     /* open the USB device */
     openDevice(false);
 
-	if (strcasecmp(argv[1], "-serout") == 0) {
-		serout();
+	if (strcasecmp(argv[1], "-infoout") == 0) {
+		serout(0);
+	}
+
+	else if (strcasecmp(argv[1], "-gpsout") == 0) {
+		serout(1);
 	}
 
 	else if (strcasecmp(argv[1], "-terminal") == 0) {

@@ -48,19 +48,13 @@ static uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
 static uchar usbMsg[MSGBUFFER_SIZE];
 #endif
 
-#ifdef TEST_DATATRANSFER_USB
-static int errLine = 0;
-#endif
-
 
 /* -- 8< --  USB */
 
-#if 0
 static void usb_buffer_controlOut(uchar inLine[], int len)
 {
 	ringbuffer_fw_ringBufferPush(true, inLine, len);
 }
-#endif
 
 static int usb_buffer_controlIn(uchar outLine[], int size)
 {
@@ -70,48 +64,39 @@ static int usb_buffer_controlIn(uchar outLine[], int size)
 
 /* -- 8< --  SEROUT - LOOP */
 
-void serout()
+int switchMode(int mode)
+{
+	char setModeBuffer[32];
+
+	if (mode == 0) {
+		strcpy(setModeBuffer, "INFO");
+	} else if (mode == 1) {
+		strcpy(setModeBuffer, "SERON");
+	}
+
+	/* initial command to be sent */
+	usb_buffer_controlOut((uchar*) setModeBuffer, strlen(setModeBuffer));
+	return 1;  // one line added
+}
+
+void serout(int mode)
 {
 	struct timeval nowTime;
 	uchar inLine[MSGBUFFER_SIZE] = { 0 };
-//	uchar outLine[MSGBUFFER_SIZE] = { 0 };
+	uchar outLine[MSGBUFFER_SIZE] = { 0 };
 	int inLineCnt = 0;
-//	int outLineCnt = 0;
-#ifdef TEST_DATATRANSFER_PANEL
-	int idleCnt = 0;
-#endif
+	int outLineCnt = 0;
+	long loopCtr = 0L;
 
 	/* timing init */
 	gettimeofday(&nowTime, NULL);
 	long long nextTime = nowTime.tv_sec * 1000000 + nowTime.tv_usec + ((USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000);
 
+
 	char loop = 1;
 	do {
 		/* transfer field */
-#ifdef TEST_DATATRANSFER_PANEL
-		if (++idleCnt > 5) {
-			static char toggle = 0;
-			toggle = !toggle;
-			strcpy(inLine, toggle ?  "test" : "$test");
-			inLineCnt = strlen(inLine);
-			idleCnt = 0;
-		} else {
-			inLineCnt = 0;
-		}
-#else
 		inLineCnt = usb_buffer_controlIn(inLine, sizeof(inLine));
-# ifdef TEST_DATATRANSFER_USB_TEST2
-		if (inLineCnt) {
-			char debugBuffer[MSGBUFFER_SIZE] = { 0 };
-			sprintf(debugBuffer, " usb_controlIn:  inLineCnt=%03d \n", inLineCnt);
-			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_DEBUGGING_IN, 0);
-			sprintf(debugBuffer, "%s\n", inLine);
-			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_RCV_MAIN, 0);
-			inLineCnt = 0;   // TODO: remove me!
-			ncurses_update(win_rxborder, win_rx, win_tx);  // TODO: remove me!
-		}
-# endif
-#endif
 		if (inLineCnt) {
 			printf((char*) &(inLine[0]));
 		}
@@ -141,6 +126,10 @@ void serout()
 #else
 		nextTime += (USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000;
 #endif
+
+		if (++loopCtr == 10) {
+			outLineCnt += switchMode(mode);
+		}
 	} while (loop);
 
 }
