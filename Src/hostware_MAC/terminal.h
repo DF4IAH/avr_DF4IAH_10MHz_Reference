@@ -29,6 +29,11 @@ typedef unsigned char  uchar;
 int ringbuffer_fw_ringBufferPush(char isSend, uchar inData[], int len);
 int ringBufferPull(char isSend, uchar outData[], int size);
 
+static void usb_buffer_controlOut(uchar inLine[], int len);
+static int usb_buffer_controlIn(uchar outLine[], int size);
+
+void usb_do_transfers();
+
 
 /* -- 8< --  USB */
 //static void usb_controlOut(char inLine[], int len);

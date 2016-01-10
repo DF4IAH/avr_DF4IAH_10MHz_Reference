@@ -22,6 +22,7 @@ respectively.
 #include <usb.h>											/* this is libusb */
 #include "opendevice.h"										/* common code moved to separate module */
 
+#include "serout.h"										    /* the serout feature is coded here */
 #include "terminal.h"										/* the terminal mimic is inside */
 #include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
 #include "firmware/usbconfig.h"								/* device's VID/PID and names */
@@ -102,6 +103,7 @@ void closeDevice()
 static void usage(char *name)
 {
     fprintf(stderr, "usage:\n");
+    fprintf(stderr, "  %s -serout.. dumps NMEA0183 messages\n", name);
     fprintf(stderr, "  %s -terminal.. activates terminal transfer\n", name);
 #ifdef ENABLE_TEST
     fprintf(stderr, "  %s -test ..... run driver reliability test\n", name);
@@ -202,8 +204,12 @@ int main(int argc, char **argv)
     /* open the USB device */
     openDevice(false);
 
-	if (strcasecmp(argv[1], "-terminal") == 0) {
-		terminal();
+	if (strcasecmp(argv[1], "-serout") == 0) {
+		serout();
+	}
+
+	else if (strcasecmp(argv[1], "-terminal") == 0) {
+	terminal();
 
 #ifdef ENABLE_TEST
 	} else if (strcasecmp(argv[1], "-test") == 0) {
