@@ -12,7 +12,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <string.h>
-#include <usb.h>											/* this is libusb */
+#include <libusb.h>											/* this is libusb */
 
 #include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
 #include "firmware/usbconfig.h"								/* USB_CFG_INTR_POLL_INTERVAL */
@@ -35,18 +35,7 @@ uint8_t usbRingBufferHookIsSend = 0;
 #endif
 
 
-extern usb_dev_handle* handle;
-
-
-#if 0
-static int usbRingBufferRcvPushIdx = 0;
-static int usbRingBufferRcvPullIdx = 0;
-static int usbRingBufferSendPushIdx = 0;
-static int usbRingBufferSendPullIdx = 0;
-static uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE];
-static uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
-static uchar usbMsg[MSGBUFFER_SIZE];
-#endif
+extern libusb_device_handle* lu_handle;
 
 
 /* -- 8< --  USB */
@@ -83,7 +72,6 @@ void serout(int mode)
 {
 	struct timeval nowTime;
 	uchar inLine[MSGBUFFER_SIZE] = { 0 };
-	uchar outLine[MSGBUFFER_SIZE] = { 0 };
 	int inLineCnt = 0;
 	int outLineCnt = 0;
 	long loopCtr = 0L;
@@ -92,7 +80,6 @@ void serout(int mode)
 	/* timing init */
 	gettimeofday(&nowTime, NULL);
 	long long nextTime = nowTime.tv_sec * 1000000 + nowTime.tv_usec + ((USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000);
-
 
 	char loop = 1;
 	do {
@@ -106,7 +93,7 @@ void serout(int mode)
 		/* spare time for USB jobs to be done */
 		usb_do_transfers();
 
-		if (!handle) {
+		if (!lu_handle) {
 			sleep(1);
 			openDevice(true);
 		}
@@ -123,11 +110,7 @@ void serout(int mode)
 			nextTime += -deltaTime;
 		}
 
-#ifdef TEST_DATATRANSFER_SLOW
-		nextTime += 250000;
-#else
 		nextTime += (USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000;
-#endif
 
 		if (++loopCtr == 300) {
 			outLineCnt += switchMode(mode);
