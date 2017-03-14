@@ -19,7 +19,7 @@ respectively.
 #include <unistd.h>
 #include <stdlib.h>
 #include <strings.h>
-#include <libusb.h>											/* this is libusb */
+#include <libusb-1.0/libusb.h>
 
 #include "serout.h"										    /* the serout feature is coded here */
 #include "terminal.h"										/* the terminal mimic is inside */

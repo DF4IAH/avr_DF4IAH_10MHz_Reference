@@ -12,7 +12,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <string.h>
-#include <libusb.h>											/* this is libusb */
+#include <libusb-1.0/libusb.h>
 
 #include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
 #include "firmware/usbconfig.h"								/* USB_CFG_INTR_POLL_INTERVAL */
@@ -24,15 +24,6 @@
 
 
 #define min(a,b) ((a) < (b) ?  (a) : (b))
-
-
-#ifdef DEBUG
-uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE] = { 0 };
-uint8_t usbRingBufferSendSemaphore = 0;
-uint8_t usbRingBufferRcvSemaphore = 0;
-uint8_t usbRingBufferHookLen = 0;
-uint8_t usbRingBufferHookIsSend = 0;
-#endif
 
 
 extern libusb_device_handle* lu_handle;
