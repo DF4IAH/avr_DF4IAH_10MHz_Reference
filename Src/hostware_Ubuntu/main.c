@@ -17,92 +17,98 @@ respectively.
 */
 
 #include <unistd.h>
+#include <time.h>
 #include <stdlib.h>
 #include <strings.h>
-#include <usb.h>											/* this is libusb */
-#include "opendevice.h"										/* common code moved to separate module */
+#include <libusb-1.0/libusb.h>
 
+#include "serout.h"										    /* the serout feature is coded here */
 #include "terminal.h"										/* the terminal mimic is inside */
 #include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
 #include "firmware/usbconfig.h"								/* device's VID/PID and names */
 
 #include "main.h"
 
-
 #define ENABLE_TEST											// activate on request
 
-#ifdef DEBUG
-//# define TEST_RINGBUFFER									// DEBUG only: activate on request
-//# define TEST_SEMAPHORE									// DEBUG only: activate on request
-#endif
 
-
-usb_dev_handle* handle 				= NULL;
+libusb_context* lu_context			= NULL;
+libusb_device_handle *lu_handle		= NULL;
 
 
 void openDevice(bool isReopening)
 {
-	const unsigned char rawVid[2] 	= { USB_CFG_VENDOR_ID };
-	const unsigned char rawPid[2]	= { USB_CFG_DEVICE_ID };
-	char vendor[] 					= { USB_CFG_VENDOR_NAME, 0 };
-	char product[] 					= { USB_CFG_DEVICE_NAME, 0 };
-	//int showWarnings	 			= 1;
-
 	/* fire up the USB engine */
-	usb_init();
-	if (isReopening && handle) {
+	libusb_init(&lu_context);
+	libusb_set_debug(lu_context, 3);
+	if (isReopening && lu_handle) {
 		/* refuse before handle is nulled */
 		return;
 	}
 
-    /* compute VID/PID from usbconfig.h so that there is a central source of information */
-    int vid = rawVid[0] | (rawVid[1] << 8);
-    int pid = rawPid[0] | (rawPid[1] << 8);
+	// discover devices
+	libusb_device **list;
+	libusb_device *found = NULL;
+	struct libusb_device_descriptor desc;
+	ssize_t cnt = libusb_get_device_list(lu_context, &list);
+	ssize_t i = 0;
+	int err = 0;
 
-    /* The following function is in opendevice.c: */
-	if (usbOpenDevice(&handle, vid, vendor, pid, product, NULL, NULL, NULL) != 0) {
-		if (!isReopening) {
-			fprintf(stderr, "\nERROR: Could not find USB device \"%s\" with vid=0x%x pid=0x%x\n\n", product, vid, pid);
-			exit(1);
+	if (cnt >= 0) {
+		for (i = 0; i < cnt; i++) {
+			libusb_device *device = list[i];
+			int r = libusb_get_device_descriptor(device, &desc);
+			if (r < 0) {
+				fprintf(stderr, "failed to get device descriptor");
+				break;
+			}
+			//printf("USB Vendor/Product: 0x%04x/0x%04x\n", desc.idVendor, desc.idProduct);
+
+			if (desc.idVendor == USB_CFG_VENDOR_ID__INT &&
+				desc.idProduct == USB_CFG_DEVICE_ID__INT) {
+				found = device;
+				break;
+			}
 		}
-	}
 
-	/* Since we use only control endpoint 0, we don't need to choose a
-	 * configuration and interface. Reading the device descriptor and setting a
-	 * configuration and interface is done through endpoint 0 after all.
-	 * However, newer versions of Linux require that we claim an interface
-	 * even for endpoint 0. Enable the following code if your operating system
-	 * needs it: */
-#if 0  /* SPECIAL USB HANDLING */
-	int retries = 1, usbConfiguration = 1, usbInterface = 0;
-
-	if (usb_set_configuration(handle, usbConfiguration) && showWarnings) {
-		fprintf(stderr, "Warning: could not set configuration: %s\n", usb_strerror());
-	}
-
-	/* now try to claim the interface and detach the kernel HID driver on
-	 * Linux and other operating systems which support the call. */
-	while ((len = usb_claim_interface(handle, usbInterface)) != 0 && retries-- > 0) {
-#ifdef LIBUSB_HAS_DETACH_KERNEL_DRIVER_NP
-		if (usb_detach_kernel_driver_np(handle, 0) < 0 && showWarnings) {
-			fprintf(stderr, "Warning: could not detach kernel driver: %s\n", usb_strerror());
+		if (found) {
+			//printf("+++ 10 MHz-Ref-Osc. found!\n");
+			err = libusb_open(found, &lu_handle);
+			if (err) {
+				// error
+				found = NULL;
+				lu_handle = NULL;
+			}
+		} else {
+			//printf("--- 10 MHz-Ref-Osc. NOT found!\n");
+			lu_handle = NULL;
 		}
-#endif
+
+	} else {
+		// error
+		found = NULL;
+		lu_handle = NULL;
 	}
-#endif  /* SPECIAL USB HANDLING */
+
+	libusb_free_device_list(list, 1);
+	return;
 }
 
 void closeDevice()
 {
-	usb_close(handle);
-	usleep(100000);
-	handle = NULL;
+	libusb_close(lu_handle);
+	lu_handle = NULL;
+
+	libusb_exit(lu_context);
+	lu_context = NULL;
 }
 
 static void usage(char *name)
 {
     fprintf(stderr, "usage:\n");
     fprintf(stderr, "  %s -terminal.. activates terminal transfer\n", name);
+    fprintf(stderr, "  %s -gpsout.. dumps NMEA0183 messages\n", name);
+    fprintf(stderr, "  %s -infoout.. dumps Ref-Clk INFO messages\n", name);
 #ifdef ENABLE_TEST
     fprintf(stderr, "  %s -test ..... run driver reliability test\n", name);
 #endif /* ENABLE_TEST */
@@ -110,87 +116,6 @@ static void usage(char *name)
 
 int main(int argc, char **argv)
 {
-#ifdef DEBUG
-#if 0
-	/*
-	 * debugging FIRMWARE code only
-	 */
-	{
-		const uchar bufferTestIn[3] = { '1', '2', '3' };
-
-#ifdef TEST_RINGBUFFER
-		{
-			uchar bufferTestOut1[3] = { 0 };
-
-			for (;;) {
-				/* pull data */
-				if (fw_getSemaphore(false)) {
-					uint8_t retLen = fw_ringBufferPull(false, bufferTestOut1, (uint8_t) sizeof(bufferTestOut1));
-					fw_freeSemaphore(false);
-				}
-
-				/* push data */
-				if (fw_getSemaphore(false)) {
-					uint8_t retLen = fw_ringBufferPush(false, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
-					fw_freeSemaphore(false);
-				}
-			}
-		}
-#endif
-
-#ifdef TEST_SEMAPHORE
-		{
-			uchar bufferTestOut2[128] = { 0 };
-			uint8_t retLen = 0;
-
-			/* STEP 1 */
-			/* push */
-			if (fw_getSemaphore(false)) {
-				retLen = fw_ringBufferPush(false, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
-				fw_freeSemaphore(false);
-			}
-
-			/* pull */
-			if (fw_getSemaphore(false)) {
-				retLen = fw_ringBufferPull(false, bufferTestOut2, (uint8_t) sizeof(bufferTestOut2));
-				fw_freeSemaphore(false);
-			}
-			printf("TEST_SEMAPHORE - STEP1 - RESULT: retLen=%d, '%s'\n", retLen, bufferTestOut2);
-
-			/* STEP 2 */
-			/* pushing ... */
-			if (fw_getSemaphore(false)) {
-				retLen = fw_ringBufferPush(false, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
-			// fw_freeSemaphore(false);	// <-- "FUNCTION ABOVE NOT FINISHED YET"
-			}
-
-			/* ... during second instance tries to push */
-			if (fw_getSemaphore(false)) {
-				retLen = fw_ringBufferPush(false, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
-				fw_freeSemaphore(false);
-			} else {
-				fw_ringBufferPushAddHook(false, bufferTestIn, (uint8_t) sizeof(bufferTestIn));
-			}
-
-			/* ... now the first instances completes */
-			// if (fw_getSemaphore(false)) {
-			//	retLen = fw_ringBufferPush(false, bufferTestIn, sizeof(bufferTestIn));
-				fw_freeSemaphore(false);	// <-- this completes the function now
-			// }
-
-			/* ... look, what we get in return */
-			if (fw_getSemaphore(false)) {
-				retLen = fw_ringBufferPull(false, bufferTestOut2, (uint8_t) sizeof(bufferTestOut2));
-				fw_freeSemaphore(false);
-			}
-			printf("TEST_SEMAPHORE - STEP2 - RESULT: retLen=%d, '%s'\n", retLen, bufferTestOut2);
-		}
-#endif
-	}
-	return 0;
-#endif
-#endif
-
 	/*
 	 * the main application starts here
 	 */
@@ -202,8 +127,16 @@ int main(int argc, char **argv)
     /* open the USB device */
     openDevice(false);
 
-	if (strcasecmp(argv[1], "-terminal") == 0) {
-		terminal();
+	if (strcasecmp(argv[1], "-infoout") == 0) {
+		serout(0);
+	}
+
+	else if (strcasecmp(argv[1], "-gpsout") == 0) {
+		serout(1);
+	}
+
+	else if (strcasecmp(argv[1], "-terminal") == 0) {
+	terminal();
 
 #ifdef ENABLE_TEST
 	} else if (strcasecmp(argv[1], "-test") == 0) {
@@ -212,7 +145,7 @@ int main(int argc, char **argv)
 		srandomdev();
 #endif
 		for (int i = 0; i < 50000; i++) {
-			int value = random() & 0xffff, index = random() & 0xffff;
+			int value = rand() & 0xffff, index = rand() & 0xffff;
 			int rxValue, rxIndex;
 			char buffer[4];
 
@@ -221,9 +154,9 @@ int main(int argc, char **argv)
 				fflush(stderr);
 			}
 
-			int cnt = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_ECHO, value, index, buffer, sizeof(buffer), 5000);
+			int cnt = libusb_control_transfer(lu_handle, LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN, USBCUSTOMRQ_ECHO, value, index, (unsigned char*) buffer, sizeof(buffer), 5000);
 			if (cnt < 0) {
-				fprintf(stderr, "\nUSB error in iteration %d: %s\n", i, usb_strerror());
+				fprintf(stderr, "\nUSB error in iteration %d: %s\n", i, libusb_strerror(cnt));
 				break;
 			} else if (cnt != 4) {
 				fprintf(stderr, "\nerror in iteration %d: %d bytes received instead of 4\n", i, cnt);

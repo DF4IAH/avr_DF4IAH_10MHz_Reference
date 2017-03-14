@@ -6,13 +6,15 @@
  */
 
 
+#define _POSIX_C_SOURCE	199309L
+#include <time.h>
+#include <sys/time.h>
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <unistd.h>
-#include <sys/time.h>
-#include <time.h>
 #include <string.h>
-#include <usb.h>											/* this is libusb */
+#include <libusb-1.0/libusb.h>
 
 #include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
 #include "firmware/usbconfig.h"								/* USB_CFG_INTR_POLL_INTERVAL */
@@ -22,15 +24,6 @@
 
 
 #define min(a,b) ((a) < (b) ?  (a) : (b))
-
-
-#ifdef DEBUG
-uchar usbRingBufferHook[RINGBUFFER_HOOK_SIZE] = { 0 };
-uint8_t usbRingBufferSendSemaphore = 0;
-uint8_t usbRingBufferRcvSemaphore = 0;
-uint8_t usbRingBufferHookLen = 0;
-uint8_t usbRingBufferHookIsSend = 0;
-#endif
 
 
 /* the color pair index */
@@ -45,7 +38,7 @@ enum E_COLOR_PAIRS_t {
 };
 
 
-extern usb_dev_handle* handle;
+extern libusb_device_handle* lu_handle;
 
 
 static int usbRingBufferRcvPushIdx = 0;
@@ -56,13 +49,10 @@ static uchar usbRingBufferSend[RINGBUFFER_SEND_SIZE];
 static uchar usbRingBufferRcv[RINGBUFFER_RCV_SIZE];
 static uchar usbMsg[MSGBUFFER_SIZE];
 
-#ifdef TEST_DATATRANSFER_USB
-static int errLine = 0;
-#endif
 
 /* -- 8< --  RINGBUFFERS */
 
-int ringBufferPush(char isSend, uchar inData[], int len)
+int ringbuffer_fw_ringBufferPush(char isSend, uchar inData[], int len)
 {
 	int retLen = 0;
 	int bufferSize = (isSend ?  RINGBUFFER_SEND_SIZE : RINGBUFFER_RCV_SIZE);
@@ -139,7 +129,7 @@ int ringBufferPull(char isSend, uchar outData[], int size)
 
 static void usb_buffer_controlOut(uchar inLine[], int len)
 {
-	ringBufferPush(true, inLine, len);
+	ringbuffer_fw_ringBufferPush(true, inLine, len);
 }
 
 static int usb_buffer_controlIn(uchar outLine[], int size)
@@ -149,41 +139,26 @@ static int usb_buffer_controlIn(uchar outLine[], int size)
 
 void usb_do_transfers()
 {
+	if (!lu_handle) {
+		return;
+	}
+
 	/* USB OUT */
-	if (handle && (usbRingBufferSendPushIdx != usbRingBufferSendPullIdx)) {
+	if (lu_handle && (usbRingBufferSendPushIdx != usbRingBufferSendPullIdx)) {
 		int lenTx = ringBufferPull(true, usbMsg, sizeof(usbMsg));
-#ifdef TEST_DATATRANSFER_USB
-		int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
-		mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
-		if (usbRetLen >= 0) {
-			mvprintw(LINES - 7 + (errLine++ % 7), 20, "OUT Data: usbRetLen=%d of lenTx=%d .   ", usbRetLen, lenTx);
-		} else if (usbRetLen < 0) {
-        	mvprintw(LINES - 7 + (errLine++ % 7), 20, "USB error - OUT: %s\n", usb_strerror());
-        }
-#else
-		int err = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, (char*) usbMsg, lenTx, USB_CFG_INTR_POLL_INTERVAL - 5);
+		int err = libusb_control_transfer(lu_handle, LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_OUT, USBCUSTOMRQ_SEND, 0, 0, (unsigned char*) usbMsg, lenTx, (CLOCKS_PER_SEC * (USB_CFG_INTR_POLL_INTERVAL - 5)) / 1000);
 		if (err < 0) {
 			closeDevice();
 		}
-#endif
 	}
 
 	/* USB IN */
-	if (handle && !(((usbRingBufferRcvPushIdx + 1) == usbRingBufferRcvPullIdx) || (((usbRingBufferRcvPushIdx + 1) == RINGBUFFER_RCV_SIZE) && !usbRingBufferRcvPullIdx))) {
-        int usbRetLen = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, USBCUSTOMRQ_RECV, 0, 0, (char*) usbMsg, sizeof(usbMsg), USB_CFG_INTR_POLL_INTERVAL - 5);
-#ifdef TEST_DATATRANSFER_USB
-        mvhline(LINES - 7 + (errLine % 7), 20, ' ', 60);
-#endif
+	if (lu_handle && !(((usbRingBufferRcvPushIdx + 1) == usbRingBufferRcvPullIdx) || (((usbRingBufferRcvPushIdx + 1) == RINGBUFFER_RCV_SIZE) && !usbRingBufferRcvPullIdx))) {
+        int usbRetLen = libusb_control_transfer(lu_handle, LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN, USBCUSTOMRQ_RECV, 0, 0, (unsigned char*) usbMsg, sizeof(usbMsg), (CLOCKS_PER_SEC * (USB_CFG_INTR_POLL_INTERVAL - 5)) / 1000);
         if ((usbRetLen > 0) && (usbRetLen != sizeof(usbMsg))) {
-        	ringBufferPush(false, usbMsg, usbRetLen);
-#ifdef TEST_DATATRANSFER_USB
-			mvprintw(LINES - 7 + (errLine++ % 7), 20, "IN  Data: usbRetLen=%d msg=%s.   ", usbRetLen, usbMsg);
-#endif
+        	ringbuffer_fw_ringBufferPush(false, usbMsg, usbRetLen);
 
         } else if (usbRetLen < 0) {
-#ifdef TEST_DATATRANSFER_USB
-        	mvprintw(LINES - 7 + (errLine++ % 7), 20, "USB error -  IN: %s\n", usb_strerror());
-#endif
 			closeDevice();
         }
 	}
@@ -201,10 +176,10 @@ static void ncurses_init(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_tx
 		start_color();
 		use_default_colors();
 		init_pair(E_COLOR_PAIR_TITLE,			COLOR_WHITE,  COLOR_RED);
-		init_pair(E_COLOR_PAIR_SEND_MAIN,		COLOR_BLUE,   511);
-		init_pair(E_COLOR_PAIR_SEND_GPS,		COLOR_BLUE,   511);  // 15
+		init_pair(E_COLOR_PAIR_SEND_MAIN,		COLOR_BLUE,  511);
+		init_pair(E_COLOR_PAIR_SEND_GPS,		COLOR_BLUE,   15);
 		init_pair(E_COLOR_PAIR_RCV_MAIN,		COLOR_BLACK,  511);
-		init_pair(E_COLOR_PAIR_RCV_GPS,			COLOR_BLACK,  511);  // 15
+		init_pair(E_COLOR_PAIR_RCV_GPS,			COLOR_BLACK,   15);
 		init_pair(E_COLOR_PAIR_DEBUGGING_IN,	COLOR_YELLOW, COLOR_BLACK);
 		init_pair(E_COLOR_PAIR_DEBUGGING_OUT,	COLOR_WHITE,  COLOR_BLACK);
 	}
@@ -314,9 +289,6 @@ void terminal()
 	int inLineCnt = 0;
 	int outLineCnt = 0;
 	uchar touched = false;
-#ifdef TEST_DATATRANSFER_PANEL
-	int idleCnt = 0;
-#endif
 
 	/* timing init */
 	gettimeofday(&nowTime, NULL);
@@ -327,26 +299,7 @@ void terminal()
 	char loop = 1;
 	do {
 		/* transfer field */
-#ifdef TEST_DATATRANSFER_PANEL
-		if (++idleCnt > 5) {
-			static char toggle = 0;
-			toggle = !toggle;
-			strcpy(inLine, toggle ?  "test" : "$test");
-			inLineCnt = strlen(inLine);
-			idleCnt = 0;
-		} else {
-			inLineCnt = 0;
-		}
-#else
 		inLineCnt = usb_buffer_controlIn(inLine, sizeof(inLine));
-# ifdef TEST_DATATRANSFER_USB_TEST2
-		if (inLineCnt) {
-			char debugBuffer[MSGBUFFER_SIZE] = { 0 };
-			sprintf(debugBuffer, " usb_controlIn:   inLineCnt=%03d ", inLineCnt);
-			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_DEBUGGING_IN, 0);
-		}
-# endif
-#endif
 		if (inLineCnt) {
         	int oldIdx = 0;
         	for (int idx = 0; idx < inLineCnt; ++idx) {
@@ -398,12 +351,6 @@ void terminal()
 				   continue;
 				}
 
-# ifdef TEST_DATATRANSFER_USB_TEST2
-			char debugBuffer[MSGBUFFER_SIZE] = { 0 };
-			sprintf(debugBuffer, " usb_controlOut: outLineCnt=%03d ", outLineCnt);
-			ncurses_rx_print(&win_rx, debugBuffer, E_COLOR_PAIR_DEBUGGING_OUT, 0);
-			touched = true;
-# endif
 				usb_buffer_controlOut(outLine, outLineCnt);
 
 				{
@@ -452,7 +399,7 @@ void terminal()
 		/* spare time for USB jobs to be done */
 		usb_do_transfers();
 
-		if (!handle) {
+		if (!lu_handle) {
 			sleep(1);
 			openDevice(true);
 		}
@@ -460,25 +407,19 @@ void terminal()
 		/* timer */
 		gettimeofday(&nowTime, NULL);
 		time_t deltaTime = (time_t) (nextTime - nowTime.tv_sec * 1000000 - nowTime.tv_usec);
-#if defined(__APPLE_CC__) || defined(__linux__)
+
 		if (deltaTime > 0) {
-			usleep(deltaTime);
+			struct timespec req;
+			req.tv_sec = 0;
+			req.tv_nsec = 1000L * deltaTime;
+			nanosleep(&req, NULL);
+
 		} else if (deltaTime < -1000) {
 			/* adjust to now time */
 			nextTime += -deltaTime;
 		}
-#else
-		if (deltaTime > 0) {
-		   unsigned int usSleepTime = deltaTime * (1000000 / CLOCKS_PER_SEC);
-		   nanosleep(usSleepTime * 1000);
-		}
-#endif
 
-#ifdef TEST_DATATRANSFER_SLOW
-		nextTime += 250000;
-#else
 		nextTime += (USB_CFG_INTR_POLL_INTERVAL * CLOCKS_PER_SEC) / 1000;
-#endif
 		mvprintw(LINES - 1, COLS - 30, "INFO: deltaTime=%09d", deltaTime);
 		move(LINES - 8, outLineCnt + 2);
 	} while (loop);
