@@ -1,14 +1,12 @@
 /*
- * terminal.h
+ * serout.h
  *
- *  Created on: 15.12.2014
+ *  Created on: 10.01.2016
  *      Author: espero
  */
 
-#ifndef TERMINAL_H_
-#define TERMINAL_H_
-
-#include <curses.h>
+#ifndef SEROUT_H_
+#define SEROUT_H_
 
 
 #define RINGBUFFER_SEND_SIZE	1024
@@ -21,17 +19,13 @@
 // #define TEST_DATATRANSFER_PANEL							// activate on request
 // #define TEST_DATATRANSFER_USB							// activate on request
 
-
 typedef unsigned char  uchar;
 
-
-/* -- 8< --  RINGBUFFERS */
-int ringbuffer_fw_ringBufferPush(char isSend, uchar inData[], int len);
-int ringBufferPull(char isSend, uchar outData[], int size);
-
-void usb_do_transfers();
-
-void terminal();
+int switchMode(int mode);
 
 
-#endif /* TERMINAL_H_ */
+/* -- 8< --  SEROUT - LOOP */
+void serout(int mode);
+
+
+#endif /* SEROUT_H_ */

@@ -22,11 +22,12 @@ respectively.
 #include <string.h>
 #include <strings.h>
 #include <lusb0_usb.h>										/* this is libusb */
-#include "opendevice.h"										/* common code moved to separate module */
 
 #include "terminal.h"										/* the terminal mimic is inside */
 #include "firmware/df4iah_fw_usb_requests.h"				/* custom request numbers */
 #include "firmware/usbconfig.h"								/* device's VID/PID and names */
+
+#include "opendevice.h"
 
 #include "main.h"
 #include "usleep_local.h"											/* windows does not have such a thing, use own implementation instead */
