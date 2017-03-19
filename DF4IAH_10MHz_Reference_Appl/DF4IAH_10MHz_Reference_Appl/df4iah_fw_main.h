@@ -12,8 +12,8 @@
 #include "usbdrv_fw/usbdrv.h"
 
 /* VERSION: YYM, MDD */
-#define VERSION_HIGH										150
-#define VERSION_LOW											429
+#define VERSION_HIGH										170
+#define VERSION_LOW											319
 
 
 /* GPS NMEA */

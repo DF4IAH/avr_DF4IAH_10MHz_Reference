@@ -7,18 +7,17 @@
 // tabsize: 4
 
 
-#include "df4iah_fw_clkPullPwm.h"
-#include <util/delay.h>
-
 #include <stdint.h>
 #include <string.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>									// required by usbdrv.h
 #include <avr/wdt.h>
 #include <avr/boot.h>
+#include <util/delay.h>
 
 #include "df4iah_fw_main.h"
 #include "df4iah_fw_memory.h"
+#include "df4iah_fw_clkPullPwm.h"
 #include "df4iah_fw_usb_requests.h"
 #include "df4iah_fw_ringbuffer.h"
 

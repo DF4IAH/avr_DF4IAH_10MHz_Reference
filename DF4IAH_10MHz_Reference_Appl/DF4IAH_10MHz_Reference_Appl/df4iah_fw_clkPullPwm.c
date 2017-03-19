@@ -15,6 +15,7 @@
 #include <avr/io.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 
 #include "chipdef.h"
 #include "df4iah_fw_main.h"
@@ -23,9 +24,7 @@
 
 #include "df4iah_fw_clkFastCtr.h"
 #include "df4iah_bl_clkPullPwm.h"
-
 #include "df4iah_fw_clkPullPwm.h"
-#include <util/delay.h>
 
 
 /* only to silence Eclipse */

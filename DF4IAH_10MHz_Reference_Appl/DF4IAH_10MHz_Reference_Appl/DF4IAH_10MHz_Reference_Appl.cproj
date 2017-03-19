@@ -28,15 +28,15 @@
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfFrameworkConfig>
       <framework-data xmlns="">
-  <options />
-  <configurations />
-  <files />
-  <documentation help="" />
-  <offline-documentation help="" />
-  <dependencies>
-    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.32.0" />
-  </dependencies>
-</framework-data>
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.32.0" />
+        </dependencies>
+      </framework-data>
     </AsfFrameworkConfig>
     <avrtool>custom</avrtool>
     <avrtoolserialnumber />
@@ -51,6 +51,7 @@
       </ToolNumber>
       <ToolName xmlns="">Custom Programming Tool</ToolName>
     </custom>
+    <CustomProgrammingToolCommand>avrdude -pm328p -cusbasp-clone -D -Ueeprom:w:avr_DF4IAH_10MHz_Reference.eep:a -Uflash:w:avr_DF4IAH_10MHz_Reference.hex:a</CustomProgrammingToolCommand>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -66,11 +67,17 @@
   <avrgcc.compiler.symbols.DefSymbols>
     <ListValues>
       <Value>NDEBUG</Value>
+      <Value>RELEASE</Value>
+      <Value>F_CPU=20000000</Value>
+      <Value>USB_CFG_CLOCK_KHZ=20000</Value>
+      <Value>BOOTSIZE=2048</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.1.130\include</Value>
+      <Value>../usbdrv_bl</Value>
+      <Value>../usbdrv_fw</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -82,6 +89,15 @@
       <Value>libm</Value>
     </ListValues>
   </avrgcc.linker.libraries.Libraries>
+  <avrgcc.linker.optimization.GarbageCollectUnusedSections>False</avrgcc.linker.optimization.GarbageCollectUnusedSections>
+  <avrgcc.linker.memorysettings.Flash>
+    <ListValues>
+      <Value>.df4iah_bl_clkpullpwm=0x3bc0</Value>
+      <Value>.df4iah_bl_probe=0x3c60</Value>
+      <Value>.df4iah_bl_memory=0x3c80</Value>
+    </ListValues>
+  </avrgcc.linker.memorysettings.Flash>
+  <avrgcc.assembler.general.AssemblerFlags>-DUSB_CFG_CLOCK_KHZ=20000</avrgcc.assembler.general.AssemblerFlags>
   <avrgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.1.130\include</Value>
@@ -104,7 +120,9 @@
   <avrgcc.compiler.symbols.DefSymbols>
     <ListValues>
       <Value>DEBUG</Value>
-      <Value>BOOTSIZE=1024</Value>
+      <Value>F_CPU=20000000</Value>
+      <Value>USB_CFG_CLOCK_KHZ=20000</Value>
+      <Value>BOOTSIZE=2048</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.directories.IncludePaths>
@@ -138,6 +156,9 @@
     <Compile Include="chipdef.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="df4iah_bl_clkPullPwm.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="df4iah_bl_clkPullPwm.h">
       <SubType>compile</SubType>
     </Compile>
@@ -145,6 +166,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="df4iah_bl_memory.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="df4iah_bl_probe.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="df4iah_bl_probe.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="df4iah_bl_usb.h">

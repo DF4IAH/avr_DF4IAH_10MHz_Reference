@@ -36,13 +36,12 @@
 #include <avr/sleep.h>
 #include <avr/wdt.h>
 #include <avr/pgmspace.h>   								// required by usbdrv.h
-
-#include "df4iah_bl_clkPullPwm.h"
-#include "df4iah_fw_clkPullPwm.h"
 #include <util/delay.h>
 
 #include "chipdef.h"
 #include "df4iah_fw_usb.h"
+#include "df4iah_bl_clkPullPwm.h"
+#include "df4iah_fw_clkPullPwm.h"
 #include "df4iah_bl_memory.h"
 #include "df4iah_fw_memory.h"
 #include "df4iah_fw_memory_eepromData.h"
