@@ -27,7 +27,7 @@ extern volatile uint8_t twiSeq2DataCnt;
 extern volatile uint8_t twiSeq2DataIdx;
 extern volatile uint8_t twiSeq2Data[TWI_DATA_BUFFER_SIZE];
 
-static void waitUntilDone() {
+static void waitUntilDone(void) {
 	while (twiState.isProcessing) {
 		wdt_reset();
 		if (usbIsUp) {
@@ -37,7 +37,7 @@ static void waitUntilDone() {
 }
 
 
-void twi_fw_init()
+void twi_fw_init(void)
 {
 	/* power up this module */
 	PRR &= ~(_BV(PRTWI));
@@ -69,7 +69,7 @@ void twi_fw_init()
 	SREG = sreg;
 }
 
-void twi_fw_close()
+void twi_fw_close(void)
 {
 	// TWI interface disabled
 	TWCR = 0;
@@ -140,7 +140,7 @@ uint8_t twi_fw_sendCmdReadData1(uint8_t addr, uint8_t cmd)
 	}
 }
 
-void twi_fw_sendStart()
+void twi_fw_sendStart(void)
 {
 	if (twiState.doStart && twiSeq2DataCnt) {
 		cli();
@@ -153,8 +153,8 @@ void twi_fw_sendStart()
 		twiState.dataAckValid	= false;
 		twiSeq2DataIdx			= 0;
 
-		/* send START */
-		TWCR = (_BV(TWINT) | _BV(TWSTA) | _BV(TWEN) | _BV(TWIE));		// start-TWI/rise clock, send START, TWI enabled, TWINT-Interrupt enabled
+		/* send START / REPEATED START */
+		TWCR = (_BV(TWINT) | _BV(TWSTA) | _BV(TWEN) | _BV(TWIE));	// start-TWI/rise clock, send START, TWI enabled, TWINT-Interrupt enabled
 
 		/* next state */
 		twiState.state = TWI_STATE_START_SENT;
