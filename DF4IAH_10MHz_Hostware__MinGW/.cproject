@@ -136,6 +136,7 @@
 		<configuration configurationName="Default">
 			<resource resourceType="PROJECT" workspacePath="/c_DF4IAH_10MHz_Hostware__MinGW"/>
 		</configuration>
+		<configuration configurationName="Release"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
