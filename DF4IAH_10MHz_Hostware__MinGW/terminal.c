@@ -203,13 +203,13 @@ static void ncurses_init(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_tx
 	if (has_colors()) {
 		start_color();
 		use_default_colors();
-		init_pair(E_COLOR_PAIR_TITLE,			COLOR_WHITE,  COLOR_RED);
-		init_pair(E_COLOR_PAIR_SEND_MAIN,		COLOR_BLUE,  511);
-		init_pair(E_COLOR_PAIR_SEND_GPS,		COLOR_BLUE,   15);
-		init_pair(E_COLOR_PAIR_RCV_MAIN,		COLOR_BLACK,  511);
-		init_pair(E_COLOR_PAIR_RCV_GPS,			COLOR_BLACK,   15);
-		init_pair(E_COLOR_PAIR_DEBUGGING_IN,	COLOR_YELLOW, COLOR_BLACK);
-		init_pair(E_COLOR_PAIR_DEBUGGING_OUT,	COLOR_WHITE,  COLOR_BLACK);
+		init_pair(E_COLOR_PAIR_TITLE,			COLOR_WHITE, COLOR_RED);
+		init_pair(E_COLOR_PAIR_SEND_MAIN,		COLOR_RED,   COLOR_BLACK);
+		init_pair(E_COLOR_PAIR_SEND_GPS,		COLOR_RED,   COLOR_YELLOW);
+		init_pair(E_COLOR_PAIR_RCV_MAIN,		COLOR_CYAN,  COLOR_BLACK);
+		init_pair(E_COLOR_PAIR_RCV_GPS,			COLOR_BLUE,  COLOR_YELLOW);
+		init_pair(E_COLOR_PAIR_DEBUGGING_IN,	COLOR_RED,   COLOR_WHITE);
+		init_pair(E_COLOR_PAIR_DEBUGGING_OUT,	COLOR_BLUE,  COLOR_WHITE);
 	}
 
 	/* Key input */
@@ -219,12 +219,12 @@ static void ncurses_init(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_tx
 	timeout(0);
 
 	/* Window creation */
-	*win_rxborder = newwin(LINES - 14, COLS - 1, 2, 0);
+	*win_rxborder = newwin(LINES - 14, COLS - 1, 4, 0);
 	box(*win_rxborder, 0 , 0);
-	*win_rx = newwin(LINES - 16, COLS - 3, 3, 1);
+	*win_rx = newwin(LINES - 16, COLS - 3, 5, 1);
 	scrollok(*win_rx, true);
 
-	*win_tx = newwin(3, COLS - 1, LINES - 9, 0);
+	*win_tx = newwin(3, COLS - 1, LINES - 8, 0);
 	box(*win_tx, 0 , 0);
 	scrollok(*win_tx, false);
 
@@ -234,8 +234,8 @@ static void ncurses_init(WINDOW** win_rxborder, WINDOW** win_rx, WINDOW** win_tx
 	mvprintw(1, (COLS >> 1 ) - 30, "       DF4IAH  10 MHz  Reference Oscillator  -  Terminal       ");
 	attroff(COLOR_PAIR(E_COLOR_PAIR_TITLE));
 
-	mvprintw(1, 1, " Transfer window ");
-	mvprintw(LINES - 10, 1, " Send edit field ");
+	mvprintw(3, 1, " Transfer window ");
+	mvprintw(LINES - 9, 1, " Send edit field ");
 	attron(A_REVERSE);
 	mvprintw(LINES - 2, COLS / 2 - 16, " Press F1 to exit, F2 to exit delayed ");
 	attroff(A_BOLD | A_REVERSE);
