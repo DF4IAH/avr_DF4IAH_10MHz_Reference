@@ -1,0 +1,2032 @@
+Archive member included because of file (symbol)
+
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o)
+                              (vfprintf)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libscanf_flt.a(vfscanf_flt.o)
+                              (vfscanf)
+/opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o)
+                              ./Src/df4iah_fw_main.o (__muluhisi3)
+/opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodqi4.o)
+                              ./Src/df4iah_fw_main.o (__udivmodqi4)
+/opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodhi4.o)
+                              ./Src/df4iah_fw_usb.o (__udivmodhi4)
+/opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodsi4.o)
+                              ./Src/df4iah_fw_serial.o (__udivmodsi4)
+/opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_divmodsi4.o)
+                              ./Src/df4iah_fw_main.o (__divmodsi4)
+/opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_negsi2.o)
+                              /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_divmodsi4.o) (__negsi2)
+/opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_prologue.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o) (__prologue_saves__)
+/opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_epilogue.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o) (__epilogue_restores__)
+/opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/crtm328p.o (exit)
+/opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_tablejump.o)
+                              ./Src/df4iah_fw_main.o (__tablejump2__)
+/opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_copy_data.o)
+                              ./Src/usbdrv_fw/usbdrv.o (__do_copy_data)
+/opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_clear_bss.o)
+                              ./Src/usbdrv_fw/usbdrv.o (__do_clear_bss)
+/opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_umulhisi3.o)
+                              /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o) (__umulhisi3)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3.o)
+                              ./Src/df4iah_fw_main.o (__subsf3)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3x.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3.o) (__addsf3x)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(cmpsf2.o)
+                              ./Src/df4iah_fw_main.o (__nesf2)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(divsf3.o)
+                              ./Src/df4iah_fw_main.o (__divsf3)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(divsf3x.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(divsf3.o) (__divsf3x)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+                              ./Src/df4iah_fw_main.o (__fixunssfsi)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(floatsisf.o)
+                              ./Src/df4iah_fw_main.o (__floatunsisf)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(floor.o)
+                              ./Src/df4iah_fw_main.o (floor)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_cmp.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(cmpsf2.o) (__fp_cmp)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_inf.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3x.o) (__fp_inf)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_mintl.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(floor.o) (__fp_mintl)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_mpack.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(floor.o) (__fp_mpack)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_nan.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3x.o) (__fp_nan)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_pscA.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3x.o) (__fp_pscA)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_pscB.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3x.o) (__fp_pscB)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_round.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3.o) (__fp_round)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_split3.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3x.o) (__fp_split3)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_trunc.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(floor.o) (__fp_trunc)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_zero.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3x.o) (__fp_zero)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(gesf2.o)
+                              ./Src/df4iah_fw_main.o (__gesf2)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(mulsf3.o)
+                              ./Src/df4iah_fw_main.o (__mulsf3)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(mulsf3x.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(mulsf3.o) (__mulsf3x)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(pow.o)
+                              ./Src/df4iah_fw_main.o (pow)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(exp.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(pow.o) (exp)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_powser.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(exp.o) (__fp_powser)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(inverse.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(exp.o) (inverse)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(ldexp.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(exp.o) (ldexp)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(log.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(pow.o) (log)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(modf.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(exp.o) (modf)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ftoa_engine.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o) (__ftoa_engine)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(isspace.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libscanf_flt.a(vfscanf_flt.o) (isspace)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(tolower.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libscanf_flt.a(vfscanf_flt.o) (tolower)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strchr_P.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libscanf_flt.a(vfscanf_flt.o) (strchr_P)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strnlen_P.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o) (strnlen_P)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(memcmp.o)
+                              ./Src/df4iah_fw_main.o (memcmp)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(memcpy.o)
+                              ./Src/df4iah_fw_memory.o (memcpy)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strncmp.o)
+                              ./Src/df4iah_fw_main.o (strncmp)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strnlen.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o) (strnlen)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(fgetc.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libscanf_flt.a(vfscanf_flt.o) (fgetc)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(fputc.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o) (fputc)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(snprintf.o)
+                              ./Src/df4iah_fw_main.o (snprintf)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(sprintf.o)
+                              ./Src/df4iah_fw_main.o (sprintf)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(sscanf.o)
+                              ./Src/df4iah_fw_main.o (sscanf)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ungetc.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libscanf_flt.a(vfscanf_flt.o) (ungetc)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ultoa_invert.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o) (__ultoa_invert)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(eerd_byte_atmega328p.o)
+                              ./Src/df4iah_fw_memory.o (__eerd_byte_m328p)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(eewr_byte_atmega328p.o)
+                              ./Src/df4iah_fw_memory.o (__eewr_byte_m328p)
+/opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(cty_isfalse.o)
+                              /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(isspace.o) (__ctype_isfalse)
+
+Allocating common symbols
+Common symbol       size              file
+
+usbTxBuf            0xb               ./Src/usbdrv_fw/usbdrv.o
+stackCheckMungWall  0x220             ./Src/df4iah_fw_main.o
+usbDeviceAddr       0x1               ./Src/usbdrv_fw/usbdrv.o
+usbRxToken          0x1               ./Src/usbdrv_fw/usbdrv.o
+usbInputBufOffset   0x1               ./Src/usbdrv_fw/usbdrv.o
+usbMsgPtr           0x2               ./Src/usbdrv_fw/usbdrv.o
+usbRxLen            0x1               ./Src/usbdrv_fw/usbdrv.o
+usbNewDeviceAddr    0x1               ./Src/usbdrv_fw/usbdrv.o
+usbCurrentTok       0x1               ./Src/usbdrv_fw/usbdrv.o
+usbConfiguration    0x1               ./Src/usbdrv_fw/usbdrv.o
+usbRxBuf            0x16              ./Src/usbdrv_fw/usbdrv.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+text             0x0000000000000000 0x0000000000020000 xr
+data             0x0000000000800060 0x000000000000ffa0 rw !x
+eeprom           0x0000000000810000 0x0000000000010000 rw !x
+fuse             0x0000000000820000 0x0000000000000400 rw !x
+lock             0x0000000000830000 0x0000000000000400 rw !x
+signature        0x0000000000840000 0x0000000000000400 rw !x
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+Address of section .data set to 0x800100
+LOAD /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/crtm328p.o
+Address of section .text set to 0x0
+Address of section .df4iah_bl_memory set to 0x7900
+Address of section .df4iah_bl_probe set to 0x78c0
+Address of section .df4iah_bl_clkpullpwm set to 0x7780
+LOAD ./Src/usbdrv_fw/oddebug.o
+LOAD ./Src/usbdrv_fw/usbdrv.o
+LOAD ./Src/usbdrv_fw/usbdrvasm.o
+LOAD ./Src/df4iah_fw_anlgComp.o
+LOAD ./Src/df4iah_fw_clkFastCtr.o
+LOAD ./Src/df4iah_fw_clkPullPwm.o
+LOAD ./Src/df4iah_fw_main.o
+LOAD ./Src/df4iah_fw_memory.o
+LOAD ./Src/df4iah_fw_ringbuffer.o
+LOAD ./Src/df4iah_fw_serial.o
+LOAD ./Src/df4iah_fw_twi.o
+LOAD ./Src/df4iah_fw_twi_mcp23017.o
+LOAD ./Src/df4iah_fw_twi_mcp23017_av1624.o
+LOAD ./Src/df4iah_fw_usb.o
+LOAD /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_memory.o
+LOAD /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_clkPullPwm.o
+LOAD /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_probe.o
+LOAD /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a
+LOAD /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libscanf_flt.a
+START GROUP
+LOAD /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a
+LOAD /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a
+LOAD /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a
+END GROUP
+
+.hash
+ *(.hash)
+
+.dynsym
+ *(.dynsym)
+
+.dynstr
+ *(.dynstr)
+
+.gnu.version
+ *(.gnu.version)
+
+.gnu.version_d
+ *(.gnu.version_d)
+
+.gnu.version_r
+ *(.gnu.version_r)
+
+.rel.init
+ *(.rel.init)
+
+.rela.init
+ *(.rela.init)
+
+.rel.text
+ *(.rel.text)
+ *(.rel.text.*)
+ *(.rel.gnu.linkonce.t*)
+
+.rela.text
+ *(.rela.text)
+ *(.rela.text.*)
+ *(.rela.gnu.linkonce.t*)
+
+.rel.fini
+ *(.rel.fini)
+
+.rela.fini
+ *(.rela.fini)
+
+.rel.rodata
+ *(.rel.rodata)
+ *(.rel.rodata.*)
+ *(.rel.gnu.linkonce.r*)
+
+.rela.rodata
+ *(.rela.rodata)
+ *(.rela.rodata.*)
+ *(.rela.gnu.linkonce.r*)
+
+.rel.data
+ *(.rel.data)
+ *(.rel.data.*)
+ *(.rel.gnu.linkonce.d*)
+
+.rela.data
+ *(.rela.data)
+ *(.rela.data.*)
+ *(.rela.gnu.linkonce.d*)
+
+.rel.ctors
+ *(.rel.ctors)
+
+.rela.ctors
+ *(.rela.ctors)
+
+.rel.dtors
+ *(.rel.dtors)
+
+.rela.dtors
+ *(.rela.dtors)
+
+.rel.got
+ *(.rel.got)
+
+.rela.got
+ *(.rela.got)
+
+.rel.bss
+ *(.rel.bss)
+
+.rela.bss
+ *(.rela.bss)
+
+.rel.plt
+ *(.rel.plt)
+
+.rela.plt
+ *(.rela.plt)
+
+.text           0x0000000000000000     0x6fde
+ *(.vectors)
+ .vectors       0x0000000000000000       0x68 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/crtm328p.o
+                0x0000000000000000                __vectors
+                0x0000000000000000                __vector_default
+ *(.vectors)
+ *(.progmem.gcc*)
+ .progmem.gcc_sw_table.main_fw_giveAway
+                0x0000000000000068       0x1a ./Src/df4iah_fw_main.o
+ .progmem.gcc_fplib
+                0x0000000000000082       0x28 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(exp.o)
+ .progmem.gcc_fplib
+                0x00000000000000aa       0x5a /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(log.o)
+                0x0000000000000104                . = ALIGN (0x2)
+                0x0000000000000104                __trampolines_start = .
+ *(.trampolines)
+ .trampolines   0x0000000000000104        0x0 linker stubs
+ *(.trampolines*)
+                0x0000000000000104                __trampolines_end = .
+ *(.progmem*)
+ .progmem.data.usbDescriptorConfiguration
+                0x0000000000000104       0x19 ./Src/usbdrv_fw/usbdrv.o
+                0x0000000000000104                usbDescriptorConfiguration
+ .progmem.data.usbDescriptorDevice
+                0x000000000000011d       0x12 ./Src/usbdrv_fw/usbdrv.o
+                0x000000000000011d                usbDescriptorDevice
+ .progmem.data.usbDescriptorStringSerialNumber
+                0x000000000000012f       0x10 ./Src/usbdrv_fw/usbdrv.o
+                0x000000000000012f                usbDescriptorStringSerialNumber
+ .progmem.data.usbDescriptorStringDevice
+                0x000000000000013f       0x2a ./Src/usbdrv_fw/usbdrv.o
+                0x000000000000013f                usbDescriptorStringDevice
+ .progmem.data.usbDescriptorStringVendor
+                0x0000000000000169        0xe ./Src/usbdrv_fw/usbdrv.o
+                0x0000000000000169                usbDescriptorStringVendor
+ .progmem.data.usbDescriptorString0
+                0x0000000000000177        0x4 ./Src/usbdrv_fw/usbdrv.o
+                0x0000000000000177                usbDescriptorString0
+ .progmem.data.PM_PARSE_NMEA_MSG41
+                0x000000000000017b       0x11 ./Src/df4iah_fw_main.o
+                0x000000000000017b                PM_PARSE_NMEA_MSG41
+ .progmem.data.PM_PARSE_NMEA_MSG31
+                0x000000000000018c       0x11 ./Src/df4iah_fw_main.o
+                0x000000000000018c                PM_PARSE_NMEA_MSG31
+ .progmem.data.PM_PARSE_NMEA_MSG21
+                0x000000000000019d       0x33 ./Src/df4iah_fw_main.o
+                0x000000000000019d                PM_PARSE_NMEA_MSG21
+ .progmem.data.PM_PARSE_NMEA_MSG12
+                0x00000000000001d0        0xc ./Src/df4iah_fw_main.o
+                0x00000000000001d0                PM_PARSE_NMEA_MSG12
+ .progmem.data.PM_PARSE_NMEA_MSG11
+                0x00000000000001dc        0xf ./Src/df4iah_fw_main.o
+                0x00000000000001dc                PM_PARSE_NMEA_MSG11
+ .progmem.data.PM_PARSE_NMEA_MSG01
+                0x00000000000001eb       0x3d ./Src/df4iah_fw_main.o
+                0x00000000000001eb                PM_PARSE_NMEA_MSG01
+ .progmem.data.PM_FORMAT_SET_BAUD
+                0x0000000000000228       0x2a ./Src/df4iah_fw_main.o
+                0x0000000000000228                PM_FORMAT_SET_BAUD
+ .progmem.data.PM_FORMAT_GPIB_SCM_IDN
+                0x0000000000000252       0x1c ./Src/df4iah_fw_main.o
+                0x0000000000000252                PM_FORMAT_GPIB_SCM_IDN
+ .progmem.data.PM_FORMAT_SC02
+                0x000000000000026e       0x3d ./Src/df4iah_fw_main.o
+                0x000000000000026e                PM_FORMAT_SC02
+ .progmem.data.PM_FORMAT_SC01
+                0x00000000000002ab       0x45 ./Src/df4iah_fw_main.o
+                0x00000000000002ab                PM_FORMAT_SC01
+ .progmem.data.PM_FORMAT_LC23
+                0x00000000000002f0       0x13 ./Src/df4iah_fw_main.o
+                0x00000000000002f0                PM_FORMAT_LC23
+ .progmem.data.PM_FORMAT_LC22
+                0x0000000000000303       0x20 ./Src/df4iah_fw_main.o
+                0x0000000000000303                PM_FORMAT_LC22
+ .progmem.data.PM_FORMAT_LC21
+                0x0000000000000323       0x1c ./Src/df4iah_fw_main.o
+                0x0000000000000323                PM_FORMAT_LC21
+ .progmem.data.PM_FORMAT_LC12
+                0x000000000000033f       0x18 ./Src/df4iah_fw_main.o
+                0x000000000000033f                PM_FORMAT_LC12
+ .progmem.data.PM_FORMAT_LC11
+                0x0000000000000357       0x18 ./Src/df4iah_fw_main.o
+                0x0000000000000357                PM_FORMAT_LC11
+ .progmem.data.PM_FORMAT_LC02
+                0x000000000000036f       0x11 ./Src/df4iah_fw_main.o
+                0x000000000000036f                PM_FORMAT_LC02
+ .progmem.data.PM_FORMAT_LC01
+                0x0000000000000380       0x11 ./Src/df4iah_fw_main.o
+                0x0000000000000380                PM_FORMAT_LC01
+ .progmem.data.PM_FORMAT_IA12
+                0x0000000000000391       0x30 ./Src/df4iah_fw_main.o
+                0x0000000000000391                PM_FORMAT_IA12
+ .progmem.data.PM_FORMAT_IA11
+                0x00000000000003c1       0x60 ./Src/df4iah_fw_main.o
+                0x00000000000003c1                PM_FORMAT_IA11
+ .progmem.data.PM_FORMAT_IA03
+                0x0000000000000421       0x41 ./Src/df4iah_fw_main.o
+                0x0000000000000421                PM_FORMAT_IA03
+ .progmem.data.PM_FORMAT_IA02
+                0x0000000000000462       0x68 ./Src/df4iah_fw_main.o
+                0x0000000000000462                PM_FORMAT_IA02
+ .progmem.data.PM_FORMAT_IA01
+                0x00000000000004ca       0x3a ./Src/df4iah_fw_main.o
+                0x00000000000004ca                PM_FORMAT_IA01
+ .progmem.data.PM_FORMAT_ID02
+                0x0000000000000504       0x66 ./Src/df4iah_fw_main.o
+                0x0000000000000504                PM_FORMAT_ID02
+ .progmem.data.PM_FORMAT_ID01
+                0x000000000000056a       0x66 ./Src/df4iah_fw_main.o
+                0x000000000000056a                PM_FORMAT_ID01
+ .progmem.data.PM_FORMAT_TA14
+                0x00000000000005d0       0x20 ./Src/df4iah_fw_main.o
+                0x00000000000005d0                PM_FORMAT_TA14
+ .progmem.data.PM_FORMAT_TA13
+                0x00000000000005f0       0x24 ./Src/df4iah_fw_main.o
+                0x00000000000005f0                PM_FORMAT_TA13
+ .progmem.data.PM_FORMAT_TA12
+                0x0000000000000614       0x74 ./Src/df4iah_fw_main.o
+                0x0000000000000614                PM_FORMAT_TA12
+ .progmem.data.PM_FORMAT_TA11
+                0x0000000000000688       0x38 ./Src/df4iah_fw_main.o
+                0x0000000000000688                PM_FORMAT_TA11
+ .progmem.data.PM_FORMAT_TA03
+                0x00000000000006c0       0x1d ./Src/df4iah_fw_main.o
+                0x00000000000006c0                PM_FORMAT_TA03
+ .progmem.data.PM_FORMAT_TA02
+                0x00000000000006dd       0x1d ./Src/df4iah_fw_main.o
+                0x00000000000006dd                PM_FORMAT_TA02
+ .progmem.data.PM_FORMAT_TA01
+                0x00000000000006fa       0x1d ./Src/df4iah_fw_main.o
+                0x00000000000006fa                PM_FORMAT_TA01
+ .progmem.data.PM_FORMAT_GP05
+                0x0000000000000717       0x3b ./Src/df4iah_fw_main.o
+                0x0000000000000717                PM_FORMAT_GP05
+ .progmem.data.PM_FORMAT_GP04
+                0x0000000000000752       0x2f ./Src/df4iah_fw_main.o
+                0x0000000000000752                PM_FORMAT_GP04
+ .progmem.data.PM_FORMAT_GP03
+                0x0000000000000781       0x53 ./Src/df4iah_fw_main.o
+                0x0000000000000781                PM_FORMAT_GP03
+ .progmem.data.PM_FORMAT_GP02
+                0x00000000000007d4       0x25 ./Src/df4iah_fw_main.o
+                0x00000000000007d4                PM_FORMAT_GP02
+ .progmem.data.PM_FORMAT_GP01
+                0x00000000000007f9       0x28 ./Src/df4iah_fw_main.o
+                0x00000000000007f9                PM_FORMAT_GP01
+ .progmem.data.PM_FORMAT_GP00
+                0x0000000000000821       0x10 ./Src/df4iah_fw_main.o
+                0x0000000000000821                PM_FORMAT_GP00
+ .progmem.data.PM_FORMAT_GPS_WEST1_EAST1
+                0x0000000000000831       0x12 ./Src/df4iah_fw_main.o
+                0x0000000000000831                PM_FORMAT_GPS_WEST1_EAST1
+ .progmem.data.PM_FORMAT_GPS_WEST1_EAST0
+                0x0000000000000843       0x12 ./Src/df4iah_fw_main.o
+                0x0000000000000843                PM_FORMAT_GPS_WEST1_EAST0
+ .progmem.data.PM_FORMAT_GPS_WEST0_EAST0
+                0x0000000000000855       0x12 ./Src/df4iah_fw_main.o
+                0x0000000000000855                PM_FORMAT_GPS_WEST0_EAST0
+ .progmem.data.PM_FORMAT_GPS_STBY
+                0x0000000000000867       0x10 ./Src/df4iah_fw_main.o
+                0x0000000000000867                PM_FORMAT_GPS_STBY
+ .progmem.data.PM_FORMAT_GPS_WARM_RESTART
+                0x0000000000000877        0xe ./Src/df4iah_fw_main.o
+                0x0000000000000877                PM_FORMAT_GPS_WARM_RESTART
+ .progmem.data.PM_FORMAT_VERSION
+                0x0000000000000885       0x42 ./Src/df4iah_fw_main.o
+                0x0000000000000885                PM_FORMAT_VERSION
+ .progmem.data.PM_INTERPRETER_UNKNOWN
+                0x00000000000008c7       0x31 ./Src/df4iah_fw_main.o
+                0x00000000000008c7                PM_INTERPRETER_UNKNOWN
+ .progmem.data.PM_INTERPRETER_HELP14
+                0x00000000000008f8        0xf ./Src/df4iah_fw_main.o
+                0x00000000000008f8                PM_INTERPRETER_HELP14
+ .progmem.data.PM_INTERPRETER_HELP13
+                0x0000000000000907       0x30 ./Src/df4iah_fw_main.o
+                0x0000000000000907                PM_INTERPRETER_HELP13
+ .progmem.data.PM_INTERPRETER_HELP12
+                0x0000000000000937       0x74 ./Src/df4iah_fw_main.o
+                0x0000000000000937                PM_INTERPRETER_HELP12
+ .progmem.data.PM_INTERPRETER_HELP11
+                0x00000000000009ab       0x1f ./Src/df4iah_fw_main.o
+                0x00000000000009ab                PM_INTERPRETER_HELP11
+ .progmem.data.PM_INTERPRETER_HELP10
+                0x00000000000009ca       0x28 ./Src/df4iah_fw_main.o
+                0x00000000000009ca                PM_INTERPRETER_HELP10
+ .progmem.data.PM_INTERPRETER_HELP09
+                0x00000000000009f2       0x55 ./Src/df4iah_fw_main.o
+                0x00000000000009f2                PM_INTERPRETER_HELP09
+ .progmem.data.PM_INTERPRETER_HELP08
+                0x0000000000000a47       0x2c ./Src/df4iah_fw_main.o
+                0x0000000000000a47                PM_INTERPRETER_HELP08
+ .progmem.data.PM_INTERPRETER_HELP07
+                0x0000000000000a73       0x3f ./Src/df4iah_fw_main.o
+                0x0000000000000a73                PM_INTERPRETER_HELP07
+ .progmem.data.PM_INTERPRETER_HELP06
+                0x0000000000000ab2       0x2b ./Src/df4iah_fw_main.o
+                0x0000000000000ab2                PM_INTERPRETER_HELP06
+ .progmem.data.PM_INTERPRETER_HELP05
+                0x0000000000000add       0x17 ./Src/df4iah_fw_main.o
+                0x0000000000000add                PM_INTERPRETER_HELP05
+ .progmem.data.PM_INTERPRETER_HELP04
+                0x0000000000000af4       0x2e ./Src/df4iah_fw_main.o
+                0x0000000000000af4                PM_INTERPRETER_HELP04
+ .progmem.data.PM_INTERPRETER_HELP03
+                0x0000000000000b22       0x67 ./Src/df4iah_fw_main.o
+                0x0000000000000b22                PM_INTERPRETER_HELP03
+ .progmem.data.PM_INTERPRETER_HELP02
+                0x0000000000000b89       0x6f ./Src/df4iah_fw_main.o
+                0x0000000000000b89                PM_INTERPRETER_HELP02
+ .progmem.data.PM_INTERPRETER_HELP01
+                0x0000000000000bf8       0x42 ./Src/df4iah_fw_main.o
+                0x0000000000000bf8                PM_INTERPRETER_HELP01
+ .progmem.data.PM_GPIB_SCM_RST
+                0x0000000000000c3a        0x5 ./Src/df4iah_fw_main.o
+                0x0000000000000c3a                PM_GPIB_SCM_RST
+ .progmem.data.PM_GPIB_SCM_IDN
+                0x0000000000000c3f        0x6 ./Src/df4iah_fw_main.o
+                0x0000000000000c3f                PM_GPIB_SCM_IDN
+ .progmem.data.PM_COMMAND_MINUSSIGN
+                0x0000000000000c45        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000000c45                PM_COMMAND_MINUSSIGN
+ .progmem.data.PM_COMMAND_PLUSSIGN
+                0x0000000000000c47        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000000c47                PM_COMMAND_PLUSSIGN
+ .progmem.data.PM_COMMAND_WRITETEMP
+                0x0000000000000c49        0xa ./Src/df4iah_fw_main.o
+                0x0000000000000c49                PM_COMMAND_WRITETEMP
+ .progmem.data.PM_COMMAND_WRITEPWM
+                0x0000000000000c53        0x9 ./Src/df4iah_fw_main.o
+                0x0000000000000c53                PM_COMMAND_WRITEPWM
+ .progmem.data.PM_COMMAND_TEST
+                0x0000000000000c5c        0x5 ./Src/df4iah_fw_main.o
+                0x0000000000000c5c                PM_COMMAND_TEST
+ .progmem.data.PM_COMMAND_STACK
+                0x0000000000000c61        0x6 ./Src/df4iah_fw_main.o
+                0x0000000000000c61                PM_COMMAND_STACK
+ .progmem.data.PM_COMMAND_SERON
+                0x0000000000000c67        0x6 ./Src/df4iah_fw_main.o
+                0x0000000000000c67                PM_COMMAND_SERON
+ .progmem.data.PM_COMMAND_SEROFF
+                0x0000000000000c6d        0x7 ./Src/df4iah_fw_main.o
+                0x0000000000000c6d                PM_COMMAND_SEROFF
+ .progmem.data.PM_COMMAND_SERBAUD
+                0x0000000000000c74        0x8 ./Src/df4iah_fw_main.o
+                0x0000000000000c74                PM_COMMAND_SERBAUD
+ .progmem.data.PM_COMMAND_LEDON
+                0x0000000000000c7c        0x6 ./Src/df4iah_fw_main.o
+                0x0000000000000c7c                PM_COMMAND_LEDON
+ .progmem.data.PM_COMMAND_LEDOFF
+                0x0000000000000c82        0x7 ./Src/df4iah_fw_main.o
+                0x0000000000000c82                PM_COMMAND_LEDOFF
+ .progmem.data.PM_COMMAND_INFO
+                0x0000000000000c89        0x5 ./Src/df4iah_fw_main.o
+                0x0000000000000c89                PM_COMMAND_INFO
+ .progmem.data.PM_COMMAND_HELP
+                0x0000000000000c8e        0x5 ./Src/df4iah_fw_main.o
+                0x0000000000000c8e                PM_COMMAND_HELP
+ .progmem.data.PM_COMMAND_HALT
+                0x0000000000000c93        0x5 ./Src/df4iah_fw_main.o
+                0x0000000000000c93                PM_COMMAND_HALT
+ .progmem.data.PM_COMMAND_APCON
+                0x0000000000000c98        0x6 ./Src/df4iah_fw_main.o
+                0x0000000000000c98                PM_COMMAND_APCON
+ .progmem.data.PM_COMMAND_APCOFF
+                0x0000000000000c9e        0x7 ./Src/df4iah_fw_main.o
+                0x0000000000000c9e                PM_COMMAND_APCOFF
+ .progmem.data.PM_COMMAND_AFCON
+                0x0000000000000ca5        0x6 ./Src/df4iah_fw_main.o
+                0x0000000000000ca5                PM_COMMAND_AFCON
+ .progmem.data.PM_COMMAND_AFCOFF
+                0x0000000000000cab        0x7 ./Src/df4iah_fw_main.o
+                0x0000000000000cab                PM_COMMAND_AFCOFF
+ .progmem.data.eeprom_defaultValues_content
+                0x0000000000000cb2       0xa0 ./Src/df4iah_fw_main.o
+                0x0000000000000cb2                eeprom_defaultValues_content
+ .progmem.data  0x0000000000000d52        0x8 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o)
+ .progmem.data  0x0000000000000d5a       0x4d /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libscanf_flt.a(vfscanf_flt.o)
+ .progmem.data  0x0000000000000da7       0xfa /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ftoa_engine.o)
+                0x0000000000000ea2                . = ALIGN (0x2)
+ *fill*         0x0000000000000ea1        0x1 
+ *(.jumptables)
+ *(.jumptables*)
+ *(.lowtext)
+ *(.lowtext*)
+                0x0000000000000ea2                __ctors_start = .
+ *(.ctors)
+                0x0000000000000ea2                __ctors_end = .
+                0x0000000000000ea2                __dtors_start = .
+ *(.dtors)
+                0x0000000000000ea2                __dtors_end = .
+ SORT(*)(.ctors)
+ SORT(*)(.dtors)
+ *(.init0)
+ .init0         0x0000000000000ea2        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/crtm328p.o
+                0x0000000000000ea2                __init
+ *(.init0)
+ *(.init1)
+ *(.init1)
+ *(.init2)
+ .init2         0x0000000000000ea2        0xc /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/crtm328p.o
+ *(.init2)
+ *(.init3)
+ *(.init3)
+ *(.init4)
+ .init4         0x0000000000000eae       0x16 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_copy_data.o)
+                0x0000000000000eae                __do_copy_data
+ .init4         0x0000000000000ec4       0x10 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_clear_bss.o)
+                0x0000000000000ec4                __do_clear_bss
+ *(.init4)
+ *(.init5)
+ *(.init5)
+ *(.init6)
+ *(.init6)
+ *(.init7)
+ *(.init7)
+ *(.init8)
+ *(.init8)
+ *(.init9)
+ .init9         0x0000000000000ed4        0x8 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/crtm328p.o
+ *(.init9)
+ *(.text)
+ .text          0x0000000000000edc        0x4 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/crtm328p.o
+                0x0000000000000edc                __vector_14
+                0x0000000000000edc                __vector_12
+                0x0000000000000edc                __bad_interrupt
+                0x0000000000000edc                __vector_3
+                0x0000000000000edc                __vector_23
+                0x0000000000000edc                __vector_25
+                0x0000000000000edc                __vector_13
+                0x0000000000000edc                __vector_17
+                0x0000000000000edc                __vector_7
+                0x0000000000000edc                __vector_5
+                0x0000000000000edc                __vector_4
+                0x0000000000000edc                __vector_9
+                0x0000000000000edc                __vector_2
+                0x0000000000000edc                __vector_15
+                0x0000000000000edc                __vector_8
+                0x0000000000000edc                __vector_22
+ .text          0x0000000000000ee0        0x0 ./Src/usbdrv_fw/oddebug.o
+ .text          0x0000000000000ee0        0x0 ./Src/usbdrv_fw/usbdrv.o
+ .text          0x0000000000000ee0      0x282 ./Src/usbdrv_fw/usbdrvasm.o
+                0x0000000000000ee0                usbCrc16
+                0x0000000000000f2a                usbCrc16Append
+                0x0000000000000f32                __vector_1
+ .text          0x0000000000001162        0x0 ./Src/df4iah_fw_anlgComp.o
+ .text          0x0000000000001162        0x0 ./Src/df4iah_fw_clkFastCtr.o
+ .text          0x0000000000001162        0x0 ./Src/df4iah_fw_clkPullPwm.o
+ .text          0x0000000000001162        0x0 ./Src/df4iah_fw_main.o
+ .text          0x0000000000001162        0x0 ./Src/df4iah_fw_memory.o
+ .text          0x0000000000001162        0x0 ./Src/df4iah_fw_ringbuffer.o
+ .text          0x0000000000001162        0x0 ./Src/df4iah_fw_serial.o
+ .text          0x0000000000001162        0x0 ./Src/df4iah_fw_twi.o
+ .text          0x0000000000001162        0x0 ./Src/df4iah_fw_twi_mcp23017.o
+ .text          0x0000000000001162        0x0 ./Src/df4iah_fw_twi_mcp23017_av1624.o
+ .text          0x0000000000001162        0x0 ./Src/df4iah_fw_usb.o
+ .text          0x0000000000001162        0x0 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_memory.o
+ .text          0x0000000000001162        0x0 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_clkPullPwm.o
+ .text          0x0000000000001162        0x0 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_probe.o
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libscanf_flt.a(vfscanf_flt.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodqi4.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodhi4.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodsi4.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_divmodsi4.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_negsi2.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_prologue.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_epilogue.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_tablejump.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_copy_data.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_clear_bss.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_umulhisi3.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3x.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(cmpsf2.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(divsf3.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(divsf3x.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(floatsisf.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(floor.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_cmp.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_inf.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_mintl.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_mpack.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_nan.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_pscA.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_pscB.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_round.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_split3.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_trunc.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_zero.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(gesf2.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(mulsf3.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(mulsf3x.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(pow.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(exp.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_powser.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(inverse.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(ldexp.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(log.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(modf.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ftoa_engine.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(isspace.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(tolower.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strchr_P.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strnlen_P.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(memcmp.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(memcpy.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strncmp.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strnlen.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(fgetc.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(fputc.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(snprintf.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(sprintf.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(sscanf.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ungetc.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ultoa_invert.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(eerd_byte_atmega328p.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(eewr_byte_atmega328p.o)
+ .text          0x0000000000001162        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(cty_isfalse.o)
+                0x0000000000001162                . = ALIGN (0x2)
+ *(.text.*)
+ .text.usbSetInterrupt
+                0x0000000000001162       0x4c ./Src/usbdrv_fw/usbdrv.o
+                0x0000000000001162                usbSetInterrupt
+ .text.usbPoll  0x00000000000011ae      0x29c ./Src/usbdrv_fw/usbdrv.o
+                0x00000000000011ae                usbPoll
+ .text.usbInit  0x000000000000144a       0x1a ./Src/usbdrv_fw/usbdrv.o
+                0x000000000000144a                usbInit
+ .text.anlgComp_fw_init
+                0x0000000000001464       0x52 ./Src/df4iah_fw_anlgComp.o
+                0x0000000000001464                anlgComp_fw_init
+ .text.anlgComp_fw_close
+                0x00000000000014b6       0x22 ./Src/df4iah_fw_anlgComp.o
+                0x00000000000014b6                anlgComp_fw_close
+ .text.anlgComp_fw_startAdcConvertion
+                0x00000000000014d8        0xc ./Src/df4iah_fw_anlgComp.o
+                0x00000000000014d8                anlgComp_fw_startAdcConvertion
+ .text.__vector_21
+                0x00000000000014e4       0xcc ./Src/df4iah_fw_anlgComp.o
+                0x00000000000014e4                __vector_21
+ .text.clkFastCtr_fw_init
+                0x00000000000015b0       0x30 ./Src/df4iah_fw_clkFastCtr.o
+                0x00000000000015b0                clkFastCtr_fw_init
+ .text.clkFastCtr_fw_close
+                0x00000000000015e0       0x14 ./Src/df4iah_fw_clkFastCtr.o
+                0x00000000000015e0                clkFastCtr_fw_close
+ .text.__vector_11
+                0x00000000000015f4       0x7e ./Src/df4iah_fw_clkFastCtr.o
+                0x00000000000015f4                __vector_11
+ .text.__vector_10
+                0x0000000000001672       0x7c ./Src/df4iah_fw_clkFastCtr.o
+                0x0000000000001672                __vector_10
+ .text.clkPullPwm_fw_init
+                0x00000000000016ee       0x64 ./Src/df4iah_fw_clkPullPwm.o
+                0x00000000000016ee                clkPullPwm_fw_init
+ .text.clkPullPwm_fw_close
+                0x0000000000001752       0x1a ./Src/df4iah_fw_clkPullPwm.o
+                0x0000000000001752                clkPullPwm_fw_close
+ .text.__vector_16
+                0x000000000000176c       0x70 ./Src/df4iah_fw_clkPullPwm.o
+                0x000000000000176c                __vector_16
+ .text.unlikely.recalcEepromCrc
+                0x00000000000017dc       0x3e ./Src/df4iah_fw_main.o
+ .text.__vector_6
+                0x000000000000181a        0x2 ./Src/df4iah_fw_main.o
+                0x000000000000181a                __vector_6
+ .text.main_fw_calcTimerToFloat
+                0x000000000000181c       0x4c ./Src/df4iah_fw_main.o
+                0x000000000000181c                main_fw_calcTimerToFloat
+ .text.main_fw_calcTimerAdj
+                0x0000000000001868      0x13c ./Src/df4iah_fw_main.o
+                0x0000000000001868                main_fw_calcTimerAdj
+ .text.calcPhaseResidue
+                0x00000000000019a4       0x9e ./Src/df4iah_fw_main.o
+ .text.main_fw_strncmp
+                0x0000000000001a42       0x2e ./Src/df4iah_fw_main.o
+                0x0000000000001a42                main_fw_strncmp
+ .text.main_fw_memcmp
+                0x0000000000001a70       0x2e ./Src/df4iah_fw_main.o
+                0x0000000000001a70                main_fw_memcmp
+ .text.main_fw_nmeaUtcPlusOneSec
+                0x0000000000001a9e       0xb8 ./Src/df4iah_fw_main.o
+                0x0000000000001a9e                main_fw_nmeaUtcPlusOneSec
+ .text.main_fw_parseNmeaLineData
+                0x0000000000001b56      0x2f6 ./Src/df4iah_fw_main.o
+                0x0000000000001b56                main_fw_parseNmeaLineData
+ .text.main_fw_sendInitialHelp
+                0x0000000000001e4c        0xe ./Src/df4iah_fw_main.o
+                0x0000000000001e4c                main_fw_sendInitialHelp
+ .text.main_fw_giveAway
+                0x0000000000001e5a     0x1de2 ./Src/df4iah_fw_main.o
+                0x0000000000001e5a                main_fw_giveAway
+ .text.startup.main
+                0x0000000000003c3c      0x298 ./Src/df4iah_fw_main.o
+                0x0000000000003c3c                main
+ .text.memory_fw_copyBuffer
+                0x0000000000003ed4       0x46 ./Src/df4iah_fw_memory.o
+                0x0000000000003ed4                memory_fw_copyBuffer
+ .text.memory_fw_calcBlockCrc
+                0x0000000000003f1a        0x6 ./Src/df4iah_fw_memory.o
+                0x0000000000003f1a                memory_fw_calcBlockCrc
+ .text.memory_fw_getSealMarker
+                0x0000000000003f20        0xe ./Src/df4iah_fw_memory.o
+                0x0000000000003f20                memory_fw_getSealMarker
+ .text.memory_fw_makeEepromBlockValid
+                0x0000000000003f2e       0x4e ./Src/df4iah_fw_memory.o
+                0x0000000000003f2e                memory_fw_makeEepromBlockValid
+ .text.memory_fw_eraseFlash
+                0x0000000000003f7c        0x4 ./Src/df4iah_fw_memory.o
+                0x0000000000003f7c                memory_fw_eraseFlash
+ .text.memory_fw_readFlashPage
+                0x0000000000003f80        0x4 ./Src/df4iah_fw_memory.o
+                0x0000000000003f80                memory_fw_readFlashPage
+ .text.memory_fw_readEEpromPage
+                0x0000000000003f84       0x46 ./Src/df4iah_fw_memory.o
+                0x0000000000003f84                memory_fw_readEEpromPage
+ .text.memory_fw_isEepromBlockValid
+                0x0000000000003fca       0x32 ./Src/df4iah_fw_memory.o
+                0x0000000000003fca                memory_fw_isEepromBlockValid
+ .text.memory_fw_readEepromValidBlock
+                0x0000000000003ffc       0x3e ./Src/df4iah_fw_memory.o
+                0x0000000000003ffc                memory_fw_readEepromValidBlock
+ .text.memory_fw_writeFlashPage
+                0x000000000000403a        0x4 ./Src/df4iah_fw_memory.o
+                0x000000000000403a                memory_fw_writeFlashPage
+ .text.memory_fw_writeEEpromPage
+                0x000000000000403e       0x34 ./Src/df4iah_fw_memory.o
+                0x000000000000403e                memory_fw_writeEEpromPage
+ .text.memory_fw_writeEepromBlockMakeValid
+                0x0000000000004072       0x30 ./Src/df4iah_fw_memory.o
+                0x0000000000004072                memory_fw_writeEepromBlockMakeValid
+ .text.memory_fw_checkAndInitBlock
+                0x00000000000040a2       0x6a ./Src/df4iah_fw_memory.o
+                0x00000000000040a2                memory_fw_checkAndInitBlock
+ .text.memory_fw_checkAndInitAllBlocks
+                0x000000000000410c       0x1e ./Src/df4iah_fw_memory.o
+                0x000000000000410c                memory_fw_checkAndInitAllBlocks
+ .text.ringbuffer_fw_getSemaphore
+                0x000000000000412a       0x22 ./Src/df4iah_fw_ringbuffer.o
+                0x000000000000412a                ringbuffer_fw_getSemaphore
+ .text.ringbuffer_fw_freeSemaphore
+                0x000000000000414c       0x18 ./Src/df4iah_fw_ringbuffer.o
+                0x000000000000414c                ringbuffer_fw_freeSemaphore
+ .text.ringbuffer_fw_ringBufferPush
+                0x0000000000004164      0x134 ./Src/df4iah_fw_ringbuffer.o
+                0x0000000000004164                ringbuffer_fw_ringBufferPush
+ .text.ringbuffer_fw_ringBufferPull
+                0x0000000000004298      0x110 ./Src/df4iah_fw_ringbuffer.o
+                0x0000000000004298                ringbuffer_fw_ringBufferPull
+ .text.ringbuffer_fw_getStatusNextMsg
+                0x00000000000043a8       0x46 ./Src/df4iah_fw_ringbuffer.o
+                0x00000000000043a8                ringbuffer_fw_getStatusNextMsg
+ .text.ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore
+                0x00000000000043ee       0x48 ./Src/df4iah_fw_ringbuffer.o
+                0x00000000000043ee                ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore
+ .text.ringbuffer_fw_ringBufferWaitAppend
+                0x0000000000004436       0x48 ./Src/df4iah_fw_ringbuffer.o
+                0x0000000000004436                ringbuffer_fw_ringBufferWaitAppend
+ .text.serial_fw_sendNmea
+                0x000000000000447e       0x34 ./Src/df4iah_fw_serial.o
+ .text.serial_fw_serRxIsrOn.part.0
+                0x00000000000044b2       0x12 ./Src/df4iah_fw_serial.o
+ .text.serial_fw_close
+                0x00000000000044c4       0x1e ./Src/df4iah_fw_serial.o
+                0x00000000000044c4                serial_fw_close
+ .text.serial_fw_serRxIsrOn
+                0x00000000000044e2       0x18 ./Src/df4iah_fw_serial.o
+                0x00000000000044e2                serial_fw_serRxIsrOn
+ .text.serial_fw_setCommBaud
+                0x00000000000044fa       0x40 ./Src/df4iah_fw_serial.o
+                0x00000000000044fa                serial_fw_setCommBaud
+ .text.serial_fw_init
+                0x000000000000453a       0x9a ./Src/df4iah_fw_serial.o
+                0x000000000000453a                serial_fw_init
+ .text.serial_fw_isTxRunning
+                0x00000000000045d4        0xe ./Src/df4iah_fw_serial.o
+                0x00000000000045d4                serial_fw_isTxRunning
+ .text.serial_fw_copyAndSendNmea
+                0x00000000000045e2       0x28 ./Src/df4iah_fw_serial.o
+                0x00000000000045e2                serial_fw_copyAndSendNmea
+ .text.serial_fw_pullAndSendNmea_havingSemaphore
+                0x000000000000460a       0x8e ./Src/df4iah_fw_serial.o
+                0x000000000000460a                serial_fw_pullAndSendNmea_havingSemaphore
+ .text.__vector_18
+                0x0000000000004698      0x104 ./Src/df4iah_fw_serial.o
+                0x0000000000004698                __vector_18
+ .text.__vector_19
+                0x000000000000479c       0x80 ./Src/df4iah_fw_serial.o
+                0x000000000000479c                __vector_19
+ .text.__vector_20
+                0x000000000000481c       0x16 ./Src/df4iah_fw_serial.o
+                0x000000000000481c                __vector_20
+ .text.waitUntilDone
+                0x0000000000004832       0x1a ./Src/df4iah_fw_twi.o
+ .text.twi_fw_init
+                0x000000000000484c       0x2e ./Src/df4iah_fw_twi.o
+                0x000000000000484c                twi_fw_init
+ .text.twi_fw_close
+                0x000000000000487a       0x16 ./Src/df4iah_fw_twi.o
+                0x000000000000487a                twi_fw_close
+ .text.twi_fw_sendStart
+                0x0000000000004890       0x72 ./Src/df4iah_fw_twi.o
+                0x0000000000004890                twi_fw_sendStart
+ .text.twi_fw_sendCmdSendData1
+                0x0000000000004902       0x74 ./Src/df4iah_fw_twi.o
+                0x0000000000004902                twi_fw_sendCmdSendData1
+ .text.twi_fw_sendCmdSendData1SendData2
+                0x0000000000004976       0x8e ./Src/df4iah_fw_twi.o
+                0x0000000000004976                twi_fw_sendCmdSendData1SendData2
+ .text.twi_fw_sendCmdReadData1
+                0x0000000000004a04       0xa4 ./Src/df4iah_fw_twi.o
+                0x0000000000004a04                twi_fw_sendCmdReadData1
+ .text.isr_sendStop
+                0x0000000000004aa8       0x28 ./Src/df4iah_fw_twi.o
+                0x0000000000004aa8                isr_sendStop
+ .text.__vector_24
+                0x0000000000004ad0      0x1fa ./Src/df4iah_fw_twi.o
+                0x0000000000004ad0                __vector_24
+ .text.twi_mcp23017_fw_init
+                0x0000000000004cca       0x6a ./Src/df4iah_fw_twi_mcp23017.o
+                0x0000000000004cca                twi_mcp23017_fw_init
+ .text.twi_mcp23017_fw_close
+                0x0000000000004d34       0x24 ./Src/df4iah_fw_twi_mcp23017.o
+                0x0000000000004d34                twi_mcp23017_fw_close
+ .text.twi_mcp23017_fw_setPortA_DirOut
+                0x0000000000004d58       0x12 ./Src/df4iah_fw_twi_mcp23017.o
+                0x0000000000004d58                twi_mcp23017_fw_setPortA_DirOut
+ .text.twi_mcp23017_fw_setPortB
+                0x0000000000004d6a        0xa ./Src/df4iah_fw_twi_mcp23017.o
+                0x0000000000004d6a                twi_mcp23017_fw_setPortB
+ .text.twi_mcp23017_fw_setPortBA
+                0x0000000000004d74       0x14 ./Src/df4iah_fw_twi_mcp23017.o
+                0x0000000000004d74                twi_mcp23017_fw_setPortBA
+ .text.twi_mcp23017_fw_readPortA
+                0x0000000000004d88        0x8 ./Src/df4iah_fw_twi_mcp23017.o
+                0x0000000000004d88                twi_mcp23017_fw_readPortA
+ .text.twi_mcp23017_av1624_fw_waitUntilReady
+                0x0000000000004d90       0x58 ./Src/df4iah_fw_twi_mcp23017_av1624.o
+                0x0000000000004d90                twi_mcp23017_av1624_fw_waitUntilReady
+ .text.twi_mcp23017_av1624_fw_init
+                0x0000000000004de8      0x116 ./Src/df4iah_fw_twi_mcp23017_av1624.o
+                0x0000000000004de8                twi_mcp23017_av1624_fw_init
+ .text.twi_mcp23017_av1624_fw_close
+                0x0000000000004efe       0x56 ./Src/df4iah_fw_twi_mcp23017_av1624.o
+                0x0000000000004efe                twi_mcp23017_av1624_fw_close
+ .text.twi_mcp23017_av1624_fw_gotoPosition
+                0x0000000000004f54       0x5c ./Src/df4iah_fw_twi_mcp23017_av1624.o
+                0x0000000000004f54                twi_mcp23017_av1624_fw_gotoPosition
+ .text.twi_mcp23017_av1624_fw_writeString
+                0x0000000000004fb0       0x94 ./Src/df4iah_fw_twi_mcp23017_av1624.o
+                0x0000000000004fb0                twi_mcp23017_av1624_fw_writeString
+ .text.usb_fw_replyContent
+                0x0000000000005044       0x1c ./Src/df4iah_fw_usb.o
+                0x0000000000005044                usb_fw_replyContent
+ .text.usb_fw_sendInInterrupt
+                0x0000000000005060       0x14 ./Src/df4iah_fw_usb.o
+                0x0000000000005060                usb_fw_sendInInterrupt
+ .text.usb_fw_init
+                0x0000000000005074       0x28 ./Src/df4iah_fw_usb.o
+                0x0000000000005074                usb_fw_init
+ .text.usb_fw_close
+                0x000000000000509c        0x8 ./Src/df4iah_fw_usb.o
+                0x000000000000509c                usb_fw_close
+ .text.usbFunctionSetup
+                0x00000000000050a4       0x72 ./Src/df4iah_fw_usb.o
+                0x00000000000050a4                usbFunctionSetup
+ .text.usbFunctionRead
+                0x0000000000005116      0x10a ./Src/df4iah_fw_usb.o
+                0x0000000000005116                usbFunctionRead
+ .text.usbFunctionWrite
+                0x0000000000005220       0xa4 ./Src/df4iah_fw_usb.o
+                0x0000000000005220                usbFunctionWrite
+ .text.avr-libc
+                0x00000000000052c4      0x6f8 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o)
+                0x00000000000052c4                vfprintf
+ .text.avr-libc
+                0x00000000000059bc      0x7f0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libscanf_flt.a(vfscanf_flt.o)
+                0x0000000000005f48                vfscanf
+ .text.libgcc.mul
+                0x00000000000061ac       0x16 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o)
+                0x00000000000061ac                __muluhisi3
+ .text.libgcc.div
+                0x00000000000061c2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o)
+ .text.libgcc   0x00000000000061c2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o)
+ .text.libgcc.prologue
+                0x00000000000061c2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o)
+ .text.libgcc.builtins
+                0x00000000000061c2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o)
+ .text.libgcc.fmul
+                0x00000000000061c2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o)
+ .text.libgcc.fixed
+                0x00000000000061c2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o)
+ .text.libgcc.mul
+                0x00000000000061c2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodqi4.o)
+ .text.libgcc.div
+                0x00000000000061c2       0x18 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodqi4.o)
+                0x00000000000061c2                __udivmodqi4
+ .text.libgcc   0x00000000000061da        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodqi4.o)
+ .text.libgcc.prologue
+                0x00000000000061da        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodqi4.o)
+ .text.libgcc.builtins
+                0x00000000000061da        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodqi4.o)
+ .text.libgcc.fmul
+                0x00000000000061da        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodqi4.o)
+ .text.libgcc.fixed
+                0x00000000000061da        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodqi4.o)
+ .text.libgcc.mul
+                0x00000000000061da        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.div
+                0x00000000000061da       0x28 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodhi4.o)
+                0x00000000000061da                __udivmodhi4
+ .text.libgcc   0x0000000000006202        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.prologue
+                0x0000000000006202        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.builtins
+                0x0000000000006202        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.fmul
+                0x0000000000006202        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.fixed
+                0x0000000000006202        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.mul
+                0x0000000000006202        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodsi4.o)
+ .text.libgcc.div
+                0x0000000000006202       0x44 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodsi4.o)
+                0x0000000000006202                __udivmodsi4
+ .text.libgcc   0x0000000000006246        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodsi4.o)
+ .text.libgcc.prologue
+                0x0000000000006246        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodsi4.o)
+ .text.libgcc.builtins
+                0x0000000000006246        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodsi4.o)
+ .text.libgcc.fmul
+                0x0000000000006246        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodsi4.o)
+ .text.libgcc.fixed
+                0x0000000000006246        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodsi4.o)
+ .text.libgcc.mul
+                0x0000000000006246        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_divmodsi4.o)
+ .text.libgcc.div
+                0x0000000000006246       0x2e /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_divmodsi4.o)
+                0x0000000000006246                __divmodsi4
+ .text.libgcc   0x0000000000006274        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_divmodsi4.o)
+ .text.libgcc.prologue
+                0x0000000000006274        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_divmodsi4.o)
+ .text.libgcc.builtins
+                0x0000000000006274        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_divmodsi4.o)
+ .text.libgcc.fmul
+                0x0000000000006274        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_divmodsi4.o)
+ .text.libgcc.fixed
+                0x0000000000006274        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_divmodsi4.o)
+ .text.libgcc.mul
+                0x0000000000006274        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_negsi2.o)
+ .text.libgcc.div
+                0x0000000000006274       0x10 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_negsi2.o)
+                0x0000000000006274                __negsi2
+ .text.libgcc   0x0000000000006284        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_negsi2.o)
+ .text.libgcc.prologue
+                0x0000000000006284        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_negsi2.o)
+ .text.libgcc.builtins
+                0x0000000000006284        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_negsi2.o)
+ .text.libgcc.fmul
+                0x0000000000006284        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_negsi2.o)
+ .text.libgcc.fixed
+                0x0000000000006284        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_negsi2.o)
+ .text.libgcc.mul
+                0x0000000000006284        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_prologue.o)
+ .text.libgcc.div
+                0x0000000000006284        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_prologue.o)
+ .text.libgcc   0x0000000000006284        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_prologue.o)
+ .text.libgcc.prologue
+                0x0000000000006284       0x38 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_prologue.o)
+                0x0000000000006284                __prologue_saves__
+ .text.libgcc.builtins
+                0x00000000000062bc        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_prologue.o)
+ .text.libgcc.fmul
+                0x00000000000062bc        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_prologue.o)
+ .text.libgcc.fixed
+                0x00000000000062bc        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_prologue.o)
+ .text.libgcc.mul
+                0x00000000000062bc        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_epilogue.o)
+ .text.libgcc.div
+                0x00000000000062bc        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_epilogue.o)
+ .text.libgcc   0x00000000000062bc        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_epilogue.o)
+ .text.libgcc.prologue
+                0x00000000000062bc       0x36 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_epilogue.o)
+                0x00000000000062bc                __epilogue_restores__
+ .text.libgcc.builtins
+                0x00000000000062f2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_epilogue.o)
+ .text.libgcc.fmul
+                0x00000000000062f2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_epilogue.o)
+ .text.libgcc.fixed
+                0x00000000000062f2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_epilogue.o)
+ .text.libgcc.mul
+                0x00000000000062f2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+ .text.libgcc.div
+                0x00000000000062f2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+ .text.libgcc   0x00000000000062f2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+ .text.libgcc.prologue
+                0x00000000000062f2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+ .text.libgcc.builtins
+                0x00000000000062f2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+ .text.libgcc.fmul
+                0x00000000000062f2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+ .text.libgcc.fixed
+                0x00000000000062f2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+ .text.libgcc.mul
+                0x00000000000062f2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_tablejump.o)
+ .text.libgcc.div
+                0x00000000000062f2        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_tablejump.o)
+ .text.libgcc   0x00000000000062f2        0xc /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_tablejump.o)
+                0x00000000000062f2                __tablejump2__
+                0x00000000000062f6                __tablejump__
+ .text.libgcc.prologue
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_tablejump.o)
+ .text.libgcc.builtins
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_tablejump.o)
+ .text.libgcc.fmul
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_tablejump.o)
+ .text.libgcc.fixed
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_tablejump.o)
+ .text.libgcc.mul
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc.div
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc   0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc.prologue
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc.builtins
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc.fmul
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc.fixed
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc.mul
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc.div
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc   0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc.prologue
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc.builtins
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc.fmul
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc.fixed
+                0x00000000000062fe        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc.mul
+                0x00000000000062fe       0x1e /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_umulhisi3.o)
+                0x00000000000062fe                __umulhisi3
+ .text.libgcc.div
+                0x000000000000631c        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_umulhisi3.o)
+ .text.libgcc   0x000000000000631c        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_umulhisi3.o)
+ .text.libgcc.prologue
+                0x000000000000631c        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_umulhisi3.o)
+ .text.libgcc.builtins
+                0x000000000000631c        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_umulhisi3.o)
+ .text.libgcc.fmul
+                0x000000000000631c        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_umulhisi3.o)
+ .text.libgcc.fixed
+                0x000000000000631c        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_umulhisi3.o)
+ .text.avr-libc.fplib
+                0x000000000000631c        0xa /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3.o)
+                0x000000000000631c                __subsf3
+                0x000000000000631e                __addsf3
+ .text.avr-libc.fplib
+                0x0000000000006326       0xc0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3x.o)
+                0x0000000000006340                __addsf3x
+ .text.avr-libc.fplib
+                0x00000000000063e6        0x8 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(cmpsf2.o)
+                0x00000000000063e6                __lesf2
+                0x00000000000063e6                __nesf2
+                0x00000000000063e6                __eqsf2
+                0x00000000000063e6                __cmpsf2
+                0x00000000000063e6                __ltsf2
+ .text.avr-libc.fplib
+                0x00000000000063ee        0x4 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(divsf3.o)
+                0x00000000000063ee                __divsf3
+ .text.avr-libc.fplib
+                0x00000000000063f2       0xcc /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(divsf3x.o)
+                0x0000000000006408                __divsf3x
+                0x000000000000640c                __divsf3_pse
+ .text.avr-libc.fplib
+                0x00000000000064be       0x58 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+                0x00000000000064be                __fixunssfsi
+ .text.avr-libc.fplib
+                0x0000000000006516       0x7a /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(floatsisf.o)
+                0x0000000000006516                __floatunsisf
+                0x000000000000651a                __floatsisf
+ .text.avr-libc.fplib
+                0x0000000000006590       0x26 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(floor.o)
+                0x0000000000006590                floor
+ .text.avr-libc.fplib
+                0x00000000000065b6       0x48 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_cmp.o)
+                0x00000000000065b6                __fp_cmp
+ .text.avr-libc.fplib
+                0x00000000000065fe        0xc /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_inf.o)
+                0x00000000000065fe                __fp_inf
+ .text.avr-libc.fplib
+                0x000000000000660a       0x36 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_mintl.o)
+                0x000000000000660a                __fp_mintl
+ .text.avr-libc.fplib
+                0x0000000000006640       0x1c /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_mpack.o)
+                0x0000000000006640                __fp_mpack
+                0x0000000000006644                __fp_mpack_finite
+ .text.avr-libc.fplib
+                0x000000000000665c        0x6 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_nan.o)
+                0x000000000000665c                __fp_nan
+ .text.avr-libc.fplib
+                0x0000000000006662        0xe /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_pscA.o)
+                0x0000000000006662                __fp_pscA
+ .text.avr-libc.fplib
+                0x0000000000006670        0xe /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_pscB.o)
+                0x0000000000006670                __fp_pscB
+ .text.avr-libc.fplib
+                0x000000000000667e       0x22 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_round.o)
+                0x000000000000667e                __fp_round
+ .text.avr-libc.fplib
+                0x00000000000066a0       0x44 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_split3.o)
+                0x00000000000066a0                __fp_split3
+                0x00000000000066b0                __fp_splitA
+ .text.avr-libc.fplib
+                0x00000000000066e4       0x2e /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_trunc.o)
+                0x00000000000066e4                __fp_trunc
+ .text.avr-libc.fplib
+                0x0000000000006712        0xe /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_zero.o)
+                0x0000000000006712                __fp_zero
+                0x0000000000006714                __fp_szero
+ .text.avr-libc.fplib
+                0x0000000000006720        0x8 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(gesf2.o)
+                0x0000000000006720                __gtsf2
+                0x0000000000006720                __gesf2
+ .text.avr-libc.fplib
+                0x0000000000006728        0x4 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(mulsf3.o)
+                0x0000000000006728                __mulsf3
+ .text.avr-libc.fplib
+                0x000000000000672c       0xc2 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(mulsf3x.o)
+                0x0000000000006740                __mulsf3x
+                0x0000000000006744                __mulsf3_pse
+ .text.avr-libc.fplib
+                0x00000000000067ee       0x98 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(pow.o)
+                0x00000000000067ee                pow
+ .text.avr-libc.fplib
+                0x0000000000006886       0x62 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(exp.o)
+                0x0000000000006890                exp
+ .text.avr-libc.fplib
+                0x00000000000068e8       0x4a /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_powser.o)
+                0x00000000000068e8                __fp_powser
+ .text.avr-libc.fplib
+                0x0000000000006932        0xe /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(inverse.o)
+                0x0000000000006932                inverse
+ .text.avr-libc.fplib
+                0x0000000000006940       0x6c /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(ldexp.o)
+                0x0000000000006944                ldexp
+ .text.avr-libc.fplib
+                0x00000000000069ac       0x8a /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(log.o)
+                0x00000000000069b6                log
+ .text.avr-libc.fplib
+                0x0000000000006a36       0x66 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(modf.o)
+                0x0000000000006a36                modff
+                0x0000000000006a36                modf
+ .text.avr-libc
+                0x0000000000006a9c      0x1b0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ftoa_engine.o)
+                0x0000000000006a9c                __ftoa_engine
+ .text.avr-libc
+                0x0000000000006c4c       0x10 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(isspace.o)
+                0x0000000000006c4c                isspace
+ .text.avr-libc
+                0x0000000000006c5c       0x10 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(tolower.o)
+                0x0000000000006c5c                tolower
+ .text.avr-libc
+                0x0000000000006c6c       0x16 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strchr_P.o)
+                0x0000000000006c6c                strchr_P
+ .text.avr-libc
+                0x0000000000006c82       0x16 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strnlen_P.o)
+                0x0000000000006c82                strnlen_P
+ .text.avr-libc
+                0x0000000000006c98       0x1a /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(memcmp.o)
+                0x0000000000006c98                memcmp
+ .text.avr-libc
+                0x0000000000006cb2       0x12 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(memcpy.o)
+                0x0000000000006cb2                memcpy
+ .text.avr-libc
+                0x0000000000006cc4       0x1c /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strncmp.o)
+                0x0000000000006cc4                strncmp
+ .text.avr-libc
+                0x0000000000006ce0       0x16 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strnlen.o)
+                0x0000000000006ce0                strnlen
+ .text.avr-libc
+                0x0000000000006cf6       0x7c /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(fgetc.o)
+                0x0000000000006cf6                fgetc
+ .text.avr-libc
+                0x0000000000006d72       0x70 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(fputc.o)
+                0x0000000000006d72                fputc
+ .text.avr-libc
+                0x0000000000006de2       0x60 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(snprintf.o)
+                0x0000000000006de2                snprintf
+ .text.avr-libc
+                0x0000000000006e42       0x46 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(sprintf.o)
+                0x0000000000006e42                sprintf
+ .text.avr-libc
+                0x0000000000006e88       0x32 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(sscanf.o)
+                0x0000000000006e88                sscanf
+ .text.avr-libc
+                0x0000000000006eba       0x32 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ungetc.o)
+                0x0000000000006eba                ungetc
+ .text.avr-libc
+                0x0000000000006eec       0xbc /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ultoa_invert.o)
+                0x0000000000006eec                __ultoa_invert
+ .text.avr-libc
+                0x0000000000006fa8       0x10 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(eerd_byte_atmega328p.o)
+                0x0000000000006fa8                __eerd_byte_m328p
+ .text.avr-libc
+                0x0000000000006fb8       0x1c /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(eewr_byte_atmega328p.o)
+                0x0000000000006fb8                __eewr_byte_m328p
+                0x0000000000006fba                __eewr_r18_m328p
+ .text.avr-libc
+                0x0000000000006fd4        0x6 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(cty_isfalse.o)
+                0x0000000000006fd4                __ctype_isfalse
+                0x0000000000006fd8                __ctype_istrue
+                0x0000000000006fda                . = ALIGN (0x2)
+ *(.fini9)
+ .fini9         0x0000000000006fda        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+                0x0000000000006fda                exit
+                0x0000000000006fda                _exit
+ *(.fini9)
+ *(.fini8)
+ *(.fini8)
+ *(.fini7)
+ *(.fini7)
+ *(.fini6)
+ *(.fini6)
+ *(.fini5)
+ *(.fini5)
+ *(.fini4)
+ *(.fini4)
+ *(.fini3)
+ *(.fini3)
+ *(.fini2)
+ *(.fini2)
+ *(.fini1)
+ *(.fini1)
+ *(.fini0)
+ .fini0         0x0000000000006fda        0x4 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+ *(.fini0)
+                0x0000000000006fde                _etext = .
+
+.data           0x0000000000800100       0x14 load address 0x0000000000006fde
+                0x0000000000800100                PROVIDE (__data_start, .)
+ *(.data)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/crtm328p.o
+ .data          0x0000000000800100        0x0 ./Src/usbdrv_fw/oddebug.o
+ .data          0x0000000000800100        0x0 ./Src/usbdrv_fw/usbdrv.o
+ .data          0x0000000000800100        0x0 ./Src/usbdrv_fw/usbdrvasm.o
+ .data          0x0000000000800100        0x0 ./Src/df4iah_fw_anlgComp.o
+ .data          0x0000000000800100        0x0 ./Src/df4iah_fw_clkFastCtr.o
+ .data          0x0000000000800100        0x0 ./Src/df4iah_fw_clkPullPwm.o
+ .data          0x0000000000800100        0x0 ./Src/df4iah_fw_main.o
+ .data          0x0000000000800100        0x0 ./Src/df4iah_fw_memory.o
+ .data          0x0000000000800100        0x0 ./Src/df4iah_fw_ringbuffer.o
+ .data          0x0000000000800100        0x0 ./Src/df4iah_fw_serial.o
+ .data          0x0000000000800100        0x0 ./Src/df4iah_fw_twi.o
+ .data          0x0000000000800100        0x0 ./Src/df4iah_fw_twi_mcp23017.o
+ .data          0x0000000000800100        0x0 ./Src/df4iah_fw_twi_mcp23017_av1624.o
+ .data          0x0000000000800100        0x0 ./Src/df4iah_fw_usb.o
+ .data          0x0000000000800100        0x0 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_memory.o
+ .data          0x0000000000800100        0x0 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_clkPullPwm.o
+ .data          0x0000000000800100        0x0 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_probe.o
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libscanf_flt.a(vfscanf_flt.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodqi4.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodhi4.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodsi4.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_divmodsi4.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_negsi2.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_prologue.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_epilogue.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_tablejump.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_copy_data.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_clear_bss.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_umulhisi3.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3x.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(cmpsf2.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(divsf3.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(divsf3x.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(floatsisf.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(floor.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_cmp.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_inf.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_mintl.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_mpack.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_nan.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_pscA.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_pscB.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_round.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_split3.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_trunc.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_zero.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(gesf2.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(mulsf3.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(mulsf3x.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(pow.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(exp.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_powser.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(inverse.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(ldexp.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(log.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(modf.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ftoa_engine.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(isspace.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(tolower.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strchr_P.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strnlen_P.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(memcmp.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(memcpy.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strncmp.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strnlen.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(fgetc.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(fputc.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(snprintf.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(sprintf.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(sscanf.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ungetc.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ultoa_invert.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(eerd_byte_atmega328p.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(eewr_byte_atmega328p.o)
+ .data          0x0000000000800100        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(cty_isfalse.o)
+ *(.data*)
+ .data.usbMsgLen
+                0x0000000000800100        0x1 ./Src/usbdrv_fw/usbdrv.o
+ .data.usbTxLen
+                0x0000000000800101        0x1 ./Src/usbdrv_fw/usbdrv.o
+                0x0000000000800101                usbTxLen
+ .data.main_bf  0x0000000000800102        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000800102                main_bf
+ .data.mainGpsInitVal
+                0x0000000000800104        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800104                mainGpsInitVal
+ .data.mainSCMungwallAddr
+                0x0000000000800105        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000800105                mainSCMungwallAddr
+ .data.mainSCStackAddr
+                0x0000000000800107        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000800107                mainSCStackAddr
+ .data.bufferInt.2321
+                0x0000000000800109        0x5 ./Src/df4iah_fw_usb.o
+ *(.rodata)
+ *(.rodata*)
+ .rodata.str1.1
+                0x000000000080010e        0x6 ./Src/df4iah_fw_main.o
+ *(.gnu.linkonce.d*)
+                0x0000000000800114                . = ALIGN (0x2)
+                0x0000000000800114                _edata = .
+                0x0000000000800114                PROVIDE (__data_end, .)
+
+.bss            0x0000000000800114      0x717
+                0x0000000000800114                PROVIDE (__bss_start, .)
+ *(.bss)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/crtm328p.o
+ .bss           0x0000000000800114        0x0 ./Src/usbdrv_fw/oddebug.o
+ .bss           0x0000000000800114        0x0 ./Src/usbdrv_fw/usbdrv.o
+ .bss           0x0000000000800114        0x0 ./Src/usbdrv_fw/usbdrvasm.o
+ .bss           0x0000000000800114        0x0 ./Src/df4iah_fw_anlgComp.o
+ .bss           0x0000000000800114        0x0 ./Src/df4iah_fw_clkFastCtr.o
+ .bss           0x0000000000800114        0x0 ./Src/df4iah_fw_clkPullPwm.o
+ .bss           0x0000000000800114        0x0 ./Src/df4iah_fw_main.o
+ .bss           0x0000000000800114        0x0 ./Src/df4iah_fw_memory.o
+ .bss           0x0000000000800114        0x0 ./Src/df4iah_fw_ringbuffer.o
+ .bss           0x0000000000800114        0x0 ./Src/df4iah_fw_serial.o
+ .bss           0x0000000000800114        0x0 ./Src/df4iah_fw_twi.o
+ .bss           0x0000000000800114        0x0 ./Src/df4iah_fw_twi_mcp23017.o
+ .bss           0x0000000000800114        0x0 ./Src/df4iah_fw_twi_mcp23017_av1624.o
+ .bss           0x0000000000800114        0x0 ./Src/df4iah_fw_usb.o
+ .bss           0x0000000000800114        0x0 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_memory.o
+ .bss           0x0000000000800114        0x0 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_clkPullPwm.o
+ .bss           0x0000000000800114        0x0 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_probe.o
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libscanf_flt.a(vfscanf_flt.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodqi4.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodhi4.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodsi4.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_divmodsi4.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_negsi2.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_prologue.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_epilogue.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_tablejump.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_copy_data.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_clear_bss.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_umulhisi3.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(addsf3x.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(cmpsf2.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(divsf3.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(divsf3x.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(floatsisf.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(floor.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_cmp.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_inf.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_mintl.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_mpack.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_nan.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_pscA.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_pscB.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_round.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_split3.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_trunc.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_zero.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(gesf2.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(mulsf3.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(mulsf3x.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(pow.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(exp.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(fp_powser.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(inverse.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(ldexp.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(log.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libm.a(modf.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ftoa_engine.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(isspace.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(tolower.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strchr_P.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strnlen_P.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(memcmp.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(memcpy.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strncmp.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(strnlen.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(fgetc.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(fputc.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(snprintf.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(sprintf.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(sscanf.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ungetc.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ultoa_invert.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(eerd_byte_atmega328p.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(eewr_byte_atmega328p.o)
+ .bss           0x0000000000800114        0x0 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(cty_isfalse.o)
+ *(.bss*)
+ .bss.usbMsgFlags
+                0x0000000000800114        0x1 ./Src/usbdrv_fw/usbdrv.o
+ .bss.phaseStepsErrorSum.2775
+                0x0000000000800115        0x4 ./Src/df4iah_fw_main.o
+ .bss.phaseMeanPhaseErrorSum.2774
+                0x0000000000800119        0x4 ./Src/df4iah_fw_main.o
+ .bss.holdOffTime.2763
+                0x000000000080011d        0x1 ./Src/df4iah_fw_main.o
+ .bss.displaySubNr.2891
+                0x000000000080011e        0x1 ./Src/df4iah_fw_main.o
+ .bss.displayNr.2890
+                0x000000000080011f        0x1 ./Src/df4iah_fw_main.o
+ .bss.localMeanClockDiffSum.2877
+                0x0000000000800120        0x4 ./Src/df4iah_fw_main.o
+ .bss.localFastCtr1ms_next.2865
+                0x0000000000800124        0x4 ./Src/df4iah_fw_main.o
+ .bss.localNoPpsCnt.2866
+                0x0000000000800128        0x1 ./Src/df4iah_fw_main.o
+ .bss.localAdcConvertNowCntrLast.2864
+                0x0000000000800129        0x1 ./Src/df4iah_fw_main.o
+ .bss.twiSeq2Data
+                0x000000000080012a        0x4 ./Src/df4iah_fw_main.o
+                0x000000000080012a                twiSeq2Data
+ .bss.twiState  0x000000000080012e        0x2 ./Src/df4iah_fw_main.o
+                0x000000000080012e                twiState
+ .bss.usbCtxtSetupReplyBuffer
+                0x0000000000800130        0x8 ./Src/df4iah_fw_main.o
+                0x0000000000800130                usbCtxtSetupReplyBuffer
+ .bss.usbIsrCtxtBuffer
+                0x0000000000800138       0x80 ./Src/df4iah_fw_main.o
+                0x0000000000800138                usbIsrCtxtBuffer
+ .bss.serialCtxtTxBuffer
+                0x00000000008001b8       0x40 ./Src/df4iah_fw_main.o
+                0x00000000008001b8                serialCtxtTxBuffer
+ .bss.serialCtxtNmeaRxHookBuf
+                0x00000000008001f8        0x8 ./Src/df4iah_fw_main.o
+                0x00000000008001f8                serialCtxtNmeaRxHookBuf
+ .bss.serialCtxtRxBuffer
+                0x0000000000800200       0x78 ./Src/df4iah_fw_main.o
+                0x0000000000800200                serialCtxtRxBuffer
+ .bss.usbRingBufferRcv
+                0x0000000000800278       0x80 ./Src/df4iah_fw_main.o
+                0x0000000000800278                usbRingBufferRcv
+ .bss.usbRingBufferSend
+                0x00000000008002f8       0x80 ./Src/df4iah_fw_main.o
+                0x00000000008002f8                usbRingBufferSend
+ .bss.acAdcCh   0x0000000000800378        0x6 ./Src/df4iah_fw_main.o
+                0x0000000000800378                acAdcCh
+ .bss.mainFormatBuffer
+                0x000000000080037e       0x80 ./Src/df4iah_fw_main.o
+                0x000000000080037e                mainFormatBuffer
+ .bss.mainPrepareBuffer
+                0x00000000008003fe       0x80 ./Src/df4iah_fw_main.o
+                0x00000000008003fe                mainPrepareBuffer
+ .bss.mainInterpreterBuffer
+                0x000000000080047e       0x80 ./Src/df4iah_fw_main.o
+                0x000000000080047e                mainInterpreterBuffer
+ .bss.twiSeq2DataIdx
+                0x00000000008004fe        0x1 ./Src/df4iah_fw_main.o
+                0x00000000008004fe                twiSeq2DataIdx
+ .bss.twiSeq2DataCnt
+                0x00000000008004ff        0x1 ./Src/df4iah_fw_main.o
+                0x00000000008004ff                twiSeq2DataCnt
+ .bss.twiSeq1Adr
+                0x0000000000800500        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800500                twiSeq1Adr
+ .bss.usbIsrCtxtBufferIdx
+                0x0000000000800501        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800501                usbIsrCtxtBufferIdx
+ .bss.cntSend   0x0000000000800502        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000800502                cntSend
+ .bss.cntRcv    0x0000000000800504        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000800504                cntRcv
+ .bss.usbIsUp   0x0000000000800506        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800506                usbIsUp
+ .bss.serialCtxtNmeaRxHookBufIdx
+                0x0000000000800507        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800507                serialCtxtNmeaRxHookBufIdx
+ .bss.serialCtxtBufferState
+                0x0000000000800508        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800508                serialCtxtBufferState
+ .bss.serialCtxtTxBufferIdx
+                0x0000000000800509        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800509                serialCtxtTxBufferIdx
+ .bss.serialCtxtTxBufferLen
+                0x000000000080050a        0x1 ./Src/df4iah_fw_main.o
+                0x000000000080050a                serialCtxtTxBufferLen
+ .bss.serialCtxtRxBufferLen
+                0x000000000080050b        0x1 ./Src/df4iah_fw_main.o
+                0x000000000080050b                serialCtxtRxBufferLen
+ .bss.serialCoef_b03_gps_comm_mode
+                0x000000000080050c        0x2 ./Src/df4iah_fw_main.o
+                0x000000000080050c                serialCoef_b03_gps_comm_mode
+ .bss.serialCoef_b03_bitsParityStopbits
+                0x000000000080050e        0x2 ./Src/df4iah_fw_main.o
+                0x000000000080050e                serialCoef_b03_bitsParityStopbits
+ .bss.serialCoef_b03_serial_baud
+                0x0000000000800510        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000800510                serialCoef_b03_serial_baud
+ .bss.usbRingBufferRcvSemaphore
+                0x0000000000800512        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800512                usbRingBufferRcvSemaphore
+ .bss.usbRingBufferSendSemaphore
+                0x0000000000800513        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800513                usbRingBufferSendSemaphore
+ .bss.usbRingBufferRcvPullIdx
+                0x0000000000800514        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800514                usbRingBufferRcvPullIdx
+ .bss.usbRingBufferRcvPushIdx
+                0x0000000000800515        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800515                usbRingBufferRcvPushIdx
+ .bss.usbRingBufferSendPullIdx
+                0x0000000000800516        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800516                usbRingBufferSendPullIdx
+ .bss.usbRingBufferSendPushIdx
+                0x0000000000800517        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800517                usbRingBufferSendPushIdx
+ .bss.acAdcConvertNowCntr
+                0x0000000000800518        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800518                acAdcConvertNowCntr
+ .bss.acAdcConvertNowState
+                0x0000000000800519        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800519                acAdcConvertNowState
+ .bss.fastPwmAdcAscendingVal
+                0x000000000080051a        0x2 ./Src/df4iah_fw_main.o
+                0x000000000080051a                fastPwmAdcAscendingVal
+ .bss.fastPwmAdcLast
+                0x000000000080051c        0x4 ./Src/df4iah_fw_main.o
+                0x000000000080051c                fastPwmAdcLast
+ .bss.fastPwmAdcNow
+                0x0000000000800520        0x4 ./Src/df4iah_fw_main.o
+                0x0000000000800520                fastPwmAdcNow
+ .bss.fastPwmSingleDiffSum
+                0x0000000000800524        0x4 ./Src/df4iah_fw_main.o
+                0x0000000000800524                fastPwmSingleDiffSum
+ .bss.fastPwmSubCnt
+                0x0000000000800528        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800528                fastPwmSubCnt
+ .bss.fastPwmSubCmp
+                0x0000000000800529        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800529                fastPwmSubCmp
+ .bss.fastPwmSubSingleVal
+                0x000000000080052a        0x1 ./Src/df4iah_fw_main.o
+                0x000000000080052a                fastPwmSubSingleVal
+ .bss.fastPwmSingleVal
+                0x000000000080052b        0x1 ./Src/df4iah_fw_main.o
+                0x000000000080052b                fastPwmSingleVal
+ .bss.fastPwmSingleLoad
+                0x000000000080052c        0x1 ./Src/df4iah_fw_main.o
+                0x000000000080052c                fastPwmSingleLoad
+ .bss.fastPwmSubLoopVal
+                0x000000000080052d        0x1 ./Src/df4iah_fw_main.o
+                0x000000000080052d                fastPwmSubLoopVal
+ .bss.fastPwmLoopVal
+                0x000000000080052e        0x1 ./Src/df4iah_fw_main.o
+                0x000000000080052e                fastPwmLoopVal
+ .bss.fastCtr1ms
+                0x000000000080052f        0x4 ./Src/df4iah_fw_main.o
+                0x000000000080052f                fastCtr1ms
+ .bss.fastStampCtr1ms
+                0x0000000000800533        0x4 ./Src/df4iah_fw_main.o
+                0x0000000000800533                fastStampCtr1ms
+ .bss.fastStampTCNT1
+                0x0000000000800537        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000800537                fastStampTCNT1
+ .bss.pullCoef_b02_pwm_initial_sub
+                0x0000000000800539        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800539                pullCoef_b02_pwm_initial_sub
+ .bss.pullCoef_b02_pwm_initial
+                0x000000000080053a        0x1 ./Src/df4iah_fw_main.o
+                0x000000000080053a                pullCoef_b02_pwm_initial
+ .bss.main_checksum
+                0x000000000080053b        0x2 ./Src/df4iah_fw_main.o
+                0x000000000080053b                main_checksum
+ .bss.main_nmeaAltitudeM
+                0x000000000080053d        0x4 ./Src/df4iah_fw_main.o
+                0x000000000080053d                main_nmeaAltitudeM
+ .bss.main_nmeaPosLonSign
+                0x0000000000800541        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800541                main_nmeaPosLonSign
+ .bss.main_nmeaPosLon
+                0x0000000000800542        0x4 ./Src/df4iah_fw_main.o
+                0x0000000000800542                main_nmeaPosLon
+ .bss.main_nmeaPosLatSign
+                0x0000000000800546        0x1 ./Src/df4iah_fw_main.o
+                0x0000000000800546                main_nmeaPosLatSign
+ .bss.main_nmeaPosLat
+                0x0000000000800547        0x4 ./Src/df4iah_fw_main.o
+                0x0000000000800547                main_nmeaPosLat
+ .bss.main_nmeaTimeUtcMilsec
+                0x000000000080054b        0x2 ./Src/df4iah_fw_main.o
+                0x000000000080054b                main_nmeaTimeUtcMilsec
+ .bss.main_nmeaTimeUtcInt
+                0x000000000080054d        0x4 ./Src/df4iah_fw_main.o
+                0x000000000080054d                main_nmeaTimeUtcInt
+ .bss.main_nmeaDate
+                0x0000000000800551        0x4 ./Src/df4iah_fw_main.o
+                0x0000000000800551                main_nmeaDate
+ .bss.main_nmeaVdop
+                0x0000000000800555        0x4 ./Src/df4iah_fw_main.o
+                0x0000000000800555                main_nmeaVdop
+ .bss.main_nmeaHdop
+                0x0000000000800559        0x4 ./Src/df4iah_fw_main.o
+                0x0000000000800559                main_nmeaHdop
+ .bss.main_nmeaPdop
+                0x000000000080055d        0x4 ./Src/df4iah_fw_main.o
+                0x000000000080055d                main_nmeaPdop
+ .bss.main_nmeaSatsUsed
+                0x0000000000800561        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000800561                main_nmeaSatsUsed
+ .bss.main_nmeaSatsEphemerisGlonass
+                0x0000000000800563        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000800563                main_nmeaSatsEphemerisGlonass
+ .bss.main_nmeaSatsEphemerisGpsGalileoQzss
+                0x0000000000800565        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000800565                main_nmeaSatsEphemerisGpsGalileoQzss
+ .bss.main_nmeaPosFixIndicator
+                0x0000000000800567        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000800567                main_nmeaPosFixIndicator
+ .bss.main_nmeaMode2
+                0x0000000000800569        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000800569                main_nmeaMode2
+ .bss.mainAdcTemp
+                0x000000000080056b        0x4 ./Src/df4iah_fw_main.o
+                0x000000000080056b                mainAdcTemp
+ .bss.mainAdcPhaseVolts
+                0x000000000080056f        0x4 ./Src/df4iah_fw_main.o
+                0x000000000080056f                mainAdcPhaseVolts
+ .bss.mainAdcPullVolts
+                0x0000000000800573        0x4 ./Src/df4iah_fw_main.o
+                0x0000000000800573                mainAdcPullVolts
+ .bss.mainPpm   0x0000000000800577        0x4 ./Src/df4iah_fw_main.o
+                0x0000000000800577                mainPpm
+ .bss.ppsStampICR1_last
+                0x000000000080057b        0x2 ./Src/df4iah_fw_main.o
+                0x000000000080057b                ppsStampICR1_last
+ .bss.ppsStampCtr1ms_last
+                0x000000000080057d        0x4 ./Src/df4iah_fw_main.o
+                0x000000000080057d                ppsStampCtr1ms_last
+ .bss.ppsStampICR1
+                0x0000000000800581        0x2 ./Src/df4iah_fw_main.o
+                0x0000000000800581                ppsStampICR1
+ .bss.ppsStampCtr1ms
+                0x0000000000800583        0x4 ./Src/df4iah_fw_main.o
+                0x0000000000800583                ppsStampCtr1ms
+ .bss.usbTxStatus3
+                0x0000000000800587        0xc ./Src/df4iah_fw_main.o
+                0x0000000000800587                usbTxStatus3
+ .bss.usbTxStatus1
+                0x0000000000800593        0xc ./Src/df4iah_fw_main.o
+                0x0000000000800593                usbTxStatus1
+ .bss.timer0Snapshot
+                0x000000000080059f        0x1 ./Src/df4iah_fw_main.o
+                0x000000000080059f                timer0Snapshot
+ .bss.mainPwmTerminalAdj
+                0x00000000008005a0        0x4 ./Src/df4iah_fw_main.o
+                0x00000000008005a0                mainPwmTerminalAdj
+ .bss.mainRefClkState
+                0x00000000008005a4        0x1 ./Src/df4iah_fw_main.o
+                0x00000000008005a4                mainRefClkState
+ .bss.mainIsJumperBlSet
+                0x00000000008005a5        0x1 ./Src/df4iah_fw_main.o
+                0x00000000008005a5                mainIsJumperBlSet
+ .bss.mainCoef_b02_pwm_maxV_V
+                0x00000000008005a6        0x4 ./Src/df4iah_fw_main.o
+                0x00000000008005a6                mainCoef_b02_pwm_maxV_V
+ .bss.mainCoef_b02_pwm_minV_V
+                0x00000000008005aa        0x4 ./Src/df4iah_fw_main.o
+                0x00000000008005aa                mainCoef_b02_pwm_minV_V
+ .bss.mainCoef_b02_qrg_k_pPwmStep_25C_ppm
+                0x00000000008005ae        0x4 ./Src/df4iah_fw_main.o
+                0x00000000008005ae                mainCoef_b02_qrg_k_pPwmStep_25C_ppm
+ .bss.mainCoef_b02_qrg_ofs_maxV_25C_ppm
+                0x00000000008005b2        0x4 ./Src/df4iah_fw_main.o
+                0x00000000008005b2                mainCoef_b02_qrg_ofs_maxV_25C_ppm
+ .bss.mainCoef_b02_qrg_ofs_minV_25C_ppm
+                0x00000000008005b6        0x4 ./Src/df4iah_fw_main.o
+                0x00000000008005b6                mainCoef_b02_qrg_ofs_minV_25C_ppm
+ .bss.mainCoef_b01_temp_k_p1step_adc_K
+                0x00000000008005ba        0x4 ./Src/df4iah_fw_main.o
+                0x00000000008005ba                mainCoef_b01_temp_k_p1step_adc_K
+ .bss.mainCoef_b01_temp_ofs_adc_25C_steps
+                0x00000000008005be        0x4 ./Src/df4iah_fw_main.o
+                0x00000000008005be                mainCoef_b01_temp_ofs_adc_25C_steps
+ .bss.mainCoef_b01_ref_1V1_V
+                0x00000000008005c2        0x4 ./Src/df4iah_fw_main.o
+                0x00000000008005c2                mainCoef_b01_ref_1V1_V
+ .bss.mainCoef_b01_ref_AREF_V
+                0x00000000008005c6        0x4 ./Src/df4iah_fw_main.o
+                0x00000000008005c6                mainCoef_b01_ref_AREF_V
+ .bss.mainCoef_b00_dev_version
+                0x00000000008005ca        0x2 ./Src/df4iah_fw_main.o
+                0x00000000008005ca                mainCoef_b00_dev_version
+ .bss.mainCoef_b00_dev_serial
+                0x00000000008005cc        0x2 ./Src/df4iah_fw_main.o
+                0x00000000008005cc                mainCoef_b00_dev_serial
+ .bss.mainCoef_b00_dev_header
+                0x00000000008005ce       0x11 ./Src/df4iah_fw_main.o
+                0x00000000008005ce                mainCoef_b00_dev_header
+ .bss.doTestCntr
+                0x00000000008005df        0x2 ./Src/df4iah_fw_usb.o
+ *(COMMON)
+ COMMON         0x00000000008005e1       0x2a ./Src/usbdrv_fw/usbdrv.o
+                0x00000000008005e1                usbTxBuf
+                0x00000000008005ec                usbDeviceAddr
+                0x00000000008005ed                usbRxToken
+                0x00000000008005ee                usbInputBufOffset
+                0x00000000008005ef                usbMsgPtr
+                0x00000000008005f1                usbRxLen
+                0x00000000008005f2                usbNewDeviceAddr
+                0x00000000008005f3                usbCurrentTok
+                0x00000000008005f4                usbConfiguration
+                0x00000000008005f5                usbRxBuf
+ COMMON         0x000000000080060b      0x220 ./Src/df4iah_fw_main.o
+                0x000000000080060b                stackCheckMungWall
+                0x000000000080082b                PROVIDE (__bss_end, .)
+                0x0000000000006fde                __data_load_start = LOADADDR (.data)
+                0x0000000000006ff2                __data_load_end = (__data_load_start + SIZEOF (.data))
+
+.noinit         0x000000000080082b        0x0
+                0x000000000080082b                PROVIDE (__noinit_start, .)
+ *(.noinit*)
+                0x000000000080082b                PROVIDE (__noinit_end, .)
+                0x000000000080082b                _end = .
+                0x000000000080082b                PROVIDE (__heap_start, .)
+
+.eeprom         0x0000000000810000      0x400
+ *(.eeprom*)
+ .eeprom        0x0000000000810000      0x400 ./Src/df4iah_fw_memory.o
+                0x0000000000810000                eeprom_content
+                0x0000000000810400                __eeprom_end = .
+
+.fuse
+ *(.fuse)
+ *(.lfuse)
+ *(.hfuse)
+ *(.efuse)
+
+.lock
+ *(.lock*)
+
+.signature
+ *(.signature*)
+
+.stab           0x0000000000000000      0xe04
+ *(.stab)
+ .stab          0x0000000000000000       0xd8 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o)
+ .stab          0x00000000000000d8       0xe4 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodqi4.o)
+                                         0xf0 (size before relaxing)
+ .stab          0x00000000000001bc      0x15c /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodhi4.o)
+                                        0x168 (size before relaxing)
+ .stab          0x0000000000000318      0x228 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_udivmodsi4.o)
+                                        0x234 (size before relaxing)
+ .stab          0x0000000000000540      0x144 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_divmodsi4.o)
+                                        0x150 (size before relaxing)
+ .stab          0x0000000000000684       0x6c /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_negsi2.o)
+                                         0x78 (size before relaxing)
+ .stab          0x00000000000006f0      0x1a4 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_prologue.o)
+                                        0x1b0 (size before relaxing)
+ .stab          0x0000000000000894      0x1a4 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_epilogue.o)
+                                        0x1b0 (size before relaxing)
+ .stab          0x0000000000000a38       0x6c /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_exit.o)
+                                         0x78 (size before relaxing)
+ .stab          0x0000000000000aa4       0xcc /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_tablejump.o)
+                                         0xd8 (size before relaxing)
+ .stab          0x0000000000000b70       0xd8 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_copy_data.o)
+                                         0xe4 (size before relaxing)
+ .stab          0x0000000000000c48       0xb4 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_clear_bss.o)
+                                         0xc0 (size before relaxing)
+ .stab          0x0000000000000cfc      0x108 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_umulhisi3.o)
+                                        0x114 (size before relaxing)
+
+.stabstr        0x0000000000000000      0x178
+ *(.stabstr)
+ .stabstr       0x0000000000000000      0x178 /opt/local/lib/gcc/avr/4.9.1/avr5/libgcc.a(_muluhisi3.o)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 ./Src/usbdrv_fw/oddebug.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000000       0x12 ./Src/usbdrv_fw/usbdrv.o
+ .comment       0x0000000000000000       0x12 ./Src/df4iah_fw_anlgComp.o
+ .comment       0x0000000000000000       0x12 ./Src/df4iah_fw_clkFastCtr.o
+ .comment       0x0000000000000000       0x12 ./Src/df4iah_fw_clkPullPwm.o
+ .comment       0x0000000000000000       0x12 ./Src/df4iah_fw_main.o
+ .comment       0x0000000000000000       0x12 ./Src/df4iah_fw_memory.o
+ .comment       0x0000000000000000       0x12 ./Src/df4iah_fw_ringbuffer.o
+ .comment       0x0000000000000000       0x12 ./Src/df4iah_fw_serial.o
+ .comment       0x0000000000000000       0x12 ./Src/df4iah_fw_twi.o
+ .comment       0x0000000000000000       0x12 ./Src/df4iah_fw_twi_mcp23017.o
+ .comment       0x0000000000000000       0x12 ./Src/df4iah_fw_twi_mcp23017_av1624.o
+ .comment       0x0000000000000000       0x12 ./Src/df4iah_fw_usb.o
+ .comment       0x0000000000000000       0x12 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_memory.o
+ .comment       0x0000000000000000       0x12 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_clkPullPwm.o
+ .comment       0x0000000000000000       0x12 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_probe.o
+ .comment       0x0000000000000000       0x12 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libprintf_flt.a(vfprintf_flt.o)
+ .comment       0x0000000000000000       0x12 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libscanf_flt.a(vfscanf_flt.o)
+ .comment       0x0000000000000000       0x12 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(fgetc.o)
+ .comment       0x0000000000000000       0x12 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(fputc.o)
+ .comment       0x0000000000000000       0x12 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(snprintf.o)
+ .comment       0x0000000000000000       0x12 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(sprintf.o)
+ .comment       0x0000000000000000       0x12 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(sscanf.o)
+ .comment       0x0000000000000000       0x12 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/libc.a(ungetc.o)
+
+.note.gnu.build-id
+ *(.note.gnu.build-id)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges
+ *(.debug_aranges)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info     0x0000000000000000      0x5f4
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x0000000000000000      0x5f4 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/crtm328p.o
+
+.debug_abbrev   0x0000000000000000      0x5a2
+ *(.debug_abbrev)
+ .debug_abbrev  0x0000000000000000      0x5a2 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/crtm328p.o
+
+.debug_line     0x0000000000000000       0x1d
+ *(.debug_line .debug_line.* .debug_line_end)
+ .debug_line    0x0000000000000000       0x1d /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/crtm328p.o
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str      0x0000000000000000      0x208
+ *(.debug_str)
+ .debug_str     0x0000000000000000      0x208 /opt/local/lib/gcc/avr/4.9.1/../../../../avr/lib/avr5/crtm328p.o
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges
+ *(.debug_ranges)
+
+.debug_macro
+ *(.debug_macro)
+OUTPUT(avr_DF4IAH_10MHz_Reference.elf elf32-avr)
+LOAD linker stubs
+
+.df4iah_bl_memory
+                0x0000000000007900      0x2c8
+ .df4iah_bl_memory
+                0x0000000000007900      0x2c8 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_memory.o
+                0x0000000000007900                memory_bl_eraseFlash
+                0x0000000000007928                memory_bl_readFlashPage
+                0x0000000000007994                memory_bl_readEEpromPage
+                0x00000000000079da                memory_bl_writeFlashPage
+                0x0000000000007b94                memory_bl_writeEEpromPage
+
+.df4iah_bl_probe
+                0x00000000000078c0       0x3c
+ .df4iah_bl_probe
+                0x00000000000078c0       0x3c /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_probe.o
+                0x00000000000078c0                probe_bl_close
+                0x00000000000078c4                probe_bl_checkJumper
+                0x00000000000078d2                probe_bl_init
+
+.df4iah_bl_clkpullpwm
+                0x0000000000007780       0x52
+ .df4iah_bl_clkpullpwm
+                0x0000000000007780       0x52 /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/Src/df4iah_bl_clkPullPwm.o
+                0x0000000000007780                clkPullPwm_bl_init
+                0x00000000000077a0                clkPullPwm_bl_close
+                0x00000000000077b8                clkPullPwm_bl_togglePin
+                0x00000000000077be                clkPullPwm_bl_endlessTogglePin

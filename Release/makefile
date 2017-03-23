@@ -14,6 +14,9 @@ RM := rm -rf
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(strip $(C_DEPS)),)
+-include $(C_DEPS)
+endif
 ifneq ($(strip $(ASM_DEPS)),)
 -include $(ASM_DEPS)
 endif
@@ -22,9 +25,6 @@ ifneq ($(strip $(S_DEPS)),)
 endif
 ifneq ($(strip $(S_UPPER_DEPS)),)
 -include $(S_UPPER_DEPS)
-endif
-ifneq ($(strip $(C_DEPS)),)
--include $(C_DEPS)
 endif
 endif
 
@@ -48,13 +48,13 @@ sizedummy \
 all: avr_DF4IAH_10MHz_Reference.elf secondary-outputs
 
 dependents:
-	-cd /home/espero/git/avr_DF4IAH_Bootloader/Debug && $(MAKE) clean all
+	-cd /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release && $(MAKE) clean all
 
 # Tool invocations
-avr_DF4IAH_10MHz_Reference.elf: $(OBJS) $(USER_OBJS) /home/espero/git/avr_DF4IAH_Bootloader/Debug/avr_DF4IAH_Bootloader.elf
+avr_DF4IAH_10MHz_Reference.elf: $(OBJS) $(USER_OBJS) /Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/avr_DF4IAH_Bootloader.elf
 	@echo 'Building target: $@'
 	@echo 'Invoking: AVR C Linker'
-	avr-gcc -Wl,-Map,avr_DF4IAH_10MHz_Reference.map -Wl,--section-start=.text=0x0000 -mmcu=atmega328p -o "avr_DF4IAH_10MHz_Reference.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	avr-gcc -Wl,-Map,avr_DF4IAH_10MHz_Reference.map -Wl,-u,vfscanf -Wl,-u,vfprintf  -Wl,--section-start=.text=0x0000  -Wl,--section-start=.df4iah_bl_memory=0x7900  -Wl,--section-start=.df4iah_bl_probe=0x78C0  -Wl,--section-start=.df4iah_bl_clkpullpwm=0x7780 -mmcu=atmega328p -o "avr_DF4IAH_10MHz_Reference.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -78,19 +78,19 @@ avr_DF4IAH_10MHz_Reference.eep: avr_DF4IAH_10MHz_Reference.elf
 
 sizedummy: avr_DF4IAH_10MHz_Reference.elf
 	@echo 'Invoking: Print Size'
-	-avr-size --format=berkeley -t avr_DF4IAH_10MHz_Reference.elf
+	-avr-size --format=sysv -x avr_DF4IAH_10MHz_Reference.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(FLASH_IMAGE)$(ELFS)$(OBJS)$(ASM_DEPS)$(EEPROM_IMAGE)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(LSS)$(C_DEPS) avr_DF4IAH_10MHz_Reference.elf
+	-$(RM) $(OBJS)$(C_DEPS)$(ASM_DEPS)$(EEPROM_IMAGE)$(FLASH_IMAGE)$(ELFS)$(LSS)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS) avr_DF4IAH_10MHz_Reference.elf
 	-@echo ' '
 
 secondary-outputs: $(LSS) $(FLASH_IMAGE) $(EEPROM_IMAGE) $(SIZEDUMMY)
 
 .PHONY: all clean dependents
 .SECONDARY:
-/home/espero/git/avr_DF4IAH_Bootloader/Debug/avr_DF4IAH_Bootloader.elf:
+/Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Release/avr_DF4IAH_Bootloader.elf:
 
 -include ../makefile.targets

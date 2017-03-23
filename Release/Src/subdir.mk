@@ -47,7 +47,7 @@ C_DEPS += \
 Src/%.o: ../Src/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: AVR Compiler'
-	avr-gcc -I"/home/espero/git/avr_DF4IAH_10MHz_Reference/Src" -I"/home/espero/git/avr_DF4IAH_Bootloader/Src" -DDEBUG -D__AVR_ATmega328P__ -DBOOTSIZE=2048 -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=20000000UL -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -c -o "$@" "$<"
+	avr-gcc -I"/Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_10MHz_Reference/Src" -I"/Users/espero/Documents/Eclipse_workspace/avr_DF4IAH_Bootloader/Src" -DRELEASE -D__AVR_ATmega328P__ -DBOOTSIZE=2048 -Wall -Os -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega328p -DF_CPU=20000000UL -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -c -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
