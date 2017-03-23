@@ -478,10 +478,10 @@ static inline void wdt_close() {
 
 static void recalcEepromCrc(enum BLOCK_NR_t block, uint16_t crcOffset)
 {
-	/* for any modified block add the CRC seal marker and do a  memory_fw_checkAndInitBlock() */
+	/* for any modified block add the corresponding CRC seal marker and do a  memory_fw_manageBlock() */
 	uint16_t newCrc = memory_fw_getSealMarker(block);
 	memory_fw_writeEEpromPage((uint8_t*) &newCrc, sizeof(uint16_t), crcOffset);
-	memory_fw_checkAndInitBlock(block);
+	memory_fw_manageBlock(block);
 }
 
 float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
@@ -1712,7 +1712,7 @@ int main(void)
 		twi_mcp23017_av1624_fw_init();
 
 		/* check CRC of all blocks and update with default values if the data is non-valid */
-		memory_fw_checkAndInitAllBlocks();
+		memory_fw_manageNonVolatileData();
 
 		/* read MEASURING coefficients */
 		if (memory_fw_readEepromValidBlock(mainFormatBuffer, BLOCK_HEADER_NR)) {

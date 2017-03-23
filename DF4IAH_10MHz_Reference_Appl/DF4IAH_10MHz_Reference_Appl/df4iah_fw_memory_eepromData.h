@@ -42,7 +42,7 @@
 #define EEPROM_DEFAULT_CONTENT_B01	\
 		4.4742f,									/* b01_ref_AREF_V					4.4742 V */											\
 		1.085f,										/* b01_ref_1V1_V					1.085  V */											\
-		346.0f,										/* b01_temp_ofs_adc_25C_steps		0346 = 25°C */										\
+		351.0f,										/* b01_temp_ofs_adc_25C_steps		0351 = 25°C */										\
 		1.0595703f,									/* b01_temp_k_p1step_adc_K			1mv / K  -->  abt.  1K / step */					\
 		0xffff,						\
 		0xffff,						\
@@ -62,7 +62,7 @@
 		0xffff,						\
 		1.08f,										/* b02_pwm_minV_V */																	\
 		2.30f,										/* b02_pwm_maxV_V */																	\
-		155,										/* b02_pwm_initial = DEFAULT_PWM_COUNT */												\
+		120,										/* b02_pwm_initial = DEFAULT_PWM_COUNT */												\
 		0,											/* b02_pwm_initial_sub */																\
 		0x0000,										/* b02_regen_ctr */																		\
 		0xb02c										/* b02_crc */																			\

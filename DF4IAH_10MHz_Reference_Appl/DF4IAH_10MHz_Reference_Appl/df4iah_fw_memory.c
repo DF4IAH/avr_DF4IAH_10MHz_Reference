@@ -16,6 +16,7 @@
 #include "df4iah_bl_memory.h"
 #include "df4iah_fw_memory.h"
 #include "df4iah_fw_serial.h"
+#include "df4iah_fw_ringbuffer.h"
 
 #include "df4iah_fw_memory_eepromData.h"
 
@@ -63,10 +64,25 @@ void* memory_fw_copyBuffer(uint8_t isPgm, void* destPtr, const void* srcPtr, siz
 	}
 }
 
+uint16_t memory_fw_getSealMarker(uint8_t blockNr)
+{
+	return (0xb00c | (blockNr << 4));
+}
+
 uint16_t memory_fw_calcBlockCrc(uint8_t* block)
 {
 	uint16_t crc = CRC_SALT_VALUE;
+	uint16_t crc_n = crc;
+	uint8_t i, j, bit;
 
+	for (i = 0; i < 30; ++i) {
+		for (j = 0; j < 16; ++j) {
+			bit = ((crc_n >> 15) & 1) ^ ((crc_n >> 13) & 1) ^ ((crc_n >> 11) & 1) ^ ((crc_n >> 7) & 1) ^ ((crc_n >> 2) & 1) ^ (crc_n & 1);
+			crc_n <<= 1;
+			crc_n  |= bit;
+		}
+		crc_n = crc = crc_n ^ (block[i] & 0xFF);
+	}
 	return crc;
 }
 
@@ -84,49 +100,9 @@ uint8_t memory_fw_isEepromBlockValid(uint8_t blockNr)	// initializes eepromBlock
 			return true;
 
 		} else {
-			// block CRC verified OK
+			// block CRC bad
 			return false;
 		}
-	}
-
-	// bad usage
-	return false;
-}
-
-uint16_t memory_fw_getSealMarker(uint8_t blockNr)
-{
-	return (0xb00c | (blockNr << 4));
-}
-
-uint8_t memory_fw_makeEepromBlockValid(uint8_t* block, uint8_t blockNr)
-{
-	if (blockNr < BLOCK_COUNT) {
-		uint16_t oldCrcBlock = block[30] | (block[31] << 8);
-		uint16_t oldCrcCalc  = memory_fw_calcBlockCrc(block);
-
-		if (oldCrcBlock != oldCrcCalc) {
-			if (oldCrcBlock == memory_fw_getSealMarker(blockNr)) {
-				/* initial CRC calc marker found, seal the content */
-				block[30] = (oldCrcCalc & 0xff);
-				block[31] = (oldCrcCalc >> 8);
-
-			} else {
-				/* any recalculation of the CRC is counted */
-				uint16_t counter = block[28] | (block[29] << 8);
-
-				counter++;
-				block[28] = (counter & 0xff);
-				block[29] = (counter >> 8);
-
-				/* re-calc the CRC */
-				uint16_t newCrcCalc = memory_fw_calcBlockCrc(block);
-
-				block[30] = (newCrcCalc & 0xff);
-				block[31] = (newCrcCalc >> 8);
-			}
-		}
-		// block valid
-		return true;
 	}
 
 	// bad usage
@@ -136,8 +112,31 @@ uint8_t memory_fw_makeEepromBlockValid(uint8_t* block, uint8_t blockNr)
 uint8_t memory_fw_writeEepromBlockMakeValid(uint8_t* source, uint8_t blockNr)
 {
 	if (blockNr < BLOCK_COUNT) {
-		memory_fw_makeEepromBlockValid(source, blockNr);
-		memory_fw_writeEEpromPage(source, 1 << 5, blockNr << 5);
+		uint16_t oldCrcBlock = source[30] | (source[31] << 8);
+		uint16_t oldCrcCalc  = memory_fw_calcBlockCrc(source);
+
+		if (oldCrcBlock != oldCrcCalc) {
+			/* initial CRC calc marker found, seal the content */
+			source[30] = (oldCrcCalc & 0xff);
+			source[31] = (oldCrcCalc >> 8);
+
+			/* any recalculation of the CRC is counted */
+			uint16_t counter = source[28] | (source[29] << 8);
+
+			counter++;
+			source[28] = (counter & 0xff);
+			source[29] = (counter >> 8);
+
+			/* re-calc the CRC */
+			uint16_t newCrcCalc = memory_fw_calcBlockCrc(source);
+
+			source[30] = (newCrcCalc & 0xff);
+			source[31] = (newCrcCalc >> 8);
+
+			memory_fw_writeEEpromPage(source, 1 << 5, blockNr << 5);
+		}
+
+		// block valid
 		return true;
 	}
 
@@ -157,11 +156,11 @@ uint8_t memory_fw_readEepromValidBlock(uint8_t* target, uint8_t blockNr)
 		}
 	}
 
-	// bad usage
+	// bad usage or not valid block
 	return false;
 }
 
-uint8_t memory_fw_checkAndInitBlock(uint8_t blockNr)
+uint8_t memory_fw_manageBlock(uint8_t blockNr)
 {
 	if (blockNr < BLOCK_COUNT) {
 		if (!memory_fw_isEepromBlockValid(blockNr)) {  // HINT: memory_fw_isEepromBlockValid() preloads eepromBlockCopy
@@ -169,12 +168,19 @@ uint8_t memory_fw_checkAndInitBlock(uint8_t blockNr)
 			uint16_t oldCrcBlock = mainFormatBuffer[30] | (mainFormatBuffer[31] << 8);
 
 			if (oldCrcBlock != memory_fw_getSealMarker(blockNr)) {
+				uint16_t counter = mainFormatBuffer[28] | (mainFormatBuffer[29] << 8);
+
 				/* reading default values if not CRC calc marker for sealing is found */
 				memory_fw_readFlashPage(mainFormatBuffer,
 						(1 << 5) - 4,								// load default data, without counter and special marked CRC value
 						(((uint16_t) ((void*) &eeprom_defaultValues_content)) + (blockNr << 5)));
+
+				counter++;
+				mainFormatBuffer[28] = (counter & 0xff);
+				mainFormatBuffer[29] = (counter >> 8);
 			}
 
+			/* update CRC and write to EEPROM */
 			memory_fw_writeEepromBlockMakeValid(mainFormatBuffer, blockNr);
 			return 1;
 
@@ -184,16 +190,20 @@ uint8_t memory_fw_checkAndInitBlock(uint8_t blockNr)
 		}
 	}
 
-	// bad usage
+	// bad usage or not a valid block
 	return 0;
 }
 
-uint8_t memory_fw_checkAndInitAllBlocks()
+uint8_t memory_fw_manageNonVolatileData()
 {
 	uint8_t ret = 0;
+	uint8_t status;
 
 	for (int blockIdx = 0; blockIdx < BLOCK_COUNT; ++blockIdx) {
-		ret += memory_fw_checkAndInitBlock(blockIdx);
+		status = memory_fw_manageBlock(blockIdx);
+		if (status) {
+			++ret;
+		}
 	}
 
 	// count of block that needed reloading of default values
