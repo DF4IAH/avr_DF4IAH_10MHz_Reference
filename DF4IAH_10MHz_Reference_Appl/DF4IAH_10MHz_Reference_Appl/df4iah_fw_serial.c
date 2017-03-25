@@ -69,7 +69,7 @@ static uint16_t getCommDataBits(uint16_t val)
 	return (val & DEFAULT_DATABITS_MASK) >> DEFAULT_DATABITS_BITPOS;
 }
 
-void serial_fw_init()
+void serial_fw_init(void)
 {
 	/* power up this module */
 	PRR &= ~(_BV(PRUSART0));
@@ -110,7 +110,7 @@ void serial_fw_init()
 	serial_fw_serRxIsrOn(true);
 }
 
-void serial_fw_close()
+void serial_fw_close(void)
 {
 	// interrupt: clearing Global Interrupt Flag when interrupts are changed
 	uint8_t sreg = SREG;
@@ -157,12 +157,12 @@ void serial_fw_setCommBaud(uint16_t baud)
 	UART_BAUD_LOW  = ( UART_CALC_BAUDRATE(baud)     & 0xff);
 }
 
-uint8_t serial_fw_isTxRunning()
+uint8_t serial_fw_isTxRunning(void)
 {
 	return (serialCtxtTxBufferLen > 0) ?  true : false;
 }
 
-static void serial_fw_sendNmea()
+static void serial_fw_sendNmea(void)
 {
 	uint8_t sreg = SREG;
 	cli();

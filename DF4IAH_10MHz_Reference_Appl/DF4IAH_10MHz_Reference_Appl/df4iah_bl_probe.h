@@ -11,8 +11,8 @@
 #include "chipdef.h"
 
 
-void probe_bl_init();
-void probe_bl_close();
-uint8_t probe_bl_checkJumper();
+void probe_bl_init(void);
+void probe_bl_close(void);
+uint8_t probe_bl_checkJumper(void);
 
 #endif /* DF4IAH_BL_PROBE_H_ */

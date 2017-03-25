@@ -50,6 +50,7 @@ C_SRCS +=  \
 ../df4iah_fw_twi.c \
 ../df4iah_fw_twi_mcp23017.c \
 ../df4iah_fw_twi_mcp23017_av1624.c \
+../df4iah_fw_twi_smart_lcd.c \
 ../df4iah_fw_usb.c \
 ../usbdrv_fw/oddebug.c \
 ../usbdrv_fw/usbdrv.c
@@ -74,6 +75,7 @@ df4iah_fw_serial.o \
 df4iah_fw_twi.o \
 df4iah_fw_twi_mcp23017.o \
 df4iah_fw_twi_mcp23017_av1624.o \
+df4iah_fw_twi_smart_lcd.o \
 df4iah_fw_usb.o \
 usbdrv_fw/oddebug.o \
 usbdrv_fw/usbdrv.o \
@@ -91,6 +93,7 @@ df4iah_fw_serial.o \
 df4iah_fw_twi.o \
 df4iah_fw_twi_mcp23017.o \
 df4iah_fw_twi_mcp23017_av1624.o \
+df4iah_fw_twi_smart_lcd.o \
 df4iah_fw_usb.o \
 usbdrv_fw/oddebug.o \
 usbdrv_fw/usbdrv.o \
@@ -108,6 +111,7 @@ df4iah_fw_serial.d \
 df4iah_fw_twi.d \
 df4iah_fw_twi_mcp23017.d \
 df4iah_fw_twi_mcp23017_av1624.d \
+df4iah_fw_twi_smart_lcd.d \
 df4iah_fw_usb.d \
 usbdrv_fw/oddebug.d \
 usbdrv_fw/usbdrv.d \
@@ -125,6 +129,7 @@ df4iah_fw_serial.d \
 df4iah_fw_twi.d \
 df4iah_fw_twi_mcp23017.d \
 df4iah_fw_twi_mcp23017_av1624.d \
+df4iah_fw_twi_smart_lcd.d \
 df4iah_fw_usb.d \
 usbdrv_fw/oddebug.d \
 usbdrv_fw/usbdrv.d \
@@ -144,6 +149,8 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 

@@ -6,7 +6,7 @@
 // tabsize: 4
 
 /**
- * Memory layout - BOOTLOADER:
+ * Memory layout - FIRMWARE / BOOTLOADER:
  * 		Start			Length
  * 		BL: text		0x7000		0x0744
  * 		bl_ClkPullPwm	0x7780		0x0052
@@ -16,7 +16,7 @@
  */
 
 /**
- * Memory layout - FIRMWARE:
+ * Memory layout - APPLICATION:
  * 		Start			Length
  * 		FW: text		0x0000		0x6d16
  * 		FW: free		0x6d18		0x6fff
@@ -52,6 +52,7 @@
 #include "df4iah_fw_twi.h"
 #include "df4iah_fw_twi_mcp23017.h"
 #include "df4iah_fw_twi_mcp23017_av1624.h"
+#include "df4iah_fw_twi_smart_lcd.h"
 
 #include "df4iah_fw_main.h"
 
@@ -189,7 +190,7 @@ PROGMEM const uchar PM_FORMAT_LC01[]						= "+=== DF4IAH ===+";
 PROGMEM const uchar PM_FORMAT_LC02[]						= "10MHzRefOsc V2x1";
 PROGMEM const uchar PM_FORMAT_LC11[]						= "%c% 08.3f %c%1X %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC12[]						= "b ---.--- %c%1X %c%02u ";
-PROGMEM const uchar PM_FORMAT_LC21[]						= "%04u%02u%02u U%02u%02u%02u ";
+PROGMEM const uchar PM_FORMAT_LC21[]						= "D%02u.%02u T%02u:%02u:%02u ";
 PROGMEM const uchar PM_FORMAT_LC22[]						= "%c%1u %c%1u %3.1f %c%02u%c%02u ";
 PROGMEM const uchar PM_FORMAT_LC23[]						= "%c%07.3f %c%5.3fV ";
 
@@ -270,6 +271,7 @@ volatile main_bf_t main_bf									= {
 									/* mainStopAvr			= */	false,
 									/* mainStackCheck		= */	false,
 									/* mainIsLcdAttached    = */	false,
+									/* mainIsSmartAttached  = */	false,
 									/* mainReserved01		= */	// false,
 
 									/* mainHelpConcatNr		= */	0,
@@ -469,11 +471,11 @@ static inline void vectortable_to_firmware(void) {
 	);
 }
 
-static inline void wdt_init() {
+static inline void wdt_init(void) {
 	wdt_disable();
 }
 
-static inline void wdt_close() {
+static inline void wdt_close(void) {
 	wdt_disable();
 }
 
@@ -639,8 +641,8 @@ static void calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float q
 }
 
 // forward declaration
-static void calcPhaseResidue();
-static void calcPhase()
+static void calcPhaseResidue(void);
+static void calcPhase(void)
 {
 	static float phaseMeanPhaseErrorSum	= 0.0f;
 	static float phaseStepsErrorSum		= 0.0f;
@@ -754,7 +756,7 @@ static void calcPhase()
 	}
 }
 
-static void calcPhaseResidue()
+static void calcPhaseResidue(void)
 {
 	uint8_t localFastPwmSingleLoad;
 	uint8_t localFastPwmSingleVal;
@@ -798,7 +800,7 @@ int main_fw_memcmp(const unsigned char* msg, const unsigned char* cmpProg, size_
 	return memcmp((const char*) msg, (const char*) mainFormatBuffer, size);
 }
 
-void main_fw_nmeaUtcPlusOneSec() {
+void main_fw_nmeaUtcPlusOneSec(void) {
 	++main_nmeaTimeUtcInt;
 
 	if ((main_nmeaTimeUtcInt % 100) > 59) {
@@ -812,7 +814,7 @@ void main_fw_nmeaUtcPlusOneSec() {
 	}
 }
 
-void main_fw_parseNmeaLineData() {
+void main_fw_parseNmeaLineData(void) {
 	memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG01, sizeof(PM_PARSE_NMEA_MSG01));
 	int len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
 			&main_nmeaTimeUtcInt,
@@ -1048,7 +1050,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	}
 }
 
-static void workInQueue()
+static void workInQueue(void)
 {
 	if (ringbuffer_fw_getSemaphore(true)) {
 		uint8_t isLocked = true;
@@ -1154,7 +1156,7 @@ static void workInQueue()
 	}
 }
 
-static void doJobs()
+static void doJobs(void)
 {
 	const uint16_t  LocalCtr1sSpanMs = 1000 * DEBUG_DELAY_CNT;// wake up every DEBUG_DELAY_CNT second
 	const uint8_t   LocalCtr250msBorderMs = 250;				// 250 ms time span
@@ -1522,9 +1524,9 @@ static void doJobs()
 					uint8_t seconds	=  main_nmeaTimeUtcInt				% 100;
 					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC21, sizeof(PM_FORMAT_LC21));
 					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-							year,
-							month,
 							day,
+							month,
+							//year % 100,
 							hour,
 							minutes,
 							seconds);
@@ -1627,7 +1629,7 @@ static void doJobs()
 	}
 }
 
-void main_fw_sendInitialHelp()
+void main_fw_sendInitialHelp(void)
 {
 #if 1
 	ringbuffer_fw_ringBufferWaitAppend(true, true, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP));
@@ -1711,6 +1713,8 @@ int main(void)
 		twi_fw_init();
 		twi_mcp23017_fw_init();
 		twi_mcp23017_av1624_fw_init();
+		twi_mcp23017_av1624_fw_init();
+		twi_smart_lcd_fw_init();
 
 		/* check CRC of all blocks and update with default values if the data is non-valid */
 		memory_fw_manageNonVolatileData();

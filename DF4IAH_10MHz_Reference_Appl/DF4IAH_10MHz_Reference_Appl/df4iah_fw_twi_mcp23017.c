@@ -15,7 +15,7 @@
 //extern xxx twiMcpAvXxx;
 
 
-void twi_mcp23017_fw_init()
+void twi_mcp23017_fw_init(void)
 {
 	uint8_t clr_data = 0x00;  // clear data
 	uint8_t set_data = 0xff;  // set data
@@ -55,7 +55,7 @@ void twi_mcp23017_fw_init()
 	(void) twi_fw_sendCmdSendData1SendData2(TWI_MCP23017_ADDR, TWI_MCP23017_REG_INTCONA, set_data, set_data);  // unused - setting port-A and port-B
 }
 
-void twi_mcp23017_fw_close()
+void twi_mcp23017_fw_close(void)
 {
 	uint8_t clr_data = 0x00;  // clear data
 	uint8_t set_data = 0xff;  // set data
@@ -99,7 +99,7 @@ void twi_mcp23017_fw_setPortBA(uint8_t portB, uint8_t portA)
 	(void) twi_fw_sendCmdSendData1SendData2(TWI_MCP23017_ADDR, TWI_MCP23017_REG_OLATA, portA, portB);
 }
 
-uint8_t twi_mcp23017_fw_readPortA()
+uint8_t twi_mcp23017_fw_readPortA(void)
 {
 	return twi_fw_sendCmdReadData1(TWI_MCP23017_ADDR, TWI_MCP23017_REG_GPIOA);
 }

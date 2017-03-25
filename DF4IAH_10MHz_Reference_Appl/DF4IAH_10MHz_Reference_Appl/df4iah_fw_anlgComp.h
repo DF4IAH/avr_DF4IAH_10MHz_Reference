@@ -19,10 +19,10 @@ enum ADC_CH_t {
 };
 
 
-void anlgComp_fw_init();
-void anlgComp_fw_close();
+void anlgComp_fw_init(void);
+void anlgComp_fw_close(void);
 
-void anlgComp_fw_startAdcConvertion();
+void anlgComp_fw_startAdcConvertion(void);
 
 
 /* the following functions are direct __vector_xx calls to reduce some clocks */

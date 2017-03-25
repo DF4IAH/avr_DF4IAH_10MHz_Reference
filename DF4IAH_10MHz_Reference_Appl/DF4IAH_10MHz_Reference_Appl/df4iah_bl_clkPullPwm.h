@@ -12,10 +12,10 @@
 #define DEFAULT_PWM_COUNT  									90
 
 
-void clkPullPwm_bl_init();
-void clkPullPwm_bl_close();
+void clkPullPwm_bl_init(void);
+void clkPullPwm_bl_close(void);
 
-void clkPullPwm_bl_togglePin();
-void clkPullPwm_bl_endlessTogglePin();
+void clkPullPwm_bl_togglePin(void);
+void clkPullPwm_bl_endlessTogglePin(void);
 
 #endif /* DF4IAH_BL_CLKPULLPWM_H_ */

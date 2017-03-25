@@ -23,7 +23,7 @@ extern uint8_t  acAdcConvertNowCntr;
 extern uint16_t acAdcCh[AC_ADC_CH_COUNT + 1];				// plus one for the temperature sensor
 
 
-void anlgComp_fw_init()
+void anlgComp_fw_init(void)
 {
 	/* enable power for ADC, reference voltage and analog comparator */
 	PRR &= ~(_BV(PRADC));
@@ -56,7 +56,7 @@ void anlgComp_fw_init()
 	ADCSRA |= _BV(ADIE);									// enable ADC interrupt
 }
 
-void anlgComp_fw_close()
+void anlgComp_fw_close(void)
 {
 	/* disable interrupt, disable analog comparator */
 	ACSR = (ACSR & ~(_BV(ACIE))) | _BV(ACD);
@@ -72,7 +72,7 @@ void anlgComp_fw_close()
 	PRR |= _BV(PRADC);
 }
 
-void anlgComp_fw_startAdcConvertion() {
+void anlgComp_fw_startAdcConvertion(void) {
 #if 0
 	set_sleep_mode(SLEEP_MODE_ADC);							// do not use SLEEP_MODE_ADC due to the fact that the timers are stopped
 	sleep_enable();

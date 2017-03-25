@@ -98,7 +98,8 @@ typedef struct main_bf_struct
      uint8_t  mainStopAvr		 							: 1;
      uint8_t  mainStackCheck								: 1;
      uint8_t  mainIsLcdAttached								: 1;
-//     uint8_t  mainReserved01								: 1; // fill to 8 bits
+     uint8_t  mainIsSmartAttached							: 1;
+//     uint8_t  mainReserved01								: 0; // fill to 8 bits
 
      uint8_t  mainHelpConcatNr								: 4;
      uint8_t  mainLcdLedMode								: 3;
@@ -164,30 +165,11 @@ float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal);
 float main_fw_calcTimerAdj(float pwmAdjust, uint8_t* intVal, uint8_t* intSubVal);
 int   main_fw_strncmp(const unsigned char* msg, const unsigned char* cmpProg, size_t size);
 int   main_fw_memcmp(const unsigned char* msg, const unsigned char* cmpProg, size_t size);
-void  main_fw_nmeaUtcPlusOneSec();
-void  main_fw_parseNmeaLineData();
-void  main_fw_sendInitialHelp();
+void  main_fw_nmeaUtcPlusOneSec(void);
+void  main_fw_parseNmeaLineData(void);
+void  main_fw_sendInitialHelp(void);
 void  main_fw_giveAway(void);
 int   main(void);
 
-
-// this following table has most of the instructions listed
-
-/*TODO
- * x	Mnemonics	clocks	resulting clocks
- * ------------------------------------------------
- * 8	push		2		16
- * 1	in			1		 1
- * 1	eor			1		 1
- * 2	lds			2		 4
- * 1	sei			1		 1
- * 2	ld (Z)		2		 4
- * 2	ldi			2		 4
- * 1	adiw		2		 2
- * 2	adc			1		 2
- * 2	sts			2		 4
- *
- * = 23 clocks --> 1.15 µs until sei() is done
- */
 
 #endif /* DF4IAH_FW_MAIN_H_ */
