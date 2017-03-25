@@ -134,6 +134,7 @@ typedef struct twiStatus_struct
 {
      uint8_t  doStart										: 1;
      uint8_t  isProcessing									: 1;
+     uint8_t  isRepeatedStart								: 1;
      uint8_t  state											: 3; // one of TWI_STATE_t
 	 uint8_t  errStart										: 1;
      uint8_t  reserved01									: 2; // fill to 8 bits
@@ -152,6 +153,7 @@ enum TWI_STATE_t {
 	TWI_STATE_ADR_SENT,
 	TWI_STATE_DATA_SENT,
 	TWI_STATE_DATA_RCVD,
+	TWI_STATE_REPEATEDSTART,
 	TWI_STATE_STOP
 };
 
