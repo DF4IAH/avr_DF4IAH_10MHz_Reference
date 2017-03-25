@@ -16,7 +16,6 @@
 #include "df4iah_bl_memory.h"
 #include "df4iah_fw_memory.h"
 #include "df4iah_fw_serial.h"
-#include "df4iah_fw_ringbuffer.h"
 
 #include "df4iah_fw_memory_eepromData.h"
 

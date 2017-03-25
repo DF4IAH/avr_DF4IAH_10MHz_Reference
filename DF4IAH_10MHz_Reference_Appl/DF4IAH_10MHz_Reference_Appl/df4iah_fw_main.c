@@ -330,6 +330,7 @@ uint8_t  usbIsrCtxtBufferIdx 								= 0;
 /* df4iah_fw_twi */
 volatile uint8_t twiSeq1Adr									= 0;
 volatile uint8_t twiSeq2DataCnt								= 0;
+volatile uint8_t twiSeq2DataRcvCnt							= 0;
 volatile uint8_t twiSeq2DataIdx								= 0;
 
 
