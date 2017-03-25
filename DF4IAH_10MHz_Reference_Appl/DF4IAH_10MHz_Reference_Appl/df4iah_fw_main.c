@@ -190,7 +190,7 @@ PROGMEM const uchar PM_FORMAT_LC01[]						= "+=== DF4IAH ===+";
 PROGMEM const uchar PM_FORMAT_LC02[]						= "10MHzRefOsc V2x1";
 PROGMEM const uchar PM_FORMAT_LC11[]						= "%c% 08.3f %c%1X %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC12[]						= "b ---.--- %c%1X %c%02u ";
-PROGMEM const uchar PM_FORMAT_LC21[]						= "%04u%02u%02u U%02u%02u%02u ";
+PROGMEM const uchar PM_FORMAT_LC21[]						= "D%02u.%02u T%02u:%02u:%02u ";
 PROGMEM const uchar PM_FORMAT_LC22[]						= "%c%1u %c%1u %3.1f %c%02u%c%02u ";
 PROGMEM const uchar PM_FORMAT_LC23[]						= "%c%07.3f %c%5.3fV ";
 
@@ -1524,9 +1524,9 @@ static void doJobs(void)
 					uint8_t seconds	=  main_nmeaTimeUtcInt				% 100;
 					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC21, sizeof(PM_FORMAT_LC21));
 					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-							year,
-							month,
 							day,
+							month,
+							//year % 100,
 							hour,
 							minutes,
 							seconds);
