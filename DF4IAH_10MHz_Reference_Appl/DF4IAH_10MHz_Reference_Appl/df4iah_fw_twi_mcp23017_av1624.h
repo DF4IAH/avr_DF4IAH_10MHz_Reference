@@ -12,10 +12,10 @@
 #include "chipdef.h"
 
 
-void twi_mcp23017_av1624_fw_init();
-void twi_mcp23017_av1624_fw_close();
+void twi_mcp23017_av1624_fw_init(void);
+void twi_mcp23017_av1624_fw_close(void);
 
-void twi_mcp23017_av1624_fw_waitUntilReady();
+void twi_mcp23017_av1624_fw_waitUntilReady(void);
 void twi_mcp23017_av1624_fw_gotoPosition(uint8_t line, uint8_t column);
 void twi_mcp23017_av1624_fw_writeString(const uint8_t* buffer, uint8_t len);
 

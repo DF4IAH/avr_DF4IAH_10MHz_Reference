@@ -47,7 +47,7 @@ extern uint8_t  pullCoef_b02_pwm_initial;
 extern uint8_t  pullCoef_b02_pwm_initial_sub;
 
 
-void clkPullPwm_fw_init()
+void clkPullPwm_fw_init(void)
 {
 	// power up this module
 	PRR &= ~(_BV(PRTIM0));
@@ -87,7 +87,7 @@ void clkPullPwm_fw_init()
 	TIMSK0 |= _BV(TOIE0);
 }
 
-void clkPullPwm_fw_close()
+void clkPullPwm_fw_close(void)
 {
 	/* disable interrupts */
 	TIMSK0 = 0;

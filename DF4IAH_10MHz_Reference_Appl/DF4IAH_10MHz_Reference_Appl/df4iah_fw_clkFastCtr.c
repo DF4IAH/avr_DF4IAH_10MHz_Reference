@@ -28,7 +28,7 @@ extern volatile main_bf_t main_bf;
 extern uint16_t mainSCStackAddr;
 
 
-void clkFastCtr_fw_init()
+void clkFastCtr_fw_init(void)
 {
 	/* power up this module */
 	PRR &= ~(_BV(PRTIM1));
@@ -63,7 +63,7 @@ void clkFastCtr_fw_init()
 #endif
 }
 
-void clkFastCtr_fw_close()
+void clkFastCtr_fw_close(void)
 {
 #if 0
 	/* deactivate PCINT20 interrupt for PIN PD4 (T0) */

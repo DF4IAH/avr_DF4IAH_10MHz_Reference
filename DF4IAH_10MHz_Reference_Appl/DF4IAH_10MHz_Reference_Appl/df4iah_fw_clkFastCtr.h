@@ -17,12 +17,12 @@
 #define FAST_PWM_SUB_BITCNT									8													// highest X bits are relevant
 
 
-void clkFastCtr_fw_init();
-void clkFastCtr_fw_close();
+void clkFastCtr_fw_init(void);
+void clkFastCtr_fw_close(void);
 
 /* the following functions are direct __vector_xx calls to reduce some clocks */
-//void clkFastCtr_fw_ISR_T1_CompA();
-//void clkFastCtr_fw_ISR_T1_Capt();
-//void clkSlowCtr_fw_ISR_PCI2();
+//void clkFastCtr_fw_ISR_T1_CompA(void);
+//void clkFastCtr_fw_ISR_T1_Capt(void);
+//void clkSlowCtr_fw_ISR_PCI2(void);
 
 #endif /* DF4IAH_FW_CLKFASTCTR_H_ */

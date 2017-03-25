@@ -24,6 +24,8 @@ df4iah_fw_twi_mcp23017.c
 
 df4iah_fw_twi_mcp23017_av1624.c
 
+df4iah_fw_twi_smart_lcd.c
+
 df4iah_fw_usb.c
 
 usbdrv_fw\oddebug.c

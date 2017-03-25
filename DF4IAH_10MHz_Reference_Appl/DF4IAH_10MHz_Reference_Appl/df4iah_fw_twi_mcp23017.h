@@ -229,12 +229,12 @@
 #define OLATB_OL7											7
 
 
-void twi_mcp23017_fw_init();
-void twi_mcp23017_fw_close();
+void twi_mcp23017_fw_init(void);
+void twi_mcp23017_fw_close(void);
 
 void twi_mcp23017_fw_setPortA_DirOut(uint8_t isOut);
 void twi_mcp23017_fw_setPortB(uint8_t portB);
 void twi_mcp23017_fw_setPortBA(uint8_t portB, uint8_t portA);
-uint8_t twi_mcp23017_fw_readPortA();
+uint8_t twi_mcp23017_fw_readPortA(void);
 
 #endif /* DF4IAH_FW_TWI_MCP23017_H_ */

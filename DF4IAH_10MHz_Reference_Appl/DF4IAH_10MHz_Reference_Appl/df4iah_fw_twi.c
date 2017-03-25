@@ -16,6 +16,7 @@
 #include "chipdef.h"
 #include "df4iah_fw_main.h"
 #include "df4iah_fw_twi_mcp23017.h"
+#include "df4iah_fw_twi_smart_lcd.h"
 
 #include "df4iah_fw_twi.h"
 
@@ -230,6 +231,8 @@ ISR(TWI_vect, ISR_BLOCK)
 
 			if (twiSeq1Adr == TWI_MCP23017_ADDR) {
 				main_bf.mainIsLcdAttached = true;
+			} else if (twiSeq1Adr == TWI_SMART_LCD_ADDR) {
+				main_bf.mainIsSmartAttached = true;
 			}
 
 			if (twiSeq2DataCnt <= 1) {
@@ -264,6 +267,8 @@ ISR(TWI_vect, ISR_BLOCK)
 
 			if (twiSeq1Adr == TWI_MCP23017_ADDR) {
 				main_bf.mainIsLcdAttached = false;
+			} else if (twiSeq1Adr == TWI_SMART_LCD_ADDR) {
+				main_bf.mainIsSmartAttached = false;
 			}
 
 			isr_sendStop(true);

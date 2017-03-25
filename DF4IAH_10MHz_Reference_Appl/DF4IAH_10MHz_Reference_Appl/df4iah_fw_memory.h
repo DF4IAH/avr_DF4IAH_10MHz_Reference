@@ -9,6 +9,7 @@
 #define DF4IAH_FW_MEMORY_H_
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include "chipdef.h"
 

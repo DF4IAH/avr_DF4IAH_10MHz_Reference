@@ -25,9 +25,9 @@
 
 
 void usb_fw_replyContent(uchar replyBuffer[], uchar data[]);
-void usb_fw_sendInInterrupt();
+void usb_fw_sendInInterrupt(void);
 
-void usb_fw_init();
-void usb_fw_close();
+void usb_fw_init(void);
+void usb_fw_close(void);
 
 #endif /* DF4IAH_FW_USB_H_ */

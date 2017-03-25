@@ -17,8 +17,8 @@
 #endif
 
 
-void clkPullPwm_fw_init();
-void clkPullPwm_fw_close();
+void clkPullPwm_fw_init(void);
+void clkPullPwm_fw_close(void);
 
 #if 0
 void clkPullPwm_fw_setPin(uint8_t isSet);  // do not use when TWI is active

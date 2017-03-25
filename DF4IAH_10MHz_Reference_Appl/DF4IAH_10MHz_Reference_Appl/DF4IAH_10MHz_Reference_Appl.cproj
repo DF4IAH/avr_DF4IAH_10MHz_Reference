@@ -260,6 +260,12 @@
     <Compile Include="df4iah_fw_twi_mcp23017_av1624.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="df4iah_fw_twi_smart_lcd.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="df4iah_fw_twi_smart_lcd.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="df4iah_fw_usb.c">
       <SubType>compile</SubType>
     </Compile>

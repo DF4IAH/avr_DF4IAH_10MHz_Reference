@@ -43,11 +43,11 @@
 
 void serial_fw_serRxIsrOn(uint8_t flag);
 
-void serial_fw_init();
-void serial_fw_close();
+void serial_fw_init(void);
+void serial_fw_close(void);
 
 void serial_fw_setCommBaud(uint16_t baud);
-uint8_t serial_fw_isTxRunning();
+uint8_t serial_fw_isTxRunning(void);
 void serial_fw_copyAndSendNmea(uint8_t isPgm, const uchar inData[], uint8_t len);
 void serial_fw_pullAndSendNmea_havingSemaphore(uint8_t isSend);
 

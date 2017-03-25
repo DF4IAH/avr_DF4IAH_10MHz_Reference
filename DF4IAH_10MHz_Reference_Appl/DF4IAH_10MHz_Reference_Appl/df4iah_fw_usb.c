@@ -95,7 +95,7 @@ void usb_fw_replyContent(uchar replyBuffer[], uchar data[])
 /* Send IN-Interrupts to the host regular in case
  * any data is to be sent.
  */
-void usb_fw_sendInInterrupt()
+void usb_fw_sendInInterrupt(void)
 {
 	static uchar bufferInt[5] = "<INT>";
 
@@ -107,7 +107,7 @@ void usb_fw_sendInInterrupt()
 
 /*  -- 8< -- */
 
-void usb_fw_init()
+void usb_fw_init(void)
 {
 	usbInit();
 	USB_INTR_ENABLE &= ~(_BV(USB_INTR_ENABLE_BIT));
@@ -123,7 +123,7 @@ void usb_fw_init()
 	USB_INTR_ENABLE |= _BV(USB_INTR_ENABLE_BIT);
 }
 
-void usb_fw_close()
+void usb_fw_close(void)
 {
 	USB_INTR_ENABLE &= ~(_BV(USB_INTR_ENABLE_BIT));
 	usbDeviceDisconnect();
