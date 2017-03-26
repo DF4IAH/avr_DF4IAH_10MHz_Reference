@@ -147,6 +147,69 @@ typedef struct twiStatus_struct
      uint8_t  reserved02									: 4; // fill to 8 bits
 } twiStatus_t;
 
+typedef struct twiShowSmart01_struct {
+	uint8_t													clk_state;
+} twiShowSmart01_struct_t;
+
+typedef struct twiShowSmart02_struct {
+	uint16_t												year;
+	uint8_t													month;
+	uint8_t													day;
+} twiShowSmart02_struct_t;
+
+typedef struct twiShowSmart03_struct {
+	uint8_t													hour;
+	uint8_t													minutes;
+	uint8_t													seconds;
+} twiShowSmart03_struct_t;
+
+typedef struct twiShowSmart04_struct {
+	uint16_t												ppm_int;
+	uint16_t												ppm_frac;
+} twiShowSmart04_struct_t;
+
+typedef struct twiShowSmart05_struct {
+	uint8_t													pwm_int;
+	uint8_t													pwm_frac;
+} twiShowSmart05_struct_t;
+
+typedef struct twiShowSmart06_struct {
+	uint8_t													pv_int;
+	uint16_t												pv_frac;
+} twiShowSmart06_struct_t;
+
+typedef struct twiShowSmart07_struct {
+	uint8_t													sats_gps;
+	uint8_t													sats_glo;
+	uint8_t													sats_usd;
+} twiShowSmart07_struct_t;
+
+typedef struct twiShowSmart08_struct {
+	uint16_t												dop100;
+} twiShowSmart08_struct_t;
+
+typedef struct twiShowSmart09_struct {
+	uint8_t													pos_fi;
+	uint8_t													pos_m2;
+} twiShowSmart09_struct_t;
+
+typedef struct twiShowSmart10_struct {
+	uint8_t													pos_lat_sgn;
+	int8_t													pos_lat_int;
+	uint16_t												pos_lat_frac;
+} twiShowSmart10_struct_t;
+
+typedef struct twiShowSmart11_struct {
+	uint8_t													pos_lon_sgn;
+	int16_t													pos_lon_int;
+	uint16_t												pos_lon_frac;
+} twiShowSmart11_struct_t;
+
+typedef struct twiShowSmart12_struct {
+	int16_t													pos_height;
+} twiShowSmart12_struct_t;
+
+
 enum TWI_STATE_t {
 	TWI_STATE_READY											= 0,
 	TWI_STATE_START_SENT,
@@ -167,6 +230,8 @@ int   main_fw_strncmp(const unsigned char* msg, const unsigned char* cmpProg, si
 int   main_fw_memcmp(const unsigned char* msg, const unsigned char* cmpProg, size_t size);
 void  main_fw_nmeaUtcPlusOneSec(void);
 void  main_fw_parseNmeaLineData(void);
+void  twi_mcp23017_av1624_fw_showStatus(void);
+void  twi_smart_lcd_fw_showStatus(void);
 void  main_fw_sendInitialHelp(void);
 void  main_fw_giveAway(void);
 int   main(void);

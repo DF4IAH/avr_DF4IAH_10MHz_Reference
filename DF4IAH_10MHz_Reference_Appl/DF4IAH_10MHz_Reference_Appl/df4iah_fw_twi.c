@@ -110,6 +110,27 @@ uint8_t twi_fw_sendCmdSendData1SendData2(uint8_t addr, uint8_t cmd, uint8_t data
 	return twiState.dataAck;
 }
 
+uint8_t twi_fw_sendCmdSendData1SendDataVar(uint8_t addr, uint8_t cmd, uint8_t cnt, uint8_t data[])
+{
+	int i;
+
+	waitUntilDone();
+
+	uint8_t sreg = SREG;
+	cli();
+	twiSeq1Adr = addr;
+	twiSeq2DataCnt = 0;
+	twiSeq2Data[twiSeq2DataCnt++] = cmd;
+	for (i = 0; i < cnt; ++i) {
+		twiSeq2Data[twiSeq2DataCnt++] = data[i];
+	}
+	twiState.doStart = true;
+	SREG = sreg;
+
+	isr_sendStart(false);
+	return twiState.dataAck;
+}
+
 uint8_t twi_fw_sendCmdReadData1(uint8_t addr, uint8_t cmd)
 {
 	waitUntilDone();
