@@ -190,7 +190,7 @@ PROGMEM const uchar PM_FORMAT_LC01[]						= "+=== DF4IAH ===+";
 PROGMEM const uchar PM_FORMAT_LC02[]						= "10MHzRefOsc V2x1";
 PROGMEM const uchar PM_FORMAT_LC11[]						= "%c% 08.3f %c%1X %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC12[]						= "b ---.--- %c%1X %c%02u ";
-PROGMEM const uchar PM_FORMAT_LC21[]						= "D%02u.%02u T%02u:%02u:%02u ";
+PROGMEM const uchar PM_FORMAT_LC21[]						= "%02u.%02u. U%02u:%02u:%02u ";
 PROGMEM const uchar PM_FORMAT_LC22[]						= "%c%1u %c%1u %3.1f %c%02u%c%02u ";
 PROGMEM const uchar PM_FORMAT_LC23[]						= "%c%07.3f %c%5.3fV ";
 
@@ -1469,118 +1469,9 @@ static void doJobs(void)
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 	}
 
-	if (main_bf.mainIsLcdAttached) {
-		/* I2C LCD-Module via MCP23017 16 bit port expander */  // XXX I2C LCD-Module displayed fields are here
-		uint8_t sreg = SREG;
-		cli();
-		uint32_t localFastCtr1ms = fastCtr1ms;
-		SREG = sreg;
-
-		if (localFastCtr1ms <= 5000) {
-			/* welcome message */
-			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC01, sizeof(PM_FORMAT_LC01));
-			twi_mcp23017_av1624_fw_gotoPosition(0, 0);
-			twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
-
-			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC02, sizeof(PM_FORMAT_LC02));
-			twi_mcp23017_av1624_fw_gotoPosition(1, 0);
-			twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
-
-		} else {
-			static uint8_t displayNr	= 0;
-			static uint8_t displaySubNr	= 0;
-
-			/* the status-line */
-			if (mainRefClkState > REFCLK_STATE_NOSYNC) {
-				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC11, sizeof(PM_FORMAT_LC11));
-				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-						'b',
-						(mainPpm * 1000.0f),
-						0xe0,
-						mainRefClkState,
-						0xf3,
-						main_nmeaSatsUsed);
-			} else {
-				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC12, sizeof(PM_FORMAT_LC12));
-				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-						0xe0,
-						mainRefClkState,
-						0xf3,
-						main_nmeaSatsUsed);
-			}
-			twi_mcp23017_av1624_fw_gotoPosition(0, 0);
-			twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
-
-			switch (displayNr) {
-			default:
-			case 0:
-				{
-					/* the timestamp */
-					uint16_t year	=  main_nmeaDate					% 10000;
-					uint8_t month	= (main_nmeaDate		/ 10000)	% 100;
-					uint8_t day		=  main_nmeaDate		/ 1000000;
-					uint8_t hour	=  main_nmeaTimeUtcInt	/ 10000;
-					uint8_t minutes	= (main_nmeaTimeUtcInt	/ 100)		% 100;
-					uint8_t seconds	=  main_nmeaTimeUtcInt				% 100;
-					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC21, sizeof(PM_FORMAT_LC21));
-					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-							day,
-							month,
-							//year % 100,
-							hour,
-							minutes,
-							seconds);
-					twi_mcp23017_av1624_fw_gotoPosition(1, 0);
-					twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
-				}
-				break;
-
-			case 1:
-				{
-					/* SAT data */
-					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC22, sizeof(PM_FORMAT_LC22));
-					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-							'M',
-							main_nmeaMode2,
-							'F',
-							main_nmeaPosFixIndicator,
-							main_nmeaPdop,
-							0xdf,
-							main_nmeaSatsEphemerisGpsGalileoQzss,
-							0xeb,
-							main_nmeaSatsEphemerisGlonass);
-					twi_mcp23017_av1624_fw_gotoPosition(1, 0);
-					twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
-				}
-				break;
-
-			case 2:
-				{
-					/* PWM data */
-					uint8_t sreg = SREG;
-					cli();
-					uint8_t localFastPwmLoopVal		= fastPwmLoopVal;
-					uint8_t localFastPwmSubLoopVal	= fastPwmSubLoopVal;
-					SREG = sreg;
-
-					memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC23, sizeof(PM_FORMAT_LC23));
-					len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-							'P',
-							main_fw_calcTimerToFloat(localFastPwmLoopVal, localFastPwmSubLoopVal),
-							0xab,
-							mainAdcPullVolts);
-					twi_mcp23017_av1624_fw_gotoPosition(1, 0);
-					twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
-				}
-				break;
-			}
-			if (++displaySubNr >= 3) {
-				displaySubNr = 0;
-				++displayNr;
-				displayNr %= 3;
-			}
-		}
-	}
+	/* Show status at connected LCD devices */
+	twi_mcp23017_av1624_fw_showStatus();
+	twi_smart_lcd_fw_showStatus();
 
 	if (mainPwmTerminalAdj) {
 		/* Manual PWM correction */
@@ -1626,6 +1517,235 @@ static void doJobs(void)
 
 		// reset data entry
 		mainPwmTerminalAdj = 0.0f;
+	}
+}
+
+void twi_mcp23017_av1624_fw_showStatus(void)
+{
+	if (!main_bf.mainIsLcdAttached) {
+		return;
+	}
+
+	/* I2C LCD-Module via MCP23017 16 bit port expander */  // XXX I2C LCD-Module displayed fields are here
+	uint8_t sreg = SREG;
+	cli();
+	uint32_t localFastCtr1ms = fastCtr1ms;
+	SREG = sreg;
+
+	if (localFastCtr1ms <= 5000) {
+		/* welcome message */
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC01, sizeof(PM_FORMAT_LC01));
+		twi_mcp23017_av1624_fw_gotoPosition(0, 0);
+		twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
+
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC02, sizeof(PM_FORMAT_LC02));
+		twi_mcp23017_av1624_fw_gotoPosition(1, 0);
+		twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
+
+		} else {
+		static uint8_t displayNr	= 0;
+		static uint8_t displaySubNr	= 0;
+		int len = 0;
+
+		/* the status-line */
+		if (mainRefClkState > REFCLK_STATE_NOSYNC) {
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC11, sizeof(PM_FORMAT_LC11));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+			'b',
+			(mainPpm * 1000.0f),
+			0xe0,
+			mainRefClkState,
+			0xf3,
+			main_nmeaSatsUsed);
+
+			} else {
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC12, sizeof(PM_FORMAT_LC12));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+			0xe0,
+			mainRefClkState,
+			0xf3,
+			main_nmeaSatsUsed);
+		}
+		twi_mcp23017_av1624_fw_gotoPosition(0, 0);
+		twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+
+		switch (displayNr) {
+			default:
+			case 0:
+			{
+				/* the timestamp */
+				//uint16_t year	=  main_nmeaDate					% 10000;
+				uint8_t month	= (main_nmeaDate		/ 10000)	% 100;
+				uint8_t day		=  main_nmeaDate		/ 1000000;
+				uint8_t hour	=  main_nmeaTimeUtcInt	/ 10000;
+				uint8_t minutes	= (main_nmeaTimeUtcInt	/ 100)		% 100;
+				uint8_t seconds	=  main_nmeaTimeUtcInt				% 100;
+				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC21, sizeof(PM_FORMAT_LC21));
+				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				day,
+				month,
+				//year % 100,
+				hour,
+				minutes,
+				seconds);
+				twi_mcp23017_av1624_fw_gotoPosition(1, 0);
+				twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+			}
+			break;
+
+			case 1:
+			{
+				/* SAT data */
+				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC22, sizeof(PM_FORMAT_LC22));
+				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				'M',
+				main_nmeaMode2,
+				'F',
+				main_nmeaPosFixIndicator,
+				main_nmeaPdop,
+				0xdf,
+				main_nmeaSatsEphemerisGpsGalileoQzss,
+				0xeb,
+				main_nmeaSatsEphemerisGlonass);
+				twi_mcp23017_av1624_fw_gotoPosition(1, 0);
+				twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+			}
+			break;
+
+			case 2:
+			{
+				/* PWM data */
+				uint8_t sreg = SREG;
+				cli();
+				uint8_t localFastPwmLoopVal		= fastPwmLoopVal;
+				uint8_t localFastPwmSubLoopVal	= fastPwmSubLoopVal;
+				SREG = sreg;
+
+				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC23, sizeof(PM_FORMAT_LC23));
+				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				'P',
+				main_fw_calcTimerToFloat(localFastPwmLoopVal, localFastPwmSubLoopVal),
+				0xab,
+				mainAdcPullVolts);
+				twi_mcp23017_av1624_fw_gotoPosition(1, 0);
+				twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+			}
+			break;
+		}
+
+		if (++displaySubNr >= 3) {
+			displaySubNr = 0;
+			++displayNr;
+			displayNr %= 3;
+		}
+	}
+}
+
+void twi_smart_lcd_fw_showStatus(void)
+{
+	if (!main_bf.mainIsSmartAttached) {
+		return;
+	}
+
+	{
+		twiShowSmart01_struct_t s;
+		s.clk_state	= mainRefClkState;
+
+		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_CLK_STATE,		1,	(uint8_t*) &s);
+	}
+
+	{
+		twiShowSmart02_struct_t s;
+		s.year		=  main_nmeaDate					% 10000;
+		s.month		= (main_nmeaDate		/ 10000)	% 100;
+		s.day		=  main_nmeaDate		/ 1000000;
+
+		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_YEAR_MON_DAY,		4,	(uint8_t*) &s);
+	}
+
+	{
+		twiShowSmart03_struct_t s;
+		s.hour		=  main_nmeaTimeUtcInt	/ 10000;
+		s.minutes	= (main_nmeaTimeUtcInt	/ 100)		% 100;
+		s.seconds	=  main_nmeaTimeUtcInt				% 100;
+
+		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_HR_MIN_SEC,		3,	(uint8_t*) &s);
+	}
+
+	{
+		twiShowSmart04_struct_t s;
+		s.ppm_int	= (uint16_t) mainPpm;
+		s.ppm_frac	= (uint16_t) ((mainPpm - s.ppm_int) * 1000.0f);
+
+		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_PPM_INT16_FRAC16,	4,	(uint8_t*) &s);
+	}
+
+	{
+		twiShowSmart05_struct_t s;
+		uint8_t sreg = SREG;
+		cli();
+		s.pwm_int		= (uint8_t) fastPwmLoopVal;
+		s.pwm_frac		= (uint8_t) fastPwmSubLoopVal;
+		SREG = sreg;
+
+		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_TCXO_PWM,			2,	(uint8_t*) &s);
+	}
+
+	{
+		twiShowSmart06_struct_t s;
+		s.pv_int		= (uint8_t)  mainAdcPullVolts;
+		s.pv_frac		= (uint16_t) ((mainAdcPullVolts - s.pv_int) * 1000.0f);
+
+		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_TCXO_VC,			3,	(uint8_t*) &s);
+	}
+
+	{
+		twiShowSmart07_struct_t s;
+		s.sats_gps		= (uint8_t) main_nmeaSatsEphemerisGpsGalileoQzss;
+		s.sats_glo		= (uint8_t) main_nmeaSatsEphemerisGlonass;
+		s.sats_usd		= (uint8_t) main_nmeaSatsUsed;
+
+		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_SATS,				3,	(uint8_t*) &s);
+	}
+
+	{
+		twiShowSmart08_struct_t s;
+		s.dop100		= (uint16_t) main_nmeaPdop * 100.0f;
+
+		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_DOP,				2,	(uint8_t*) &s);
+	}
+
+	{
+		twiShowSmart09_struct_t s;
+		s.pos_fi		= (uint8_t) main_nmeaPosFixIndicator;
+		s.pos_m2		= (uint8_t) main_nmeaMode2;
+
+		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_POS_STATE,		2,	(uint8_t*) &s);
+	}
+
+	{
+		twiShowSmart10_struct_t s;
+		s.pos_lat_sgn	= (uint8_t) main_nmeaPosLatSign;
+		s.pos_lat_int	= (uint8_t) main_nmeaPosLat;
+		s.pos_lat_frac	= (uint16_t) ((main_nmeaPosLat - s.pos_lat_int) * 10000.0f);
+
+		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_POS_LAT,			7,	(uint8_t*) &s);
+	}
+
+	{
+		twiShowSmart11_struct_t s;
+		s.pos_lon_sgn	= (uint8_t) main_nmeaPosLonSign;
+		s.pos_lon_int	= (uint16_t) main_nmeaPosLon;
+		s.pos_lon_frac	= (uint16_t) ((main_nmeaPosLon - s.pos_lon_int) * 10000.0f);
+
+		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_POS_LON,			7,	(uint8_t*) &s);
+	}
+
+	{
+		twiShowSmart12_struct_t s;
+		s.pos_height	= (int16_t) main_nmeaAltitudeM;
+
+		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_POS_HEIGHT,		2,	(uint8_t*) &s);
 	}
 }
 

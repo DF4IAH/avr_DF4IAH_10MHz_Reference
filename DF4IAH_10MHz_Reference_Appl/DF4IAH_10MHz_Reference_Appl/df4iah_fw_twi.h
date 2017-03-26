@@ -49,6 +49,7 @@ void twi_fw_close(void);
 
 uint8_t twi_fw_sendCmdSendData1(uint8_t addr, uint8_t cmd, uint8_t data1);
 uint8_t twi_fw_sendCmdSendData1SendData2(uint8_t addr, uint8_t cmd, uint8_t data1, uint8_t data2);
+uint8_t twi_fw_sendCmdSendData1SendDataVar(uint8_t addr, uint8_t cmd, uint8_t cnt, uint8_t data[]);
 uint8_t twi_fw_sendCmdReadData1(uint8_t addr, uint8_t cmd);
 
 void isr_sendStart(uint8_t isRepeatedStart);

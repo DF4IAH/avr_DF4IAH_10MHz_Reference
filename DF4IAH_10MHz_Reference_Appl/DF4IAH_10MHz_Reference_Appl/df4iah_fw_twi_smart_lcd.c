@@ -6,8 +6,7 @@
  */ 
 
 #include <stdbool.h>
-#include <string.h>
-#include <stdio.h>
+
 #include "df4iah_fw_main.h"
 #include "df4iah_fw_twi.h"
 
@@ -26,6 +25,7 @@ void twi_smart_lcd_fw_init(void)
 	}
 
 	// TODO
+	(void) ver;
 }
 
 void twi_smart_lcd_fw_close(void)
