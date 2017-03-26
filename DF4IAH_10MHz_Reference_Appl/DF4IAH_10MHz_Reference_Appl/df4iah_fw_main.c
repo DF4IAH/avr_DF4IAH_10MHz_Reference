@@ -523,10 +523,11 @@ float main_fw_calcTimerAdj(float pwmAdjust, uint8_t* intVal, uint8_t* intSubVal)
 
 static void calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float qrgDev_Hz, float ppm)
 {
+	/* frequency shift calculation */
+
 	const  uint8_t holdOffTimeStart = 20;
 	static uint8_t holdOffTime = 0;
 
-	/* frequency shift calculation */
 	uint8_t localIsOffset = false;
 
 	if (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
@@ -640,16 +641,63 @@ static void calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float q
 	}
 }
 
-// forward declaration
-static void calcPhaseResidue(void);
+static float pwmTimerCorrection(float correction, uint8_t doSingleLoad)
+{
+	float ret = 0.0f;
+
+	if (correction) {
+		uint8_t localFastPwmXXXVal;
+		uint8_t localFastPwmSubXXXVal;
+
+		uint8_t sreg = SREG;
+		cli();
+		localFastPwmXXXVal		= fastPwmLoopVal;
+		localFastPwmSubXXXVal	= fastPwmSubLoopVal;
+		SREG = sreg;
+
+		ret =  main_fw_calcTimerAdj(correction, &localFastPwmXXXVal, &localFastPwmSubXXXVal);
+
+		cli();
+		if (!doSingleLoad) {
+			fastPwmLoopVal		= localFastPwmXXXVal;			// single frequency correction
+			fastPwmSubLoopVal	= localFastPwmSubXXXVal;
+
+		} else {
+			fastPwmSingleVal	= localFastPwmXXXVal;			// phase hammering correction
+			fastPwmSubSingleVal	= localFastPwmSubXXXVal;
+			fastPwmSingleLoad	= true;
+		}
+		SREG = sreg;
+	}
+
+	return ret;
+}
+
+static void calcPhaseResidue(void)
+{
+	uint8_t localFastPwmSingleLoad;
+
+	uint8_t sreg = SREG;
+	cli();
+	localFastPwmSingleLoad = fastPwmSingleLoad;
+	SREG = sreg;
+
+	if (fastPwmSingleDiffSum && (!localFastPwmSingleLoad)) {  // enter only if an offset is accumulated and the last phase correction is loaded
+		/* Calculate and execute phase correction */
+		fastPwmSingleDiffSum = pwmTimerCorrection(fastPwmSingleDiffSum, true);
+	}
+}
+
 static void calcPhase(void)
 {
+	/* APC = automatic phase control */
+
 	static float phaseMeanPhaseErrorSum	= 0.0f;
 	static float phaseStepsErrorSum		= 0.0f;
 
 	uint8_t adcPhase = acAdcCh[ADC_CH_PHASE];
 
-	/* APC = automatic phase control */
+	/* Handling of new mainRefClkState value */
 	if (mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
 		if ((ADC_PHASE_LO_LOCKING <= adcPhase) && (adcPhase <= ADC_PHASE_HI_LOCKING)) {
 			if (mainRefClkState < REFCLK_STATE_LOCKING_PHASE) {
@@ -688,55 +736,62 @@ static void calcPhase(void)
 	}
 
 	const float PhaseErrAdc		= 450.0f / (((float) ADC_PHASE_HI_LOCKING) - ADC_PHASE_LO_LOCKING);
-	float phaseErr				= PhaseErrAdc * (adcPhase - ADC_PHASE_CENTER);
-	float phaseStepsPhase		= 0.0f;
+	float phaseErr				= PhaseErrAdc * (adcPhase - ADC_PHASE_CENTER);  // phase error in degrees
 	float phaseStepsFrequency	= 0.0f;
+	float phaseStepsPhase		= 0.0f;
 
-	if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
+	if (REFCLK_STATE_LOCKING_PHASE <= mainRefClkState) {
 		/* phase correction */
-//		phaseStepsPhase = (float) (pow(fabs(phaseErr) * 32.00f, 1.25f));  	// magic values  XXX PHASE: trimming is done here
 		phaseStepsPhase = (float) (pow(fabs(phaseErr) * 45.00f, 1.20f));  	// magic values  XXX PHASE: trimming is done here
 		if (phaseErr < 0.0f) {
 			phaseStepsPhase = -phaseStepsPhase;
 		}
 
-		if (phaseStepsPhase) {
-			uint8_t sreg = SREG;
-			cli();
-			fastPwmSingleDiffSum += phaseStepsPhase;						// PHASE OFFFSET accumulator
-			SREG = sreg;
+		if (mainRefClkState < REFCLK_STATE_IN_SYNC) {
+			/* Hard phase banging to keep in sync - should be avoided due to high phase noise */
+			if (phaseStepsPhase) {
+				uint8_t sreg = SREG;
+				cli();
+				fastPwmSingleDiffSum += phaseStepsPhase;						// PHASE OFFFSET accumulator
+				SREG = sreg;
 
-			calcPhaseResidue();												// first call - to be called many times during the whole second until next pulse comes
+				/* Calculate and execute phase correction */
+				calcPhaseResidue();												// first call - to be called many times during the whole second until next pulse comes
+
+				/* One time frequency correction */
+				phaseStepsFrequency += phaseMeanPhaseErrorSum * 0.00000150f;	// magic value  XXX ONE TIME FREQUENCY trimming is done here
+				phaseMeanPhaseErrorSum = 0.0f;									// reset frequency offset register to avoid lagging behavior
+			}
 		}
 	}
 
-	if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
+	if (REFCLK_STATE_LOCKING_PHASE <= mainRefClkState) {
+		static float lastPhaseStepsPhase = 0.0f;
+		float diffPhaseStepsPhase = phaseStepsPhase - lastPhaseStepsPhase;
+		uint8_t isAfterSignRev = false;
+
+		/* Find out direction to or from optimum point */
+		if (((phaseStepsPhase > 0) && (diffPhaseStepsPhase > 0)) ||
+		    ((phaseStepsPhase < 0) && (diffPhaseStepsPhase < 0))) {
+			isAfterSignRev = true;
+		}
+		lastPhaseStepsPhase = phaseStepsPhase;
+
 		/* frequency drift correction */
-		float phaseMeanPhaseErrorDiff = phaseMeanPhaseErrorSum / MEAN_PHASE_CLOCK_STAGES_F;
-		phaseMeanPhaseErrorSum += (((float) phaseStepsPhase) - phaseMeanPhaseErrorDiff);
-		phaseStepsFrequency = phaseMeanPhaseErrorSum * 0.00000010f; 		// magic value  XXX PHASE: FREQUENCY trimming is done here
+		phaseStepsFrequency += phaseStepsPhase * (isAfterSignRev ?  0.00001500f
+																 :  0.00000200f) ;	// magic values XXX DRIFTING FREQUENCY trimming is done here
 
 		/* mainPpm calculations */
 		float phaseStepsErrorDiff = phaseStepsErrorSum / MEAN_PHASE_PPM_STAGES_F;
+		mainPpm = mainCoef_b02_qrg_k_pPwmStep_25C_ppm * phaseStepsErrorDiff;
 		if (phaseStepsFrequency >= 0.0f) {
 			phaseStepsErrorSum += (phaseStepsFrequency - phaseStepsErrorDiff);
 		} else {
 			phaseStepsErrorSum += (-phaseStepsFrequency - phaseStepsErrorDiff);
 		}
-		mainPpm = 2.0f * mainCoef_b02_qrg_k_pPwmStep_25C_ppm * phaseStepsErrorDiff;
 
-		uint8_t sreg = SREG;
-		cli();
-		uint8_t localFastPwmLoopVal		= fastPwmLoopVal;
-		uint8_t localFastPwmSubLoopVal	= fastPwmSubLoopVal;
-		SREG = sreg;
-
-		(void) main_fw_calcTimerAdj(phaseStepsFrequency, &localFastPwmLoopVal, &localFastPwmSubLoopVal);
-
-		cli();
-		fastPwmLoopVal		= localFastPwmLoopVal;			// single frequency correction
-		fastPwmSubLoopVal	= localFastPwmSubLoopVal;
-		SREG = sreg;
+		/* Execute frequency correction */
+		(void) pwmTimerCorrection(phaseStepsFrequency, false);
 	}
 
 	if (main_bf.mainIsTimerTest) {
@@ -753,38 +808,6 @@ static void calcPhase(void)
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				fastPwmSingleDiffSum);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
-	}
-}
-
-static void calcPhaseResidue(void)
-{
-	uint8_t localFastPwmSingleLoad;
-	uint8_t localFastPwmSingleVal;
-	uint8_t localFastPwmSubSingleVal;
-
-	uint8_t sreg = SREG;
-	cli();
-	localFastPwmSingleLoad = fastPwmSingleLoad;
-	SREG = sreg;
-
-	if (fastPwmSingleDiffSum && (!localFastPwmSingleLoad)) {  // enter only if an offset is accumulated and the last phase correction is loaded
-		/* set PWM corrected impulse for one PWM cycle - no frequency corrections done */
-		sreg = SREG;
-		cli();
-		localFastPwmSingleVal		= fastPwmLoopVal;		// make a copy from the current loop settings
-		localFastPwmSubSingleVal	= fastPwmSubLoopVal;
-		SREG = sreg;
-
-		/* calculation with saturation and residue */
-		fastPwmSingleDiffSum = main_fw_calcTimerAdj(fastPwmSingleDiffSum, &localFastPwmSingleVal, &localFastPwmSubSingleVal);
-
-		/* single phase correction */
-		sreg = SREG;
-		cli();
-		fastPwmSingleVal	= localFastPwmSingleVal;
-		fastPwmSubSingleVal	= localFastPwmSubSingleVal;
-		fastPwmSingleLoad	= true;
-		SREG = sreg;
 	}
 }
 
@@ -1412,7 +1435,7 @@ static void doJobs(void)
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					localMeanFloatClockDiff,
 					qrgDev_Hz,
-					mainPpm);
+					mainPpm + 2.5f);
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 		}
 
@@ -1552,7 +1575,7 @@ void twi_mcp23017_av1624_fw_showStatus(void)
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC11, sizeof(PM_FORMAT_LC11));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 			'b',
-			(mainPpm * 1000.0f),
+			(mainPpm * 5000.0f),
 			0xe0,
 			mainRefClkState,
 			0xf3,
@@ -1673,9 +1696,10 @@ void twi_smart_lcd_fw_showStatus(void)
 	}
 
 	{
+		float localPpm = mainPpm * 5.0f;
 		twiShowSmart04_struct_t s;
-		s.ppm_int	= (uint16_t) mainPpm;
-		s.ppm_frac	= (uint16_t) ((mainPpm - s.ppm_int) * 1000.0f);
+		s.ppm_int	= (uint16_t) localPpm;
+		s.ppm_frac	= (uint16_t) ((localPpm - s.ppm_int) * 1000.0f);
 
 		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_PPM_INT16_FRAC16,	4,	(uint8_t*) &s);
 	}
