@@ -1857,7 +1857,6 @@ int main(void)
 		twi_fw_init();
 		twi_mcp23017_fw_init();
 		twi_mcp23017_av1624_fw_init();
-		twi_mcp23017_av1624_fw_init();
 		twi_smart_lcd_fw_init();
 
 		/* check CRC of all blocks and update with default values if the data is non-valid */
@@ -1896,7 +1895,7 @@ int main(void)
 			/* 	b02_pwm_initial_sub		treated by df4iah_fw_clkPullPwm */
 		}
 
-		if (!(main_bf.mainIsLcdAttached)) {
+		if (!(main_bf.mainIsLcdAttached) && !(main_bf.mainIsSmartAttached)) {
 			/* enter HELP command in USB host OUT queue */
 			main_fw_sendInitialHelp();
 		}

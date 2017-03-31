@@ -20,11 +20,12 @@ void twi_smart_lcd_fw_init(void)
 {
 	uint8_t ver = twi_smart_lcd_fw_get_version();
 
-	if (!main_bf.mainIsSmartAttached) {
+	if (!ver) {
+		main_bf.mainIsSmartAttached = false;
 		return;
 	}
 
-	// TODO
+	main_bf.mainIsSmartAttached = true;
 	(void) ver;
 }
 
