@@ -44,12 +44,14 @@
 #define TWI_TWSR_S_SLAR_MYADDR_LASTDATA_ACK						0xC8
 
 
+void waitUntilDone(void);
+
 void twi_fw_init(void);
 void twi_fw_close(void);
 
-uint8_t twi_fw_sendCmdSendData1(uint8_t addr, uint8_t cmd, uint8_t data1);
-uint8_t twi_fw_sendCmdSendData1SendData2(uint8_t addr, uint8_t cmd, uint8_t data1, uint8_t data2);
-uint8_t twi_fw_sendCmdSendData1SendDataVar(uint8_t addr, uint8_t cmd, uint8_t cnt, uint8_t data[]);
+void twi_fw_sendCmdSendData1(uint8_t addr, uint8_t cmd, uint8_t data1);
+void twi_fw_sendCmdSendData1SendData2(uint8_t addr, uint8_t cmd, uint8_t data1, uint8_t data2);
+void twi_fw_sendCmdSendData1SendDataVar(uint8_t addr, uint8_t cmd, uint8_t cnt, uint8_t data[]);
 uint8_t twi_fw_sendCmdReadData1(uint8_t addr, uint8_t cmd);
 
 void isr_sendStart(uint8_t isRepeatedStart);

@@ -1546,7 +1546,11 @@ static void doJobs(void)
 void twi_mcp23017_av1624_fw_showStatus(void)
 {
 	if (!main_bf.mainIsLcdAttached) {
-		return;
+		twi_mcp23017_fw_init();
+		twi_mcp23017_av1624_fw_init();
+		if (!main_bf.mainIsLcdAttached) {
+			return;
+		}
 	}
 
 	/* I2C LCD-Module via MCP23017 16 bit port expander */  // XXX I2C LCD-Module displayed fields are here
@@ -1560,10 +1564,12 @@ void twi_mcp23017_av1624_fw_showStatus(void)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC01, sizeof(PM_FORMAT_LC01));
 		twi_mcp23017_av1624_fw_gotoPosition(0, 0);
 		twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
+		usbPoll();
 
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC02, sizeof(PM_FORMAT_LC02));
 		twi_mcp23017_av1624_fw_gotoPosition(1, 0);
 		twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
+		usbPoll();
 
 		} else {
 		static uint8_t displayNr	= 0;
@@ -1591,6 +1597,7 @@ void twi_mcp23017_av1624_fw_showStatus(void)
 		}
 		twi_mcp23017_av1624_fw_gotoPosition(0, 0);
 		twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+		usbPoll();
 
 		switch (displayNr) {
 			default:
@@ -1655,6 +1662,7 @@ void twi_mcp23017_av1624_fw_showStatus(void)
 			}
 			break;
 		}
+		usbPoll();
 
 		if (++displaySubNr >= 3) {
 			displaySubNr = 0;
@@ -1666,111 +1674,177 @@ void twi_mcp23017_av1624_fw_showStatus(void)
 
 void twi_smart_lcd_fw_showStatus(void)
 {
+	/* Init device */
+	if (!main_bf.mainIsSmartAttached) {
+		twi_smart_lcd_fw_init();
+		if (!main_bf.mainIsSmartAttached) {
+			return;
+		}
+	}
+
+	{
+		uint8_t clk_state;
+		uint8_t sreg = SREG;
+		cli();
+		clk_state = (uint8_t) mainRefClkState;
+		SREG = sreg;
+
+		twi_smart_lcd_fw_set_clk_state(clk_state);
+	}
+	usbPoll();
+
 	if (!main_bf.mainIsSmartAttached) {
 		return;
 	}
 
 	{
-		twiShowSmart01_struct_t s;
-		s.clk_state	= mainRefClkState;
-
-		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_CLK_STATE,		1,	(uint8_t*) &s);
-	}
-
-	{
-		twiShowSmart02_struct_t s;
-		s.year		=  main_nmeaDate					% 10000;
-		s.month		= (main_nmeaDate		/ 10000)	% 100;
-		s.day		=  main_nmeaDate		/ 1000000;
-
-		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_YEAR_MON_DAY,		4,	(uint8_t*) &s);
-	}
-
-	{
-		twiShowSmart03_struct_t s;
-		s.hour		=  main_nmeaTimeUtcInt	/ 10000;
-		s.minutes	= (main_nmeaTimeUtcInt	/ 100)		% 100;
-		s.seconds	=  main_nmeaTimeUtcInt				% 100;
-
-		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_HR_MIN_SEC,		3,	(uint8_t*) &s);
-	}
-
-	{
-		float localPpm = mainPpm * 5.0f;
-		twiShowSmart04_struct_t s;
-		s.ppm_int	= (uint16_t) localPpm;
-		s.ppm_frac	= (uint16_t) ((localPpm - s.ppm_int) * 1000.0f);
-
-		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_PPM_INT16_FRAC16,	4,	(uint8_t*) &s);
-	}
-
-	{
-		twiShowSmart05_struct_t s;
+		long date;
 		uint8_t sreg = SREG;
 		cli();
-		s.pwm_int		= (uint8_t) fastPwmLoopVal;
-		s.pwm_frac		= (uint8_t) fastPwmSubLoopVal;
+		date = main_nmeaDate;
 		SREG = sreg;
 
-		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_TCXO_PWM,			2,	(uint8_t*) &s);
+		uint16_t year  = (uint16_t) (date % 10000);
+		uint8_t  month = (uint8_t) ((date / 10000) % 100);
+		uint8_t  day   = (uint8_t) (date / 1000000);
+		twi_smart_lcd_fw_set_date(year, month, day);
 	}
+	usbPoll();
 
 	{
-		twiShowSmart06_struct_t s;
-		s.pv_int		= (uint8_t)  mainAdcPullVolts;
-		s.pv_frac		= (uint16_t) ((mainAdcPullVolts - s.pv_int) * 1000.0f);
+		long utc;
+		uint8_t sreg = SREG;
+		cli();
+		utc = main_nmeaTimeUtcInt;
+		SREG = sreg;
 
-		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_TCXO_VC,			3,	(uint8_t*) &s);
+		uint8_t  hour   = (uint8_t)  (utc / 10000);
+		uint8_t  minute = (uint8_t) ((utc / 100) % 100);
+		uint8_t  second = (uint8_t)  (utc % 100);
+		twi_smart_lcd_fw_set_time(hour, minute, second);
 	}
+	usbPoll();
 
 	{
-		twiShowSmart07_struct_t s;
-		s.sats_gps		= (uint8_t) main_nmeaSatsEphemerisGpsGalileoQzss;
-		s.sats_glo		= (uint8_t) main_nmeaSatsEphemerisGlonass;
-		s.sats_usd		= (uint8_t) main_nmeaSatsUsed;
+		float ppm;
+		uint8_t sreg = SREG;
+		cli();
+		ppm = mainPpm;
+		SREG = sreg;
 
-		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_SATS,				3,	(uint8_t*) &s);
+		float localPpm = ppm * 5.0f;
+		uint16_t ppm_int  = (uint16_t) localPpm;
+		uint16_t ppm_frac = (uint16_t) ((localPpm - ppm_int) * 1000.0f);
+		twi_smart_lcd_fw_set_ppm(ppm_int, ppm_frac);
 	}
+	usbPoll();
 
 	{
-		twiShowSmart08_struct_t s;
-		s.dop100		= (uint16_t) main_nmeaPdop * 100.0f;
+		uint8_t pwm_int;
+		uint8_t pwm_frac;
+		uint8_t sreg = SREG;
+		cli();
+		pwm_int  = fastPwmLoopVal;
+		pwm_frac = fastPwmSubLoopVal;
+		SREG = sreg;
 
-		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_DOP,				2,	(uint8_t*) &s);
+		twi_smart_lcd_fw_set_pwm(pwm_int, pwm_frac);
 	}
+	usbPoll();
 
 	{
-		twiShowSmart09_struct_t s;
-		s.pos_fi		= (uint8_t) main_nmeaPosFixIndicator;
-		s.pos_m2		= (uint8_t) main_nmeaMode2;
+		float pv;
+		uint8_t sreg = SREG;
+		cli();
+		pv = mainAdcPullVolts;
+		SREG = sreg;
 
-		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_POS_STATE,		2,	(uint8_t*) &s);
+		uint8_t pv_int   = (uint8_t) pv;
+		uint16_t pv_frac = (uint16_t) ((pv - pv_int) * 1000.0f);
+		twi_smart_lcd_fw_set_pv(pv_int, pv_frac);
 	}
+	usbPoll();
 
 	{
-		twiShowSmart10_struct_t s;
-		s.pos_lat_sgn	= (uint8_t) main_nmeaPosLatSign;
-		s.pos_lat_int	= (uint8_t) main_nmeaPosLat;
-		s.pos_lat_frac	= (uint16_t) ((main_nmeaPosLat - s.pos_lat_int) * 10000.0f);
+		uint8_t sat_west;
+		uint8_t sat_east;
+		uint8_t sat_used;
+		uint8_t sreg = SREG;
+		cli();
+		sat_west = (uint8_t) main_nmeaSatsEphemerisGpsGalileoQzss;
+		sat_east = (uint8_t) main_nmeaSatsEphemerisGlonass;
+		sat_used = (uint8_t) main_nmeaSatsUsed;
+		SREG = sreg;
 
-		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_POS_LAT,			7,	(uint8_t*) &s);
+		twi_smart_lcd_fw_set_sat_use(sat_west, sat_east, sat_used);
 	}
+	usbPoll();
 
 	{
-		twiShowSmart11_struct_t s;
-		s.pos_lon_sgn	= (uint8_t) main_nmeaPosLonSign;
-		s.pos_lon_int	= (uint16_t) main_nmeaPosLon;
-		s.pos_lon_frac	= (uint16_t) ((main_nmeaPosLon - s.pos_lon_int) * 10000.0f);
+		float sat_dop;
+		uint8_t sreg = SREG;
+		cli();
+		sat_dop = main_nmeaPdop;
+		SREG = sreg;
 
-		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_POS_LON,			7,	(uint8_t*) &s);
+		uint16_t sat_dop100 = (uint16_t) (sat_dop * 100.0f);
+		twi_smart_lcd_fw_set_sat_dop(sat_dop100);
 	}
+	usbPoll();
 
 	{
-		twiShowSmart12_struct_t s;
-		s.pos_height	= (int16_t) main_nmeaAltitudeM;
+		uint8_t pos_fi;
+		uint8_t pos_m2;
+		uint8_t sreg = SREG;
+		cli();
+		pos_fi = (uint8_t) main_nmeaPosFixIndicator;
+		pos_m2 = (uint8_t) main_nmeaMode2;
+		SREG = sreg;
 
-		twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_POS_HEIGHT,		2,	(uint8_t*) &s);
+		twi_smart_lcd_fw_set_pos_state(pos_fi, pos_m2);
 	}
+	usbPoll();
+
+	{
+		uint8_t lat_sgn;
+		float lat;
+		uint8_t sreg = SREG;
+		cli();
+		lat_sgn = (uint8_t) main_nmeaPosLatSign;
+		lat = main_nmeaPosLat;
+		SREG = sreg;
+
+		uint8_t lat_int = (uint8_t) lat;
+		uint16_t lat_frac = (uint16_t) ((lat - lat_int) * 10000.0f);
+		twi_smart_lcd_fw_set_pos_lat(lat_sgn, lat_int, lat_frac);
+	}
+	usbPoll();
+
+	{
+		uint8_t lon_sgn;
+		float lon;
+		uint8_t sreg = SREG;
+		cli();
+		lon_sgn = main_nmeaPosLonSign;
+		lon = main_nmeaPosLon;
+		SREG = sreg;
+
+		uint16_t lon_int = (uint16_t) lon;
+		uint16_t lon_frac = (uint16_t) ((lon - lon_int) * 10000.0f);
+		twi_smart_lcd_fw_set_pos_lon(lon_sgn, lon_int, lon_frac);
+	}
+	usbPoll();
+
+	{
+		uint16_t height;
+		uint8_t sreg = SREG;
+		cli();
+		height = (int16_t) main_nmeaAltitudeM;
+		SREG = sreg;
+
+		twi_smart_lcd_fw_set_pos_height(height);
+	}
+	usbPoll();
 }
 
 void main_fw_sendInitialHelp(void)
@@ -1854,6 +1928,7 @@ int main(void)
 		sei();
 		usbIsUp = true;
 
+		/* init TWI submodule, clock and ports */
 		twi_fw_init();
 		twi_mcp23017_fw_init();
 		twi_mcp23017_av1624_fw_init();

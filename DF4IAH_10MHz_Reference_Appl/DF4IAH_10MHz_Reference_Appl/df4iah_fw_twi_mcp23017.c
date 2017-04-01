@@ -6,6 +6,8 @@
  */
 // tabsize: 4
 
+#include <stdbool.h>
+
 #include "df4iah_fw_main.h"
 #include "df4iah_fw_twi.h"
 
@@ -21,15 +23,13 @@ void twi_mcp23017_fw_init(void)
 	uint8_t set_data = 0xff;  // set data
 	uint8_t conData = _BV(IOCON_SEQOP) | _BV(IOCON_ODR);	// BANK=0, no MIRROR, BYTE mode, do not overwrite INT bits (ODR),
 
-	main_bf.mainIsLcdAttached = true;						// initial setting, to be dropped when not connected
-
 	/* IOCON */
 	(void) twi_fw_sendCmdSendData1(TWI_MCP23017_ADDR, TWI_MCP23017_REG_IOCON, conData);
+	waitUntilDone();
 
 	if (!main_bf.mainIsLcdAttached) {
 		return;
 	}
-
 
 	/* GPIO */
 

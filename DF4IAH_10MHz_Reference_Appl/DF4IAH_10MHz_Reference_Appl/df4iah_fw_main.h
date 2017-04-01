@@ -133,95 +133,21 @@ enum LCD_LED_MODE_t {
 
 typedef struct twiStatus_struct
 {
+     uint8_t  state											: 8;
+
      uint8_t  doStart										: 1;
      uint8_t  isProcessing									: 1;
      uint8_t  isRepeatedStart								: 1;
-     uint8_t  state											: 3; // one of TWI_STATE_t
 	 uint8_t  errStart										: 1;
-     uint8_t  reserved01									: 2; // fill to 8 bits
-
      uint8_t  adrAckValid									: 1;
      uint8_t  adrAck										: 1;
      uint8_t  dataAckValid									: 1;
      uint8_t  dataAck										: 1;
-     uint8_t  reserved02									: 4; // fill to 8 bits
+   //uint8_t  reserved01									: 0; // fill to 8 bits
 } twiStatus_t;
 
-typedef struct twiShowSmart01_struct {
-	uint8_t													clk_state;
-} twiShowSmart01_struct_t;
 
-typedef struct twiShowSmart02_struct {
-	uint16_t												year;
-	uint8_t													month;
-	uint8_t													day;
-} twiShowSmart02_struct_t;
-
-typedef struct twiShowSmart03_struct {
-	uint8_t													hour;
-	uint8_t													minutes;
-	uint8_t													seconds;
-} twiShowSmart03_struct_t;
-
-typedef struct twiShowSmart04_struct {
-	uint16_t												ppm_int;
-	uint16_t												ppm_frac;
-} twiShowSmart04_struct_t;
-
-typedef struct twiShowSmart05_struct {
-	uint8_t													pwm_int;
-	uint8_t													pwm_frac;
-} twiShowSmart05_struct_t;
-
-typedef struct twiShowSmart06_struct {
-	uint8_t													pv_int;
-	uint16_t												pv_frac;
-} twiShowSmart06_struct_t;
-
-typedef struct twiShowSmart07_struct {
-	uint8_t													sats_gps;
-	uint8_t													sats_glo;
-	uint8_t													sats_usd;
-} twiShowSmart07_struct_t;
-
-typedef struct twiShowSmart08_struct {
-	uint16_t												dop100;
-} twiShowSmart08_struct_t;
-
-typedef struct twiShowSmart09_struct {
-	uint8_t													pos_fi;
-	uint8_t													pos_m2;
-} twiShowSmart09_struct_t;
-
-typedef struct twiShowSmart10_struct {
-	uint8_t													pos_lat_sgn;
-	int8_t													pos_lat_int;
-	uint16_t												pos_lat_frac;
-} twiShowSmart10_struct_t;
-
-typedef struct twiShowSmart11_struct {
-	uint8_t													pos_lon_sgn;
-	int16_t													pos_lon_int;
-	uint16_t												pos_lon_frac;
-} twiShowSmart11_struct_t;
-
-typedef struct twiShowSmart12_struct {
-	int16_t													pos_height;
-} twiShowSmart12_struct_t;
-
-
-enum TWI_STATE_t {
-	TWI_STATE_READY											= 0,
-	TWI_STATE_START_SENT,
-	TWI_STATE_REPEATEDSTART_SENT,
-	TWI_STATE_ADR_SENT,
-	TWI_STATE_DATA_SENT,
-	TWI_STATE_DATA_RCVD,
-	TWI_STATE_REPEATEDSTART,
-	TWI_STATE_STOP
-};
-
-#define TWI_DATA_BUFFER_SIZE								4
+#define TWI_DATA_BUFFER_SIZE								16
 
 
 float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal);
