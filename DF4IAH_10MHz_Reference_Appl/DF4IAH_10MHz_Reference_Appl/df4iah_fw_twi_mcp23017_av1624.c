@@ -53,10 +53,11 @@ void twi_mcp23017_av1624_fw_init(void)
 
 	// wait > 30 ms --> done
 
-	twi_mcp23017_av1624_fw_waitUntilReady();											// within this function the main_bf.mainIsSmartAttached is being set
 	if (!(main_bf.mainIsLcdAttached)) {
 		return;
 	}
+
+	twi_mcp23017_av1624_fw_waitUntilReady();											// within this function the main_bf.mainIsSmartAttached is being set/cleared
 
 	// set interface width to 8bits - (1)
 	twi_mcp23017_fw_setPortA_DirOut(true);
@@ -121,7 +122,6 @@ void twi_mcp23017_av1624_fw_close(void)
 		return;
 	}
 
-
 	// display CLEAR
 	twi_mcp23017_fw_setPortA_DirOut(true);
 	twi_mcp23017_fw_setPortBA(0b0000, 0b00000001);
@@ -156,7 +156,7 @@ void twi_mcp23017_av1624_fw_waitUntilReady(void)
 		}
 
 		_delay_us(10);
-	    wdt_reset();
+		wdt_reset();
 		usbPoll();
 	}
 }

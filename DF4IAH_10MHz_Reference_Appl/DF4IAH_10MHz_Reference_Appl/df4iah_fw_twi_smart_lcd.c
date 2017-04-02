@@ -14,30 +14,118 @@
 
 
 extern volatile main_bf_t main_bf;
+extern uchar mainPrepareBuffer[MAIN_PREPARE_BUFFER_SIZE];
 
 
 void twi_smart_lcd_fw_init(void)
 {
 	uint8_t ver = twi_smart_lcd_fw_get_version();
-
-	if (!main_bf.mainIsSmartAttached) {
-		return;
-	}
-
-	// TODO
 	(void) ver;
 }
 
 void twi_smart_lcd_fw_close(void)
 {
-	if (!main_bf.mainIsSmartAttached) {
-		return;
-	}
-
 	// TODO
 }
+
 
 uint8_t twi_smart_lcd_fw_get_version(void)
 {
 	return twi_fw_sendCmdReadData1(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_GETVER);		// within this function the main_bf.mainIsSmartAttached is being set
+}
+
+void twi_smart_lcd_fw_set_clk_state(uint8_t clk_state)
+{
+	mainPrepareBuffer[0] = clk_state;
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_CLK_STATE, 1, (uint8_t*) &mainPrepareBuffer);
+}
+
+void twi_smart_lcd_fw_set_date(uint16_t year, uint8_t month, uint8_t day)
+{
+	mainPrepareBuffer[0] = (uint8_t) (year & 0xff);
+	mainPrepareBuffer[1] = (uint8_t) (year >>  8);
+	mainPrepareBuffer[2] = month;
+	mainPrepareBuffer[3] = day;
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_YEAR_MON_DAY, 4, (uint8_t*) &mainPrepareBuffer);
+}
+
+void twi_smart_lcd_fw_set_time(uint8_t hour, uint8_t minute, uint8_t second)
+{
+	mainPrepareBuffer[0] = hour;
+	mainPrepareBuffer[1] = minute;
+	mainPrepareBuffer[2] = second;
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_HR_MIN_SEC, 3, (uint8_t*) &mainPrepareBuffer);
+}
+
+void twi_smart_lcd_fw_set_ppm(int16_t ppm_int, uint16_t ppm_frac1000)
+{
+	mainPrepareBuffer[0] = (uint8_t) (ppm_int & 0xff);
+	mainPrepareBuffer[1] = (uint8_t) (ppm_int >> 8);
+	mainPrepareBuffer[2] = (uint8_t) (ppm_frac1000 & 0xff);
+	mainPrepareBuffer[3] = (uint8_t) (ppm_frac1000 >> 8);
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_PPM, 4, (uint8_t*) &mainPrepareBuffer);
+}
+
+void twi_smart_lcd_fw_set_pwm(uint8_t pwm_int, uint8_t pwm_frac)
+{
+	mainPrepareBuffer[0] = pwm_int;
+	mainPrepareBuffer[1] = pwm_frac;
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_TCXO_PWM, 2, (uint8_t*) &mainPrepareBuffer);
+}
+
+void twi_smart_lcd_fw_set_pv(uint8_t pv_int, uint16_t pv_frac)
+{
+	mainPrepareBuffer[0] = pv_int;
+	mainPrepareBuffer[1] = (uint8_t) (pv_frac & 0xff);
+	mainPrepareBuffer[2] = (uint8_t) (pv_frac >> 8);
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_TCXO_VC, 3, (uint8_t*) &mainPrepareBuffer);
+}
+
+void twi_smart_lcd_fw_set_sat_use(uint8_t sat_west, uint8_t sat_east, uint8_t sat_used)
+{
+	mainPrepareBuffer[0] = sat_west;
+	mainPrepareBuffer[1] = sat_east;
+	mainPrepareBuffer[2] = sat_used;
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_SATS, 3, (uint8_t*) &mainPrepareBuffer);
+}
+
+void twi_smart_lcd_fw_set_sat_dop(uint16_t sat_dop100)
+{
+	mainPrepareBuffer[0] = (uint8_t) (sat_dop100 & 0xff);
+	mainPrepareBuffer[1] = (uint8_t) (sat_dop100 >> 8);
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_DOP, 2, (uint8_t*) &mainPrepareBuffer);
+}
+
+void twi_smart_lcd_fw_set_pos_state(uint8_t state_fi, uint8_t state_m2)
+{
+	mainPrepareBuffer[0] = state_fi;
+	mainPrepareBuffer[1] = state_m2;
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_POS_STATE, 2, (uint8_t*) &mainPrepareBuffer);
+}
+
+void twi_smart_lcd_fw_set_pos_lat(uint8_t lat_sgn, uint8_t lat_deg, uint8_t lat_min_int, uint16_t lat_min_frac10000)
+{
+	mainPrepareBuffer[0] = (uint8_t) lat_sgn;
+	mainPrepareBuffer[1] = (uint8_t) lat_deg;
+	mainPrepareBuffer[2] = (uint8_t) lat_min_int;
+	mainPrepareBuffer[3] = (uint8_t) (lat_min_frac10000 & 0xff);
+	mainPrepareBuffer[4] = (uint8_t) (lat_min_frac10000 >> 8);
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_POS_LAT, 5, (uint8_t*) &mainPrepareBuffer);
+}
+
+void twi_smart_lcd_fw_set_pos_lon(uint8_t lon_sgn, uint8_t lon_deg, uint8_t lon_min_int, uint16_t lon_min_frac10000)
+{
+	mainPrepareBuffer[0] = (uint8_t) lon_sgn;
+	mainPrepareBuffer[1] = (uint8_t) lon_deg;
+	mainPrepareBuffer[2] = (uint8_t) lon_min_int;
+	mainPrepareBuffer[3] = (uint8_t) (lon_min_frac10000 & 0xff);
+	mainPrepareBuffer[4] = (uint8_t) (lon_min_frac10000 >> 8);
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_POS_LON, 5, (uint8_t*) &mainPrepareBuffer);
+}
+
+void twi_smart_lcd_fw_set_pos_height(uint16_t height)
+{
+	mainPrepareBuffer[0] = (uint8_t) (height & 0xff);
+	mainPrepareBuffer[1] = (uint8_t) (height >> 8);
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_POS_HEIGHT, 2, (uint8_t*) &mainPrepareBuffer);
 }

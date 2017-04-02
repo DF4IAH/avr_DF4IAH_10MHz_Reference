@@ -6,24 +6,30 @@
  */
 // tabsize: 4
 
+#include <stdbool.h>
+
 #include "df4iah_fw_main.h"
 #include "df4iah_fw_twi.h"
 
 #include "df4iah_fw_twi_mcp23017.h"
 
 
-//extern xxx twiMcpAvXxx;
+extern volatile main_bf_t main_bf;
 
 
 void twi_mcp23017_fw_init(void)
 {
 	uint8_t clr_data = 0x00;  // clear data
 	uint8_t set_data = 0xff;  // set data
-	uint8_t conData = _BV(IOCON_SEQOP) | _BV(IOCON_ODR);  // BANK=0, no MIRROR, BYTE mode, do not overwrite INT bits (ODR),
+	uint8_t conData = _BV(IOCON_SEQOP) | _BV(IOCON_ODR);	// BANK=0, no MIRROR, BYTE mode, do not overwrite INT bits (ODR),
 
 	/* IOCON */
 	(void) twi_fw_sendCmdSendData1(TWI_MCP23017_ADDR, TWI_MCP23017_REG_IOCON, conData);
+	waitUntilDone();
 
+	if (!main_bf.mainIsLcdAttached) {
+		return;
+	}
 
 	/* GPIO */
 

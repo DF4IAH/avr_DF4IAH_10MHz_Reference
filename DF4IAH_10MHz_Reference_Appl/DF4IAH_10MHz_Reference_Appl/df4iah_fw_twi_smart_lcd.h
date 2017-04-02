@@ -24,7 +24,7 @@
 #define TWI_SMART_LCD_CMD_SHOW_CLK_STATE					0x80
 #define TWI_SMART_LCD_CMD_SHOW_YEAR_MON_DAY					0x81
 #define TWI_SMART_LCD_CMD_SHOW_HR_MIN_SEC					0x82
-#define TWI_SMART_LCD_CMD_SHOW_PPM_INT16_FRAC16				0x83
+#define TWI_SMART_LCD_CMD_SHOW_PPM							0x83
 
 #define TWI_SMART_LCD_CMD_SHOW_TCXO_PWM						0x84
 #define TWI_SMART_LCD_CMD_SHOW_TCXO_VC						0x85
@@ -38,8 +38,21 @@
 
 
 void twi_smart_lcd_fw_init(void);
-uint8_t twi_smart_lcd_fw_get_version(void);
 void twi_smart_lcd_fw_close(void);
+
+uint8_t twi_smart_lcd_fw_get_version(void);
+void twi_smart_lcd_fw_set_clk_state(uint8_t clk_state);
+void twi_smart_lcd_fw_set_date(uint16_t year, uint8_t month, uint8_t day);
+void twi_smart_lcd_fw_set_time(uint8_t hour, uint8_t minute, uint8_t second);
+void twi_smart_lcd_fw_set_ppm(int16_t ppm_int, uint16_t ppm_frac);
+void twi_smart_lcd_fw_set_pwm(uint8_t pwm_int, uint8_t pwm_frac);
+void twi_smart_lcd_fw_set_pv(uint8_t pv_int, uint16_t pv_frac);
+void twi_smart_lcd_fw_set_sat_use(uint8_t sat_west, uint8_t sat_east, uint8_t sat_used);
+void twi_smart_lcd_fw_set_sat_dop(uint16_t sat_dop100);
+void twi_smart_lcd_fw_set_pos_state(uint8_t state_fi, uint8_t state_m2);
+void twi_smart_lcd_fw_set_pos_lat(uint8_t lat_sgn, uint8_t lat_deg, uint8_t lat_min_int, uint16_t lat_min_frac10000);
+void twi_smart_lcd_fw_set_pos_lon(uint8_t lon_sgn, uint8_t lon_deg, uint8_t lon_min_int, uint16_t lon_min_frac10000);
+void twi_smart_lcd_fw_set_pos_height(uint16_t height);
 
 
 #endif /* DF4IAH_FW_TWI_SMART_LCD_H_ */
