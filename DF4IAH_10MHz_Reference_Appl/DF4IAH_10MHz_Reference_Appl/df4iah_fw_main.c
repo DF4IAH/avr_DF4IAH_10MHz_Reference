@@ -858,6 +858,10 @@ void main_fw_parseNmeaLineData(void) {
 	if (len > 0) {
 		main_fw_nmeaUtcPlusOneSec();
 
+		if ((main_nmeaMode2 < 2) || (3 < main_nmeaMode2)) {
+			main_nmeaMode2 = 0;
+		}
+
 		int ofs = 0, commaCnt = 0;
 		for (int idx = serialCtxtRxBufferLen - 1; idx; --idx) {
 			if (serialCtxtRxBuffer[idx] == '*') {
@@ -893,7 +897,6 @@ void main_fw_parseNmeaLineData(void) {
 			&main_checksum);
 	if (len > 0) {
 		main_fw_nmeaUtcPlusOneSec();
-
 		if ((main_nmeaDate >= 010100) && (main_nmeaDate < 311299)) {
 			main_nmeaDate = ((main_nmeaDate - (main_nmeaDate % 100)) * 100) + 2000 + (main_nmeaDate % 100);
 		} else {
@@ -1691,7 +1694,6 @@ void twi_smart_lcd_fw_showStatus(void)
 
 		twi_smart_lcd_fw_set_clk_state(clk_state);
 	}
-	usbPoll();
 
 	if (!main_bf.mainIsSmartAttached) {
 		return;
@@ -1706,10 +1708,9 @@ void twi_smart_lcd_fw_showStatus(void)
 
 		uint16_t year  = (uint16_t) (date % 10000);
 		uint8_t  month = (uint8_t) ((date / 10000) % 100);
-		uint8_t  day   = (uint8_t) (date / 1000000);
+		uint8_t  day   = (uint8_t)  (date / 1000000);
 		twi_smart_lcd_fw_set_date(year, month, day);
 	}
-	usbPoll();
 
 	{
 		long utc;
@@ -1723,7 +1724,6 @@ void twi_smart_lcd_fw_showStatus(void)
 		uint8_t  second = (uint8_t)  (utc % 100);
 		twi_smart_lcd_fw_set_time(hour, minute, second);
 	}
-	usbPoll();
 
 	{
 		float ppm;
@@ -1732,25 +1732,26 @@ void twi_smart_lcd_fw_showStatus(void)
 		ppm = mainPpm;
 		SREG = sreg;
 
-		float localPpm = ppm * 5.0f;
-		uint16_t ppm_int  = (uint16_t) localPpm;
-		uint16_t ppm_frac = (uint16_t) ((localPpm - ppm_int) * 1000.0f);
-		twi_smart_lcd_fw_set_ppm(ppm_int, ppm_frac);
+		float localPpm = ppm > 0 ?  ppm * 5.0f : ppm * -5.0f;
+		int16_t ppm_int  = (int16_t) localPpm;
+		uint16_t ppm_frac1000 = (uint16_t) ((localPpm - ppm_int) * 1000.0f);
+		if (ppm < 0) {
+			ppm_int = -ppm_int;
+		}
+		twi_smart_lcd_fw_set_ppm(ppm_int, ppm_frac1000);
 	}
-	usbPoll();
 
 	{
 		uint8_t pwm_int;
-		uint8_t pwm_frac;
+		uint8_t pwm_frac1000;
 		uint8_t sreg = SREG;
 		cli();
 		pwm_int  = fastPwmLoopVal;
-		pwm_frac = fastPwmSubLoopVal;
+		pwm_frac1000 = fastPwmSubLoopVal;
 		SREG = sreg;
 
-		twi_smart_lcd_fw_set_pwm(pwm_int, pwm_frac);
+		twi_smart_lcd_fw_set_pwm(pwm_int, pwm_frac1000);
 	}
-	usbPoll();
 
 	{
 		float pv;
@@ -1760,10 +1761,9 @@ void twi_smart_lcd_fw_showStatus(void)
 		SREG = sreg;
 
 		uint8_t pv_int   = (uint8_t) pv;
-		uint16_t pv_frac = (uint16_t) ((pv - pv_int) * 1000.0f);
-		twi_smart_lcd_fw_set_pv(pv_int, pv_frac);
+		uint16_t pv_frac1000 = (uint16_t) ((pv - pv_int) * 1000.0f);
+		twi_smart_lcd_fw_set_pv(pv_int, pv_frac1000);
 	}
-	usbPoll();
 
 	{
 		uint8_t sat_west;
@@ -1778,7 +1778,6 @@ void twi_smart_lcd_fw_showStatus(void)
 
 		twi_smart_lcd_fw_set_sat_use(sat_west, sat_east, sat_used);
 	}
-	usbPoll();
 
 	{
 		float sat_dop;
@@ -1790,7 +1789,6 @@ void twi_smart_lcd_fw_showStatus(void)
 		uint16_t sat_dop100 = (uint16_t) (sat_dop * 100.0f);
 		twi_smart_lcd_fw_set_sat_dop(sat_dop100);
 	}
-	usbPoll();
 
 	{
 		uint8_t pos_fi;
@@ -1803,7 +1801,6 @@ void twi_smart_lcd_fw_showStatus(void)
 
 		twi_smart_lcd_fw_set_pos_state(pos_fi, pos_m2);
 	}
-	usbPoll();
 
 	{
 		uint8_t lat_sgn;
@@ -1814,11 +1811,11 @@ void twi_smart_lcd_fw_showStatus(void)
 		lat = main_nmeaPosLat;
 		SREG = sreg;
 
-		uint8_t lat_int = (uint8_t) lat;
-		uint16_t lat_frac = (uint16_t) ((lat - lat_int) * 10000.0f);
-		twi_smart_lcd_fw_set_pos_lat(lat_sgn, lat_int, lat_frac);
+		uint8_t  lat_deg = (uint8_t) (lat / 100.0f);
+		uint8_t  lat_min_int = (uint8_t) ((int) lat % 100);
+		uint16_t lat_min_frac1000 = (uint16_t) ((lat - (lat_deg * 100 + lat_min_int)) * 1000.0f);
+		twi_smart_lcd_fw_set_pos_lat(lat_sgn, lat_deg, lat_min_int, lat_min_frac1000);
 	}
-	usbPoll();
 
 	{
 		uint8_t lon_sgn;
@@ -1829,11 +1826,11 @@ void twi_smart_lcd_fw_showStatus(void)
 		lon = main_nmeaPosLon;
 		SREG = sreg;
 
-		uint16_t lon_int = (uint16_t) lon;
-		uint16_t lon_frac = (uint16_t) ((lon - lon_int) * 10000.0f);
-		twi_smart_lcd_fw_set_pos_lon(lon_sgn, lon_int, lon_frac);
+		uint16_t lon_deg = (uint16_t) (lon / 100.0f);
+		uint8_t  lon_min_int = (uint16_t) ((int) lon % 100);
+		uint16_t lon_min_frac1000 = (uint16_t) ((lon - (lon_deg * 100 + lon_min_int)) * 1000.0f);
+		twi_smart_lcd_fw_set_pos_lon(lon_sgn, lon_deg, lon_min_int, lon_min_frac1000);
 	}
-	usbPoll();
 
 	{
 		uint16_t height;
@@ -1844,7 +1841,6 @@ void twi_smart_lcd_fw_showStatus(void)
 
 		twi_smart_lcd_fw_set_pos_height(height);
 	}
-	usbPoll();
 }
 
 void main_fw_sendInitialHelp(void)
