@@ -41,7 +41,7 @@ void twi_smart_lcd_fw_init(void);
 void twi_smart_lcd_fw_close(void);
 
 uint8_t twi_smart_lcd_fw_get_version(void);
-void twi_smart_lcd_fw_set_clk_state(uint8_t clk_state);
+void twi_smart_lcd_fw_set_clk_state(uint8_t clk_state, int16_t phase100);
 void twi_smart_lcd_fw_set_date(uint16_t year, uint8_t month, uint8_t day);
 void twi_smart_lcd_fw_set_time(uint8_t hour, uint8_t minute, uint8_t second);
 void twi_smart_lcd_fw_set_ppm(int16_t ppm_int, uint16_t ppm_frac);
