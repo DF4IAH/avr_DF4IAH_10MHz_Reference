@@ -34,10 +34,12 @@ uint8_t twi_smart_lcd_fw_get_version(void)
 	return twi_fw_sendCmdReadData1(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_GETVER);		// within this function the main_bf.mainIsSmartAttached is being set
 }
 
-void twi_smart_lcd_fw_set_clk_state(uint8_t clk_state)
+void twi_smart_lcd_fw_set_clk_state(uint8_t clk_state, int16_t phase100)
 {
 	mainPrepareBuffer[0] = clk_state;
-	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_CLK_STATE, 1, (uint8_t*) &mainPrepareBuffer);
+	mainPrepareBuffer[1] = (uint8_t) (phase100 & 0xff);
+	mainPrepareBuffer[2] = (uint8_t) (phase100 >> 8);
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_CLK_STATE, 3, (uint8_t*) &mainPrepareBuffer);
 }
 
 void twi_smart_lcd_fw_set_date(uint16_t year, uint8_t month, uint8_t day)

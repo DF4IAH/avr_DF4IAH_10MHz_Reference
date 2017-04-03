@@ -85,6 +85,7 @@ void twi_fw_sendCmdSendData1(uint8_t addr, uint8_t cmd, uint8_t data1)
 	twiSeq1Adr = addr;
 	twiSeq2DataCnt = 0;
 	twiSeq2Data[twiSeq2DataCnt++] = cmd;
+	twiState.isRepeatedStart = false;
 	twiSeq2Data[twiSeq2DataCnt++] = data1;
 	twiState.doStart = true;
 	SREG = sreg;
@@ -102,6 +103,7 @@ void twi_fw_sendCmdSendData1SendData2(uint8_t addr, uint8_t cmd, uint8_t data1, 
 	twiSeq1Adr = addr;
 	twiSeq2DataCnt = 0;
 	twiSeq2Data[twiSeq2DataCnt++] = cmd;
+	twiState.isRepeatedStart = false;
 	twiSeq2Data[twiSeq2DataCnt++] = data1;
 	twiSeq2Data[twiSeq2DataCnt++] = data2;
 	twiState.doStart = true;
@@ -121,6 +123,7 @@ void twi_fw_sendCmdSendData1SendDataVar(uint8_t addr, uint8_t cmd, uint8_t cnt, 
 	twiSeq1Adr = addr;
 	twiSeq2DataCnt = 0;
 	twiSeq2Data[twiSeq2DataCnt++] = cmd;
+	twiState.isRepeatedStart = false;
 	for (i = 0; i < cnt; ++i) {
 		twiSeq2Data[twiSeq2DataCnt++] = data[i];
 	}
@@ -183,7 +186,7 @@ void isr_sendStop(uint8_t sendStopSignal)
 		TWCR = (_BV(TWINT) | _BV(TWSTO) | _BV(TWEN) | _BV(TWIE));
 
 	} else {
-		TWCR = (_BV(TWINT) | _BV(TWEN) | _BV(TWIE));
+		TWCR = (_BV(TWINT)              | _BV(TWEN) | _BV(TWIE));
 	}
 	SREG = sreg;
 }
@@ -272,6 +275,7 @@ ISR(TWI_vect, ISR_BLOCK)
 
 	case TWI_TWSR_M_SLAW_DATA_NACK:
 		isr_sendStop(true);
+		sei();
 		break;
 
 	case TWI_TWSR_M_SLAR_DATA_ACK:
