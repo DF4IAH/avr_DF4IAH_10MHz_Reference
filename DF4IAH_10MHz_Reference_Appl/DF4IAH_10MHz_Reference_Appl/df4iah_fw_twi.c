@@ -31,15 +31,6 @@ extern volatile uint8_t twiSeq2DataIdx;
 extern volatile uint8_t twiSeq2Data[TWI_DATA_BUFFER_SIZE];
 
 
-void waitUntilDone(void) {
-	while (twiState.doStart || twiState.isProcessing) {
-		wdt_reset();
-		if (usbIsUp) {
-			usbPoll();
-		}
-	}
-}
-
 void twi_fw_init(void)
 {
 	/* power up this module */
@@ -75,11 +66,21 @@ void twi_fw_close(void)
 }
 
 
+void twi_fw_waitUntilDone(void) {
+	while (twiState.doStart || twiState.isProcessing) {
+		wdt_reset();
+		if (usbIsUp) {
+			usbPoll();
+		}
+	}
+}
+
 void twi_fw_sendCmdSendData1(uint8_t addr, uint8_t cmd, uint8_t data1)
 {
 	uint8_t sreg;
 
-	waitUntilDone();
+	twi_fw_waitUntilDone();
+
 	sreg = SREG;
 	cli();
 	twiSeq1Adr = addr;
@@ -90,14 +91,15 @@ void twi_fw_sendCmdSendData1(uint8_t addr, uint8_t cmd, uint8_t data1)
 	twiState.doStart = true;
 	SREG = sreg;
 
-	isr_sendStart(false);
+	isr_sendStart(true, false);
 }
 
 void twi_fw_sendCmdSendData1SendData2(uint8_t addr, uint8_t cmd, uint8_t data1, uint8_t data2)
 {
 	uint8_t sreg;
 
-	waitUntilDone();
+	twi_fw_waitUntilDone();
+
 	sreg = SREG;
 	cli();
 	twiSeq1Adr = addr;
@@ -109,7 +111,7 @@ void twi_fw_sendCmdSendData1SendData2(uint8_t addr, uint8_t cmd, uint8_t data1, 
 	twiState.doStart = true;
 	SREG = sreg;
 
-	isr_sendStart(false);
+	isr_sendStart(true, false);
 }
 
 void twi_fw_sendCmdSendData1SendDataVar(uint8_t addr, uint8_t cmd, uint8_t cnt, uint8_t data[])
@@ -117,7 +119,8 @@ void twi_fw_sendCmdSendData1SendDataVar(uint8_t addr, uint8_t cmd, uint8_t cnt, 
 	int i;
 	uint8_t sreg;
 
-	waitUntilDone();
+	twi_fw_waitUntilDone();
+
 	sreg = SREG;
 	cli();
 	twiSeq1Adr = addr;
@@ -130,14 +133,15 @@ void twi_fw_sendCmdSendData1SendDataVar(uint8_t addr, uint8_t cmd, uint8_t cnt, 
 	twiState.doStart = true;
 	SREG = sreg;
 
-	isr_sendStart(false);
+	isr_sendStart(true, false);
 }
 
 uint8_t twi_fw_sendCmdReadData1(uint8_t addr, uint8_t cmd)
 {
 	uint8_t sreg;
 
-	waitUntilDone();
+	twi_fw_waitUntilDone();
+
 	sreg = SREG;
 	cli();
 	twiSeq1Adr = addr;
@@ -148,15 +152,20 @@ uint8_t twi_fw_sendCmdReadData1(uint8_t addr, uint8_t cmd)
 	twiState.doStart = true;
 	SREG = sreg;
 
-	isr_sendStart(false);
-	waitUntilDone();
+	isr_sendStart(true, false);
+	twi_fw_waitUntilDone();
+
 	return twiSeq2Data[0];
 }
 
-void isr_sendStart(uint8_t isRepeatedStart)
+void isr_sendStart(uint8_t sendSignal, uint8_t isRepeatedStart)
 {
-	if ((twiState.doStart || isRepeatedStart) && twiSeq2DataCnt) {
-		cli();
+	uint8_t sreg = SREG;
+	cli();
+
+	if (((!twiState.isProcessing && twiState.doStart) ||
+		 ( twiState.isProcessing && isRepeatedStart)) &&
+		twiSeq2DataCnt) {
 
 		twiState.isProcessing	= true;
 		twiState.doStart		= false;
@@ -167,44 +176,57 @@ void isr_sendStart(uint8_t isRepeatedStart)
 		twiState.dataAckValid	= false;
 		twiSeq2DataIdx			= 0;
 
-		/* send START or REPEATED START */
-		TWCR = (_BV(TWINT) | _BV(TWSTA) | _BV(TWEN) | _BV(TWIE));	// start-TWI/rise clock, send START, TWI enabled, TWINT-Interrupt enabled
-		sei();
+		if (sendSignal) {
+			/* send START or REPEATED START */
+			TWCR = (_BV(TWINT) | _BV(TWSTA) | _BV(TWEN) | _BV(TWIE));	// start-TWI/rise clock, send START, TWI enabled, TWINT-Interrupt enabled
+		}
 	}
+
+	SREG = sreg;
 }
 
-void isr_sendStop(uint8_t sendStopSignal)
+void isr_sendStop(uint8_t sendSignal)
 {
 	uint8_t sreg = SREG;
 	cli();
 
+	if (sendSignal && twiState.isProcessing) {
+		/* send stop */
+		TWCR = (_BV(TWINT) | _BV(TWSTO) | _BV(TWEN) | _BV(TWIE));
+	}
+
 	twiSeq2DataCnt = 0;
 	twiState.isProcessing = false;
 
-	if (sendStopSignal) {
-		/* send stop */
-		TWCR = (_BV(TWINT) | _BV(TWSTO) | _BV(TWEN) | _BV(TWIE));
-
-	} else {
-		TWCR = (_BV(TWINT)              | _BV(TWEN) | _BV(TWIE));
-	}
 	SREG = sreg;
 }
 
 
+/* Forward declaration */
+static uint8_t __vector_24__bottom(uint8_t tws, uint8_t twd, uint8_t twcr_cur);
+
 //void twi_ISR_TWI(void) - __vector_24
 ISR(TWI_vect, ISR_BLOCK)
+{	/* TWI */
+	uint8_t tws = TWSR & (0b11111 << TWS3);
+	uint8_t twd = TWDR;
+	uint8_t twcr_cur = TWCR;
+
+	uint8_t twcr_new = __vector_24__bottom(tws, twd, twcr_cur);
+	TWCR = twcr_new | _BV(TWINT) | _BV(TWEN) | _BV(TWIE);			// TWI interrupt flag reset, TWI enabled and TWINT-Interrupt enabled
+}
+
+static uint8_t __vector_24__bottom(uint8_t tws, uint8_t twd, uint8_t twcr_cur)
 {
-	/* read the data byte received */
-	twiState.state = TWSR & TWI_TWSR_STATE_MASK;
+	uint8_t twcr_new = twcr_cur & 0x4f;
 
-	switch(twiState.state) {
+	/* publish the state */
+	twiState.state = tws;
+
+	switch(tws) {
 	case TWI_TWSR_START:
-		/* MASTER: send SLA - slave address */
-		TWDR = (twiSeq1Adr << 1) & ~1;  				// I2C device address - write mode after first start
-
-		TWCR = (_BV(TWINT) | _BV(TWEN) | _BV(TWIE));
-		sei();
+		/* MASTER: send SLA - slave WRITE address */
+		TWDR = (twiSeq1Adr << 1);  						// I2C device address - write mode after first start
 		break;
 
 	case TWI_TWSR_REPEATEDSTART:
@@ -213,9 +235,7 @@ ISR(TWI_vect, ISR_BLOCK)
 
 		twiState.isRepeatedStart = false;
 		twiSeq2DataCnt = twiSeq2DataRcvCnt;
-
-		isr_sendStart(true);							// send repeated start
-		sei();
+		isr_sendStart(false, true);						// has received repeated start
 		break;
 
 	case TWI_TWSR_M_SLAW_ADDR_ACK:
@@ -232,10 +252,9 @@ ISR(TWI_vect, ISR_BLOCK)
 		if (twiState.state == TWI_TWSR_M_SLAW_ADDR_ACK) {
 			/* send command data */
 			TWDR = twiSeq2Data[0];							// internal command or address register of the I2C device
+		} else {
+			twcr_new |= _BV(TWEA);							// ACK the next coming data byte
 		}
-
-		TWCR = (_BV(TWINT) | _BV(TWEN) | _BV(TWIE));
-		sei();
 		break;
 
 	case TWI_TWSR_M_SLAW_ADDR_NACK:
@@ -249,8 +268,8 @@ ISR(TWI_vect, ISR_BLOCK)
 			main_bf.mainIsSmartAttached = false;
 		}
 
-		isr_sendStop(true);
-		sei();
+		isr_sendStop(false);
+		twcr_new |= _BV(TWSTO);
 		break;
 
 	case TWI_TWSR_M_SLAW_DATA_ACK:
@@ -261,21 +280,21 @@ ISR(TWI_vect, ISR_BLOCK)
 		if (twiSeq2DataIdx < twiSeq2DataCnt) {
 			/* send data */
 			TWDR = twiSeq2Data[twiSeq2DataIdx];
-			TWCR = (_BV(TWINT) | _BV(TWEN) | _BV(TWIE));
 
 		} else {
 			if (twiState.isRepeatedStart) {
-				isr_sendStart(true);
+				isr_sendStart(false, true);
+				twcr_new |= _BV(TWSTA);
 			} else {
-				isr_sendStop(true);
+				isr_sendStop(false);
+				twcr_new |= _BV(TWSTO);
 			}
 		}
-		sei();
 		break;
 
 	case TWI_TWSR_M_SLAW_DATA_NACK:
-		isr_sendStop(true);
-		sei();
+		isr_sendStop(false);
+		twcr_new |= _BV(TWSTO);
 		break;
 
 	case TWI_TWSR_M_SLAR_DATA_ACK:
@@ -286,16 +305,20 @@ ISR(TWI_vect, ISR_BLOCK)
 		twiState.dataAckValid			= true;
 
 		if ((twiState.state == TWI_TWSR_M_SLAR_DATA_NACK) || (twiSeq2DataIdx >= twiSeq2DataCnt)) {
-			isr_sendStop(true);
+			isr_sendStop(false);
+			twcr_new |= _BV(TWSTO);
+		} else if ((twiSeq2DataIdx + 1) >= twiSeq2DataCnt) {
+			twcr_new &= ~_BV(TWEA);							// NACK last data byte
 		} else {
-			TWCR = (_BV(TWINT) | _BV(TWEA) | _BV(TWEN) | _BV(TWIE));	// acknowledge to get next data
+			twcr_new |= _BV(TWEA);							// ACK to get further data
 		}
-		sei();
 		break;
 
 	default:
-		isr_sendStop(true);
-		sei();
+		isr_sendStop(false);
+		twcr_new |= _BV(TWSTO);
 		break;
 	}
+
+	return twcr_new;
 }

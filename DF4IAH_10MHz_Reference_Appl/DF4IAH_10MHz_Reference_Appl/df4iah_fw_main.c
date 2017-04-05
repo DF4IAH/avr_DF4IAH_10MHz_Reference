@@ -1680,9 +1680,11 @@ void twi_smart_lcd_fw_showStatus(void)
 	/* Init device */
 	if (!main_bf.mainIsSmartAttached) {
 		twi_smart_lcd_fw_init();
+#if 0
 		if (!main_bf.mainIsSmartAttached) {
 			return;
 		}
+#endif
 	}
 
 	{
@@ -1696,10 +1698,6 @@ void twi_smart_lcd_fw_showStatus(void)
 
 		int16_t	phase100 = (int16_t) (100.0f * ((phaseVolts - 0.6f) * 180.0f / 0.25f));  // TODO: correct me!
 		twi_smart_lcd_fw_set_clk_state(clk_state, phase100);
-	}
-
-	if (!main_bf.mainIsSmartAttached) {
-		return;
 	}
 
 	{

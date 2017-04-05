@@ -25,7 +25,7 @@ void twi_mcp23017_fw_init(void)
 
 	/* IOCON */
 	(void) twi_fw_sendCmdSendData1(TWI_MCP23017_ADDR, TWI_MCP23017_REG_IOCON, conData);
-	waitUntilDone();
+	twi_fw_waitUntilDone();
 
 	if (!main_bf.mainIsLcdAttached) {
 		return;
