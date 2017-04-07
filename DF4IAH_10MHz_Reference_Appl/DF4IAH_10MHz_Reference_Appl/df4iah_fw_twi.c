@@ -15,6 +15,7 @@
 
 #include "chipdef.h"
 #include "df4iah_fw_main.h"
+#include "df4iah_fw_usb.h"
 #include "df4iah_fw_twi_mcp23017.h"
 #include "df4iah_fw_twi_smart_lcd.h"
 
@@ -148,7 +149,7 @@ uint8_t twi_fw_sendCmdReadData1(uint8_t addr, uint8_t cmd)
 	twiSeq2DataCnt = 0;
 	twiSeq2Data[twiSeq2DataCnt++] = cmd;
 	twiState.isRepeatedStart = true;
-	twiSeq2DataRcvCnt = 4;
+	twiSeq2DataRcvCnt = 1;
 	twiState.doStart = true;
 	SREG = sreg;
 
@@ -169,11 +170,6 @@ void isr_sendStart(uint8_t sendSignal, uint8_t isRepeatedStart)
 
 		twiState.isProcessing	= true;
 		twiState.doStart		= false;
-		twiState.errStart		= false;
-		twiState.adrAck			= false;
-		twiState.adrAckValid	= false;
-		twiState.dataAck		= false;
-		twiState.dataAckValid	= false;
 		twiSeq2DataIdx			= 0;
 
 		if (sendSignal) {
@@ -211,14 +207,13 @@ ISR(TWI_vect, ISR_BLOCK)
 	uint8_t tws = TWSR & (0b11111 << TWS3);
 	uint8_t twd = TWDR;
 	uint8_t twcr_cur = TWCR;
-
 	uint8_t twcr_new = __vector_24__bottom(tws, twd, twcr_cur);
 	TWCR = twcr_new | _BV(TWINT) | _BV(TWEN) | _BV(TWIE);			// TWI interrupt flag reset, TWI enabled and TWINT-Interrupt enabled
 }
 
 static uint8_t __vector_24__bottom(uint8_t tws, uint8_t twd, uint8_t twcr_cur)
 {
-	uint8_t twcr_new = twcr_cur & 0x4f;
+	uint8_t twcr_new = twcr_cur & 0b01000101;
 
 	/* publish the state */
 	twiState.state = tws;
@@ -235,14 +230,10 @@ static uint8_t __vector_24__bottom(uint8_t tws, uint8_t twd, uint8_t twcr_cur)
 
 		twiState.isRepeatedStart = false;
 		twiSeq2DataCnt = twiSeq2DataRcvCnt;
-		isr_sendStart(false, true);						// has received repeated start
 		break;
 
 	case TWI_TWSR_M_SLAW_ADDR_ACK:
 	case TWI_TWSR_M_SLAR_ADDR_ACK:
-		twiState.adrAck			= true;
-		twiState.adrAckValid	= true;
-
 		if (twiSeq1Adr == TWI_MCP23017_ADDR) {
 			main_bf.mainIsLcdAttached = true;
 		} else if (twiSeq1Adr == TWI_SMART_LCD_ADDR) {
@@ -253,15 +244,17 @@ static uint8_t __vector_24__bottom(uint8_t tws, uint8_t twd, uint8_t twcr_cur)
 			/* send command data */
 			TWDR = twiSeq2Data[0];							// internal command or address register of the I2C device
 		} else {
-			twcr_new |= _BV(TWEA);							// ACK the next coming data byte
+			// no data byte to store, here
+			if ((twiSeq2DataIdx + 1) >= twiSeq2DataCnt) {
+				twcr_new &= ~_BV(TWEA);						// NACK next data byte
+			} else {
+				twcr_new |= _BV(TWEA);						// ACK  next data byte to get further data
+			}
 		}
 		break;
 
 	case TWI_TWSR_M_SLAW_ADDR_NACK:
 	case TWI_TWSR_M_SLAR_ADDR_NACK:
-		twiState.adrAck			= false;
-		twiState.adrAckValid	= true;
-
 		if (twiSeq1Adr == TWI_MCP23017_ADDR) {
 			main_bf.mainIsLcdAttached = false;
 		} else if (twiSeq1Adr == TWI_SMART_LCD_ADDR) {
@@ -274,9 +267,6 @@ static uint8_t __vector_24__bottom(uint8_t tws, uint8_t twd, uint8_t twcr_cur)
 
 	case TWI_TWSR_M_SLAW_DATA_ACK:
 		++twiSeq2DataIdx;
-		twiState.dataAck		= true;
-		twiState.dataAckValid	= true;
-
 		if (twiSeq2DataIdx < twiSeq2DataCnt) {
 			/* send data */
 			TWDR = twiSeq2Data[twiSeq2DataIdx];
@@ -298,20 +288,21 @@ static uint8_t __vector_24__bottom(uint8_t tws, uint8_t twd, uint8_t twcr_cur)
 		break;
 
 	case TWI_TWSR_M_SLAR_DATA_ACK:
-	case TWI_TWSR_M_SLAR_DATA_NACK:
 		/* receive data */
 		twiSeq2Data[twiSeq2DataIdx++]	= TWDR;
-		twiState.dataAck				= true;
-		twiState.dataAckValid			= true;
-
-		if ((twiState.state == TWI_TWSR_M_SLAR_DATA_NACK) || (twiSeq2DataIdx >= twiSeq2DataCnt)) {
-			isr_sendStop(false);
-			twcr_new |= _BV(TWSTO);
-		} else if ((twiSeq2DataIdx + 1) >= twiSeq2DataCnt) {
-			twcr_new &= ~_BV(TWEA);							// NACK last data byte
+		if (twiSeq2DataIdx >= twiSeq2DataCnt) {
+			twcr_new &= ~_BV(TWEA);							// NACK next data byte
 		} else {
-			twcr_new |= _BV(TWEA);							// ACK to get further data
+			twcr_new |= _BV(TWEA);							// ACK  next data byte to get further data
 		}
+		break;
+
+	case TWI_TWSR_M_SLAR_DATA_NACK:
+		if (twiSeq2DataIdx < twiSeq2DataCnt) {
+			twiSeq2Data[twiSeq2DataIdx++]	= TWDR;
+		}
+		isr_sendStop(false);
+		twcr_new |= _BV(TWSTO);
 		break;
 
 	default:

@@ -59,13 +59,13 @@ void twi_smart_lcd_fw_set_time(uint8_t hour, uint8_t minute, uint8_t second)
 	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_HR_MIN_SEC, 3, (uint8_t*) &mainPrepareBuffer);
 }
 
-void twi_smart_lcd_fw_set_ppm(int16_t ppm_int, uint16_t ppm_frac1000)
+void twi_smart_lcd_fw_set_ppb(int16_t ppb_int, uint16_t ppb_frac1000)
 {
-	mainPrepareBuffer[0] = (uint8_t) (ppm_int & 0xff);
-	mainPrepareBuffer[1] = (uint8_t) (ppm_int >> 8);
-	mainPrepareBuffer[2] = (uint8_t) (ppm_frac1000 & 0xff);
-	mainPrepareBuffer[3] = (uint8_t) (ppm_frac1000 >> 8);
-	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_PPM, 4, (uint8_t*) &mainPrepareBuffer);
+	mainPrepareBuffer[0] = (uint8_t) (ppb_int & 0xff);
+	mainPrepareBuffer[1] = (uint8_t) (ppb_int >> 8);
+	mainPrepareBuffer[2] = (uint8_t) (ppb_frac1000 & 0xff);
+	mainPrepareBuffer[3] = (uint8_t) (ppb_frac1000 >> 8);
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_PPB, 4, (uint8_t*) &mainPrepareBuffer);
 }
 
 void twi_smart_lcd_fw_set_pwm(uint8_t pwm_int, uint8_t pwm_frac)

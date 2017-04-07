@@ -195,7 +195,7 @@ PROGMEM const uchar PM_FORMAT_LC22[]						= "%c%1u %c%1u %3.1f %c%02u%c%02u ";
 PROGMEM const uchar PM_FORMAT_LC23[]						= "%c%07.3f %c%5.3fV ";
 
 PROGMEM const uchar PM_FORMAT_SC01[]						= "#SC01: Stack-Check: mung-wall address: 0x%04x, lowest-stack: 0x%04x\n";
-PROGMEM const uchar PM_FORMAT_SC02[]						= "#SC02: s=0x%02x,dS=%u,iP=%u,eS=%u,aA=%u,aAV=%u,dA=%u,dAV=%u\n";
+PROGMEM const uchar PM_FORMAT_SC02[]						= "#SC02: s=0x%02x,dS=%u,iP=%u\n";
 
 PROGMEM const uchar PM_FORMAT_GPIB_SCM_IDN[] 				= "DF4IAH,%s,%05u,V20%03u%03u.";
 
@@ -1486,12 +1486,7 @@ static void doJobs(void)
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				twiState.state,
 				twiState.doStart,
-				twiState.isProcessing,
-				twiState.errStart,
-				twiState.adrAck,
-				twiState.adrAckValid,
-				twiState.dataAck,
-				twiState.dataAckValid);
+				twiState.isProcessing);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 	}
 
@@ -1733,13 +1728,13 @@ void twi_smart_lcd_fw_showStatus(void)
 		ppm = mainPpm;
 		SREG = sreg;
 
-		float localPpm = ppm > 0 ?  ppm * 5.0f : ppm * -5.0f;
-		int16_t ppm_int  = (int16_t) localPpm;
-		uint16_t ppm_frac1000 = (uint16_t) ((localPpm - ppm_int) * 1000.0f);
+		float localPpb = ppm > 0 ?  ppm * 5000.0f : ppm * -5000.0f;
+		int16_t ppb_int  = (int16_t) localPpb;
+		uint16_t ppb_frac1000 = (uint16_t) ((localPpb - ppb_int) * 1000.0f);
 		if (ppm < 0) {
-			ppm_int = -ppm_int;
+			ppb_int = -ppb_int;
 		}
-		twi_smart_lcd_fw_set_ppm(ppm_int, ppm_frac1000);
+		twi_smart_lcd_fw_set_ppb(ppb_int, ppb_frac1000);
 	}
 
 	{
