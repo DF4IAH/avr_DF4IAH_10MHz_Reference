@@ -13,7 +13,7 @@
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										170
-#define VERSION_LOW											326
+#define VERSION_LOW											408
 
 
 /* GPS NMEA */
@@ -138,12 +138,7 @@ typedef struct twiStatus_struct
      uint8_t  doStart										: 1;
      uint8_t  isProcessing									: 1;
      uint8_t  isRepeatedStart								: 1;
-	 uint8_t  errStart										: 1;
-     uint8_t  adrAckValid									: 1;
-     uint8_t  adrAck										: 1;
-     uint8_t  dataAckValid									: 1;
-     uint8_t  dataAck										: 1;
-   //uint8_t  reserved01									: 0; // fill to 8 bits
+     uint8_t  reserved01									: 5; // fill to 8 bits
 } twiStatus_t;
 
 
