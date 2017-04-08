@@ -2133,7 +2133,7 @@ END GROUP
  .debug_frame   0x00000fec       0xb8 df4iah_fw_usb.o
  .debug_frame   0x000010a4       0x58 usbdrv_fw/usbdrv.o
 
-.debug_str      0x00000000     0x2e97
+.debug_str      0x00000000     0x2e8d
  *(.debug_str)
  .debug_str     0x00000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_str     0x00000208      0x2b0 df4iah_bl_memory.o
@@ -2144,25 +2144,25 @@ END GROUP
                                 0x35f (size before relaxing)
  .debug_str     0x00000724      0x1d5 df4iah_fw_clkPullPwm.o
                                 0x37c (size before relaxing)
- .debug_str     0x000008f9     0x1b32 df4iah_fw_main.o
-                               0x2153 (size before relaxing)
- .debug_str     0x0000242b      0x22b df4iah_fw_memory.o
+ .debug_str     0x000008f9     0x1b31 df4iah_fw_main.o
+                               0x2152 (size before relaxing)
+ .debug_str     0x0000242a      0x22b df4iah_fw_memory.o
                                 0x907 (size before relaxing)
- .debug_str     0x00002656       0xc2 df4iah_fw_ringbuffer.o
+ .debug_str     0x00002655       0xc2 df4iah_fw_ringbuffer.o
                                 0x467 (size before relaxing)
- .debug_str     0x00002718       0xa6 df4iah_fw_serial.o
+ .debug_str     0x00002717       0xa6 df4iah_fw_serial.o
                                 0x67d (size before relaxing)
- .debug_str     0x000027be      0x115 df4iah_fw_twi.o
+ .debug_str     0x000027bd      0x115 df4iah_fw_twi.o
                                 0x481 (size before relaxing)
- .debug_str     0x000028d3       0xb7 df4iah_fw_twi_mcp23017.o
+ .debug_str     0x000028d2       0xb7 df4iah_fw_twi_mcp23017.o
                                 0x3b1 (size before relaxing)
- .debug_str     0x0000298a       0xdb df4iah_fw_twi_mcp23017_av1624.o
+ .debug_str     0x00002989       0xdb df4iah_fw_twi_mcp23017_av1624.o
                                 0x4ac (size before relaxing)
- .debug_str     0x00002a65       0x9a df4iah_fw_twi_smart_lcd.o
-                                0x4ac (size before relaxing)
- .debug_str     0x00002aff      0x127 df4iah_fw_usb.o
+ .debug_str     0x00002a64       0x91 df4iah_fw_twi_smart_lcd.o
+                                0x4af (size before relaxing)
+ .debug_str     0x00002af5      0x127 df4iah_fw_usb.o
                                 0x5b8 (size before relaxing)
- .debug_str     0x00002c26      0x271 usbdrv_fw/usbdrv.o
+ .debug_str     0x00002c1c      0x271 usbdrv_fw/usbdrv.o
                                 0x52e (size before relaxing)
 
 .debug_loc      0x00000000     0x6ae8

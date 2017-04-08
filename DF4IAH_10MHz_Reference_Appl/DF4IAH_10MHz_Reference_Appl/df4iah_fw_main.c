@@ -1742,14 +1742,14 @@ void twi_smart_lcd_fw_showStatus(void)
 
 	{
 		uint8_t pwm_int;
-		uint8_t pwm_frac1000;
+		uint8_t pwm_frac256;
 		uint8_t sreg = SREG;
 		cli();
-		pwm_int  = fastPwmLoopVal;
-		pwm_frac1000 = fastPwmSubLoopVal;
+		pwm_int = fastPwmLoopVal;
+		pwm_frac256 = fastPwmSubLoopVal;
 		SREG = sreg;
 
-		twi_smart_lcd_fw_set_pwm(pwm_int, pwm_frac1000);
+		twi_smart_lcd_fw_set_pwm(pwm_int, pwm_frac256);
 	}
 
 	{

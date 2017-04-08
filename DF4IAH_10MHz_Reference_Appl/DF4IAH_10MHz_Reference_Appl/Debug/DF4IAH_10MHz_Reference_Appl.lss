@@ -23,11 +23,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  000010fc  00000000  00000000  00019734  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00002e97  00000000  00000000  0001a830  2**0
+ 10 .debug_str    00002e8d  00000000  00000000  0001a830  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00006ae8  00000000  00000000  0001d6c7  2**0
+ 11 .debug_loc    00006ae8  00000000  00000000  0001d6bd  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000600  00000000  00000000  000241af  2**0
+ 12 .debug_ranges 00000600  00000000  00000000  000241a5  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -5539,19 +5539,19 @@ void twi_smart_lcd_fw_showStatus(void)
 
 	{
 		uint8_t pwm_int;
-		uint8_t pwm_frac1000;
+		uint8_t pwm_frac256;
 		uint8_t sreg = SREG;
     2aec:	9f b7       	in	r25, 0x3f	; 63
 		cli();
     2aee:	f8 94       	cli
-		pwm_int  = fastPwmLoopVal;
+		pwm_int = fastPwmLoopVal;
     2af0:	80 91 36 05 	lds	r24, 0x0536	; 0x800536 <fastPwmLoopVal>
-		pwm_frac1000 = fastPwmSubLoopVal;
+		pwm_frac256 = fastPwmSubLoopVal;
     2af4:	60 91 35 05 	lds	r22, 0x0535	; 0x800535 <fastPwmSubLoopVal>
 		SREG = sreg;
     2af8:	9f bf       	out	0x3f, r25	; 63
 
-		twi_smart_lcd_fw_set_pwm(pwm_int, pwm_frac1000);
+		twi_smart_lcd_fw_set_pwm(pwm_int, pwm_frac256);
     2afa:	0e 94 cd 2b 	call	0x579a	; 0x579a <twi_smart_lcd_fw_set_pwm>
 	}
 
@@ -12839,13 +12839,13 @@ void twi_smart_lcd_fw_set_ppb(int16_t ppb_int, uint16_t ppb_frac1000)
 0000579a <twi_smart_lcd_fw_set_pwm>:
 }
 
-void twi_smart_lcd_fw_set_pwm(uint8_t pwm_int, uint8_t pwm_frac)
+void twi_smart_lcd_fw_set_pwm(uint8_t pwm_int, uint8_t pwm_frac256)
 {
 	mainPrepareBuffer[0] = pwm_int;
     579a:	ef e0       	ldi	r30, 0x0F	; 15
     579c:	f4 e0       	ldi	r31, 0x04	; 4
     579e:	80 83       	st	Z, r24
-	mainPrepareBuffer[1] = pwm_frac;
+	mainPrepareBuffer[1] = pwm_frac256;
     57a0:	61 83       	std	Z+1, r22	; 0x01
 	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_TCXO_PWM, 2, (uint8_t*) &mainPrepareBuffer);
     57a2:	9f 01       	movw	r18, r30
