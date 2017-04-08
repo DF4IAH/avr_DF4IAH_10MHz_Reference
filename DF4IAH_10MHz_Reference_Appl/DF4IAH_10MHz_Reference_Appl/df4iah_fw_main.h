@@ -152,6 +152,7 @@ int   main_fw_memcmp(const unsigned char* msg, const unsigned char* cmpProg, siz
 void  main_fw_nmeaUtcPlusOneSec(void);
 void  main_fw_parseNmeaLineData(void);
 void  twi_mcp23017_av1624_fw_showStatus(void);
+void  workInQueue(void);
 void  twi_smart_lcd_fw_showStatus(void);
 void  main_fw_sendInitialHelp(void);
 void  main_fw_giveAway(void);

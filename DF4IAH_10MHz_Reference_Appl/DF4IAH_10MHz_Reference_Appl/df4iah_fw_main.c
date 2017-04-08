@@ -530,7 +530,7 @@ static void calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float q
 
 	uint8_t localIsOffset = false;
 
-	if (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
+	if ((mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) && main_bf.mainIsAPC) {
 		/* Help APC to find its phase - when found, stop offset */
 		meanFloatClockDiff += 0.1f;							// 0.1 Hz @ 20 MHz below center frequency to let the phase wander and
 															// the phase locker find its position to lock in
@@ -589,6 +589,11 @@ static void calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float q
 			mainRefClkState = REFCLK_STATE_NOSYNC;
 			holdOffTime = holdOffTimeStart;
 		}
+
+		if (!main_bf.mainIsAFC) {
+			return;
+		}
+
 
 		/* windowing and adding of the new PWM value */
 
@@ -1076,7 +1081,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	}
 }
 
-static void workInQueue(void)
+void workInQueue(void)
 {
 	if (ringbuffer_fw_getSemaphore(true)) {
 		uint8_t isLocked = true;
@@ -1303,7 +1308,7 @@ static void doJobs(void)
 		}
 	}
 
-	mainAdcPullVolts	= ( acAdcCh[ADC_CH_PWMPULL] * mainCoef_b01_ref_AREF_V) / 1024.0f;
+	mainAdcPullVolts	= ( acAdcCh[ADC_CH_PWMPULL] * mainCoef_b01_ref_AREF_V) / 1024.0f + 0.138f;
 	mainAdcPhaseVolts	= ( acAdcCh[ADC_CH_PHASE]	* mainCoef_b01_ref_AREF_V) / 1024.0f;
 	mainAdcTemp			= ((acAdcCh[ADC_CH_TEMP]	- mainCoef_b01_temp_ofs_adc_25C_steps) * mainCoef_b01_temp_k_p1step_adc_K) + 25.0f;
 
@@ -1445,14 +1450,12 @@ static void doJobs(void)
 
 		/* frequency & phase correction modules */
 
-		if (main_bf.mainIsAFC) {
-			/* AFC = automatic frequency calculation */
-			calcQrg(local20MHzClockDiff, localMeanFloatClockDiff, qrgDev_Hz, localPpm);
+		/* AFC = automatic frequency calculation */
+		calcQrg(local20MHzClockDiff, localMeanFloatClockDiff, qrgDev_Hz, localPpm);  // corrections are done when  main_bf.mainIsAFC == true
 
-			if (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
-				/* phase corrections are done by the AFC unit */
-				mainPpm = localPpm;
-			}
+		if (mainRefClkState <= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
+			/* phase corrections are done by the AFC unit */
+			mainPpm = localPpm;
 		}
 
 		if (main_bf.mainIsAPC) {
@@ -1579,7 +1582,7 @@ void twi_mcp23017_av1624_fw_showStatus(void)
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC11, sizeof(PM_FORMAT_LC11));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 			'b',
-			(mainPpm * 5000.0f),
+			(mainPpm * 1000.0f),
 			0xe0,
 			mainRefClkState,
 			0xf3,
@@ -1728,7 +1731,7 @@ void twi_smart_lcd_fw_showStatus(void)
 		ppm = mainPpm;
 		SREG = sreg;
 
-		float localPpb = ppm > 0 ?  ppm * 5000.0f : ppm * -5000.0f;
+		float localPpb = ppm > 0 ?  ppm * 1000.0f : ppm * -1000.0f;
 		int16_t ppb_int  = (int16_t) localPpb;
 		uint16_t ppb_frac1000 = (uint16_t) ((localPpb - ppb_int) * 1000.0f);
 		if (ppm < 0) {
