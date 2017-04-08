@@ -67,12 +67,25 @@ void twi_fw_close(void)
 }
 
 
-void twi_fw_waitUntilDone(void) {
+static void s_delay(void)
+{
+	wdt_reset();
+	if (usbIsUp) {
+		usbPoll();
+		usb_fw_sendInInterrupt();
+		workInQueue();
+	}
+}
+
+void twi_fw_waitUntilDone(uint8_t extraDelay)
+{
 	while (twiState.doStart || twiState.isProcessing) {
-		wdt_reset();
-		if (usbIsUp) {
-			usbPoll();
-		}
+		s_delay();
+	}
+
+	/* Give some more time for the TWI slave to process the data */
+	for (int cnt = extraDelay; cnt; --cnt) {
+		s_delay();
 	}
 }
 
@@ -80,7 +93,7 @@ void twi_fw_sendCmdSendData1(uint8_t addr, uint8_t cmd, uint8_t data1)
 {
 	uint8_t sreg;
 
-	twi_fw_waitUntilDone();
+	twi_fw_waitUntilDone(addr == TWI_SMART_LCD_ADDR ?  10 : 0);
 
 	sreg = SREG;
 	cli();
@@ -99,7 +112,7 @@ void twi_fw_sendCmdSendData1SendData2(uint8_t addr, uint8_t cmd, uint8_t data1, 
 {
 	uint8_t sreg;
 
-	twi_fw_waitUntilDone();
+	twi_fw_waitUntilDone(addr == TWI_SMART_LCD_ADDR ?  10 : 0);
 
 	sreg = SREG;
 	cli();
@@ -120,7 +133,7 @@ void twi_fw_sendCmdSendData1SendDataVar(uint8_t addr, uint8_t cmd, uint8_t cnt, 
 	int i;
 	uint8_t sreg;
 
-	twi_fw_waitUntilDone();
+	twi_fw_waitUntilDone(addr == TWI_SMART_LCD_ADDR ?  10 : 0);
 
 	sreg = SREG;
 	cli();
@@ -141,7 +154,7 @@ uint8_t twi_fw_sendCmdReadData1(uint8_t addr, uint8_t cmd)
 {
 	uint8_t sreg;
 
-	twi_fw_waitUntilDone();
+	twi_fw_waitUntilDone(addr == TWI_SMART_LCD_ADDR ?  10 : 0);
 
 	sreg = SREG;
 	cli();
@@ -154,7 +167,7 @@ uint8_t twi_fw_sendCmdReadData1(uint8_t addr, uint8_t cmd)
 	SREG = sreg;
 
 	isr_sendStart(true, false);
-	twi_fw_waitUntilDone();
+	twi_fw_waitUntilDone(0);
 
 	return twiSeq2Data[0];
 }

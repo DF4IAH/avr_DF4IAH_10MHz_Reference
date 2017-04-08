@@ -726,14 +726,14 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x7c8a
+.text           0x00000000     0x7cc4
  *(.vectors)
  .vectors       0x00000000       0x68 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5/crtatmega328p.o
                 0x00000000                __vector_default
                 0x00000000                __vectors
  *(.vectors)
  *(.progmem.gcc*)
- .progmem.gcc_sw_table.main_fw_giveAway
+ .progmem.gcc_sw_table.workInQueue
                 0x00000068       0x1a df4iah_fw_main.o
  .progmem.gcc_sw_table.__vector_24
                 0x00000082       0xa2 df4iah_fw_twi.o
@@ -1124,436 +1124,440 @@ END GROUP
  .text.main_fw_parseNmeaLineData
                 0x00001970      0x324 df4iah_fw_main.o
                 0x00001970                main_fw_parseNmeaLineData
+ .text.workInQueue
+                0x00001c94      0x82e df4iah_fw_main.o
+                0x00001c94                workInQueue
  .text.twi_mcp23017_av1624_fw_showStatus
-                0x00001c94      0x44c df4iah_fw_main.o
-                0x00001c94                twi_mcp23017_av1624_fw_showStatus
+                0x000024c2      0x44c df4iah_fw_main.o
+                0x000024c2                twi_mcp23017_av1624_fw_showStatus
  .text.twi_smart_lcd_fw_showStatus
-                0x000020e0      0x3e4 df4iah_fw_main.o
-                0x000020e0                twi_smart_lcd_fw_showStatus
+                0x0000290e      0x3e4 df4iah_fw_main.o
+                0x0000290e                twi_smart_lcd_fw_showStatus
  .text.main_fw_sendInitialHelp
-                0x000024c4       0x10 df4iah_fw_main.o
-                0x000024c4                main_fw_sendInitialHelp
+                0x00002cf2       0x10 df4iah_fw_main.o
+                0x00002cf2                main_fw_sendInitialHelp
  .text.main_fw_giveAway
-                0x000024d4     0x1d38 df4iah_fw_main.o
-                0x000024d4                main_fw_giveAway
- .text.main     0x0000420c      0x26c df4iah_fw_main.o
-                0x0000420c                main
+                0x00002d02     0x14f4 df4iah_fw_main.o
+                0x00002d02                main_fw_giveAway
+ .text.main     0x000041f6      0x26c df4iah_fw_main.o
+                0x000041f6                main
  .text.memory_fw_copyBuffer
-                0x00004478       0x44 df4iah_fw_memory.o
-                0x00004478                memory_fw_copyBuffer
+                0x00004462       0x44 df4iah_fw_memory.o
+                0x00004462                memory_fw_copyBuffer
  .text.memory_fw_getSealMarker
-                0x000044bc        0xe df4iah_fw_memory.o
-                0x000044bc                memory_fw_getSealMarker
+                0x000044a6        0xe df4iah_fw_memory.o
+                0x000044a6                memory_fw_getSealMarker
  .text.memory_fw_calcBlockCrc
-                0x000044ca       0x62 df4iah_fw_memory.o
-                0x000044ca                memory_fw_calcBlockCrc
+                0x000044b4       0x62 df4iah_fw_memory.o
+                0x000044b4                memory_fw_calcBlockCrc
  .text.memory_fw_readEEpromPage
-                0x0000452c       0x4c df4iah_fw_memory.o
-                0x0000452c                memory_fw_readEEpromPage
+                0x00004516       0x4c df4iah_fw_memory.o
+                0x00004516                memory_fw_readEEpromPage
  .text.memory_fw_isEepromBlockValid
-                0x00004578       0x40 df4iah_fw_memory.o
-                0x00004578                memory_fw_isEepromBlockValid
+                0x00004562       0x40 df4iah_fw_memory.o
+                0x00004562                memory_fw_isEepromBlockValid
  .text.memory_fw_readEepromValidBlock
-                0x000045b8       0x42 df4iah_fw_memory.o
-                0x000045b8                memory_fw_readEepromValidBlock
+                0x000045a2       0x42 df4iah_fw_memory.o
+                0x000045a2                memory_fw_readEepromValidBlock
  .text.memory_fw_writeEEpromPage
-                0x000045fa       0x56 df4iah_fw_memory.o
-                0x000045fa                memory_fw_writeEEpromPage
+                0x000045e4       0x56 df4iah_fw_memory.o
+                0x000045e4                memory_fw_writeEEpromPage
  .text.memory_fw_writeEepromBlockMakeValid
-                0x00004650       0x66 df4iah_fw_memory.o
-                0x00004650                memory_fw_writeEepromBlockMakeValid
+                0x0000463a       0x66 df4iah_fw_memory.o
+                0x0000463a                memory_fw_writeEepromBlockMakeValid
  .text.memory_fw_manageBlock
-                0x000046b6       0x9c df4iah_fw_memory.o
-                0x000046b6                memory_fw_manageBlock
+                0x000046a0       0x9c df4iah_fw_memory.o
+                0x000046a0                memory_fw_manageBlock
  .text.memory_fw_manageNonVolatileData
-                0x00004752       0x20 df4iah_fw_memory.o
-                0x00004752                memory_fw_manageNonVolatileData
+                0x0000473c       0x20 df4iah_fw_memory.o
+                0x0000473c                memory_fw_manageNonVolatileData
  .text.ringbuffer_fw_getSemaphore
-                0x00004772       0x22 df4iah_fw_ringbuffer.o
-                0x00004772                ringbuffer_fw_getSemaphore
+                0x0000475c       0x22 df4iah_fw_ringbuffer.o
+                0x0000475c                ringbuffer_fw_getSemaphore
  .text.ringbuffer_fw_freeSemaphore
-                0x00004794       0x18 df4iah_fw_ringbuffer.o
-                0x00004794                ringbuffer_fw_freeSemaphore
+                0x0000477e       0x18 df4iah_fw_ringbuffer.o
+                0x0000477e                ringbuffer_fw_freeSemaphore
  .text.ringbuffer_fw_ringBufferPush
-                0x000047ac      0x158 df4iah_fw_ringbuffer.o
-                0x000047ac                ringbuffer_fw_ringBufferPush
+                0x00004796      0x158 df4iah_fw_ringbuffer.o
+                0x00004796                ringbuffer_fw_ringBufferPush
  .text.ringbuffer_fw_ringBufferPull
-                0x00004904      0x126 df4iah_fw_ringbuffer.o
-                0x00004904                ringbuffer_fw_ringBufferPull
+                0x000048ee      0x126 df4iah_fw_ringbuffer.o
+                0x000048ee                ringbuffer_fw_ringBufferPull
  .text.ringbuffer_fw_getStatusNextMsg
-                0x00004a2a       0x48 df4iah_fw_ringbuffer.o
-                0x00004a2a                ringbuffer_fw_getStatusNextMsg
+                0x00004a14       0x48 df4iah_fw_ringbuffer.o
+                0x00004a14                ringbuffer_fw_getStatusNextMsg
  .text.ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore
-                0x00004a72       0x4c df4iah_fw_ringbuffer.o
-                0x00004a72                ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore
+                0x00004a5c       0x4c df4iah_fw_ringbuffer.o
+                0x00004a5c                ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore
  .text.ringbuffer_fw_ringBufferWaitAppend
-                0x00004abe       0x38 df4iah_fw_ringbuffer.o
-                0x00004abe                ringbuffer_fw_ringBufferWaitAppend
+                0x00004aa8       0x38 df4iah_fw_ringbuffer.o
+                0x00004aa8                ringbuffer_fw_ringBufferWaitAppend
  .text.serial_fw_sendNmea
-                0x00004af6       0x34 df4iah_fw_serial.o
+                0x00004ae0       0x34 df4iah_fw_serial.o
  .text.serial_fw_close
-                0x00004b2a       0x1e df4iah_fw_serial.o
-                0x00004b2a                serial_fw_close
+                0x00004b14       0x1e df4iah_fw_serial.o
+                0x00004b14                serial_fw_close
  .text.serial_fw_serRxIsrOn
-                0x00004b48       0x28 df4iah_fw_serial.o
-                0x00004b48                serial_fw_serRxIsrOn
+                0x00004b32       0x28 df4iah_fw_serial.o
+                0x00004b32                serial_fw_serRxIsrOn
  .text.serial_fw_setCommBaud
-                0x00004b70       0x40 df4iah_fw_serial.o
-                0x00004b70                serial_fw_setCommBaud
+                0x00004b5a       0x40 df4iah_fw_serial.o
+                0x00004b5a                serial_fw_setCommBaud
  .text.serial_fw_init
-                0x00004bb0       0x96 df4iah_fw_serial.o
-                0x00004bb0                serial_fw_init
+                0x00004b9a       0x96 df4iah_fw_serial.o
+                0x00004b9a                serial_fw_init
  .text.serial_fw_isTxRunning
-                0x00004c46        0xe df4iah_fw_serial.o
-                0x00004c46                serial_fw_isTxRunning
+                0x00004c30        0xe df4iah_fw_serial.o
+                0x00004c30                serial_fw_isTxRunning
  .text.serial_fw_copyAndSendNmea
-                0x00004c54       0x26 df4iah_fw_serial.o
-                0x00004c54                serial_fw_copyAndSendNmea
+                0x00004c3e       0x26 df4iah_fw_serial.o
+                0x00004c3e                serial_fw_copyAndSendNmea
  .text.serial_fw_pullAndSendNmea_havingSemaphore
-                0x00004c7a       0x90 df4iah_fw_serial.o
-                0x00004c7a                serial_fw_pullAndSendNmea_havingSemaphore
+                0x00004c64       0x90 df4iah_fw_serial.o
+                0x00004c64                serial_fw_pullAndSendNmea_havingSemaphore
  .text.__vector_18
-                0x00004d0a      0x11e df4iah_fw_serial.o
-                0x00004d0a                __vector_18
+                0x00004cf4      0x11e df4iah_fw_serial.o
+                0x00004cf4                __vector_18
  .text.__vector_19
-                0x00004e28       0x80 df4iah_fw_serial.o
-                0x00004e28                __vector_19
+                0x00004e12       0x80 df4iah_fw_serial.o
+                0x00004e12                __vector_19
  .text.__vector_20
-                0x00004ea8       0x16 df4iah_fw_serial.o
-                0x00004ea8                __vector_20
+                0x00004e92       0x16 df4iah_fw_serial.o
+                0x00004e92                __vector_20
+ .text.s_delay  0x00004ea8       0x18 df4iah_fw_twi.o
  .text.twi_fw_init
-                0x00004ebe       0x2e df4iah_fw_twi.o
-                0x00004ebe                twi_fw_init
+                0x00004ec0       0x2e df4iah_fw_twi.o
+                0x00004ec0                twi_fw_init
  .text.twi_fw_close
-                0x00004eec       0x16 df4iah_fw_twi.o
-                0x00004eec                twi_fw_close
+                0x00004eee       0x16 df4iah_fw_twi.o
+                0x00004eee                twi_fw_close
  .text.twi_fw_waitUntilDone
-                0x00004f02       0x2a df4iah_fw_twi.o
-                0x00004f02                twi_fw_waitUntilDone
+                0x00004f04       0x36 df4iah_fw_twi.o
+                0x00004f04                twi_fw_waitUntilDone
  .text.isr_sendStart
-                0x00004f2c       0x4a df4iah_fw_twi.o
-                0x00004f2c                isr_sendStart
+                0x00004f3a       0x4a df4iah_fw_twi.o
+                0x00004f3a                isr_sendStart
  .text.twi_fw_sendCmdSendData1
-                0x00004f76       0x66 df4iah_fw_twi.o
-                0x00004f76                twi_fw_sendCmdSendData1
+                0x00004f84       0x70 df4iah_fw_twi.o
+                0x00004f84                twi_fw_sendCmdSendData1
  .text.twi_fw_sendCmdSendData1SendData2
-                0x00004fdc       0x80 df4iah_fw_twi.o
-                0x00004fdc                twi_fw_sendCmdSendData1SendData2
+                0x00004ff4       0x8a df4iah_fw_twi.o
+                0x00004ff4                twi_fw_sendCmdSendData1SendData2
  .text.twi_fw_sendCmdSendData1SendDataVar
-                0x0000505c       0x88 df4iah_fw_twi.o
-                0x0000505c                twi_fw_sendCmdSendData1SendDataVar
+                0x0000507e       0x92 df4iah_fw_twi.o
+                0x0000507e                twi_fw_sendCmdSendData1SendDataVar
  .text.twi_fw_sendCmdReadData1
-                0x000050e4       0x5a df4iah_fw_twi.o
-                0x000050e4                twi_fw_sendCmdReadData1
+                0x00005110       0x66 df4iah_fw_twi.o
+                0x00005110                twi_fw_sendCmdReadData1
  .text.isr_sendStop
-                0x0000513e       0x28 df4iah_fw_twi.o
-                0x0000513e                isr_sendStop
+                0x00005176       0x28 df4iah_fw_twi.o
+                0x00005176                isr_sendStop
  .text.__vector_24
-                0x00005166      0x1e4 df4iah_fw_twi.o
-                0x00005166                __vector_24
+                0x0000519e      0x1e4 df4iah_fw_twi.o
+                0x0000519e                __vector_24
  .text.twi_mcp23017_fw_init
-                0x0000534a       0x78 df4iah_fw_twi_mcp23017.o
-                0x0000534a                twi_mcp23017_fw_init
+                0x00005382       0x7a df4iah_fw_twi_mcp23017.o
+                0x00005382                twi_mcp23017_fw_init
  .text.twi_mcp23017_fw_close
-                0x000053c2       0x26 df4iah_fw_twi_mcp23017.o
-                0x000053c2                twi_mcp23017_fw_close
+                0x000053fc       0x26 df4iah_fw_twi_mcp23017.o
+                0x000053fc                twi_mcp23017_fw_close
  .text.twi_mcp23017_fw_setPortA_DirOut
-                0x000053e8       0x1c df4iah_fw_twi_mcp23017.o
-                0x000053e8                twi_mcp23017_fw_setPortA_DirOut
+                0x00005422       0x1c df4iah_fw_twi_mcp23017.o
+                0x00005422                twi_mcp23017_fw_setPortA_DirOut
  .text.twi_mcp23017_fw_setPortB
-                0x00005404        0xc df4iah_fw_twi_mcp23017.o
-                0x00005404                twi_mcp23017_fw_setPortB
+                0x0000543e        0xc df4iah_fw_twi_mcp23017.o
+                0x0000543e                twi_mcp23017_fw_setPortB
  .text.twi_mcp23017_fw_setPortBA
-                0x00005410       0x16 df4iah_fw_twi_mcp23017.o
-                0x00005410                twi_mcp23017_fw_setPortBA
+                0x0000544a       0x16 df4iah_fw_twi_mcp23017.o
+                0x0000544a                twi_mcp23017_fw_setPortBA
  .text.twi_mcp23017_fw_readPortA
-                0x00005426        0xa df4iah_fw_twi_mcp23017.o
-                0x00005426                twi_mcp23017_fw_readPortA
+                0x00005460        0xa df4iah_fw_twi_mcp23017.o
+                0x00005460                twi_mcp23017_fw_readPortA
  .text.twi_mcp23017_av1624_fw_waitUntilReady
-                0x00005430       0x5a df4iah_fw_twi_mcp23017_av1624.o
-                0x00005430                twi_mcp23017_av1624_fw_waitUntilReady
+                0x0000546a       0x5a df4iah_fw_twi_mcp23017_av1624.o
+                0x0000546a                twi_mcp23017_av1624_fw_waitUntilReady
  .text.twi_mcp23017_av1624_fw_init
-                0x0000548a      0x118 df4iah_fw_twi_mcp23017_av1624.o
-                0x0000548a                twi_mcp23017_av1624_fw_init
+                0x000054c4      0x118 df4iah_fw_twi_mcp23017_av1624.o
+                0x000054c4                twi_mcp23017_av1624_fw_init
  .text.twi_mcp23017_av1624_fw_close
-                0x000055a2       0x56 df4iah_fw_twi_mcp23017_av1624.o
-                0x000055a2                twi_mcp23017_av1624_fw_close
+                0x000055dc       0x56 df4iah_fw_twi_mcp23017_av1624.o
+                0x000055dc                twi_mcp23017_av1624_fw_close
  .text.twi_mcp23017_av1624_fw_gotoPosition
-                0x000055f8       0x68 df4iah_fw_twi_mcp23017_av1624.o
-                0x000055f8                twi_mcp23017_av1624_fw_gotoPosition
+                0x00005632       0x68 df4iah_fw_twi_mcp23017_av1624.o
+                0x00005632                twi_mcp23017_av1624_fw_gotoPosition
  .text.twi_mcp23017_av1624_fw_writeString
-                0x00005660       0x8c df4iah_fw_twi_mcp23017_av1624.o
-                0x00005660                twi_mcp23017_av1624_fw_writeString
+                0x0000569a       0x8c df4iah_fw_twi_mcp23017_av1624.o
+                0x0000569a                twi_mcp23017_av1624_fw_writeString
  .text.twi_smart_lcd_fw_get_version
-                0x000056ec        0xa df4iah_fw_twi_smart_lcd.o
-                0x000056ec                twi_smart_lcd_fw_get_version
+                0x00005726        0xa df4iah_fw_twi_smart_lcd.o
+                0x00005726                twi_smart_lcd_fw_get_version
  .text.twi_smart_lcd_fw_init
-                0x000056f6        0x6 df4iah_fw_twi_smart_lcd.o
-                0x000056f6                twi_smart_lcd_fw_init
+                0x00005730        0x6 df4iah_fw_twi_smart_lcd.o
+                0x00005730                twi_smart_lcd_fw_init
  .text.twi_smart_lcd_fw_set_clk_state
-                0x000056fc       0x18 df4iah_fw_twi_smart_lcd.o
-                0x000056fc                twi_smart_lcd_fw_set_clk_state
+                0x00005736       0x18 df4iah_fw_twi_smart_lcd.o
+                0x00005736                twi_smart_lcd_fw_set_clk_state
  .text.twi_smart_lcd_fw_set_date
-                0x00005714       0x1a df4iah_fw_twi_smart_lcd.o
-                0x00005714                twi_smart_lcd_fw_set_date
+                0x0000574e       0x1a df4iah_fw_twi_smart_lcd.o
+                0x0000574e                twi_smart_lcd_fw_set_date
  .text.twi_smart_lcd_fw_set_time
-                0x0000572e       0x18 df4iah_fw_twi_smart_lcd.o
-                0x0000572e                twi_smart_lcd_fw_set_time
+                0x00005768       0x18 df4iah_fw_twi_smart_lcd.o
+                0x00005768                twi_smart_lcd_fw_set_time
  .text.twi_smart_lcd_fw_set_ppb
-                0x00005746       0x1a df4iah_fw_twi_smart_lcd.o
-                0x00005746                twi_smart_lcd_fw_set_ppb
+                0x00005780       0x1a df4iah_fw_twi_smart_lcd.o
+                0x00005780                twi_smart_lcd_fw_set_ppb
  .text.twi_smart_lcd_fw_set_pwm
-                0x00005760       0x16 df4iah_fw_twi_smart_lcd.o
-                0x00005760                twi_smart_lcd_fw_set_pwm
+                0x0000579a       0x16 df4iah_fw_twi_smart_lcd.o
+                0x0000579a                twi_smart_lcd_fw_set_pwm
  .text.twi_smart_lcd_fw_set_pv
-                0x00005776       0x18 df4iah_fw_twi_smart_lcd.o
-                0x00005776                twi_smart_lcd_fw_set_pv
+                0x000057b0       0x18 df4iah_fw_twi_smart_lcd.o
+                0x000057b0                twi_smart_lcd_fw_set_pv
  .text.twi_smart_lcd_fw_set_sat_use
-                0x0000578e       0x18 df4iah_fw_twi_smart_lcd.o
-                0x0000578e                twi_smart_lcd_fw_set_sat_use
+                0x000057c8       0x18 df4iah_fw_twi_smart_lcd.o
+                0x000057c8                twi_smart_lcd_fw_set_sat_use
  .text.twi_smart_lcd_fw_set_sat_dop
-                0x000057a6       0x16 df4iah_fw_twi_smart_lcd.o
-                0x000057a6                twi_smart_lcd_fw_set_sat_dop
+                0x000057e0       0x16 df4iah_fw_twi_smart_lcd.o
+                0x000057e0                twi_smart_lcd_fw_set_sat_dop
  .text.twi_smart_lcd_fw_set_pos_state
-                0x000057bc       0x16 df4iah_fw_twi_smart_lcd.o
-                0x000057bc                twi_smart_lcd_fw_set_pos_state
+                0x000057f6       0x16 df4iah_fw_twi_smart_lcd.o
+                0x000057f6                twi_smart_lcd_fw_set_pos_state
  .text.twi_smart_lcd_fw_set_pos_lat
-                0x000057d2       0x1c df4iah_fw_twi_smart_lcd.o
-                0x000057d2                twi_smart_lcd_fw_set_pos_lat
+                0x0000580c       0x1c df4iah_fw_twi_smart_lcd.o
+                0x0000580c                twi_smart_lcd_fw_set_pos_lat
  .text.twi_smart_lcd_fw_set_pos_lon
-                0x000057ee       0x1c df4iah_fw_twi_smart_lcd.o
-                0x000057ee                twi_smart_lcd_fw_set_pos_lon
+                0x00005828       0x1c df4iah_fw_twi_smart_lcd.o
+                0x00005828                twi_smart_lcd_fw_set_pos_lon
  .text.twi_smart_lcd_fw_set_pos_height
-                0x0000580a       0x16 df4iah_fw_twi_smart_lcd.o
-                0x0000580a                twi_smart_lcd_fw_set_pos_height
+                0x00005844       0x16 df4iah_fw_twi_smart_lcd.o
+                0x00005844                twi_smart_lcd_fw_set_pos_height
  .text.usb_fw_sendInInterrupt
-                0x00005820       0x14 df4iah_fw_usb.o
-                0x00005820                usb_fw_sendInInterrupt
+                0x0000585a       0x14 df4iah_fw_usb.o
+                0x0000585a                usb_fw_sendInInterrupt
  .text.usb_fw_init
-                0x00005834       0x26 df4iah_fw_usb.o
-                0x00005834                usb_fw_init
+                0x0000586e       0x26 df4iah_fw_usb.o
+                0x0000586e                usb_fw_init
  .text.usb_fw_close
-                0x0000585a        0x8 df4iah_fw_usb.o
-                0x0000585a                usb_fw_close
+                0x00005894        0x8 df4iah_fw_usb.o
+                0x00005894                usb_fw_close
  .text.usbFunctionSetup
-                0x00005862       0x84 df4iah_fw_usb.o
-                0x00005862                usbFunctionSetup
+                0x0000589c       0x84 df4iah_fw_usb.o
+                0x0000589c                usbFunctionSetup
  .text.usbFunctionRead
-                0x000058e6      0x1da df4iah_fw_usb.o
-                0x000058e6                usbFunctionRead
+                0x00005920      0x1da df4iah_fw_usb.o
+                0x00005920                usbFunctionRead
  .text.usbFunctionWrite
-                0x00005ac0       0xa4 df4iah_fw_usb.o
-                0x00005ac0                usbFunctionWrite
+                0x00005afa       0xa4 df4iah_fw_usb.o
+                0x00005afa                usbFunctionWrite
  .text.usbSetInterrupt
-                0x00005b64       0x4e usbdrv_fw/usbdrv.o
-                0x00005b64                usbSetInterrupt
- .text.usbPoll  0x00005bb2      0x2fa usbdrv_fw/usbdrv.o
-                0x00005bb2                usbPoll
- .text.usbInit  0x00005eac       0x1a usbdrv_fw/usbdrv.o
-                0x00005eac                usbInit
+                0x00005b9e       0x4e usbdrv_fw/usbdrv.o
+                0x00005b9e                usbSetInterrupt
+ .text.usbPoll  0x00005bec      0x2fa usbdrv_fw/usbdrv.o
+                0x00005bec                usbPoll
+ .text.usbInit  0x00005ee6       0x1a usbdrv_fw/usbdrv.o
+                0x00005ee6                usbInit
  .text.avr-libc.fplib
-                0x00005ec6        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(addsf3.o)
-                0x00005ec6                __subsf3
-                0x00005ec8                __addsf3
+                0x00005f00        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(addsf3.o)
+                0x00005f00                __subsf3
+                0x00005f02                __addsf3
  .text.avr-libc.fplib
-                0x00005ed4       0xcc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(addsf3x.o)
-                0x00005ef6                __addsf3x
+                0x00005f0e       0xcc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(addsf3x.o)
+                0x00005f30                __addsf3x
  .text.avr-libc.fplib
-                0x00005fa0        0xa c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(cmpsf2.o)
-                0x00005fa0                __nesf2
-                0x00005fa0                __eqsf2
-                0x00005fa0                __cmpsf2
-                0x00005fa0                __ltsf2
-                0x00005fa0                __lesf2
+                0x00005fda        0xa c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(cmpsf2.o)
+                0x00005fda                __nesf2
+                0x00005fda                __eqsf2
+                0x00005fda                __cmpsf2
+                0x00005fda                __ltsf2
+                0x00005fda                __lesf2
  .text.avr-libc.fplib
-                0x00005faa        0x8 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(divsf3.o)
-                0x00005faa                __divsf3
+                0x00005fe4        0x8 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(divsf3.o)
+                0x00005fe4                __divsf3
  .text.avr-libc.fplib
-                0x00005fb2       0xdc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(divsf3x.o)
-                0x00005fd2                __divsf3x
-                0x00005fd8                __divsf3_pse
+                0x00005fec       0xdc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(divsf3x.o)
+                0x0000600c                __divsf3x
+                0x00006012                __divsf3_pse
  .text.avr-libc.fplib
-                0x0000608e        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fixsfsi.o)
-                0x0000608e                __fixsfsi
+                0x000060c8        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fixsfsi.o)
+                0x000060c8                __fixsfsi
  .text.avr-libc.fplib
-                0x0000609c       0x5e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fixunssfsi.o)
-                0x0000609c                __fixunssfsi
+                0x000060d6       0x5e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fixunssfsi.o)
+                0x000060d6                __fixunssfsi
  .text.avr-libc.fplib
-                0x000060fa       0x7a c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(floatsisf.o)
-                0x000060fa                __floatunsisf
-                0x000060fe                __floatsisf
+                0x00006134       0x7a c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(floatsisf.o)
+                0x00006134                __floatunsisf
+                0x00006138                __floatsisf
  .text.avr-libc.fplib
-                0x00006174       0x2e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(floor.o)
-                0x00006174                floor
+                0x000061ae       0x2e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(floor.o)
+                0x000061ae                floor
  .text.avr-libc.fplib
-                0x000061a2       0x48 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_cmp.o)
-                0x000061a2                __fp_cmp
+                0x000061dc       0x48 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_cmp.o)
+                0x000061dc                __fp_cmp
  .text.avr-libc.fplib
-                0x000061ea        0xc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_inf.o)
-                0x000061ea                __fp_inf
+                0x00006224        0xc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_inf.o)
+                0x00006224                __fp_inf
  .text.avr-libc.fplib
-                0x000061f6       0x36 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_mintl.o)
-                0x000061f6                __fp_mintl
+                0x00006230       0x36 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_mintl.o)
+                0x00006230                __fp_mintl
  .text.avr-libc.fplib
-                0x0000622c       0x1c c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_mpack.o)
-                0x0000622c                __fp_mpack
-                0x00006230                __fp_mpack_finite
+                0x00006266       0x1c c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_mpack.o)
+                0x00006266                __fp_mpack
+                0x0000626a                __fp_mpack_finite
  .text.avr-libc.fplib
-                0x00006248        0x6 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_nan.o)
-                0x00006248                __fp_nan
+                0x00006282        0x6 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_nan.o)
+                0x00006282                __fp_nan
  .text.avr-libc.fplib
-                0x0000624e        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_pscA.o)
-                0x0000624e                __fp_pscA
+                0x00006288        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_pscA.o)
+                0x00006288                __fp_pscA
  .text.avr-libc.fplib
-                0x0000625c        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_pscB.o)
-                0x0000625c                __fp_pscB
+                0x00006296        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_pscB.o)
+                0x00006296                __fp_pscB
  .text.avr-libc.fplib
-                0x0000626a       0x22 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_round.o)
-                0x0000626a                __fp_round
+                0x000062a4       0x22 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_round.o)
+                0x000062a4                __fp_round
  .text.avr-libc.fplib
-                0x0000628c       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_split3.o)
-                0x0000628c                __fp_split3
-                0x0000629c                __fp_splitA
+                0x000062c6       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_split3.o)
+                0x000062c6                __fp_split3
+                0x000062d6                __fp_splitA
  .text.avr-libc.fplib
-                0x000062d0       0x30 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_trunc.o)
-                0x000062d0                __fp_trunc
+                0x0000630a       0x30 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_trunc.o)
+                0x0000630a                __fp_trunc
  .text.avr-libc.fplib
-                0x00006300        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_zero.o)
-                0x00006300                __fp_zero
-                0x00006302                __fp_szero
+                0x0000633a        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_zero.o)
+                0x0000633a                __fp_zero
+                0x0000633c                __fp_szero
  .text.avr-libc.fplib
-                0x0000630e        0xa c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(gesf2.o)
-                0x0000630e                __gesf2
-                0x0000630e                __gtsf2
+                0x00006348        0xa c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(gesf2.o)
+                0x00006348                __gesf2
+                0x00006348                __gtsf2
  .text.avr-libc.fplib
-                0x00006318        0x8 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(mulsf3.o)
-                0x00006318                __mulsf3
+                0x00006352        0x8 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(mulsf3.o)
+                0x00006352                __mulsf3
  .text.avr-libc.fplib
-                0x00006320       0xd2 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(mulsf3x.o)
-                0x0000633e                __mulsf3x
-                0x00006344                __mulsf3_pse
+                0x0000635a       0xd2 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(mulsf3x.o)
+                0x00006378                __mulsf3x
+                0x0000637e                __mulsf3_pse
  .text.avr-libc.fplib
-                0x000063f2       0xa0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(pow.o)
-                0x000063f2                pow
+                0x0000642c       0xa0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(pow.o)
+                0x0000642c                pow
  .text.avr-libc.fplib
-                0x00006492       0x74 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(exp.o)
-                0x000064a2                exp
+                0x000064cc       0x74 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(exp.o)
+                0x000064dc                exp
  .text.avr-libc.fplib
-                0x00006506       0x4e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_powser.o)
-                0x00006506                __fp_powser
+                0x00006540       0x4e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(fp_powser.o)
+                0x00006540                __fp_powser
  .text.avr-libc.fplib
-                0x00006554       0x10 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(inverse.o)
-                0x00006554                inverse
+                0x0000658e       0x10 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(inverse.o)
+                0x0000658e                inverse
  .text.avr-libc.fplib
-                0x00006564       0x74 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(ldexp.o)
-                0x0000656c                ldexp
+                0x0000659e       0x74 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(ldexp.o)
+                0x000065a6                ldexp
  .text.avr-libc.fplib
-                0x000065d8       0xa0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(log.o)
-                0x000065e8                log
+                0x00006612       0xa0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(log.o)
+                0x00006622                log
  .text.avr-libc.fplib
-                0x00006678       0x68 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(modf.o)
-                0x00006678                modf
-                0x00006678                modff
+                0x000066b2       0x68 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a(modf.o)
+                0x000066b2                modf
+                0x000066b2                modff
  .text.avr-libc
-                0x000066e0      0x6f8 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libprintf_flt.a(vfprintf_flt.o)
-                0x000066e0                vfprintf
+                0x0000671a      0x6f8 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libprintf_flt.a(vfprintf_flt.o)
+                0x0000671a                vfprintf
  .text.avr-libc
-                0x00006dd8      0x7ee c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libscanf_flt.a(vfscanf_flt.o)
-                0x00007362                vfscanf
+                0x00006e12      0x7ee c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libscanf_flt.a(vfscanf_flt.o)
+                0x0000739c                vfscanf
  .text.libgcc.div
-                0x000075c6       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o)
-                0x000075c6                _div
-                0x000075c6                __divmodhi4
+                0x00007600       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o)
+                0x00007600                _div
+                0x00007600                __divmodhi4
  .text.libgcc.div
-                0x000075ee       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodsi4.o)
-                0x000075ee                __udivmodsi4
+                0x00007628       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodsi4.o)
+                0x00007628                __udivmodsi4
  .text.libgcc.div
-                0x00007632       0x2e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodsi4.o)
-                0x00007632                __divmodsi4
+                0x0000766c       0x2e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodsi4.o)
+                0x0000766c                __divmodsi4
  .text.libgcc.div
-                0x00007660       0x10 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_negsi2.o)
-                0x00007660                __negsi2
- .text.libgcc   0x00007670        0xc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_tablejump2.o)
-                0x00007670                __tablejump2__
+                0x0000769a       0x10 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_negsi2.o)
+                0x0000769a                __negsi2
+ .text.libgcc   0x000076aa        0xc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_tablejump2.o)
+                0x000076aa                __tablejump2__
  .text.libgcc.mul
-                0x0000767c       0x1e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_umulhisi3.o)
-                0x0000767c                __umulhisi3
+                0x000076b6       0x1e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_umulhisi3.o)
+                0x000076b6                __umulhisi3
  .text.libgcc.mul
-                0x0000769a       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_muluhisi3.o)
-                0x0000769a                __muluhisi3
+                0x000076d4       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_muluhisi3.o)
+                0x000076d4                __muluhisi3
  .text.libgcc.prologue
-                0x000076b0       0x38 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_prologue.o)
-                0x000076b0                __prologue_saves__
+                0x000076ea       0x38 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_prologue.o)
+                0x000076ea                __prologue_saves__
  .text.libgcc.prologue
-                0x000076e8       0x36 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_epilogue.o)
-                0x000076e8                __epilogue_restores__
+                0x00007722       0x36 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_epilogue.o)
+                0x00007722                __epilogue_restores__
  .text.libgcc.div
-                0x0000771e       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodhi4.o)
-                0x0000771e                __udivmodhi4
+                0x00007758       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodhi4.o)
+                0x00007758                __udivmodhi4
  .text.avr-libc
-                0x00007746      0x1b0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(ftoa_engine.o)
-                0x00007746                __ftoa_engine
+                0x00007780      0x1b0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(ftoa_engine.o)
+                0x00007780                __ftoa_engine
  .text.avr-libc
-                0x000078f6       0x12 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(isspace.o)
-                0x000078f6                isspace
+                0x00007930       0x12 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(isspace.o)
+                0x00007930                isspace
  .text.avr-libc
-                0x00007908       0x10 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(tolower.o)
-                0x00007908                tolower
+                0x00007942       0x10 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(tolower.o)
+                0x00007942                tolower
  .text.avr-libc
-                0x00007918       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(strchr_P.o)
-                0x00007918                strchr_P
+                0x00007952       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(strchr_P.o)
+                0x00007952                strchr_P
  .text.avr-libc
-                0x0000792e       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(strnlen_P.o)
-                0x0000792e                strnlen_P
+                0x00007968       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(strnlen_P.o)
+                0x00007968                strnlen_P
  .text.avr-libc
-                0x00007944       0x1a c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(memcmp.o)
-                0x00007944                memcmp
+                0x0000797e       0x1a c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(memcmp.o)
+                0x0000797e                memcmp
  .text.avr-libc
-                0x0000795e       0x12 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(memcpy.o)
-                0x0000795e                memcpy
+                0x00007998       0x12 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(memcpy.o)
+                0x00007998                memcpy
  .text.avr-libc
-                0x00007970       0x1c c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(strncmp.o)
-                0x00007970                strncmp
+                0x000079aa       0x1c c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(strncmp.o)
+                0x000079aa                strncmp
  .text.avr-libc
-                0x0000798c       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(strnlen.o)
-                0x0000798c                strnlen
+                0x000079c6       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(strnlen.o)
+                0x000079c6                strnlen
  .text.avr-libc
-                0x000079a2       0x7c c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(fgetc.o)
-                0x000079a2                fgetc
+                0x000079dc       0x7c c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(fgetc.o)
+                0x000079dc                fgetc
  .text.avr-libc
-                0x00007a1e       0x70 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(fputc.o)
-                0x00007a1e                fputc
+                0x00007a58       0x70 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(fputc.o)
+                0x00007a58                fputc
  .text.avr-libc
-                0x00007a8e       0x60 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(snprintf.o)
-                0x00007a8e                snprintf
+                0x00007ac8       0x60 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(snprintf.o)
+                0x00007ac8                snprintf
  .text.avr-libc
-                0x00007aee       0x46 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(sprintf.o)
-                0x00007aee                sprintf
+                0x00007b28       0x46 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(sprintf.o)
+                0x00007b28                sprintf
  .text.avr-libc
-                0x00007b34       0x32 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(sscanf.o)
-                0x00007b34                sscanf
+                0x00007b6e       0x32 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(sscanf.o)
+                0x00007b6e                sscanf
  .text.avr-libc
-                0x00007b66       0x32 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(ungetc.o)
-                0x00007b66                ungetc
+                0x00007ba0       0x32 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(ungetc.o)
+                0x00007ba0                ungetc
  .text.avr-libc
-                0x00007b98       0xbc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(ultoa_invert.o)
-                0x00007b98                __ultoa_invert
+                0x00007bd2       0xbc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(ultoa_invert.o)
+                0x00007bd2                __ultoa_invert
  .text.avr-libc
-                0x00007c54        0x6 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(cty_isfalse.o)
-                0x00007c54                __ctype_isfalse
-                0x00007c58                __ctype_istrue
+                0x00007c8e        0x6 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a(cty_isfalse.o)
+                0x00007c8e                __ctype_isfalse
+                0x00007c92                __ctype_istrue
  .text.avr-libc
-                0x00007c5a       0x10 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
-                0x00007c5a                eeprom_read_byte
+                0x00007c94       0x10 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
+                0x00007c94                eeprom_read_byte
  .text.avr-libc
-                0x00007c6a       0x1c C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
-                0x00007c6a                eeprom_write_byte
-                0x00007c6c                eeprom_write_r18
-                0x00007c86                . = ALIGN (0x2)
+                0x00007ca4       0x1c C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
+                0x00007ca4                eeprom_write_byte
+                0x00007ca6                eeprom_write_r18
+                0x00007cc0                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00007c86        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
-                0x00007c86                _exit
-                0x00007c86                exit
+ .fini9         0x00007cc0        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+                0x00007cc0                _exit
+                0x00007cc0                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -1572,11 +1576,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00007c86        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+ .fini0         0x00007cc0        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x00007c8a                _etext = .
+                0x00007cc4                _etext = .
 
-.data           0x00800100       0x16 load address 0x00007c8a
+.data           0x00800100       0x16 load address 0x00007cc4
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -1591,7 +1595,7 @@ END GROUP
  .data.mainSCStackAddr
                 0x00800106        0x2 df4iah_fw_main.o
                 0x00800106                mainSCStackAddr
- .data.bufferInt.2298
+ .data.bufferInt.2300
                 0x00800108        0x5 df4iah_fw_usb.o
  .data.usbMsgLen
                 0x0080010d        0x1 usbdrv_fw/usbdrv.o
@@ -1612,25 +1616,25 @@ END GROUP
                 0x00800116                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
- .bss.phaseStepsErrorSum.2841
+ .bss.phaseStepsErrorSum.2843
                 0x00800116        0x4 df4iah_fw_main.o
- .bss.lastPhaseStepsPhase.2850
+ .bss.lastPhaseStepsPhase.2852
                 0x0080011a        0x4 df4iah_fw_main.o
- .bss.phaseMeanPhaseErrorSum.2840
+ .bss.phaseMeanPhaseErrorSum.2842
                 0x0080011e        0x4 df4iah_fw_main.o
- .bss.holdOffTime.2816
+ .bss.holdOffTime.2818
                 0x00800122        0x1 df4iah_fw_main.o
- .bss.localMeanClockDiffSum.2940
+ .bss.localMeanClockDiffSum.2942
                 0x00800123        0x4 df4iah_fw_main.o
- .bss.localFastCtr1ms_next.2928
+ .bss.localFastCtr1ms_next.2930
                 0x00800127        0x4 df4iah_fw_main.o
- .bss.localNoPpsCnt.2929
+ .bss.localNoPpsCnt.2931
                 0x0080012b        0x1 df4iah_fw_main.o
- .bss.localAdcConvertNowCntrLast.2927
+ .bss.localAdcConvertNowCntrLast.2929
                 0x0080012c        0x1 df4iah_fw_main.o
- .bss.displaySubNr.2963
+ .bss.displaySubNr.2965
                 0x0080012d        0x1 df4iah_fw_main.o
- .bss.displayNr.2962
+ .bss.displayNr.2964
                 0x0080012e        0x1 df4iah_fw_main.o
  .bss.twiSeq2Data
                 0x0080012f       0x10 df4iah_fw_main.o
@@ -1915,8 +1919,8 @@ END GROUP
                 0x0080080f                usbConfiguration
                 0x00800810                usbRxBuf
                 0x00800826                PROVIDE (__bss_end, .)
-                0x00007c8a                __data_load_start = LOADADDR (.data)
-                0x00007ca0                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00007cc4                __data_load_start = LOADADDR (.data)
+                0x00007cda                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00800826        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
@@ -2009,7 +2013,7 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000      0x510
+.debug_aranges  0x00000000      0x520
  *(.debug_aranges)
  .debug_aranges
                 0x00000000       0x40 df4iah_bl_memory.o
@@ -2020,116 +2024,116 @@ END GROUP
  .debug_aranges
                 0x000000b0       0x30 df4iah_fw_clkPullPwm.o
  .debug_aranges
-                0x000000e0       0x90 df4iah_fw_main.o
+                0x000000e0       0x98 df4iah_fw_main.o
  .debug_aranges
-                0x00000170       0x80 df4iah_fw_memory.o
+                0x00000178       0x80 df4iah_fw_memory.o
  .debug_aranges
-                0x000001f0       0x50 df4iah_fw_ringbuffer.o
+                0x000001f8       0x50 df4iah_fw_ringbuffer.o
  .debug_aranges
-                0x00000240       0x70 df4iah_fw_serial.o
+                0x00000248       0x70 df4iah_fw_serial.o
  .debug_aranges
-                0x000002b0       0x68 df4iah_fw_twi.o
+                0x000002b8       0x70 df4iah_fw_twi.o
  .debug_aranges
-                0x00000318       0x48 df4iah_fw_twi_mcp23017.o
+                0x00000328       0x48 df4iah_fw_twi_mcp23017.o
  .debug_aranges
-                0x00000360       0x40 df4iah_fw_twi_mcp23017_av1624.o
+                0x00000370       0x40 df4iah_fw_twi_mcp23017_av1624.o
  .debug_aranges
-                0x000003a0       0x90 df4iah_fw_twi_smart_lcd.o
+                0x000003b0       0x90 df4iah_fw_twi_smart_lcd.o
  .debug_aranges
-                0x00000430       0x50 df4iah_fw_usb.o
+                0x00000440       0x50 df4iah_fw_usb.o
  .debug_aranges
-                0x00000480       0x30 usbdrv_fw/usbdrv.o
+                0x00000490       0x30 usbdrv_fw/usbdrv.o
  .debug_aranges
-                0x000004b0       0x20 usbdrv_fw/usbdrvasm.o
+                0x000004c0       0x20 usbdrv_fw/usbdrvasm.o
  .debug_aranges
-                0x000004d0       0x20 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
+                0x000004e0       0x20 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
  .debug_aranges
-                0x000004f0       0x20 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
+                0x00000500       0x20 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0xa2ce
+.debug_info     0x00000000     0xa343
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_info    0x000005f4      0x3da df4iah_bl_memory.o
  .debug_info    0x000009ce      0x16d df4iah_fw_anlgComp.o
  .debug_info    0x00000b3b      0x27a df4iah_fw_clkFastCtr.o
  .debug_info    0x00000db5      0x242 df4iah_fw_clkPullPwm.o
- .debug_info    0x00000ff7     0x488b df4iah_fw_main.o
- .debug_info    0x00005882      0xd4b df4iah_fw_memory.o
- .debug_info    0x000065cd      0x712 df4iah_fw_ringbuffer.o
- .debug_info    0x00006cdf      0x74b df4iah_fw_serial.o
- .debug_info    0x0000742a      0x680 df4iah_fw_twi.o
- .debug_info    0x00007aaa      0x534 df4iah_fw_twi_mcp23017.o
- .debug_info    0x00007fde      0x99d df4iah_fw_twi_mcp23017_av1624.o
- .debug_info    0x0000897b      0x5a1 df4iah_fw_twi_smart_lcd.o
- .debug_info    0x00008f1c      0x7a5 df4iah_fw_usb.o
- .debug_info    0x000096c1      0xa03 usbdrv_fw/usbdrv.o
- .debug_info    0x0000a0c4       0xb2 usbdrv_fw/usbdrvasm.o
- .debug_info    0x0000a176       0xac C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
- .debug_info    0x0000a222       0xac C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
+ .debug_info    0x00000ff7     0x4868 df4iah_fw_main.o
+ .debug_info    0x0000585f      0xd4b df4iah_fw_memory.o
+ .debug_info    0x000065aa      0x712 df4iah_fw_ringbuffer.o
+ .debug_info    0x00006cbc      0x74b df4iah_fw_serial.o
+ .debug_info    0x00007407      0x704 df4iah_fw_twi.o
+ .debug_info    0x00007b0b      0x548 df4iah_fw_twi_mcp23017.o
+ .debug_info    0x00008053      0x99d df4iah_fw_twi_mcp23017_av1624.o
+ .debug_info    0x000089f0      0x5a1 df4iah_fw_twi_smart_lcd.o
+ .debug_info    0x00008f91      0x7a5 df4iah_fw_usb.o
+ .debug_info    0x00009736      0xa03 usbdrv_fw/usbdrv.o
+ .debug_info    0x0000a139       0xb2 usbdrv_fw/usbdrvasm.o
+ .debug_info    0x0000a1eb       0xac C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
+ .debug_info    0x0000a297       0xac C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
 
-.debug_abbrev   0x00000000     0x21f2
+.debug_abbrev   0x00000000     0x21fa
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x5a2 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_abbrev  0x000005a2      0x123 df4iah_bl_memory.o
  .debug_abbrev  0x000006c5       0xa8 df4iah_fw_anlgComp.o
  .debug_abbrev  0x0000076d       0xbf df4iah_fw_clkFastCtr.o
  .debug_abbrev  0x0000082c      0x138 df4iah_fw_clkPullPwm.o
- .debug_abbrev  0x00000964      0x4ac df4iah_fw_main.o
- .debug_abbrev  0x00000e10      0x2e3 df4iah_fw_memory.o
- .debug_abbrev  0x000010f3      0x1e0 df4iah_fw_ringbuffer.o
- .debug_abbrev  0x000012d3      0x259 df4iah_fw_serial.o
- .debug_abbrev  0x0000152c      0x20c df4iah_fw_twi.o
- .debug_abbrev  0x00001738      0x145 df4iah_fw_twi_mcp23017.o
- .debug_abbrev  0x0000187d      0x22d df4iah_fw_twi_mcp23017_av1624.o
- .debug_abbrev  0x00001aaa      0x12f df4iah_fw_twi_smart_lcd.o
- .debug_abbrev  0x00001bd9      0x2e4 df4iah_fw_usb.o
- .debug_abbrev  0x00001ebd      0x2f9 usbdrv_fw/usbdrv.o
- .debug_abbrev  0x000021b6       0x14 usbdrv_fw/usbdrvasm.o
- .debug_abbrev  0x000021ca       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
- .debug_abbrev  0x000021de       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
+ .debug_abbrev  0x00000964      0x4ad df4iah_fw_main.o
+ .debug_abbrev  0x00000e11      0x2e3 df4iah_fw_memory.o
+ .debug_abbrev  0x000010f4      0x1e0 df4iah_fw_ringbuffer.o
+ .debug_abbrev  0x000012d4      0x259 df4iah_fw_serial.o
+ .debug_abbrev  0x0000152d      0x22f df4iah_fw_twi.o
+ .debug_abbrev  0x0000175c      0x129 df4iah_fw_twi_mcp23017.o
+ .debug_abbrev  0x00001885      0x22d df4iah_fw_twi_mcp23017_av1624.o
+ .debug_abbrev  0x00001ab2      0x12f df4iah_fw_twi_smart_lcd.o
+ .debug_abbrev  0x00001be1      0x2e4 df4iah_fw_usb.o
+ .debug_abbrev  0x00001ec5      0x2f9 usbdrv_fw/usbdrv.o
+ .debug_abbrev  0x000021be       0x14 usbdrv_fw/usbdrvasm.o
+ .debug_abbrev  0x000021d2       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
+ .debug_abbrev  0x000021e6       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
 
-.debug_line     0x00000000     0x4d40
+.debug_line     0x00000000     0x4ec4
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x133 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_line    0x00000133      0x321 df4iah_bl_memory.o
  .debug_line    0x00000454      0x1ef df4iah_fw_anlgComp.o
  .debug_line    0x00000643      0x1b2 df4iah_fw_clkFastCtr.o
  .debug_line    0x000007f5      0x1e0 df4iah_fw_clkPullPwm.o
- .debug_line    0x000009d5     0x164f df4iah_fw_main.o
- .debug_line    0x00002024      0x4c6 df4iah_fw_memory.o
- .debug_line    0x000024ea      0x5b8 df4iah_fw_ringbuffer.o
- .debug_line    0x00002aa2      0x4c2 df4iah_fw_serial.o
- .debug_line    0x00002f64      0x4e8 df4iah_fw_twi.o
- .debug_line    0x0000344c      0x1ad df4iah_fw_twi_mcp23017.o
- .debug_line    0x000035f9      0x41f df4iah_fw_twi_mcp23017_av1624.o
- .debug_line    0x00003a18      0x2e7 df4iah_fw_twi_smart_lcd.o
- .debug_line    0x00003cff      0x3ba df4iah_fw_usb.o
- .debug_line    0x000040b9      0x411 usbdrv_fw/usbdrv.o
- .debug_line    0x000044ca      0x75e usbdrv_fw/usbdrvasm.o
- .debug_line    0x00004c28       0x7a C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
- .debug_line    0x00004ca2       0x9e C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
+ .debug_line    0x000009d5     0x16ad df4iah_fw_main.o
+ .debug_line    0x00002082      0x4c6 df4iah_fw_memory.o
+ .debug_line    0x00002548      0x5b8 df4iah_fw_ringbuffer.o
+ .debug_line    0x00002b00      0x4c2 df4iah_fw_serial.o
+ .debug_line    0x00002fc2      0x60e df4iah_fw_twi.o
+ .debug_line    0x000035d0      0x1ad df4iah_fw_twi_mcp23017.o
+ .debug_line    0x0000377d      0x41f df4iah_fw_twi_mcp23017_av1624.o
+ .debug_line    0x00003b9c      0x2e7 df4iah_fw_twi_smart_lcd.o
+ .debug_line    0x00003e83      0x3ba df4iah_fw_usb.o
+ .debug_line    0x0000423d      0x411 usbdrv_fw/usbdrv.o
+ .debug_line    0x0000464e      0x75e usbdrv_fw/usbdrvasm.o
+ .debug_line    0x00004dac       0x7a C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
+ .debug_line    0x00004e26       0x9e C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
 
-.debug_frame    0x00000000     0x1098
+.debug_frame    0x00000000     0x10fc
  *(.debug_frame)
  .debug_frame   0x00000000      0x120 df4iah_bl_memory.o
  .debug_frame   0x00000120       0x9c df4iah_fw_anlgComp.o
  .debug_frame   0x000001bc       0xb4 df4iah_fw_clkFastCtr.o
  .debug_frame   0x00000270       0x58 df4iah_fw_clkPullPwm.o
- .debug_frame   0x000002c8      0x54c df4iah_fw_main.o
- .debug_frame   0x00000814      0x190 df4iah_fw_memory.o
- .debug_frame   0x000009a4      0x11c df4iah_fw_ringbuffer.o
- .debug_frame   0x00000ac0      0x150 df4iah_fw_serial.o
- .debug_frame   0x00000c10      0x158 df4iah_fw_twi.o
- .debug_frame   0x00000d68       0x74 df4iah_fw_twi_mcp23017.o
- .debug_frame   0x00000ddc       0xa8 df4iah_fw_twi_mcp23017_av1624.o
- .debug_frame   0x00000e84      0x104 df4iah_fw_twi_smart_lcd.o
- .debug_frame   0x00000f88       0xb8 df4iah_fw_usb.o
- .debug_frame   0x00001040       0x58 usbdrv_fw/usbdrv.o
+ .debug_frame   0x000002c8      0x59c df4iah_fw_main.o
+ .debug_frame   0x00000864      0x190 df4iah_fw_memory.o
+ .debug_frame   0x000009f4      0x11c df4iah_fw_ringbuffer.o
+ .debug_frame   0x00000b10      0x150 df4iah_fw_serial.o
+ .debug_frame   0x00000c60      0x16c df4iah_fw_twi.o
+ .debug_frame   0x00000dcc       0x74 df4iah_fw_twi_mcp23017.o
+ .debug_frame   0x00000e40       0xa8 df4iah_fw_twi_mcp23017_av1624.o
+ .debug_frame   0x00000ee8      0x104 df4iah_fw_twi_smart_lcd.o
+ .debug_frame   0x00000fec       0xb8 df4iah_fw_usb.o
+ .debug_frame   0x000010a4       0x58 usbdrv_fw/usbdrv.o
 
-.debug_str      0x00000000     0x2e84
+.debug_str      0x00000000     0x2e97
  *(.debug_str)
  .debug_str     0x00000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_str     0x00000208      0x2b0 df4iah_bl_memory.o
@@ -2148,35 +2152,35 @@ END GROUP
                                 0x467 (size before relaxing)
  .debug_str     0x00002718       0xa6 df4iah_fw_serial.o
                                 0x67d (size before relaxing)
- .debug_str     0x000027be      0x102 df4iah_fw_twi.o
-                                0x44b (size before relaxing)
- .debug_str     0x000028c0       0xb7 df4iah_fw_twi_mcp23017.o
+ .debug_str     0x000027be      0x115 df4iah_fw_twi.o
+                                0x481 (size before relaxing)
+ .debug_str     0x000028d3       0xb7 df4iah_fw_twi_mcp23017.o
                                 0x3b1 (size before relaxing)
- .debug_str     0x00002977       0xdb df4iah_fw_twi_mcp23017_av1624.o
+ .debug_str     0x0000298a       0xdb df4iah_fw_twi_mcp23017_av1624.o
                                 0x4ac (size before relaxing)
- .debug_str     0x00002a52       0x9a df4iah_fw_twi_smart_lcd.o
+ .debug_str     0x00002a65       0x9a df4iah_fw_twi_smart_lcd.o
                                 0x4ac (size before relaxing)
- .debug_str     0x00002aec      0x127 df4iah_fw_usb.o
+ .debug_str     0x00002aff      0x127 df4iah_fw_usb.o
                                 0x5b8 (size before relaxing)
- .debug_str     0x00002c13      0x271 usbdrv_fw/usbdrv.o
+ .debug_str     0x00002c26      0x271 usbdrv_fw/usbdrv.o
                                 0x52e (size before relaxing)
 
-.debug_loc      0x00000000     0x6a3d
+.debug_loc      0x00000000     0x6ae8
  *(.debug_loc)
  .debug_loc     0x00000000      0x80a df4iah_bl_memory.o
  .debug_loc     0x0000080a      0x190 df4iah_fw_anlgComp.o
  .debug_loc     0x0000099a      0x1a3 df4iah_fw_clkFastCtr.o
  .debug_loc     0x00000b3d       0x5c df4iah_fw_clkPullPwm.o
- .debug_loc     0x00000b99     0x299f df4iah_fw_main.o
- .debug_loc     0x00003538      0xb25 df4iah_fw_memory.o
- .debug_loc     0x0000405d      0x88b df4iah_fw_ringbuffer.o
- .debug_loc     0x000048e8      0x3e3 df4iah_fw_serial.o
- .debug_loc     0x00004ccb      0x6a9 df4iah_fw_twi.o
- .debug_loc     0x00005374       0xb0 df4iah_fw_twi_mcp23017.o
- .debug_loc     0x00005424      0x313 df4iah_fw_twi_mcp23017_av1624.o
- .debug_loc     0x00005737      0x4da df4iah_fw_twi_smart_lcd.o
- .debug_loc     0x00005c11      0x47d df4iah_fw_usb.o
- .debug_loc     0x0000608e      0x9af usbdrv_fw/usbdrv.o
+ .debug_loc     0x00000b99     0x29b7 df4iah_fw_main.o
+ .debug_loc     0x00003550      0xb25 df4iah_fw_memory.o
+ .debug_loc     0x00004075      0x88b df4iah_fw_ringbuffer.o
+ .debug_loc     0x00004900      0x3e3 df4iah_fw_serial.o
+ .debug_loc     0x00004ce3      0x73c df4iah_fw_twi.o
+ .debug_loc     0x0000541f       0xb0 df4iah_fw_twi_mcp23017.o
+ .debug_loc     0x000054cf      0x313 df4iah_fw_twi_mcp23017_av1624.o
+ .debug_loc     0x000057e2      0x4da df4iah_fw_twi_smart_lcd.o
+ .debug_loc     0x00005cbc      0x47d df4iah_fw_usb.o
+ .debug_loc     0x00006139      0x9af usbdrv_fw/usbdrv.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -2196,22 +2200,22 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000      0x638
+.debug_ranges   0x00000000      0x600
  *(.debug_ranges)
  .debug_ranges  0x00000000       0xa8 df4iah_bl_memory.o
  .debug_ranges  0x000000a8       0x28 df4iah_fw_anlgComp.o
  .debug_ranges  0x000000d0       0x28 df4iah_fw_clkFastCtr.o
  .debug_ranges  0x000000f8       0x20 df4iah_fw_clkPullPwm.o
- .debug_ranges  0x00000118      0x188 df4iah_fw_main.o
- .debug_ranges  0x000002a0       0xb8 df4iah_fw_memory.o
- .debug_ranges  0x00000358       0x58 df4iah_fw_ringbuffer.o
- .debug_ranges  0x000003b0       0x60 df4iah_fw_serial.o
- .debug_ranges  0x00000410       0x58 df4iah_fw_twi.o
- .debug_ranges  0x00000468       0x38 df4iah_fw_twi_mcp23017.o
- .debug_ranges  0x000004a0       0x30 df4iah_fw_twi_mcp23017_av1624.o
- .debug_ranges  0x000004d0       0x80 df4iah_fw_twi_smart_lcd.o
- .debug_ranges  0x00000550       0x40 df4iah_fw_usb.o
- .debug_ranges  0x00000590       0xa8 usbdrv_fw/usbdrv.o
+ .debug_ranges  0x00000118      0x148 df4iah_fw_main.o
+ .debug_ranges  0x00000260       0xb8 df4iah_fw_memory.o
+ .debug_ranges  0x00000318       0x58 df4iah_fw_ringbuffer.o
+ .debug_ranges  0x00000370       0x60 df4iah_fw_serial.o
+ .debug_ranges  0x000003d0       0x60 df4iah_fw_twi.o
+ .debug_ranges  0x00000430       0x38 df4iah_fw_twi_mcp23017.o
+ .debug_ranges  0x00000468       0x30 df4iah_fw_twi_mcp23017_av1624.o
+ .debug_ranges  0x00000498       0x80 df4iah_fw_twi_smart_lcd.o
+ .debug_ranges  0x00000518       0x40 df4iah_fw_usb.o
+ .debug_ranges  0x00000558       0xa8 usbdrv_fw/usbdrv.o
 
 .debug_macro
  *(.debug_macro)

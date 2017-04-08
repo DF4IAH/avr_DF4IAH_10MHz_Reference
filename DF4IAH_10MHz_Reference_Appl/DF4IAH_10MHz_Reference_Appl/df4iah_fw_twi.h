@@ -47,7 +47,7 @@
 void twi_fw_init(void);
 void twi_fw_close(void);
 
-void twi_fw_waitUntilDone(void);
+void twi_fw_waitUntilDone(uint8_t extraDelay);
 void twi_fw_sendCmdSendData1(uint8_t addr, uint8_t cmd, uint8_t data1);
 void twi_fw_sendCmdSendData1SendData2(uint8_t addr, uint8_t cmd, uint8_t data1, uint8_t data2);
 void twi_fw_sendCmdSendData1SendDataVar(uint8_t addr, uint8_t cmd, uint8_t cnt, uint8_t data[]);
