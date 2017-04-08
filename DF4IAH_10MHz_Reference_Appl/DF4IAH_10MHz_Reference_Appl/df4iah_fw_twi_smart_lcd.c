@@ -68,10 +68,10 @@ void twi_smart_lcd_fw_set_ppb(int16_t ppb_int, uint16_t ppb_frac1000)
 	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_PPB, 4, (uint8_t*) &mainPrepareBuffer);
 }
 
-void twi_smart_lcd_fw_set_pwm(uint8_t pwm_int, uint8_t pwm_frac)
+void twi_smart_lcd_fw_set_pwm(uint8_t pwm_int, uint8_t pwm_frac256)
 {
 	mainPrepareBuffer[0] = pwm_int;
-	mainPrepareBuffer[1] = pwm_frac;
+	mainPrepareBuffer[1] = pwm_frac256;
 	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SHOW_TCXO_PWM, 2, (uint8_t*) &mainPrepareBuffer);
 }
 
