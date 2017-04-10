@@ -54,6 +54,7 @@ void twi_fw_init(void)
 	SREG = sreg;
 }
 
+#if 0
 void twi_fw_close(void)
 {
 	// TWI interface disabled
@@ -65,6 +66,7 @@ void twi_fw_close(void)
 	/* no more power is needed for this module */
 	PRR |= _BV(PRTWI);
 }
+#endif
 
 
 static void s_delay(void)
@@ -91,41 +93,17 @@ void twi_fw_waitUntilDone(uint8_t extraDelay)
 
 void twi_fw_sendCmdSendData1(uint8_t addr, uint8_t cmd, uint8_t data1)
 {
-	uint8_t sreg;
-
-	twi_fw_waitUntilDone(addr == TWI_SMART_LCD_ADDR ?  10 : 0);
-
-	sreg = SREG;
-	cli();
-	twiSeq1Adr = addr;
-	twiSeq2DataCnt = 0;
-	twiSeq2Data[twiSeq2DataCnt++] = cmd;
-	twiState.isRepeatedStart = false;
-	twiSeq2Data[twiSeq2DataCnt++] = data1;
-	twiState.doStart = true;
-	SREG = sreg;
-
-	isr_sendStart(true, false);
+	twi_fw_sendCmdSendData1SendDataVar(addr, cmd, 2, &data1);
 }
 
 void twi_fw_sendCmdSendData1SendData2(uint8_t addr, uint8_t cmd, uint8_t data1, uint8_t data2)
 {
-	uint8_t sreg;
+	struct {
+		uint8_t data1;
+		uint8_t data2;
+	} data = { data1, data2 };
 
-	twi_fw_waitUntilDone(addr == TWI_SMART_LCD_ADDR ?  10 : 0);
-
-	sreg = SREG;
-	cli();
-	twiSeq1Adr = addr;
-	twiSeq2DataCnt = 0;
-	twiSeq2Data[twiSeq2DataCnt++] = cmd;
-	twiState.isRepeatedStart = false;
-	twiSeq2Data[twiSeq2DataCnt++] = data1;
-	twiSeq2Data[twiSeq2DataCnt++] = data2;
-	twiState.doStart = true;
-	SREG = sreg;
-
-	isr_sendStart(true, false);
+	twi_fw_sendCmdSendData1SendDataVar(addr, cmd, 2, (uint8_t*) &data);
 }
 
 void twi_fw_sendCmdSendData1SendDataVar(uint8_t addr, uint8_t cmd, uint8_t cnt, uint8_t data[])

@@ -61,6 +61,7 @@ void twi_mcp23017_fw_init(void)
 	(void) twi_fw_sendCmdSendData1SendData2(TWI_MCP23017_ADDR, TWI_MCP23017_REG_INTCONA, set_data, set_data);  // unused - setting port-A and port-B
 }
 
+#if 0
 void twi_mcp23017_fw_close(void)
 {
 	uint8_t clr_data = 0x00;  // clear data
@@ -80,6 +81,7 @@ void twi_mcp23017_fw_close(void)
 	/* IODIR */
 	(void) twi_fw_sendCmdSendData1SendData2(TWI_MCP23017_ADDR, TWI_MCP23017_REG_IODIRA, set_data, set_data);  // setting port-A and port-B
 }
+#endif
 
 void twi_mcp23017_fw_setPortA_DirOut(uint8_t isOut)
 {

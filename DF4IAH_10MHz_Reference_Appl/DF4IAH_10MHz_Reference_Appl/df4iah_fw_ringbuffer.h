@@ -34,7 +34,6 @@ uint8_t ringbuffer_fw_ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar 
 uint8_t ringbuffer_fw_ringBufferPull(uint8_t isSend, uchar outData[], uint8_t size);
 
 enum RINGBUFFER_MSG_STATUS_t ringbuffer_fw_getStatusNextMsg(uint8_t isSend);
-void ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend);
 uint8_t ringbuffer_fw_ringBufferWaitAppend(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len);
 
 #endif /* DF4IAH_FW_RINGBUFFER_H_ */

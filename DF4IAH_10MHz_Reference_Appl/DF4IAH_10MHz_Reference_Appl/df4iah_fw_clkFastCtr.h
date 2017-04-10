@@ -18,7 +18,9 @@
 
 
 void clkFastCtr_fw_init(void);
+#if 0
 void clkFastCtr_fw_close(void);
+#endif
 
 /* the following functions are direct __vector_xx calls to reduce some clocks */
 //void clkFastCtr_fw_ISR_T1_CompA(void);

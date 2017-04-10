@@ -33,13 +33,11 @@ LINKER_SCRIPT_DEP:=
 
 # Every subdirectory with source files must be described here
 SUBDIRS :=  \
-../usbdrv_bl \
 ../usbdrv_fw
 
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
-../df4iah_bl_memory.c \
 ../df4iah_fw_anlgComp.c \
 ../df4iah_fw_clkFastCtr.c \
 ../df4iah_fw_clkPullPwm.c \
@@ -64,7 +62,6 @@ ASM_SRCS +=
 
 
 OBJS +=  \
-df4iah_bl_memory.o \
 df4iah_fw_anlgComp.o \
 df4iah_fw_clkFastCtr.o \
 df4iah_fw_clkPullPwm.o \
@@ -82,7 +79,6 @@ usbdrv_fw/usbdrv.o \
 usbdrv_fw/usbdrvasm.o
 
 OBJS_AS_ARGS +=  \
-df4iah_bl_memory.o \
 df4iah_fw_anlgComp.o \
 df4iah_fw_clkFastCtr.o \
 df4iah_fw_clkPullPwm.o \
@@ -100,7 +96,6 @@ usbdrv_fw/usbdrv.o \
 usbdrv_fw/usbdrvasm.o
 
 C_DEPS +=  \
-df4iah_bl_memory.d \
 df4iah_fw_anlgComp.d \
 df4iah_fw_clkFastCtr.d \
 df4iah_fw_clkPullPwm.d \
@@ -118,7 +113,6 @@ usbdrv_fw/usbdrv.d \
 usbdrv_fw/usbdrvasm.d
 
 C_DEPS_AS_ARGS +=  \
-df4iah_bl_memory.d \
 df4iah_fw_anlgComp.d \
 df4iah_fw_clkFastCtr.d \
 df4iah_fw_clkPullPwm.d \
@@ -178,19 +172,17 @@ LINKER_SCRIPT_DEP+=
 
 
 
-
-
 ./%.o: .././%.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 4.9.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DNDEBUG -DRELEASE -DF_CPU=20000000 -DUSB_CFG_CLOCK_KHZ=20000 -DBOOTSIZE=2048  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.1.130\include" -I"../usbdrv_bl" -I"../usbdrv_fw"  -Os -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.1.130\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DNDEBUG -DRELEASE -DF_CPU=20000000 -DUSB_CFG_CLOCK_KHZ=20000 -DBOOTSIZE=2048  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.1.130\include" -I"../usbdrv_fw"  -Os -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.1.130\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
 	@echo Finished building: $<
 	
 
 usbdrv_fw/%.o: ../usbdrv_fw/%.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 4.9.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DNDEBUG -DRELEASE -DF_CPU=20000000 -DUSB_CFG_CLOCK_KHZ=20000 -DBOOTSIZE=2048  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.1.130\include" -I"../usbdrv_bl" -I"../usbdrv_fw"  -Os -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.1.130\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DNDEBUG -DRELEASE -DF_CPU=20000000 -DUSB_CFG_CLOCK_KHZ=20000 -DBOOTSIZE=2048  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.1.130\include" -I"../usbdrv_fw"  -Os -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.1.130\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
 	@echo Finished building: $<
 	
 
@@ -233,7 +225,7 @@ all: $(OUTPUT_FILE_PATH) $(ADDITIONAL_DEPENDENCIES)
 $(OUTPUT_FILE_PATH): $(OBJS) $(USER_OBJS) $(OUTPUT_FILE_DEP) $(LIB_DEP) $(LINKER_SCRIPT_DEP)
 	@echo Building target: $@
 	@echo Invoking: AVR/GNU Linker : 4.9.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE) -o$(OUTPUT_FILE_PATH_AS_ARGS) $(OBJS_AS_ARGS) $(USER_OBJS) $(LIBS) -Wl,-Map="DF4IAH_10MHz_Reference_Appl.map" -Wl,-u,vfprintf -Wl,--start-group -Wl,-lprintf_flt -Wl,-lscanf_flt  -Wl,--end-group -Wl,--gc-sections -Wl,-section-start=.df4iah_bl_memory=0x7900  -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.1.130\gcc\dev\atmega328p" -Wl,-u,vfscanf  
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE) -o$(OUTPUT_FILE_PATH_AS_ARGS) $(OBJS_AS_ARGS) $(USER_OBJS) $(LIBS) -Wl,-Map="DF4IAH_10MHz_Reference_Appl.map" -Wl,--start-group -Wl,-lscanf_flt  -Wl,--end-group -Wl,--gc-sections -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.1.130\gcc\dev\atmega328p" -Wl,-u,vfscanf -mrelax  
 	@echo Finished building target: $@
 	"C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objcopy.exe" -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures  "DF4IAH_10MHz_Reference_Appl.elf" "DF4IAH_10MHz_Reference_Appl.hex"
 	"C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objcopy.exe" -j .eeprom  --set-section-flags=.eeprom=alloc,load --change-section-lma .eeprom=0  --no-change-warnings -O ihex "DF4IAH_10MHz_Reference_Appl.elf" "DF4IAH_10MHz_Reference_Appl.eep" || exit 0

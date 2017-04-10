@@ -9,9 +9,6 @@
 #define DF4IAH_FW_MEMORY_EEPROMDATA_H_
 
 
-#include "df4iah_bl_clkPullPwm.h"
-
-
 #define DEFAULT_PARITY_N0_E2_O3_BITPOS						12
 #define DEFAULT_PARITY_N0_E2_O3_MASK						0xf000
 #define DEFAULT_STOPBITS_BITPOS								8

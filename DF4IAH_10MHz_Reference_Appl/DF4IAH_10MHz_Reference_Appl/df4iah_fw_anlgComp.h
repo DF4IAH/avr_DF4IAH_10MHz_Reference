@@ -20,7 +20,9 @@ enum ADC_CH_t {
 
 
 void anlgComp_fw_init(void);
+#if 0
 void anlgComp_fw_close(void);
+#endif
 
 void anlgComp_fw_startAdcConvertion(void);
 

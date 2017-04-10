@@ -110,6 +110,7 @@ void serial_fw_init(void)
 	serial_fw_serRxIsrOn(true);
 }
 
+#if 0
 void serial_fw_close(void)
 {
 	// interrupt: clearing Global Interrupt Flag when interrupts are changed
@@ -132,6 +133,7 @@ void serial_fw_close(void)
 	/* no more power is needed for this module */
 	PRR |= _BV(PRUSART0);
 }
+#endif
 
 void serial_fw_serRxIsrOn(uint8_t flag)
 {
@@ -223,17 +225,6 @@ void serial_fw_pullAndSendNmea_havingSemaphore(uint8_t isSend)
 	}
 }
 
-/*
- * x	Mnemonics	clocks	resulting clocks
- * ------------------------------------------------
- * 15	push		2		30
- * 1	in			1		 1
- * 1	eor			1		 1
- * 1	lds			2		 2
- * 1	sei			1		 1
- *
- * = 35 clocks --> 1.75 µs until sei() is done
- */
 //void serial_ISR_RXC0(void) - __vector_18
 ISR(USART_RX_vect, ISR_BLOCK)
 {
@@ -287,19 +278,6 @@ ISR(USART_RX_vect, ISR_BLOCK)
 	}
 }
 
-/*
- * x	Mnemonics	clocks	resulting clocks
- * ------------------------------------------------
- * 7	push		2		14
- * 1	in			1		 1
- * 1	eor			1		 1
- * 1	lds			2		 2
- * 1	andi		1		 1
- * 1	sts			2		 2
- * 1	sei			1		 1
- *
- * = 22 clocks --> 1.10 µs until sei() is done
- */
 //void serial_ISR_UDRE0(void) - __vector_19
 ISR(USART_UDRE_vect, ISR_BLOCK)
 {

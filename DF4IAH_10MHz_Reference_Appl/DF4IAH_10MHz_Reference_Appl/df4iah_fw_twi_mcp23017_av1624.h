@@ -13,7 +13,9 @@
 
 
 void twi_mcp23017_av1624_fw_init(void);
+#if 0
 void twi_mcp23017_av1624_fw_close(void);
+#endif
 
 void twi_mcp23017_av1624_fw_waitUntilReady(void);
 void twi_mcp23017_av1624_fw_gotoPosition(uint8_t line, uint8_t column);

@@ -19,11 +19,9 @@
 
 #include "chipdef.h"
 #include "df4iah_fw_main.h"
-#include "df4iah_bl_memory.h"
 #include "df4iah_fw_memory.h"
 
 #include "df4iah_fw_clkFastCtr.h"
-#include "df4iah_bl_clkPullPwm.h"
 #include "df4iah_fw_clkPullPwm.h"
 
 
@@ -87,6 +85,7 @@ void clkPullPwm_fw_init(void)
 	TIMSK0 |= _BV(TOIE0);
 }
 
+#if 0
 void clkPullPwm_fw_close(void)
 {
 	/* disable interrupts */
@@ -110,6 +109,7 @@ void clkPullPwm_fw_close(void)
 	// no more power is needed for this module
 	PRR |= _BV(PRTIM0);
 }
+#endif
 
 #if 0
 void clkPullPwm_fw_setPin(uint8_t isSet)  // do not use when TWI is active
@@ -147,16 +147,6 @@ void clkPullPwm_fw_setPin_ID(uint8_t id)  // do not use when TWI is active
 #endif
 
 
-/*
- * x	Mnemonics	clocks	resulting clocks
- * ------------------------------------------------
- * 5	push		2		10
- * 1	in			1		 1
- * 1	eor			1		 1
- * 1	sei			1		 1
- *
- * = 13 clocks --> 0.65 µs until sei() is done
- */
 //void clkPullPwm_fw_ISR_T0_OVF() - __vector_16
 ISR(TIMER0_OVF_vect, ISR_BLOCK)
 {

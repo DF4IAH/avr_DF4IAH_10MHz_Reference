@@ -230,7 +230,9 @@
 
 
 void twi_mcp23017_fw_init(void);
+#if 0
 void twi_mcp23017_fw_close(void);
+#endif
 
 void twi_mcp23017_fw_setPortA_DirOut(uint8_t isOut);
 void twi_mcp23017_fw_setPortB(uint8_t portB);

@@ -123,11 +123,13 @@ void usb_fw_init(void)
 	USB_INTR_ENABLE |= _BV(USB_INTR_ENABLE_BIT);
 }
 
+#if 0
 void usb_fw_close(void)
 {
 	USB_INTR_ENABLE &= ~(_BV(USB_INTR_ENABLE_BIT));
 	usbDeviceDisconnect();
 }
+#endif
 
 /*  -- 8< -- */
 

@@ -63,6 +63,7 @@ void clkFastCtr_fw_init(void)
 #endif
 }
 
+#if 0
 void clkFastCtr_fw_close(void)
 {
 #if 0
@@ -80,26 +81,8 @@ void clkFastCtr_fw_close(void)
 	/* no more power is needed for this module */
 	PRR |= _BV(PRTIM1);
 }
+#endif
 
-
-/*
- * x	Mnemonics	clocks	resulting clocks
- * ------------------------------------------------
- * 7	push		2		14
- * 2	in			1		 2
- * 1	eor			1		 1
- * 8	lds			2		16
- * 1	adiw		2		 2
- * 2	adc			1		 2
- * 5	sts			2		10
- * 2	out			1		 2
- * 1	cp			1		 1
- * 1	brcc		2		 2
- * 1	subi		1		 1
- * 1	sei			1		 1
- *
- * = 54 clocks --> 2.70 µs until sei() is done
- */
 //void clkFastCtr_fw_ISR_T1_CompA() - __vector_11
 ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 {
@@ -124,20 +107,6 @@ ISR(TIMER1_COMPA_vect, ISR_BLOCK)
 }
 
 
-/*
- * x	Mnemonics	clocks	resulting clocks
- * ------------------------------------------------
- * 12	push		2		24
- * 1	in			1		 1
- * 1	eor			1		 1
- * 6	lds			2		12
- * 0	ldi			1		 0
- * 0	or			1		 0
- * 0	sts			2		 0
- * 1	sei			1		 1
- *
- * = 39 clocks --> 1.95 µs until sei() is done
- */
 //void clkFastCtr_fw_ISR_T1_Capt() - __vector_10
 ISR(TIMER1_CAPT_vect, ISR_BLOCK)
 {
@@ -161,22 +130,6 @@ ISR(TIMER1_CAPT_vect, ISR_BLOCK)
 
 
 #if 0
-/*
- * x	Mnemonics	clocks	resulting clocks
- * ------------------------------------------------
- *  7	push		2		 14
- *  1	in			1		  1
- *  1	eor			1		  1
- *  1	sbis		3		  3
- *  0	rjmp		2		  0
- * 12	lds			2		 24
- *  0	ldi			1		  0
- *  0	or			1		  0
- * 12	sts			2		 24
- *  1	sei			1		  1
- *
- * = 58 clocks --> 2.40 µs until sei() is done
- */
 //void clkSlowCtr_fw_ISR_PCI2() - __vector_5
 ISR(PCINT2_vect, ISR_BLOCK)
 {

@@ -56,6 +56,7 @@ void anlgComp_fw_init(void)
 	ADCSRA |= _BV(ADIE);									// enable ADC interrupt
 }
 
+#if 0
 void anlgComp_fw_close(void)
 {
 	/* disable interrupt, disable analog comparator */
@@ -71,6 +72,7 @@ void anlgComp_fw_close(void)
 	/* disable power for ADC, reference voltage and analog comparator */
 	PRR |= _BV(PRADC);
 }
+#endif
 
 void anlgComp_fw_startAdcConvertion(void) {
 #if 0
@@ -83,20 +85,6 @@ void anlgComp_fw_startAdcConvertion(void) {
 }
 
 #if 0
-/*
- * x	Mnemonics	clocks	resulting clocks
- * ------------------------------------------------
- * 6	push		2		12
- * 1	in			1		 1
- * 1	eor			1		 1
- * 2	ldi			1		 2
- * 2	ld(Z)		2		 4
- * 2	ori			1		 2
- * 2	st(Z)		2		 4
- * 1	sei			1		 1
- *
- * = 27 clocks --> 1.35 µs until sei() is done
- */
 //void anlgComp_fw_ISR_ANALOG_COMP() - __vector_23
 ISR(ANALOG_COMP_vect, ISR_BLOCK)
 {
@@ -113,17 +101,6 @@ ISR(ANALOG_COMP_vect, ISR_BLOCK)
 }
 #endif
 
-/*
- * x	Mnemonics	clocks	resulting clocks
- * ------------------------------------------------
- * 6	push		2		12
- * 1	in			1		 1
- * 1	eor			1		 1
- * 2	lds			2		 4
- * 1	sei			1		 1
- *
- * = 19 clocks --> 0.95 µs until sei() is done
- */
 //void anlgComp_fw_ISR_ADC() - __vector_21
 ISR(ADC_vect, ISR_BLOCK)
 {

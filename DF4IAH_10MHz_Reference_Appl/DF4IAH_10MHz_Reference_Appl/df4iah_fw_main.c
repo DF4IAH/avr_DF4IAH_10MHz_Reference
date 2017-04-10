@@ -5,26 +5,6 @@
 ******************************************************************************/
 // tabsize: 4
 
-/**
- * Memory layout - FIRMWARE / BOOTLOADER:
- * 		Start			Length
- * 		BL: text		0x7000		0x0744
- * 		bl_ClkPullPwm	0x7780		0x0052
- * 		bl_Probe		0x78C0		0x003c
- * 		bl_Memory		0x7900		0x02c8
- * 		bl_USB			0x7be0		0x03fc
- */
-
-/**
- * Memory layout - APPLICATION:
- * 		Start			Length
- * 		FW: text		0x0000		0x6d16
- * 		FW: free		0x6d18		0x6fff
- * 		bl_ClkPullPwm	0x7780		0x0052
- * 		bl_Probe		0x78C0		0x003c
- * 		bl_Memory		0x7900		0x02c8
- */
-
 
 #include <stdint.h>
 #include <stdio.h>
@@ -40,9 +20,7 @@
 
 #include "chipdef.h"
 #include "df4iah_fw_usb.h"
-#include "df4iah_bl_clkPullPwm.h"
 #include "df4iah_fw_clkPullPwm.h"
-#include "df4iah_bl_memory.h"
 #include "df4iah_fw_memory.h"
 #include "df4iah_fw_memory_eepromData.h"
 #include "df4iah_fw_ringbuffer.h"
@@ -57,11 +35,11 @@
 #include "df4iah_fw_main.h"
 
 
-#ifndef BOOT_TOKEN											// make Eclipse happy: should be included from chipdef.h --> mega32.h
+#ifndef BOOT_TOKEN
 # define BOOT_TOKEN											0xb00f
 #endif
-#ifndef DEFAULT_PWM_COUNT									// make Eclipse happy: should be included from chipdef.h --> mega32.h
-# define DEFAULT_PWM_COUNT									90
+#ifndef DEFAULT_PWM_COUNT
+# define DEFAULT_PWM_COUNT									120
 #endif
 
 
@@ -92,7 +70,9 @@ PROGMEM const uchar PM_COMMAND_AFCOFF[]						= "AFCOFF";
 PROGMEM const uchar PM_COMMAND_AFCON[]						= "AFCON";
 PROGMEM const uchar PM_COMMAND_APCOFF[]						= "APCOFF";
 PROGMEM const uchar PM_COMMAND_APCON[]						= "APCON";
+#if 0
 PROGMEM const uchar PM_COMMAND_HALT[]						= "HALT";
+#endif
 PROGMEM const uchar PM_COMMAND_HELP[]						= "HELP";
 PROGMEM const uchar PM_COMMAND_INFO[]						= "INFO";
 PROGMEM const uchar PM_COMMAND_LEDOFF[]						= "LEDOFF";
@@ -120,7 +100,9 @@ PROGMEM const uchar PM_INTERPRETER_HELP02[] 				= "\nAFCOFF\t\t\t\tswitch AFC (a
 PROGMEM const uchar PM_INTERPRETER_HELP03[] 				= "\nAPCOFF\t\t\t\tswitch APC (automatic phase control) off." \
 															  "\nAPCON\t\t\t\tswitch APC (automatic phase control) on.";
 
+#if 0
 PROGMEM const uchar PM_INTERPRETER_HELP04[] 				= "\nHALT\t\t\t\tpowers the device down (sleep mode).";
+#endif
 
 PROGMEM const uchar PM_INTERPRETER_HELP05[] 				= "\nHELP\t\t\t\tthis message.";
 
@@ -152,10 +134,10 @@ PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "\n*?*  unknown command '%s' 
 PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d";
 
 //PROGMEM const uchar PM_FORMAT_GPS_CR_LF[]					= "\r\n";
-//PROGMEM const uchar PM_FORMAT_GPS_HOT_RESTART[]				= "$PMTK101*32\r\n";
+//PROGMEM const uchar PM_FORMAT_GPS_HOT_RESTART[]			= "$PMTK101*32\r\n";
 PROGMEM const uchar PM_FORMAT_GPS_WARM_RESTART[]			= "$PMTK102*31\r\n";
 //PROGMEM const uchar PM_FORMAT_GPS_COLD_RESTART[]			= "$PMTK103*30\r\n";
-//PROGMEM const uchar PM_FORMAT_GPS_DEFAULT_RESTORE[]			= "$PMTK104*37\r\n";
+//PROGMEM const uchar PM_FORMAT_GPS_DEFAULT_RESTORE[]		= "$PMTK104*37\r\n";
 PROGMEM const uchar PM_FORMAT_GPS_STBY[]					= "$PMTK161,0*28\r\n";
 PROGMEM const uchar PM_FORMAT_GPS_WEST0_EAST0[]				= "$PMTK353,0,0*37\r\n";
 PROGMEM const uchar PM_FORMAT_GPS_WEST1_EAST0[]				= "$PMTK353,1,0*36\r\n";
@@ -166,33 +148,47 @@ PROGMEM const uchar PM_FORMAT_GP00[]						= "\n#GP00: =======";
 PROGMEM const uchar PM_FORMAT_GP01[]						= "#GP01: Date = %08ld, Time = %06ld.%03d\n";
 PROGMEM const uchar PM_FORMAT_GP02[]						= "#GP02: Mode2 = %1d, PosFixInd = %1d\n";
 PROGMEM const uchar PM_FORMAT_GP03[]						= "#GP03: SatsUsed = %02d, SatsEphim_GpsGalileoQzss = %02d, SatsEphim_Glonass = %02d\n";
-PROGMEM const uchar PM_FORMAT_GP04[]						= "#GP04: PDOP = %.2f, HDOP = %.2f, VDOP = %.2f,\n";
-PROGMEM const uchar PM_FORMAT_GP05[]						= "#GP05: Lat = %c %09.4f, Lon = %c %010.4f, Height = %.1f m\n";
+//PROGMEM const uchar PM_FORMAT_GP04[]						= "#GP04: PDOP = %.2f, HDOP = %.2f, VDOP = %.2f,\n";
+PROGMEM const uchar PM_FORMAT_GP04[]						= "#GP04: PDOP = %d.%02d, HDOP = %d.%02d, VDOP = %d.%02d,\n";
+//PROGMEM const uchar PM_FORMAT_GP05[]						= "#GP05: Lat = %c %09.4f, Lon = %c %010.4f, Height = %.2f m\n";
+PROGMEM const uchar PM_FORMAT_GP05[]						= "#GP05: Lat = %c %04d.%04d, Lon = %c %05d.%04d, Height = %d.%02d m\n";
 
-PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA01: ADC0 = %04u (%0.3fV)\n";
-PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA02: ADC1 = %04u (%0.3fV)\n";
-PROGMEM const uchar PM_FORMAT_TA03[]						= "#TA03: Temp = %04u (%0.1fC)\n";
+//PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA01: ADC0 = %04u (%0.3fV)\n";
+PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA01: ADC0 = %04u (%d.%03dV)\n";
+//PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA02: ADC1 = %04u (%0.3fV)\n";
+PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA02: ADC1 = %04u (%d.%03dV)\n";
+//PROGMEM const uchar PM_FORMAT_TA03[]						= "#TA03: Temp = %04u (%0.1fC)\n";
+PROGMEM const uchar PM_FORMAT_TA03[]						= "#TA03: Temp = %04u (%d.%1dC)\n";
 PROGMEM const uchar PM_FORMAT_TA11[]						= "#TA11: localFastCtr1ms = %09lu, \tlocalFastTCNT1 = %05u\n";
 PROGMEM const uchar PM_FORMAT_TA12[]						= "#TA12: ppsStampCtr1ms  = %09lu, \tppsStampICR1   = %05u, \tppsStampCtr1ms_last  = %09lu, \tppsStampICR1_last   = %05u\n";
 PROGMEM const uchar PM_FORMAT_TA13[]						= "#TA13: PWM = %03u, \tSub-PWM = %03u\n";
 PROGMEM const uchar PM_FORMAT_TA14[]						= "#TA14: mainRefClkState = 0x%1X\n";
 
-PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID01: +/- KEY \tmainPwmTerminalAdj = %f, \tpullPwmValBefore    = %03u + fastPwmSubCmpBefore    = %03u\n";
-PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID02: +/- KEY \tmainPwmTerminalAdj = %f, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n";
+//PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID01: +/- KEY \tmainPwmTerminalAdj = %f, \tpullPwmValBefore    = %03u + fastPwmSubCmpBefore    = %03u\n";
+PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID01: +/- KEY \tmainPwmTerminalAdj = %d.%07d, \tpullPwmValBefore    = %03u + fastPwmSubCmpBefore    = %03u\n";
+//PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID02: +/- KEY \tmainPwmTerminalAdj = %f, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n";
+PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID02: +/- KEY \tmainPwmTerminalAdj = %d.%07d, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n";
 
 PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: Clock int20MHzClockDiff       =   %+04liHz @20MHz\n";
-PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: Clock localMeanFloatClockDiff = %+03.3fHz @20MHz, \tqrgDev_Hz = %+03.3fHz @10MHz, \tppm = %+02.6f\n";
-PROGMEM const uchar PM_FORMAT_IA03[]						= "#IA03: QRG   newPwmVal = %03.3f, \tpwmCorSteps         = %+03.3f\n";
-PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: PHASE phaseErr  = %03.3f°, \t phaseStepsFrequency = %+03.3f, \tphaseStepsPhase = %+03.3f\n";
-PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_steps = %+03.3f\n";
+//PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: Clock localMeanFloatClockDiff = %+03.3fHz @20MHz, \tqrgDev_Hz = %+03.3fHz @10MHz, \tppm = %+02.6f\n";
+PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: Clock localMeanFloatClockDiff = %c%03d.%03dHz @20MHz, \tqrgDev_Hz = %c%03d.%03dHz @10MHz, \tppm = %c%02d.%06d\n";
+//PROGMEM const uchar PM_FORMAT_IA03[]						= "#IA03: QRG   newPwmVal = %03.3f, \tpwmCorSteps         = %+03.3f\n";
+PROGMEM const uchar PM_FORMAT_IA03[]						= "#IA03: QRG   newPwmVal = %03d.%03d, \tpwmCorSteps         = %+03d.%03d\n";
+//PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: PHASE phaseErr  = %03.3f°, \t phaseStepsFrequency = %+03.3f, \tphaseStepsPhase = %+03.3f\n";
+PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: PHASE phaseErr  = %03d.%03d°, \t phaseStepsFrequency = %c%03d.%03d, \tphaseStepsPhase = %c%03d.%03d\n";
+//PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_steps = %+03.3f\n";
+PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_steps = %c%03d.%03d\n";
 
 PROGMEM const uchar PM_FORMAT_LC01[]						= "+=== DF4IAH ===+";
 PROGMEM const uchar PM_FORMAT_LC02[]						= "10MHzRefOsc V2x1";
-PROGMEM const uchar PM_FORMAT_LC11[]						= "%c% 08.3f %c%1X %c%02u ";
+//PROGMEM const uchar PM_FORMAT_LC11[]						= "%c% 08.3f %c%1X %c%02u ";
+PROGMEM const uchar PM_FORMAT_LC11[]						= "%c %08d.%03d %c%1X %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC12[]						= "b ---.--- %c%1X %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC21[]						= "%02u.%02u. U%02u:%02u:%02u ";
-PROGMEM const uchar PM_FORMAT_LC22[]						= "%c%1u %c%1u %3.1f %c%02u%c%02u ";
-PROGMEM const uchar PM_FORMAT_LC23[]						= "%c%07.3f %c%5.3fV ";
+//PROGMEM const uchar PM_FORMAT_LC22[]						= "%c%1u %c%1u %3.1f %c%02u%c%02u ";
+PROGMEM const uchar PM_FORMAT_LC22[]						= "%c%1u %c%1u %3d.%1d %c%02u%c%02u ";
+//PROGMEM const uchar PM_FORMAT_LC23[]						= "%c%07.3f %c%5.3fV ";
+PROGMEM const uchar PM_FORMAT_LC23[]						= "%c%07d.%03d %c%5d.%03dV ";
 
 PROGMEM const uchar PM_FORMAT_SC01[]						= "#SC01: Stack-Check: mung-wall address: 0x%04x, lowest-stack: 0x%04x\n";
 PROGMEM const uchar PM_FORMAT_SC02[]						= "#SC02: s=0x%02x,dS=%u,iP=%u\n";
@@ -211,7 +207,36 @@ PROGMEM const uchar PM_PARSE_NMEA_MSG41[]					= "$GLGSV,%*d,1,%d,";
 
 // DATA SECTION
 
+/* section text of df4iah_bl_main			- placed @ 0x7000 */
+void (*jump_to_bl)(void) 																				= (void*) 0x7000;
+
+/* section text.df4iah_bl_clkpullpwm		- placed @ 0x7780 */
+void (*clkPullPwm_bl_init)(void)																		= (void*) 0x7780;
+void (*clkPullPwm_bl_close)(void)																		= (void*) 0x77a0;
+void (*clkPullPwm_bl_togglePin)(void)																	= (void*) 0x77b8;
+void (*clkPullPwm_bl_endlessTogglePin)(void)															= (void*) 0x77be;
+
+/* section text.df4iah_bl_probe				- placed @ 0x78c0 */
+void (*probe_bl_init)(void)																				= (void*) 0x78d2;
+void (*probe_bl_close)(void)																			= (void*) 0x78c0;
+uint8_t (*probe_bl_checkJumper)(void)																	= (void*) 0x78c4;
+
+/* section text.df4iah_bl_memory			- placed @ 0x7900 */
+void (*memory_bl_eraseFlash)(void)																		= (void*) 0x7900;
+void (*memory_bl_readFlashPage)(uint8_t target[], pagebuf_t size, uint32_t baddr)						= (void*) 0x7928;
+void (*memory_bl_readEEpromPage)(uint8_t target[], pagebuf_t size, uint16_t baddr)						= (void*) 0x7994;
+void (*memory_bl_writeFlashPage)(uint8_t source[], pagebuf_t size, uint32_t baddr)						= (void*) 0x79d8;
+void (*memory_bl_writeEEpromPage)(uint8_t source[], pagebuf_t size, uint16_t baddr)						= (void*) 0x7b92;
+
+/* section text.df4iah_bl_usb				- 0x7be0 */
+void (*usb_bl_replyContent)(uchar replyBuffer[], uchar data[])											= (void*) 0x7be0;
+void (*usb_bl_init)(void)																				= (void*) 0x7bfc;
+void (*usb_bl_close)(void)																				= (void*) 0x7c1e;
+
+
 /* df4iah_fw_main */
+void (*jump_to_app)(void) 																				= (void*) 0x0000;
+
 uchar mainCoef_b00_dev_header[16 + 1]						= { 0 };
 uint16_t mainCoef_b00_dev_serial							= 0;
 uint16_t mainCoef_b00_dev_version							= 0;
@@ -457,7 +482,7 @@ ISR(WDT_vect, ISR_NAKED) {  // vector_6 - nothing to do, resets WDIF bit
 
 static inline void vectortable_to_firmware(void) {
 	cli();
-	asm volatile											// set active vector table into the Firmware section
+	asm volatile											// set active vector table into the application section
 	(
 		"ldi r24, %1\n\t"
 		"out %0, r24\n\t"
@@ -475,8 +500,22 @@ static inline void wdt_init(void) {
 	wdt_disable();
 }
 
+#if 0
 static inline void wdt_close(void) {
 	wdt_disable();
+}
+#endif
+
+static char s_flt_sign(float val)
+{
+	return val >= 0.0f ?  '+' : '-';
+}
+
+static int s_flt_frac(float val, uint8_t digits)
+{
+	val -= floorf(val);				// drop integer part
+	val *= pow(10, digits);			// shift digits count left of decimal format
+	return (int) floorf(val);		// return integer part
 }
 
 static void recalcEepromCrc(enum BLOCK_NR_t block, uint16_t crcOffset)
@@ -487,13 +526,13 @@ static void recalcEepromCrc(enum BLOCK_NR_t block, uint16_t crcOffset)
 	memory_fw_manageBlock(block);
 }
 
-float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
+static float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
 {
 	/* the fractional part depends on the bit count used for the sub-PWM */
 	return intVal + (intSubVal / 256.0f);
 }
 
-float main_fw_calcTimerAdj(float pwmAdjust, uint8_t* intVal, uint8_t* intSubVal)
+static float main_fw_calcTimerAdj(float pwmAdjust, uint8_t* intVal, uint8_t* intSubVal)
 {
 	float fltTime = main_fw_calcTimerToFloat(*intVal, *intSubVal);
 	float residue = 0.0f;
@@ -624,15 +663,16 @@ static void calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float q
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA02, sizeof(PM_FORMAT_IA02));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-					meanFloatClockDiff,
-					qrgDev_Hz,
-					ppm);
+					s_flt_sign(meanFloatClockDiff), (int) meanFloatClockDiff, s_flt_frac(meanFloatClockDiff, 3),
+					s_flt_sign(qrgDev_Hz), (int) qrgDev_Hz, s_flt_frac(qrgDev_Hz, 3),
+					s_flt_sign(ppm), (int) ppm, s_flt_frac(ppm, 6));
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
+			float l_timer = main_fw_calcTimerToFloat(localFastPwmLoopVal, localFastPwmSubLoopVal);
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA03, sizeof(PM_FORMAT_IA03));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-					main_fw_calcTimerToFloat(localFastPwmLoopVal, localFastPwmSubLoopVal),
-					pwmCorSteps);
+					(int) l_timer, s_flt_frac(l_timer, 3),
+					(int) pwmCorSteps, s_flt_frac(pwmCorSteps, 3));
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 		}
 
@@ -804,14 +844,14 @@ static void calcPhase(void)
 		int len;
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA11, sizeof(PM_FORMAT_IA11));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				phaseErr,
-				phaseStepsFrequency,
-				phaseStepsPhase);
+				(int) phaseErr, s_flt_frac(phaseErr, 3),
+				s_flt_sign(phaseStepsFrequency), (int) phaseStepsFrequency, s_flt_frac(phaseStepsFrequency, 3),
+				s_flt_sign(phaseStepsPhase), (int) phaseStepsPhase, s_flt_frac(phaseStepsPhase, 3));
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA12, sizeof(PM_FORMAT_IA12));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				fastPwmSingleDiffSum);
+				s_flt_sign(fastPwmSingleDiffSum), (int) fastPwmSingleDiffSum, s_flt_frac(fastPwmSingleDiffSum, 3));
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 	}
 }
@@ -828,7 +868,321 @@ int main_fw_memcmp(const unsigned char* msg, const unsigned char* cmpProg, size_
 	return memcmp((const char*) msg, (const char*) mainFormatBuffer, size);
 }
 
-void main_fw_nmeaUtcPlusOneSec(void) {
+static void main_fw_sendInitialHelp(void)
+{
+#if 1
+	ringbuffer_fw_ringBufferWaitAppend(true, true, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP));
+#else
+	if (ringbuffer_fw_getSemaphore(true)) {
+		(void) ringbuffer_fw_ringBufferPush(true, true, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP));
+		ringbuffer_fw_freeSemaphore(true);
+	}
+#endif
+}
+
+static void twi_mcp23017_av1624_fw_showStatus(void)
+{
+	if (!main_bf.mainIsLcdAttached) {
+		twi_mcp23017_fw_init();
+		twi_mcp23017_av1624_fw_init();
+		if (!main_bf.mainIsLcdAttached) {
+			return;
+		}
+	}
+
+	/* I2C LCD-Module via MCP23017 16 bit port expander */  // XXX I2C LCD-Module displayed fields are here
+	uint8_t sreg = SREG;
+	cli();
+	uint32_t localFastCtr1ms = fastCtr1ms;
+	SREG = sreg;
+
+	if (localFastCtr1ms <= 5000) {
+		/* welcome message */
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC01, sizeof(PM_FORMAT_LC01));
+		twi_mcp23017_av1624_fw_gotoPosition(0, 0);
+		twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
+		usbPoll();
+
+		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC02, sizeof(PM_FORMAT_LC02));
+		twi_mcp23017_av1624_fw_gotoPosition(1, 0);
+		twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
+		usbPoll();
+
+		} else {
+		static uint8_t displayNr	= 0;
+		static uint8_t displaySubNr	= 0;
+		int len = 0;
+
+		/* the status-line */
+		float l_ppb = mainPpm * 1000.0f;
+		if (mainRefClkState > REFCLK_STATE_NOSYNC) {
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC11, sizeof(PM_FORMAT_LC11));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+			'b',
+			(int) l_ppb, s_flt_frac(l_ppb, 3),
+			0xe0,
+			mainRefClkState,
+			0xf3,
+			main_nmeaSatsUsed);
+
+			} else {
+			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC12, sizeof(PM_FORMAT_LC12));
+			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+			0xe0,
+			mainRefClkState,
+			0xf3,
+			main_nmeaSatsUsed);
+		}
+		twi_mcp23017_av1624_fw_gotoPosition(0, 0);
+		twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+		usbPoll();
+
+		switch (displayNr) {
+			default:
+			case 0:
+			{
+				/* the timestamp */
+				//uint16_t year	=  main_nmeaDate					% 10000;
+				uint8_t month	= (main_nmeaDate		/ 10000)	% 100;
+				uint8_t day		=  main_nmeaDate		/ 1000000;
+				uint8_t hour	=  main_nmeaTimeUtcInt	/ 10000;
+				uint8_t minutes	= (main_nmeaTimeUtcInt	/ 100)		% 100;
+				uint8_t seconds	=  main_nmeaTimeUtcInt				% 100;
+				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC21, sizeof(PM_FORMAT_LC21));
+				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				day,
+				month,
+				//year % 100,
+				hour,
+				minutes,
+				seconds);
+				twi_mcp23017_av1624_fw_gotoPosition(1, 0);
+				twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+			}
+			break;
+
+			case 1:
+			{
+				/* SAT data */
+				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC22, sizeof(PM_FORMAT_LC22));
+				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				'M',
+				main_nmeaMode2,
+				'F',
+				main_nmeaPosFixIndicator,
+				(int) main_nmeaPdop, s_flt_frac(main_nmeaPdop, 1),
+				0xdf,
+				main_nmeaSatsEphemerisGpsGalileoQzss,
+				0xeb,
+				main_nmeaSatsEphemerisGlonass);
+				twi_mcp23017_av1624_fw_gotoPosition(1, 0);
+				twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+			}
+			break;
+
+			case 2:
+			{
+				/* PWM data */
+				uint8_t sreg = SREG;
+				cli();
+				uint8_t localFastPwmLoopVal		= fastPwmLoopVal;
+				uint8_t localFastPwmSubLoopVal	= fastPwmSubLoopVal;
+				SREG = sreg;
+
+				float l_timer = main_fw_calcTimerToFloat(localFastPwmLoopVal, localFastPwmSubLoopVal);
+				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC23, sizeof(PM_FORMAT_LC23));
+				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
+				'P',
+				(int) l_timer, s_flt_frac(l_timer, 3),
+				0xab,
+				mainAdcPullVolts);
+				twi_mcp23017_av1624_fw_gotoPosition(1, 0);
+				twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
+			}
+			break;
+		}
+		usbPoll();
+
+		if (++displaySubNr >= 3) {
+			displaySubNr = 0;
+			++displayNr;
+			displayNr %= 3;
+		}
+	}
+}
+
+static void twi_smart_lcd_fw_showStatus(void)
+{
+	/* Init device */
+	if (!main_bf.mainIsSmartAttached) {
+		twi_smart_lcd_fw_init();
+#if 0
+		if (!main_bf.mainIsSmartAttached) {
+			return;
+		}
+#endif
+	}
+
+	{
+		uint8_t clk_state;
+		float phaseVolts;
+		uint8_t sreg = SREG;
+		cli();
+		clk_state = (uint8_t) mainRefClkState;
+		phaseVolts = mainAdcPhaseVolts;
+		SREG = sreg;
+
+		int16_t	phase100 = (int16_t) (100.0f * ((phaseVolts - 0.6f) * 180.0f / 0.25f));  // TODO: correct me!
+		twi_smart_lcd_fw_set_clk_state(clk_state, phase100);
+	}
+
+	{
+		long date;
+		uint8_t sreg = SREG;
+		cli();
+		date = main_nmeaDate;
+		SREG = sreg;
+
+		uint16_t year  = (uint16_t) (date % 10000);
+		uint8_t  month = (uint8_t) ((date / 10000) % 100);
+		uint8_t  day   = (uint8_t)  (date / 1000000);
+		twi_smart_lcd_fw_set_date(year, month, day);
+	}
+
+	{
+		long utc;
+		uint8_t sreg = SREG;
+		cli();
+		utc = main_nmeaTimeUtcInt;
+		SREG = sreg;
+
+		uint8_t  hour   = (uint8_t)  (utc / 10000);
+		uint8_t  minute = (uint8_t) ((utc / 100) % 100);
+		uint8_t  second = (uint8_t)  (utc % 100);
+		twi_smart_lcd_fw_set_time(hour, minute, second);
+	}
+
+	{
+		float ppm;
+		uint8_t sreg = SREG;
+		cli();
+		ppm = mainPpm;
+		SREG = sreg;
+
+		float localPpb = ppm > 0 ?  ppm * 1000.0f : ppm * -1000.0f;
+		int16_t ppb_int  = (int16_t) localPpb;
+		uint16_t ppb_frac1000 = (uint16_t) ((localPpb - ppb_int) * 1000.0f);
+		if (ppm < 0) {
+			ppb_int = -ppb_int;
+		}
+		twi_smart_lcd_fw_set_ppb(ppb_int, ppb_frac1000);
+	}
+
+	{
+		uint8_t pwm_int;
+		uint8_t pwm_frac256;
+		uint8_t sreg = SREG;
+		cli();
+		pwm_int = fastPwmLoopVal;
+		pwm_frac256 = fastPwmSubLoopVal;
+		SREG = sreg;
+
+		twi_smart_lcd_fw_set_pwm(pwm_int, pwm_frac256);
+	}
+
+	{
+		float pv;
+		uint8_t sreg = SREG;
+		cli();
+		pv = mainAdcPullVolts;
+		SREG = sreg;
+
+		uint8_t pv_int   = (uint8_t) pv;
+		uint16_t pv_frac1000 = (uint16_t) ((pv - pv_int) * 1000.0f);
+		twi_smart_lcd_fw_set_pv(pv_int, pv_frac1000);
+	}
+
+	{
+		uint8_t sat_west;
+		uint8_t sat_east;
+		uint8_t sat_used;
+		uint8_t sreg = SREG;
+		cli();
+		sat_west = (uint8_t) main_nmeaSatsEphemerisGpsGalileoQzss;
+		sat_east = (uint8_t) main_nmeaSatsEphemerisGlonass;
+		sat_used = (uint8_t) main_nmeaSatsUsed;
+		SREG = sreg;
+
+		twi_smart_lcd_fw_set_sat_use(sat_west, sat_east, sat_used);
+	}
+
+	{
+		float sat_dop;
+		uint8_t sreg = SREG;
+		cli();
+		sat_dop = main_nmeaPdop;
+		SREG = sreg;
+
+		uint16_t sat_dop100 = (uint16_t) (sat_dop * 100.0f);
+		twi_smart_lcd_fw_set_sat_dop(sat_dop100);
+	}
+
+	{
+		uint8_t pos_fi;
+		uint8_t pos_m2;
+		uint8_t sreg = SREG;
+		cli();
+		pos_fi = (uint8_t) main_nmeaPosFixIndicator;
+		pos_m2 = (uint8_t) main_nmeaMode2;
+		SREG = sreg;
+
+		twi_smart_lcd_fw_set_pos_state(pos_fi, pos_m2);
+	}
+
+	{
+		uint8_t lat_sgn;
+		float lat;
+		uint8_t sreg = SREG;
+		cli();
+		lat_sgn = (uint8_t) main_nmeaPosLatSign;
+		lat = main_nmeaPosLat;
+		SREG = sreg;
+
+		uint8_t  lat_deg = (uint8_t) (lat / 100.0f);
+		uint8_t  lat_min_int = (uint8_t) ((int) lat % 100);
+		uint16_t lat_min_frac1000 = (uint16_t) ((lat - (lat_deg * 100 + lat_min_int)) * 1000.0f);
+		twi_smart_lcd_fw_set_pos_lat(lat_sgn, lat_deg, lat_min_int, lat_min_frac1000);
+	}
+
+	{
+		uint8_t lon_sgn;
+		float lon;
+		uint8_t sreg = SREG;
+		cli();
+		lon_sgn = main_nmeaPosLonSign;
+		lon = main_nmeaPosLon;
+		SREG = sreg;
+
+		uint16_t lon_deg = (uint16_t) (lon / 100.0f);
+		uint8_t  lon_min_int = (uint16_t) ((int) lon % 100);
+		uint16_t lon_min_frac1000 = (uint16_t) ((lon - (lon_deg * 100 + lon_min_int)) * 1000.0f);
+		twi_smart_lcd_fw_set_pos_lon(lon_sgn, lon_deg, lon_min_int, lon_min_frac1000);
+	}
+
+	{
+		uint16_t height_int;
+		uint16_t height_frac100;
+		uint8_t sreg = SREG;
+		cli();
+		height_int     = (int16_t) main_nmeaAltitudeM;
+		height_frac100 = (int16_t) ((main_nmeaAltitudeM - floorf(main_nmeaAltitudeM)) * 100.0f);
+		SREG = sreg;
+
+		twi_smart_lcd_fw_set_pos_height(height_int, height_frac100);
+	}
+}
+
+static void main_fw_nmeaUtcPlusOneSec(void) {
 	++main_nmeaTimeUtcInt;
 
 	if ((main_nmeaTimeUtcInt % 100) > 59) {
@@ -842,7 +1196,7 @@ void main_fw_nmeaUtcPlusOneSec(void) {
 	}
 }
 
-void main_fw_parseNmeaLineData(void) {
+static void main_fw_parseNmeaLineData(void) {
 	memory_fw_copyBuffer(true, mainFormatBuffer, PM_PARSE_NMEA_MSG01, sizeof(PM_PARSE_NMEA_MSG01));
 	int len = sscanf((char*) serialCtxtRxBuffer, (char*) mainFormatBuffer,
 			&main_nmeaTimeUtcInt,
@@ -946,6 +1300,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 		/* automatic phase control ON */
 		main_bf.mainIsAPC = true;
 
+#if 0
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_HALT, sizeof(PM_COMMAND_HALT))) {
 		/* stop AVR controller and enter sleep state */
 		uint8_t cnt = 250;
@@ -969,6 +1324,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 
 		main_bf.mainIsSerComm = false;
 		main_bf.mainStopAvr = true;
+#endif
 
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP))) {
 		/* help information */
@@ -1119,11 +1475,13 @@ void workInQueue(void)
 
 			case 2:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP03, sizeof(PM_INTERPRETER_HELP03));
+#if 0
 				main_bf.mainHelpConcatNr = 3;
 				break;
 
 			case 3:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP04, sizeof(PM_INTERPRETER_HELP04));
+#endif
 				main_bf.mainHelpConcatNr = 4;
 				break;
 
@@ -1284,6 +1642,9 @@ static void doJobs(void)
 	 *
 	 * 1)	Linker option:		--Wl,-u,vfprintf  --Wl,-u,vfscanf
 	 * 2)	Linker libraries:	-lm  -lprintf_flt  -lscanf_flt
+	 *
+	 * ATTENTION: This version of the application does drop the vprintf() floating point facilities.
+	 *            vscanf() floating point is still in use.
 	 */
 
 	if (mainGpsInitVal) {
@@ -1339,39 +1700,38 @@ static void doJobs(void)
 
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP04, sizeof(PM_FORMAT_GP04));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				main_nmeaPdop,
-				main_nmeaHdop,
-				main_nmeaVdop);
+				(int) main_nmeaPdop, s_flt_frac(main_nmeaPdop, 2),
+				(int) main_nmeaHdop, s_flt_frac(main_nmeaHdop, 2),
+				(int) main_nmeaVdop, s_flt_frac(main_nmeaVdop, 2));
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP05, sizeof(PM_FORMAT_GP05));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 				(main_nmeaPosLatSign > 0 ?  main_nmeaPosLatSign : '-'),
-				main_nmeaPosLat,
+				(int) main_nmeaPosLat, s_flt_frac(main_nmeaPosLat, 4),
 				(main_nmeaPosLonSign > 0 ?  main_nmeaPosLonSign : '-'),
-				main_nmeaPosLon,
-				main_nmeaAltitudeM);
+				(int) main_nmeaPosLon, s_flt_frac(main_nmeaPosLon, 4),
+				(int) main_nmeaAltitudeM, s_flt_frac(main_nmeaAltitudeM, 2));
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 		if (!localNoPpsCnt) {
 			/* print ADC values - only valid when a PPS has arrived */
-
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA01, sizeof(PM_FORMAT_TA01));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[ADC_CH_PWMPULL],
-					mainAdcPullVolts);
+					(int) mainAdcPullVolts, s_flt_frac(mainAdcPullVolts, 3));
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA02, sizeof(PM_FORMAT_TA02));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[ADC_CH_PHASE],
-					mainAdcPhaseVolts);
+					(int) mainAdcPhaseVolts, s_flt_frac(mainAdcPhaseVolts, 3));
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA03, sizeof(PM_FORMAT_TA03));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
 					acAdcCh[ADC_CH_TEMP],
-					mainAdcTemp);
+					(int) mainAdcTemp, s_flt_frac(mainAdcTemp, 1));
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 		}
 
@@ -1439,11 +1799,12 @@ static void doJobs(void)
 					local20MHzClockDiff);
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
+			float l_mainPpm = mainPpm + 2.5f;
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA02, sizeof(PM_FORMAT_IA02));
 			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-					localMeanFloatClockDiff,
-					qrgDev_Hz,
-					mainPpm + 2.5f);
+					s_flt_sign(localMeanFloatClockDiff), (int) localMeanFloatClockDiff, s_flt_frac(localMeanFloatClockDiff, 3),
+					s_flt_sign(qrgDev_Hz), (int) qrgDev_Hz, s_flt_frac(qrgDev_Hz, 3),
+					s_flt_sign(l_mainPpm), (int) l_mainPpm, s_flt_frac(l_mainPpm, 6));
 			ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 		}
 
@@ -1527,14 +1888,14 @@ static void doJobs(void)
 
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_ID01, sizeof(PM_FORMAT_ID01));
 		uint8_t len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				mainPwmTerminalAdj,
+				(int) mainPwmTerminalAdj, s_flt_frac(mainPwmTerminalAdj, 7),
 				localFastPwmLoopValBefore,
 				localFastPwmSubLoopValBefore);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
 
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_ID02, sizeof(PM_FORMAT_ID02));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				mainPwmTerminalAdj,
+				(int) mainPwmTerminalAdj, s_flt_frac(mainPwmTerminalAdj, 7),
 				localFastPwmLoopValNext,
 				localFastPwmSubLoopValNext);
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
@@ -1542,316 +1903,6 @@ static void doJobs(void)
 		// reset data entry
 		mainPwmTerminalAdj = 0.0f;
 	}
-}
-
-void twi_mcp23017_av1624_fw_showStatus(void)
-{
-	if (!main_bf.mainIsLcdAttached) {
-		twi_mcp23017_fw_init();
-		twi_mcp23017_av1624_fw_init();
-		if (!main_bf.mainIsLcdAttached) {
-			return;
-		}
-	}
-
-	/* I2C LCD-Module via MCP23017 16 bit port expander */  // XXX I2C LCD-Module displayed fields are here
-	uint8_t sreg = SREG;
-	cli();
-	uint32_t localFastCtr1ms = fastCtr1ms;
-	SREG = sreg;
-
-	if (localFastCtr1ms <= 5000) {
-		/* welcome message */
-		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC01, sizeof(PM_FORMAT_LC01));
-		twi_mcp23017_av1624_fw_gotoPosition(0, 0);
-		twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
-		usbPoll();
-
-		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC02, sizeof(PM_FORMAT_LC02));
-		twi_mcp23017_av1624_fw_gotoPosition(1, 0);
-		twi_mcp23017_av1624_fw_writeString(mainFormatBuffer, 16);
-		usbPoll();
-
-		} else {
-		static uint8_t displayNr	= 0;
-		static uint8_t displaySubNr	= 0;
-		int len = 0;
-
-		/* the status-line */
-		if (mainRefClkState > REFCLK_STATE_NOSYNC) {
-			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC11, sizeof(PM_FORMAT_LC11));
-			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-			'b',
-			(mainPpm * 1000.0f),
-			0xe0,
-			mainRefClkState,
-			0xf3,
-			main_nmeaSatsUsed);
-
-			} else {
-			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC12, sizeof(PM_FORMAT_LC12));
-			len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-			0xe0,
-			mainRefClkState,
-			0xf3,
-			main_nmeaSatsUsed);
-		}
-		twi_mcp23017_av1624_fw_gotoPosition(0, 0);
-		twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
-		usbPoll();
-
-		switch (displayNr) {
-			default:
-			case 0:
-			{
-				/* the timestamp */
-				//uint16_t year	=  main_nmeaDate					% 10000;
-				uint8_t month	= (main_nmeaDate		/ 10000)	% 100;
-				uint8_t day		=  main_nmeaDate		/ 1000000;
-				uint8_t hour	=  main_nmeaTimeUtcInt	/ 10000;
-				uint8_t minutes	= (main_nmeaTimeUtcInt	/ 100)		% 100;
-				uint8_t seconds	=  main_nmeaTimeUtcInt				% 100;
-				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC21, sizeof(PM_FORMAT_LC21));
-				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				day,
-				month,
-				//year % 100,
-				hour,
-				minutes,
-				seconds);
-				twi_mcp23017_av1624_fw_gotoPosition(1, 0);
-				twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
-			}
-			break;
-
-			case 1:
-			{
-				/* SAT data */
-				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC22, sizeof(PM_FORMAT_LC22));
-				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				'M',
-				main_nmeaMode2,
-				'F',
-				main_nmeaPosFixIndicator,
-				main_nmeaPdop,
-				0xdf,
-				main_nmeaSatsEphemerisGpsGalileoQzss,
-				0xeb,
-				main_nmeaSatsEphemerisGlonass);
-				twi_mcp23017_av1624_fw_gotoPosition(1, 0);
-				twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
-			}
-			break;
-
-			case 2:
-			{
-				/* PWM data */
-				uint8_t sreg = SREG;
-				cli();
-				uint8_t localFastPwmLoopVal		= fastPwmLoopVal;
-				uint8_t localFastPwmSubLoopVal	= fastPwmSubLoopVal;
-				SREG = sreg;
-
-				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC23, sizeof(PM_FORMAT_LC23));
-				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				'P',
-				main_fw_calcTimerToFloat(localFastPwmLoopVal, localFastPwmSubLoopVal),
-				0xab,
-				mainAdcPullVolts);
-				twi_mcp23017_av1624_fw_gotoPosition(1, 0);
-				twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
-			}
-			break;
-		}
-		usbPoll();
-
-		if (++displaySubNr >= 3) {
-			displaySubNr = 0;
-			++displayNr;
-			displayNr %= 3;
-		}
-	}
-}
-
-void twi_smart_lcd_fw_showStatus(void)
-{
-	/* Init device */
-	if (!main_bf.mainIsSmartAttached) {
-		twi_smart_lcd_fw_init();
-#if 0
-		if (!main_bf.mainIsSmartAttached) {
-			return;
-		}
-#endif
-	}
-
-	{
-		uint8_t clk_state;
-		float phaseVolts;
-		uint8_t sreg = SREG;
-		cli();
-		clk_state = (uint8_t) mainRefClkState;
-		phaseVolts = mainAdcPhaseVolts;
-		SREG = sreg;
-
-		int16_t	phase100 = (int16_t) (100.0f * ((phaseVolts - 0.6f) * 180.0f / 0.25f));  // TODO: correct me!
-		twi_smart_lcd_fw_set_clk_state(clk_state, phase100);
-	}
-
-	{
-		long date;
-		uint8_t sreg = SREG;
-		cli();
-		date = main_nmeaDate;
-		SREG = sreg;
-
-		uint16_t year  = (uint16_t) (date % 10000);
-		uint8_t  month = (uint8_t) ((date / 10000) % 100);
-		uint8_t  day   = (uint8_t)  (date / 1000000);
-		twi_smart_lcd_fw_set_date(year, month, day);
-	}
-
-	{
-		long utc;
-		uint8_t sreg = SREG;
-		cli();
-		utc = main_nmeaTimeUtcInt;
-		SREG = sreg;
-
-		uint8_t  hour   = (uint8_t)  (utc / 10000);
-		uint8_t  minute = (uint8_t) ((utc / 100) % 100);
-		uint8_t  second = (uint8_t)  (utc % 100);
-		twi_smart_lcd_fw_set_time(hour, minute, second);
-	}
-
-	{
-		float ppm;
-		uint8_t sreg = SREG;
-		cli();
-		ppm = mainPpm;
-		SREG = sreg;
-
-		float localPpb = ppm > 0 ?  ppm * 1000.0f : ppm * -1000.0f;
-		int16_t ppb_int  = (int16_t) localPpb;
-		uint16_t ppb_frac1000 = (uint16_t) ((localPpb - ppb_int) * 1000.0f);
-		if (ppm < 0) {
-			ppb_int = -ppb_int;
-		}
-		twi_smart_lcd_fw_set_ppb(ppb_int, ppb_frac1000);
-	}
-
-	{
-		uint8_t pwm_int;
-		uint8_t pwm_frac256;
-		uint8_t sreg = SREG;
-		cli();
-		pwm_int = fastPwmLoopVal;
-		pwm_frac256 = fastPwmSubLoopVal;
-		SREG = sreg;
-
-		twi_smart_lcd_fw_set_pwm(pwm_int, pwm_frac256);
-	}
-
-	{
-		float pv;
-		uint8_t sreg = SREG;
-		cli();
-		pv = mainAdcPullVolts;
-		SREG = sreg;
-
-		uint8_t pv_int   = (uint8_t) pv;
-		uint16_t pv_frac1000 = (uint16_t) ((pv - pv_int) * 1000.0f);
-		twi_smart_lcd_fw_set_pv(pv_int, pv_frac1000);
-	}
-
-	{
-		uint8_t sat_west;
-		uint8_t sat_east;
-		uint8_t sat_used;
-		uint8_t sreg = SREG;
-		cli();
-		sat_west = (uint8_t) main_nmeaSatsEphemerisGpsGalileoQzss;
-		sat_east = (uint8_t) main_nmeaSatsEphemerisGlonass;
-		sat_used = (uint8_t) main_nmeaSatsUsed;
-		SREG = sreg;
-
-		twi_smart_lcd_fw_set_sat_use(sat_west, sat_east, sat_used);
-	}
-
-	{
-		float sat_dop;
-		uint8_t sreg = SREG;
-		cli();
-		sat_dop = main_nmeaPdop;
-		SREG = sreg;
-
-		uint16_t sat_dop100 = (uint16_t) (sat_dop * 100.0f);
-		twi_smart_lcd_fw_set_sat_dop(sat_dop100);
-	}
-
-	{
-		uint8_t pos_fi;
-		uint8_t pos_m2;
-		uint8_t sreg = SREG;
-		cli();
-		pos_fi = (uint8_t) main_nmeaPosFixIndicator;
-		pos_m2 = (uint8_t) main_nmeaMode2;
-		SREG = sreg;
-
-		twi_smart_lcd_fw_set_pos_state(pos_fi, pos_m2);
-	}
-
-	{
-		uint8_t lat_sgn;
-		float lat;
-		uint8_t sreg = SREG;
-		cli();
-		lat_sgn = (uint8_t) main_nmeaPosLatSign;
-		lat = main_nmeaPosLat;
-		SREG = sreg;
-
-		uint8_t  lat_deg = (uint8_t) (lat / 100.0f);
-		uint8_t  lat_min_int = (uint8_t) ((int) lat % 100);
-		uint16_t lat_min_frac1000 = (uint16_t) ((lat - (lat_deg * 100 + lat_min_int)) * 1000.0f);
-		twi_smart_lcd_fw_set_pos_lat(lat_sgn, lat_deg, lat_min_int, lat_min_frac1000);
-	}
-
-	{
-		uint8_t lon_sgn;
-		float lon;
-		uint8_t sreg = SREG;
-		cli();
-		lon_sgn = main_nmeaPosLonSign;
-		lon = main_nmeaPosLon;
-		SREG = sreg;
-
-		uint16_t lon_deg = (uint16_t) (lon / 100.0f);
-		uint8_t  lon_min_int = (uint16_t) ((int) lon % 100);
-		uint16_t lon_min_frac1000 = (uint16_t) ((lon - (lon_deg * 100 + lon_min_int)) * 1000.0f);
-		twi_smart_lcd_fw_set_pos_lon(lon_sgn, lon_deg, lon_min_int, lon_min_frac1000);
-	}
-
-	{
-		uint16_t height;
-		uint8_t sreg = SREG;
-		cli();
-		height = (int16_t) main_nmeaAltitudeM;
-		SREG = sreg;
-
-		twi_smart_lcd_fw_set_pos_height(height);
-	}
-}
-
-void main_fw_sendInitialHelp(void)
-{
-#if 1
-	ringbuffer_fw_ringBufferWaitAppend(true, true, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP));
-#else
-	if (ringbuffer_fw_getSemaphore(true)) {
-		(void) ringbuffer_fw_ringBufferPush(true, true, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP));
-		ringbuffer_fw_freeSemaphore(true);
-	}
-#endif
 }
 
 void main_fw_giveAway(void)
@@ -1972,10 +2023,15 @@ int main(void)
 	}
 
 	/* run the chip */
+#if 1
+    while (true) {
+#else
     while (!(main_bf.mainStopAvr)) {
+#endif
     	main_fw_giveAway();
     }
 
+#if 0
     /* stop AVR */
     {
 		wdt_close();
@@ -2023,5 +2079,7 @@ int main(void)
 			}
 		}
     }
+#endif
+
 	return 0;
 }
