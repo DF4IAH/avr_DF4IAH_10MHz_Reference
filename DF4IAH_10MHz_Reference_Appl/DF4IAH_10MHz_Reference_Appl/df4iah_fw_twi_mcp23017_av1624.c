@@ -116,6 +116,7 @@ void twi_mcp23017_av1624_fw_init(void)
 	twi_mcp23017_fw_setPortA_DirOut(false);
 }
 
+#if 0
 void twi_mcp23017_av1624_fw_close(void)
 {
 	if (!(main_bf.mainIsLcdAttached)) {
@@ -137,7 +138,7 @@ void twi_mcp23017_av1624_fw_close(void)
 	twi_mcp23017_fw_setPortBA(0b0000, 0b00001000);
 	twi_mcp23017_fw_setPortA_DirOut(false);
 }
-
+#endif
 
 void twi_mcp23017_av1624_fw_waitUntilReady(void)
 {

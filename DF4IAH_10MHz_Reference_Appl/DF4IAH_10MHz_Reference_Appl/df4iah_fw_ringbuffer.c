@@ -72,8 +72,6 @@ uint8_t ringbuffer_fw_getSemaphore(uint8_t isSend)
 	return !isLocked;
 }
 
-// forward declaration
-//static uint8_t ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len);
 void ringbuffer_fw_freeSemaphore(uint8_t isSend)
 {
 	/* free semaphore */
@@ -86,7 +84,7 @@ void ringbuffer_fw_freeSemaphore(uint8_t isSend)
 	}
 }
 
-/*static*/ uint8_t ringbuffer_fw_ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
+uint8_t ringbuffer_fw_ringBufferPush(uint8_t isSend, uint8_t isPgm, const uchar inData[], uint8_t len)
 {
 	uint8_t retLen = 0;
 	uint8_t bufferSize = (isSend ?  RINGBUFFER_SEND_SIZE : RINGBUFFER_RCV_SIZE);
@@ -202,7 +200,7 @@ enum RINGBUFFER_MSG_STATUS_t ringbuffer_fw_getStatusNextMsg(uint8_t isSend)
 	return status;
 }
 
-void ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend)
+static void ringbuffer_fw_ringBufferWaitFreeAndKeepSemaphore(uint8_t isSend)
 {
 	for (;;) {
 		if (ringbuffer_fw_getSemaphore(isSend)) {

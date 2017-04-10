@@ -10,10 +10,11 @@
 
 
 #include "usbdrv_fw/usbdrv.h"
+#include "chipdef.h"
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										170
-#define VERSION_LOW											408
+#define VERSION_LOW											410
 
 
 /* GPS NMEA */
@@ -145,16 +146,43 @@ typedef struct twiStatus_struct
 #define TWI_DATA_BUFFER_SIZE								16
 
 
-float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal);
-float main_fw_calcTimerAdj(float pwmAdjust, uint8_t* intVal, uint8_t* intSubVal);
+/* - - - */
+
+/* START of Signatures of functions within the bootloader area */
+
+/* section text of df4iah_bl_main			- placed @ 0x7000 */
+void (*jump_to_bl)(void);
+
+/* section text.df4iah_bl_clkpullpwm		- placed @ 0x7780 */
+void (*clkPullPwm_bl_init)(void);
+void (*clkPullPwm_bl_close)(void);
+void (*clkPullPwm_bl_togglePin)(void);
+void (*clkPullPwm_bl_endlessTogglePin)(void);
+
+/* section text.df4iah_bl_probe				- placed @ 0x78c0 */
+void (*probe_bl_init)(void);
+void (*probe_bl_close)(void);
+uint8_t (*probe_bl_checkJumper)(void);
+
+/* section text.df4iah_bl_memory			- placed @ 0x7900 */
+void (*memory_bl_eraseFlash)(void);
+void (*memory_bl_readFlashPage)(uint8_t target[], pagebuf_t size, uint32_t baddr);
+void (*memory_bl_readEEpromPage)(uint8_t target[], pagebuf_t size, uint16_t baddr);
+void (*memory_bl_writeFlashPage)(uint8_t source[], pagebuf_t size, uint32_t baddr);
+void (*memory_bl_writeEEpromPage)(uint8_t source[], pagebuf_t size, uint16_t baddr);
+
+/* section text.df4iah_bl_usb				- 0x7be0 */
+void (*usb_bl_replyContent)(uchar replyBuffer[], uchar data[]);
+void (*usb_bl_init)(void);
+void (*usb_bl_close)(void);
+
+/* END of Signatures of functions within the bootloader area */
+
+/* - - - */
+
 int   main_fw_strncmp(const unsigned char* msg, const unsigned char* cmpProg, size_t size);
 int   main_fw_memcmp(const unsigned char* msg, const unsigned char* cmpProg, size_t size);
-void  main_fw_nmeaUtcPlusOneSec(void);
-void  main_fw_parseNmeaLineData(void);
-void  twi_mcp23017_av1624_fw_showStatus(void);
 void  workInQueue(void);
-void  twi_smart_lcd_fw_showStatus(void);
-void  main_fw_sendInitialHelp(void);
 void  main_fw_giveAway(void);
 int   main(void);
 

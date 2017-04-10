@@ -44,7 +44,9 @@
 void serial_fw_serRxIsrOn(uint8_t flag);
 
 void serial_fw_init(void);
+#if 0
 void serial_fw_close(void);
+#endif
 
 void serial_fw_setCommBaud(uint16_t baud);
 uint8_t serial_fw_isTxRunning(void);

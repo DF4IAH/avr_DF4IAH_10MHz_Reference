@@ -45,7 +45,9 @@
 
 
 void twi_fw_init(void);
+#if 0
 void twi_fw_close(void);
+#endif
 
 void twi_fw_waitUntilDone(uint8_t extraDelay);
 void twi_fw_sendCmdSendData1(uint8_t addr, uint8_t cmd, uint8_t data1);

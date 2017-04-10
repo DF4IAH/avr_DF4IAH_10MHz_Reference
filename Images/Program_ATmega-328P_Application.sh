@@ -1,8 +1,9 @@
 #!/bin/bash
 
-avrdude -pm328p -cdragon_pp -D -Ueeprom:w:Release/avr_DF4IAH_10MHz_Reference.eep:a -Uflash:w:Release/avr_DF4IAH_10MHz_Reference.hex:a
+#avrdude -pm328p -cdragon_pp -D -Ueeprom:w:../DF4IAH_10MHz_Reference_Appl/DF4IAH_10MHz_Reference_Appl/Release/DF4IAH_10MHz_Reference_Appl.eep:a -Uflash:w:../DF4IAH_10MHz_Reference_Appl/DF4IAH_10MHz_Reference_Appl/Release/DF4IAH_10MHz_Reference_Appl.hex:a
+avrdude -pm328p -cusbasp-clone -D -Ueeprom:w:../DF4IAH_10MHz_Reference_Appl/DF4IAH_10MHz_Reference_Appl/Release/DF4IAH_10MHz_Reference_Appl.eep:a -Uflash:w:../DF4IAH_10MHz_Reference_Appl/DF4IAH_10MHz_Reference_Appl/Release/DF4IAH_10MHz_Reference_Appl.hex:a
 
 echo "==="
-echo "Please allow following verification error:  > first mismatch at byte 0x78f8    0x04 != 0xa5 <" 
+echo "Programming done." 
 echo
 
