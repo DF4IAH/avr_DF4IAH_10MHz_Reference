@@ -72,12 +72,15 @@
 
 #define MAIN_STACK_CHECK_SIZE								0x0220
 
-// PHASE-ADC: 1.00V --> ADC-Value = 229 /1024 (Full-Scale = 4.47V)
-#define ADC_PHASE_LO_LOCKING  								 20		// @<0.15V
-#define ADC_PHASE_LO_INSYNC   								 80		// @ 0.35V
-#define ADC_PHASE_CENTER									137		// @ 0.60V
-#define ADC_PHASE_HI_INSYNC   								195		// @ 0.85V
-#define ADC_PHASE_HI_LOCKING  								241		// @ 1.05V
+// ADC 0 = 0.035211V; ADC 1023 = 4.843 V
+// s: 213 Delta-ADC / 1 Delta-V; ADC 0312 = 1.5 V, ofs: +35.211 mV
+#define ADC_STEPS_1V										213.0f
+#define ADC_OFS_0ADC_V										0.035211f
+#define ADC_PHASE_ADC_CENTER								269
+#define ADC_PHASE_VOLTS_CENTER								1.30f
+#define ADC_PHASE_DELTAVOLTS_90DEG							1.40f
+#define ADC_PHASE_LOCKING_DEG								 80
+#define ADC_PHASE_INSYNC_DEG								 55
 
 #define MEAN_QRG_CLOCK_STAGES_F								  5.0f;
 #define MEAN_PHASE_CLOCK_STAGES_F							  3.0f;
@@ -100,7 +103,7 @@ typedef struct main_bf_struct
      uint8_t  mainStackCheck								: 1;
      uint8_t  mainIsLcdAttached								: 1;
      uint8_t  mainIsSmartAttached							: 1;
-//     uint8_t  mainReserved01								: 0; // fill to 8 bits
+//   uint8_t  mainReserved01								: 0; // fill to 8 bits
 
      uint8_t  mainHelpConcatNr								: 4;
      uint8_t  mainLcdLedMode								: 3;

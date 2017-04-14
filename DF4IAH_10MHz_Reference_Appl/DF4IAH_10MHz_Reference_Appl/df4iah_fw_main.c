@@ -208,34 +208,34 @@ PROGMEM const uchar PM_PARSE_NMEA_MSG41[]					= "$GLGSV,%*d,1,%d,";
 // DATA SECTION
 
 /* section text of df4iah_bl_main			- placed @ 0x7000 */
-void (*jump_to_bl)(void) 																				= (void*) 0x7000;
+//void (*jump_to_bl)(void) 																				= (void*) 0x7000;
 
 /* section text.df4iah_bl_clkpullpwm		- placed @ 0x7780 */
-void (*clkPullPwm_bl_init)(void)																		= (void*) 0x7780;
-void (*clkPullPwm_bl_close)(void)																		= (void*) 0x77a0;
-void (*clkPullPwm_bl_togglePin)(void)																	= (void*) 0x77b8;
-void (*clkPullPwm_bl_endlessTogglePin)(void)															= (void*) 0x77be;
+//void (*clkPullPwm_bl_init)(void)																		= (void*) 0x7780;
+//void (*clkPullPwm_bl_close)(void)																		= (void*) 0x77a0;
+//void (*clkPullPwm_bl_togglePin)(void)																	= (void*) 0x77b8;
+//void (*clkPullPwm_bl_endlessTogglePin)(void)															= (void*) 0x77be;
 
 /* section text.df4iah_bl_probe				- placed @ 0x78c0 */
-void (*probe_bl_init)(void)																				= (void*) 0x78d2;
-void (*probe_bl_close)(void)																			= (void*) 0x78c0;
-uint8_t (*probe_bl_checkJumper)(void)																	= (void*) 0x78c4;
+//void (*probe_bl_init)(void)																			= (void*) 0x78d2;
+//void (*probe_bl_close)(void)																			= (void*) 0x78c0;
+//uint8_t (*probe_bl_checkJumper)(void)																	= (void*) 0x78c4;
 
 /* section text.df4iah_bl_memory			- placed @ 0x7900 */
 void (*memory_bl_eraseFlash)(void)																		= (void*) 0x7900;
 void (*memory_bl_readFlashPage)(uint8_t target[], pagebuf_t size, uint32_t baddr)						= (void*) 0x7928;
-void (*memory_bl_readEEpromPage)(uint8_t target[], pagebuf_t size, uint16_t baddr)						= (void*) 0x7994;
+//void (*memory_bl_readEEpromPage)(uint8_t target[], pagebuf_t size, uint16_t baddr)					= (void*) 0x7994;
 void (*memory_bl_writeFlashPage)(uint8_t source[], pagebuf_t size, uint32_t baddr)						= (void*) 0x79d8;
-void (*memory_bl_writeEEpromPage)(uint8_t source[], pagebuf_t size, uint16_t baddr)						= (void*) 0x7b92;
+//void (*memory_bl_writeEEpromPage)(uint8_t source[], pagebuf_t size, uint16_t baddr)					= (void*) 0x7b92;
 
 /* section text.df4iah_bl_usb				- 0x7be0 */
-void (*usb_bl_replyContent)(uchar replyBuffer[], uchar data[])											= (void*) 0x7be0;
-void (*usb_bl_init)(void)																				= (void*) 0x7bfc;
-void (*usb_bl_close)(void)																				= (void*) 0x7c1e;
+//void (*usb_bl_replyContent)(uchar replyBuffer[], uchar data[])										= (void*) 0x7be0;
+//void (*usb_bl_init)(void)																				= (void*) 0x7bfc;
+//void (*usb_bl_close)(void)																			= (void*) 0x7c1e;
 
 
 /* df4iah_fw_main */
-void (*jump_to_app)(void) 																				= (void*) 0x0000;
+//void (*jump_to_app)(void) 																			= (void*) 0x0000;
 
 uchar mainCoef_b00_dev_header[16 + 1]						= { 0 };
 uint16_t mainCoef_b00_dev_serial							= 0;
@@ -737,18 +737,20 @@ static void calcPhase(void)
 {
 	/* APC = automatic phase control */
 
-	static float phaseMeanPhaseErrorSum	= 0.0f;
 	static float phaseStepsErrorSum		= 0.0f;
 
-	uint8_t adcPhase = acAdcCh[ADC_CH_PHASE];
+	uint16_t adcPhaseAdc			= acAdcCh[ADC_CH_PHASE];
+	int16_t  adcPhaseCenteredAdc	= adcPhaseAdc - ADC_PHASE_ADC_CENTER;
+	float    adcPhaseCenteredVolt	= ((float) adcPhaseCenteredAdc) / ADC_STEPS_1V;
+	float    adcPhaseCentered		= adcPhaseCenteredVolt / ADC_PHASE_DELTAVOLTS_90DEG;
+	float    adcPhase				= adcPhaseCentered * 90.0f;
 
 	/* Handling of new mainRefClkState value */
 	if (mainRefClkState >= REFCLK_STATE_SEARCH_PHASE_CNTR_STABLIZED) {
-		if ((ADC_PHASE_LO_LOCKING <= adcPhase) && (adcPhase <= ADC_PHASE_HI_LOCKING)) {
+		if ((-ADC_PHASE_LOCKING_DEG <= adcPhase) && (adcPhase <= ADC_PHASE_LOCKING_DEG)) {
 			if (mainRefClkState < REFCLK_STATE_LOCKING_PHASE) {
 				/* up-grading */
 				mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
-				phaseMeanPhaseErrorSum	= 0.0f;
 
 				uint8_t sreg = SREG;
 				cli();
@@ -760,7 +762,7 @@ static void calcPhase(void)
 				mainRefClkState = REFCLK_STATE_LOCKING_PHASE;
 			}
 
-			if ((ADC_PHASE_LO_INSYNC <= adcPhase) && (adcPhase <= ADC_PHASE_HI_INSYNC)) {
+			if ((-ADC_PHASE_INSYNC_DEG <= adcPhase) && (adcPhase <= ADC_PHASE_INSYNC_DEG)) {
 				if (mainRefClkState < REFCLK_STATE_IN_SYNC) {
 					mainRefClkState = REFCLK_STATE_IN_SYNC;
 				}
@@ -770,7 +772,6 @@ static void calcPhase(void)
 			/* lost phase: hand-over to AFC */
 			if (mainRefClkState >= REFCLK_STATE_LOCKING_PHASE) {
 				mainRefClkState = REFCLK_STATE_SEARCH_QRG;
-				phaseMeanPhaseErrorSum	= 0.0f;
 
 				uint8_t sreg = SREG;
 				cli();
@@ -780,33 +781,14 @@ static void calcPhase(void)
 		}
 	}
 
-	const float PhaseErrAdc		= 450.0f / (((float) ADC_PHASE_HI_LOCKING) - ADC_PHASE_LO_LOCKING);
-	float phaseErr				= PhaseErrAdc * (adcPhase - ADC_PHASE_CENTER);  // phase error in degrees
 	float phaseStepsFrequency	= 0.0f;
 	float phaseStepsPhase		= 0.0f;
 
 	if (REFCLK_STATE_LOCKING_PHASE <= mainRefClkState) {
 		/* phase correction */
-		phaseStepsPhase = (float) (pow(fabs(phaseErr) * 45.00f, 1.20f));  	// magic values  XXX PHASE: trimming is done here
-		if (phaseErr < 0.0f) {
+		phaseStepsPhase = (float) ((pow(fabs(adcPhase), 1.20f)) * 100.f);		// magic values  XXX PHASE: trimming is done here
+		if (adcPhase < 0.0f) {
 			phaseStepsPhase = -phaseStepsPhase;
-		}
-
-		if (mainRefClkState < REFCLK_STATE_IN_SYNC) {
-			/* Hard phase banging to keep in sync - should be avoided due to high phase noise */
-			if (phaseStepsPhase) {
-				uint8_t sreg = SREG;
-				cli();
-				fastPwmSingleDiffSum += phaseStepsPhase;						// PHASE OFFFSET accumulator
-				SREG = sreg;
-
-				/* Calculate and execute phase correction */
-				calcPhaseResidue();												// first call - to be called many times during the whole second until next pulse comes
-
-				/* One time frequency correction */
-				phaseStepsFrequency += phaseMeanPhaseErrorSum * 0.00000150f;	// magic value  XXX ONE TIME FREQUENCY trimming is done here
-				phaseMeanPhaseErrorSum = 0.0f;									// reset frequency offset register to avoid lagging behavior
-			}
 		}
 	}
 
@@ -824,7 +806,7 @@ static void calcPhase(void)
 
 		/* frequency drift correction */
 		phaseStepsFrequency += phaseStepsPhase * (isAfterSignRev ?  0.00001500f
-																 :  0.00000200f) ;	// magic values XXX DRIFTING FREQUENCY trimming is done here
+																 :  0.00000100f) ;	// magic values XXX DRIFTING FREQUENCY trimming is done here
 
 		/* mainPpm calculations */
 		float phaseStepsErrorDiff = phaseStepsErrorSum / MEAN_PHASE_PPM_STAGES_F;
@@ -844,7 +826,7 @@ static void calcPhase(void)
 		int len;
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA11, sizeof(PM_FORMAT_IA11));
 		len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				(int) phaseErr, s_flt_frac(phaseErr, 3),
+				(int) adcPhase, s_flt_frac(adcPhase, 3),
 				s_flt_sign(phaseStepsFrequency), (int) phaseStepsFrequency, s_flt_frac(phaseStepsFrequency, 3),
 				s_flt_sign(phaseStepsPhase), (int) phaseStepsPhase, s_flt_frac(phaseStepsPhase, 3));
 		ringbuffer_fw_ringBufferWaitAppend(false, false, mainPrepareBuffer, len);
@@ -1016,11 +998,6 @@ static void twi_smart_lcd_fw_showStatus(void)
 	/* Init device */
 	if (!main_bf.mainIsSmartAttached) {
 		twi_smart_lcd_fw_init();
-#if 0
-		if (!main_bf.mainIsSmartAttached) {
-			return;
-		}
-#endif
 	}
 
 	{
@@ -1032,7 +1009,7 @@ static void twi_smart_lcd_fw_showStatus(void)
 		phaseVolts = mainAdcPhaseVolts;
 		SREG = sreg;
 
-		int16_t	phase100 = (int16_t) (100.0f * ((phaseVolts - 0.6f) * 180.0f / 0.25f));  // TODO: correct me!
+		int16_t	phase100 = (int16_t) (100.0f * ((phaseVolts - 1.3f) / 1.1f * 90.0f));
 		twi_smart_lcd_fw_set_clk_state(clk_state, phase100);
 	}
 
@@ -1669,8 +1646,8 @@ static void doJobs(void)
 		}
 	}
 
-	mainAdcPullVolts	= ( acAdcCh[ADC_CH_PWMPULL] * mainCoef_b01_ref_AREF_V) / 1024.0f + 0.138f;
-	mainAdcPhaseVolts	= ( acAdcCh[ADC_CH_PHASE]	* mainCoef_b01_ref_AREF_V) / 1024.0f;
+	mainAdcPullVolts	= ( acAdcCh[ADC_CH_PWMPULL] / ADC_STEPS_1V) + ADC_OFS_0ADC_V;
+	mainAdcPhaseVolts	= ( acAdcCh[ADC_CH_PHASE]	/ ADC_STEPS_1V) + ADC_OFS_0ADC_V;
 	mainAdcTemp			= ((acAdcCh[ADC_CH_TEMP]	- mainCoef_b01_temp_ofs_adc_25C_steps) * mainCoef_b01_temp_k_p1step_adc_K) + 25.0f;
 
 	if (main_bf.mainIsTimerTest) {
