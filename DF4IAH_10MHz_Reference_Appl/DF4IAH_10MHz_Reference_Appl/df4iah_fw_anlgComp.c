@@ -49,7 +49,7 @@ void anlgComp_fw_init(void)
 
 	/* ADC reference set to AREF */
 	acAdcConvertNowState = 0x11;							// set FSM address to "discard next conversion"
-	ADMUX = (0b01 << REFS0) | 0x1;							// keep ADLAR off, switch to channel ADC1 (phase input)
+	ADMUX = (0b01 << REFS0) | 0x1;							// use AVcc as Vref, keep ADLAR off, switch to channel ADC1 (phase input)
 
 	/* start the initial conversion */
 	ADCSRA |= _BV(ADSC) | _BV(ADIF);						// start first conversion of the conversion train and clear pending interrupt flag
