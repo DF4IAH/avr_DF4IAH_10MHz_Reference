@@ -1009,8 +1009,9 @@ static void twi_smart_lcd_fw_showStatus(void)
 		phaseVolts = mainAdcPhaseVolts;
 		SREG = sreg;
 
-		int16_t	phase100 = (int16_t) (100.0f * ((phaseVolts - 1.3f) / 1.1f * 90.0f));
-		twi_smart_lcd_fw_set_clk_state(clk_state, phase100);
+		uint16_t phaseVolt1000 = (uint16_t) (phaseVolts * 1000.0f);
+		int16_t  phaseDeg100   = (int16_t)  (100.0f * (((phaseVolts - ADC_PHASE_VOLTS_CENTER) / ADC_PHASE_DELTAVOLTS_90DEG) * 90.0f));
+		twi_smart_lcd_fw_set_clkstate_phaseVolt__phaseDeg(clk_state, phaseVolt1000, phaseDeg100);
 	}
 
 	{
