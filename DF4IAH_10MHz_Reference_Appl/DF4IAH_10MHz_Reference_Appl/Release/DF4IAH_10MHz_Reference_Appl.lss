@@ -7586,13 +7586,13 @@ static void twi_smart_lcd_fw_showStatus(void)
     396c:	8f bf       	out	0x3f, r24	; 63
 
 		uint16_t phaseVolt1000 = (uint16_t) (phaseVolts * 1000.0f);
-		int16_t  phaseDeg100   = (int16_t)  (100.0f * (((phaseVolts - ADC_PHASE_VOLTS_CENTER) / ADC_PHASE_DELTAVOLTS_90DEG) * 90.0f));
-    396e:	26 e6       	ldi	r18, 0x66	; 102
-    3970:	36 e6       	ldi	r19, 0x66	; 102
-    3972:	46 ea       	ldi	r20, 0xA6	; 166
-    3974:	5f e3       	ldi	r21, 0x3F	; 63
-    3976:	c7 01       	movw	r24, r14
-    3978:	b6 01       	movw	r22, r12
+		int16_t  phaseDeg100   = (int16_t)  (100.0f * (((ADC_PHASE_VOLTS_CENTER - phaseVolts) / ADC_PHASE_DELTAVOLTS_90DEG) * 90.0f));
+    396e:	a7 01       	movw	r20, r14
+    3970:	96 01       	movw	r18, r12
+    3972:	66 e6       	ldi	r22, 0x66	; 102
+    3974:	76 e6       	ldi	r23, 0x66	; 102
+    3976:	86 ea       	ldi	r24, 0xA6	; 166
+    3978:	9f e3       	ldi	r25, 0x3F	; 63
     397a:	0e 94 0e 30 	call	0x601c	; 0x601c <__subsf3>
     397e:	23 e3       	ldi	r18, 0x33	; 51
     3980:	33 e3       	ldi	r19, 0x33	; 51
@@ -7626,7 +7626,7 @@ static void twi_smart_lcd_fw_showStatus(void)
     39b4:	b6 01       	movw	r22, r12
     39b6:	0e 94 19 32 	call	0x6432	; 0x6432 <__mulsf3>
     39ba:	0e 94 e4 30 	call	0x61c8	; 0x61c8 <__fixunssfsi>
-		int16_t  phaseDeg100   = (int16_t)  (100.0f * (((phaseVolts - ADC_PHASE_VOLTS_CENTER) / ADC_PHASE_DELTAVOLTS_90DEG) * 90.0f));
+		int16_t  phaseDeg100   = (int16_t)  (100.0f * (((ADC_PHASE_VOLTS_CENTER - phaseVolts) / ADC_PHASE_DELTAVOLTS_90DEG) * 90.0f));
 		twi_smart_lcd_fw_set_clkstate_phaseVolt__phaseDeg(clk_state, phaseVolt1000, phaseDeg100);
     39be:	a4 01       	movw	r20, r8
     39c0:	81 2f       	mov	r24, r17
