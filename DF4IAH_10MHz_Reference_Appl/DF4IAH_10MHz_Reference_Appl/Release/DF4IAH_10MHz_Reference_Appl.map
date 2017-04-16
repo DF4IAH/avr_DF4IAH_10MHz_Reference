@@ -1592,13 +1592,13 @@ END GROUP
                 0x0080011e        0x4 df4iah_fw_main.o
  .bss.holdOffTime.2810
                 0x00800122        0x1 df4iah_fw_main.o
- .bss.localMeanClockDiffSum.3009
+ .bss.localMeanClockDiffSum.3010
                 0x00800123        0x4 df4iah_fw_main.o
- .bss.localFastCtr1ms_next.2997
+ .bss.localFastCtr1ms_next.2998
                 0x00800127        0x4 df4iah_fw_main.o
- .bss.localNoPpsCnt.2998
+ .bss.localNoPpsCnt.2999
                 0x0080012b        0x1 df4iah_fw_main.o
- .bss.localAdcConvertNowCntrLast.2996
+ .bss.localAdcConvertNowCntrLast.2997
                 0x0080012c        0x1 df4iah_fw_main.o
  .bss.twiSeq2Data
                 0x0080012d       0x10 df4iah_fw_main.o
@@ -2016,25 +2016,25 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0xb8ba
+.debug_info     0x00000000     0xb8da
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_info    0x000005f4      0x133 df4iah_fw_anlgComp.o
  .debug_info    0x00000727      0x3fe df4iah_fw_clkFastCtr.o
  .debug_info    0x00000b25      0x3c0 df4iah_fw_clkPullPwm.o
- .debug_info    0x00000ee5     0x53c5 df4iah_fw_main.o
- .debug_info    0x000062aa      0xed6 df4iah_fw_memory.o
- .debug_info    0x00007180      0x8be df4iah_fw_ringbuffer.o
- .debug_info    0x00007a3e      0x921 df4iah_fw_serial.o
- .debug_info    0x0000835f      0x87f df4iah_fw_twi.o
- .debug_info    0x00008bde      0x63d df4iah_fw_twi_mcp23017.o
- .debug_info    0x0000921b      0xa45 df4iah_fw_twi_mcp23017_av1624.o
- .debug_info    0x00009c60      0x752 df4iah_fw_twi_smart_lcd.o
- .debug_info    0x0000a3b2      0x925 df4iah_fw_usb.o
- .debug_info    0x0000acd7      0x9d7 usbdrv_fw/usbdrv.o
- .debug_info    0x0000b6ae       0xb4 usbdrv_fw/usbdrvasm.o
- .debug_info    0x0000b762       0xac C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
- .debug_info    0x0000b80e       0xac C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
+ .debug_info    0x00000ee5     0x53e5 df4iah_fw_main.o
+ .debug_info    0x000062ca      0xed6 df4iah_fw_memory.o
+ .debug_info    0x000071a0      0x8be df4iah_fw_ringbuffer.o
+ .debug_info    0x00007a5e      0x921 df4iah_fw_serial.o
+ .debug_info    0x0000837f      0x87f df4iah_fw_twi.o
+ .debug_info    0x00008bfe      0x63d df4iah_fw_twi_mcp23017.o
+ .debug_info    0x0000923b      0xa45 df4iah_fw_twi_mcp23017_av1624.o
+ .debug_info    0x00009c80      0x752 df4iah_fw_twi_smart_lcd.o
+ .debug_info    0x0000a3d2      0x925 df4iah_fw_usb.o
+ .debug_info    0x0000acf7      0x9d7 usbdrv_fw/usbdrv.o
+ .debug_info    0x0000b6ce       0xb4 usbdrv_fw/usbdrvasm.o
+ .debug_info    0x0000b782       0xac C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
+ .debug_info    0x0000b82e       0xac C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
 
 .debug_abbrev   0x00000000     0x2312
  *(.debug_abbrev)
@@ -2056,25 +2056,25 @@ END GROUP
  .debug_abbrev  0x000022ea       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
  .debug_abbrev  0x000022fe       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
 
-.debug_line     0x00000000     0x45bd
+.debug_line     0x00000000     0x45b7
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x133 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_line    0x00000133      0x197 df4iah_fw_anlgComp.o
  .debug_line    0x000002ca      0x19c df4iah_fw_clkFastCtr.o
  .debug_line    0x00000466      0x1b9 df4iah_fw_clkPullPwm.o
- .debug_line    0x0000061f     0x13c3 df4iah_fw_main.o
- .debug_line    0x000019e2      0x496 df4iah_fw_memory.o
- .debug_line    0x00001e78      0x592 df4iah_fw_ringbuffer.o
- .debug_line    0x0000240a      0x4a5 df4iah_fw_serial.o
- .debug_line    0x000028af      0x4e3 df4iah_fw_twi.o
- .debug_line    0x00002d92      0x191 df4iah_fw_twi_mcp23017.o
- .debug_line    0x00002f23      0x3e5 df4iah_fw_twi_mcp23017_av1624.o
- .debug_line    0x00003308      0x305 df4iah_fw_twi_smart_lcd.o
- .debug_line    0x0000360d      0x39e df4iah_fw_usb.o
- .debug_line    0x000039ab      0x39c usbdrv_fw/usbdrv.o
- .debug_line    0x00003d47      0x75e usbdrv_fw/usbdrvasm.o
- .debug_line    0x000044a5       0x7a C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
- .debug_line    0x0000451f       0x9e C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
+ .debug_line    0x0000061f     0x13bd df4iah_fw_main.o
+ .debug_line    0x000019dc      0x496 df4iah_fw_memory.o
+ .debug_line    0x00001e72      0x592 df4iah_fw_ringbuffer.o
+ .debug_line    0x00002404      0x4a5 df4iah_fw_serial.o
+ .debug_line    0x000028a9      0x4e3 df4iah_fw_twi.o
+ .debug_line    0x00002d8c      0x191 df4iah_fw_twi_mcp23017.o
+ .debug_line    0x00002f1d      0x3e5 df4iah_fw_twi_mcp23017_av1624.o
+ .debug_line    0x00003302      0x305 df4iah_fw_twi_smart_lcd.o
+ .debug_line    0x00003607      0x39e df4iah_fw_usb.o
+ .debug_line    0x000039a5      0x39c usbdrv_fw/usbdrv.o
+ .debug_line    0x00003d41      0x75e usbdrv_fw/usbdrvasm.o
+ .debug_line    0x0000449f       0x7a C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
+ .debug_line    0x00004519       0x9e C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
 
 .debug_frame    0x00000000      0xbec
  *(.debug_frame)
@@ -2092,7 +2092,7 @@ END GROUP
  .debug_frame   0x00000aec       0xa8 df4iah_fw_usb.o
  .debug_frame   0x00000b94       0x58 usbdrv_fw/usbdrv.o
 
-.debug_str      0x00000000     0x2e93
+.debug_str      0x00000000     0x2e9b
  *(.debug_str)
  .debug_str     0x00000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_str     0x00000208      0x20c df4iah_fw_anlgComp.o
@@ -2101,42 +2101,42 @@ END GROUP
                                 0x498 (size before relaxing)
  .debug_str     0x0000070d      0x1c1 df4iah_fw_clkPullPwm.o
                                 0x4b4 (size before relaxing)
- .debug_str     0x000008ce     0x1b26 df4iah_fw_main.o
-                               0x2242 (size before relaxing)
- .debug_str     0x000023f4      0x274 df4iah_fw_memory.o
+ .debug_str     0x000008ce     0x1b2e df4iah_fw_main.o
+                               0x2251 (size before relaxing)
+ .debug_str     0x000023fc      0x274 df4iah_fw_memory.o
                                 0xa04 (size before relaxing)
- .debug_str     0x00002668       0xc2 df4iah_fw_ringbuffer.o
+ .debug_str     0x00002670       0xc2 df4iah_fw_ringbuffer.o
                                 0x5c6 (size before relaxing)
- .debug_str     0x0000272a       0xbc df4iah_fw_serial.o
+ .debug_str     0x00002732       0xbc df4iah_fw_serial.o
                                 0x7ba (size before relaxing)
- .debug_str     0x000027e6      0x115 df4iah_fw_twi.o
+ .debug_str     0x000027ee      0x115 df4iah_fw_twi.o
                                 0x5d3 (size before relaxing)
- .debug_str     0x000028fb       0xb7 df4iah_fw_twi_mcp23017.o
+ .debug_str     0x00002903       0xb7 df4iah_fw_twi_mcp23017.o
                                 0x4fa (size before relaxing)
- .debug_str     0x000029b2       0xc0 df4iah_fw_twi_mcp23017_av1624.o
+ .debug_str     0x000029ba       0xc0 df4iah_fw_twi_mcp23017_av1624.o
                                 0x5e5 (size before relaxing)
- .debug_str     0x00002a72       0x7a df4iah_fw_twi_smart_lcd.o
-                                0x625 (size before relaxing)
- .debug_str     0x00002aec      0x136 df4iah_fw_usb.o
+ .debug_str     0x00002a7a       0x7a df4iah_fw_twi_smart_lcd.o
+                                0x624 (size before relaxing)
+ .debug_str     0x00002af4      0x136 df4iah_fw_usb.o
                                 0x6f8 (size before relaxing)
- .debug_str     0x00002c22      0x271 usbdrv_fw/usbdrv.o
+ .debug_str     0x00002c2a      0x271 usbdrv_fw/usbdrv.o
                                 0x530 (size before relaxing)
 
-.debug_loc      0x00000000     0x5648
+.debug_loc      0x00000000     0x5666
  *(.debug_loc)
  .debug_loc     0x00000000      0x175 df4iah_fw_anlgComp.o
  .debug_loc     0x00000175      0x1a3 df4iah_fw_clkFastCtr.o
  .debug_loc     0x00000318       0x5c df4iah_fw_clkPullPwm.o
- .debug_loc     0x00000374     0x1f36 df4iah_fw_main.o
- .debug_loc     0x000022aa      0xa57 df4iah_fw_memory.o
- .debug_loc     0x00002d01      0x872 df4iah_fw_ringbuffer.o
- .debug_loc     0x00003573      0x3f2 df4iah_fw_serial.o
- .debug_loc     0x00003965      0x64e df4iah_fw_twi.o
- .debug_loc     0x00003fb3       0x97 df4iah_fw_twi_mcp23017.o
- .debug_loc     0x0000404a      0x31a df4iah_fw_twi_mcp23017_av1624.o
- .debug_loc     0x00004364      0x52d df4iah_fw_twi_smart_lcd.o
- .debug_loc     0x00004891      0x460 df4iah_fw_usb.o
- .debug_loc     0x00004cf1      0x957 usbdrv_fw/usbdrv.o
+ .debug_loc     0x00000374     0x1f54 df4iah_fw_main.o
+ .debug_loc     0x000022c8      0xa57 df4iah_fw_memory.o
+ .debug_loc     0x00002d1f      0x872 df4iah_fw_ringbuffer.o
+ .debug_loc     0x00003591      0x3f2 df4iah_fw_serial.o
+ .debug_loc     0x00003983      0x64e df4iah_fw_twi.o
+ .debug_loc     0x00003fd1       0x97 df4iah_fw_twi_mcp23017.o
+ .debug_loc     0x00004068      0x31a df4iah_fw_twi_mcp23017_av1624.o
+ .debug_loc     0x00004382      0x52d df4iah_fw_twi_smart_lcd.o
+ .debug_loc     0x000048af      0x460 df4iah_fw_usb.o
+ .debug_loc     0x00004d0f      0x957 usbdrv_fw/usbdrv.o
 
 .debug_macinfo
  *(.debug_macinfo)
