@@ -93,7 +93,7 @@ void twi_fw_waitUntilDone(uint8_t extraDelay)
 
 void twi_fw_sendCmdSendData1(uint8_t addr, uint8_t cmd, uint8_t data1)
 {
-	twi_fw_sendCmdSendData1SendDataVar(addr, cmd, 2, &data1);
+	twi_fw_sendCmdSendData1SendDataVar(addr, cmd, 1, &data1);
 }
 
 void twi_fw_sendCmdSendData1SendData2(uint8_t addr, uint8_t cmd, uint8_t data1, uint8_t data2)
