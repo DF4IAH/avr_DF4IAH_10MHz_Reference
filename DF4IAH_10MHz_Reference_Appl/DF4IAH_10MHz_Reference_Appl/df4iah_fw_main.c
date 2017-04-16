@@ -772,7 +772,7 @@ static void calcPhase(void)
 
 	if (REFCLK_STATE_LOCKING_PHASE <= mainRefClkState) {
 		/* phase correction */
-		phaseStepsPhase = (float) ((pow(fabs(adcPhase), 1.20f)) * 100.f);		// magic values  XXX PHASE: trimming is done here
+		phaseStepsPhase = (float) ((pow(fabs(adcPhase), 1.15f)) * 150.f);		// magic values  XXX PHASE: trimming is done here
 		if (adcPhase < 0.0f) {
 			phaseStepsPhase = -phaseStepsPhase;
 		}
@@ -792,7 +792,7 @@ static void calcPhase(void)
 
 		/* frequency drift correction */
 		phaseStepsFrequency += phaseStepsPhase * (isAfterSignRev ?  0.00001500f
-																 :  0.00000100f) ;	// magic values XXX DRIFTING FREQUENCY trimming is done here
+																 : -0.00000300f) ;	// magic values XXX DRIFTING FREQUENCY trimming is done here
 
 		/* mainPpm calculations */
 		float phaseStepsErrorDiff = phaseStepsErrorSum / MEAN_PHASE_PPM_STAGES_F;

@@ -6267,14 +6267,14 @@ static float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
 		if ((-ADC_PHASE_LOCKING_DEG <= adcPhase) && (adcPhase <= ADC_PHASE_LOCKING_DEG)) {
     30da:	20 e0       	ldi	r18, 0x00	; 0
     30dc:	30 e0       	ldi	r19, 0x00	; 0
-    30de:	40 ea       	ldi	r20, 0xA0	; 160
+    30de:	42 e8       	ldi	r20, 0x82	; 130
     30e0:	52 ec       	ldi	r21, 0xC2	; 194
     30e2:	0e 94 1c 32 	call	0x6438	; 0x6438 <__gesf2>
     30e6:	87 fd       	sbrc	r24, 7
     30e8:	66 c0       	rjmp	.+204    	; 0x31b6 <main_fw_giveAway+0x1416>
     30ea:	20 e0       	ldi	r18, 0x00	; 0
     30ec:	30 e0       	ldi	r19, 0x00	; 0
-    30ee:	40 ea       	ldi	r20, 0xA0	; 160
+    30ee:	42 e8       	ldi	r20, 0x82	; 130
     30f0:	52 e4       	ldi	r21, 0x42	; 66
     30f2:	c5 01       	movw	r24, r10
     30f4:	b4 01       	movw	r22, r8
@@ -6315,7 +6315,7 @@ static float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
 			if ((-ADC_PHASE_INSYNC_DEG <= adcPhase) && (adcPhase <= ADC_PHASE_INSYNC_DEG)) {
     312c:	20 e0       	ldi	r18, 0x00	; 0
     312e:	30 e0       	ldi	r19, 0x00	; 0
-    3130:	4c e5       	ldi	r20, 0x5C	; 92
+    3130:	4c e0       	ldi	r20, 0x0C	; 12
     3132:	52 ec       	ldi	r21, 0xC2	; 194
     3134:	c5 01       	movw	r24, r10
     3136:	b4 01       	movw	r22, r8
@@ -6327,10 +6327,10 @@ static float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
 
 	if (REFCLK_STATE_LOCKING_PHASE <= mainRefClkState) {
 		/* phase correction */
-		phaseStepsPhase = (float) ((pow(fabs(adcPhase), 1.20f)) * 100.f);		// magic values  XXX PHASE: trimming is done here
-    3140:	2a e9       	ldi	r18, 0x9A	; 154
-    3142:	39 e9       	ldi	r19, 0x99	; 153
-    3144:	49 e9       	ldi	r20, 0x99	; 153
+		phaseStepsPhase = (float) ((pow(fabs(adcPhase), 1.15f)) * 150.f);		// magic values  XXX PHASE: trimming is done here
+    3140:	23 e3       	ldi	r18, 0x33	; 51
+    3142:	33 e3       	ldi	r19, 0x33	; 51
+    3144:	43 e9       	ldi	r20, 0x93	; 147
     3146:	5f e3       	ldi	r21, 0x3F	; 63
     3148:	c5 01       	movw	r24, r10
     314a:	b4 01       	movw	r22, r8
@@ -6338,8 +6338,8 @@ static float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
     314e:	0e 94 83 32 	call	0x6506	; 0x6506 <pow>
     3152:	20 e0       	ldi	r18, 0x00	; 0
     3154:	30 e0       	ldi	r19, 0x00	; 0
-    3156:	48 ec       	ldi	r20, 0xC8	; 200
-    3158:	52 e4       	ldi	r21, 0x42	; 66
+    3156:	46 e1       	ldi	r20, 0x16	; 22
+    3158:	53 e4       	ldi	r21, 0x43	; 67
     315a:	0e 94 20 32 	call	0x6440	; 0x6440 <__mulsf3>
     315e:	6b 01       	movw	r12, r22
     3160:	7c 01       	movw	r14, r24
@@ -6366,7 +6366,7 @@ static float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
 			if ((-ADC_PHASE_INSYNC_DEG <= adcPhase) && (adcPhase <= ADC_PHASE_INSYNC_DEG)) {
     317e:	20 e0       	ldi	r18, 0x00	; 0
     3180:	30 e0       	ldi	r19, 0x00	; 0
-    3182:	4c e5       	ldi	r20, 0x5C	; 92
+    3182:	4c e0       	ldi	r20, 0x0C	; 12
     3184:	52 ec       	ldi	r21, 0xC2	; 194
     3186:	c5 01       	movw	r24, r10
     3188:	b4 01       	movw	r22, r8
@@ -6375,7 +6375,7 @@ static float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
     3190:	22 c0       	rjmp	.+68     	; 0x31d6 <main_fw_giveAway+0x1436>
     3192:	20 e0       	ldi	r18, 0x00	; 0
     3194:	30 e0       	ldi	r19, 0x00	; 0
-    3196:	4c e5       	ldi	r20, 0x5C	; 92
+    3196:	4c e0       	ldi	r20, 0x0C	; 12
     3198:	52 e4       	ldi	r21, 0x42	; 66
     319a:	c5 01       	movw	r24, r10
     319c:	b4 01       	movw	r22, r8
@@ -6505,13 +6505,13 @@ static float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
 
 		/* frequency drift correction */
 		phaseStepsFrequency += phaseStepsPhase * (isAfterSignRev ?  0.00001500f
-																 :  0.00000100f) ;	// magic values XXX DRIFTING FREQUENCY trimming is done here
+																 : -0.00000300f) ;	// magic values XXX DRIFTING FREQUENCY trimming is done here
     3264:	81 11       	cpse	r24, r1
     3266:	03 c6       	rjmp	.+3078   	; 0x3e6e <main_fw_giveAway+0x20ce>
-    3268:	2d eb       	ldi	r18, 0xBD	; 189
-    326a:	37 e3       	ldi	r19, 0x37	; 55
-    326c:	46 e8       	ldi	r20, 0x86	; 134
-    326e:	55 e3       	ldi	r21, 0x35	; 53
+    3268:	2c e9       	ldi	r18, 0x9C	; 156
+    326a:	33 e5       	ldi	r19, 0x53	; 83
+    326c:	49 e4       	ldi	r20, 0x49	; 73
+    326e:	56 eb       	ldi	r21, 0xB6	; 182
 			isAfterSignRev = true;
 		}
 		lastPhaseStepsPhase = phaseStepsPhase;
@@ -6527,7 +6527,7 @@ static float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
     327e:	0e 94 16 30 	call	0x602c	; 0x602c <__addsf3>
     3282:	2b 01       	movw	r4, r22
     3284:	3c 01       	movw	r6, r24
-																 :  0.00000100f) ;	// magic values XXX DRIFTING FREQUENCY trimming is done here
+																 : -0.00000300f) ;	// magic values XXX DRIFTING FREQUENCY trimming is done here
 
 		/* mainPpm calculations */
 		float phaseStepsErrorDiff = phaseStepsErrorSum / MEAN_PHASE_PPM_STAGES_F;
@@ -6574,7 +6574,7 @@ static float main_fw_calcTimerToFloat(uint8_t intVal, uint8_t intSubVal)
     32ee:	3c 85       	ldd	r19, Y+12	; 0x0c
     32f0:	4d 85       	ldd	r20, Y+13	; 0x0d
     32f2:	5e 85       	ldd	r21, Y+14	; 0x0e
-																 :  0.00000100f) ;	// magic values XXX DRIFTING FREQUENCY trimming is done here
+																 : -0.00000300f) ;	// magic values XXX DRIFTING FREQUENCY trimming is done here
 
 		/* mainPpm calculations */
 		float phaseStepsErrorDiff = phaseStepsErrorSum / MEAN_PHASE_PPM_STAGES_F;
@@ -8335,7 +8335,7 @@ static void twi_smart_lcd_fw_showStatus(void)
 
 		/* frequency drift correction */
 		phaseStepsFrequency += phaseStepsPhase * (isAfterSignRev ?  0.00001500f
-																 :  0.00000100f) ;	// magic values XXX DRIFTING FREQUENCY trimming is done here
+																 : -0.00000300f) ;	// magic values XXX DRIFTING FREQUENCY trimming is done here
     3e6e:	22 e8       	ldi	r18, 0x82	; 130
     3e70:	38 ea       	ldi	r19, 0xA8	; 168
     3e72:	4b e7       	ldi	r20, 0x7B	; 123
@@ -8359,7 +8359,7 @@ static void twi_smart_lcd_fw_showStatus(void)
 			if ((-ADC_PHASE_INSYNC_DEG <= adcPhase) && (adcPhase <= ADC_PHASE_INSYNC_DEG)) {
     3e80:	20 e0       	ldi	r18, 0x00	; 0
     3e82:	30 e0       	ldi	r19, 0x00	; 0
-    3e84:	4c e5       	ldi	r20, 0x5C	; 92
+    3e84:	4c e0       	ldi	r20, 0x0C	; 12
     3e86:	52 e4       	ldi	r21, 0x42	; 66
     3e88:	c5 01       	movw	r24, r10
     3e8a:	b4 01       	movw	r22, r8

@@ -79,8 +79,8 @@
 #define ADC_PHASE_ADC_CENTER								269
 #define ADC_PHASE_VOLTS_CENTER								1.30f
 #define ADC_PHASE_DELTAVOLTS_90DEG							1.40f
-#define ADC_PHASE_LOCKING_DEG								 80
-#define ADC_PHASE_INSYNC_DEG								 55
+#define ADC_PHASE_LOCKING_DEG								 65
+#define ADC_PHASE_INSYNC_DEG								 35
 
 #define MEAN_QRG_CLOCK_STAGES_F								  5.0f;
 #define MEAN_PHASE_CLOCK_STAGES_F							  3.0f;
