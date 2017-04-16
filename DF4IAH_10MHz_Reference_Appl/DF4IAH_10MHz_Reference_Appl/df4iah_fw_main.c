@@ -148,47 +148,33 @@ PROGMEM const uchar PM_FORMAT_GP00[]						= "\n#GP00: =======";
 PROGMEM const uchar PM_FORMAT_GP01[]						= "#GP01: Date = %08ld, Time = %06ld.%03d\n";
 PROGMEM const uchar PM_FORMAT_GP02[]						= "#GP02: Mode2 = %1d, PosFixInd = %1d\n";
 PROGMEM const uchar PM_FORMAT_GP03[]						= "#GP03: SatsUsed = %02d, SatsEphim_GpsGalileoQzss = %02d, SatsEphim_Glonass = %02d\n";
-//PROGMEM const uchar PM_FORMAT_GP04[]						= "#GP04: PDOP = %.2f, HDOP = %.2f, VDOP = %.2f,\n";
 PROGMEM const uchar PM_FORMAT_GP04[]						= "#GP04: PDOP = %d.%02d, HDOP = %d.%02d, VDOP = %d.%02d,\n";
-//PROGMEM const uchar PM_FORMAT_GP05[]						= "#GP05: Lat = %c %09.4f, Lon = %c %010.4f, Height = %.2f m\n";
 PROGMEM const uchar PM_FORMAT_GP05[]						= "#GP05: Lat = %c %04d.%04d, Lon = %c %05d.%04d, Height = %d.%02d m\n";
 
-//PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA01: ADC0 = %04u (%0.3fV)\n";
 PROGMEM const uchar PM_FORMAT_TA01[]						= "#TA01: ADC0 = %04u (%d.%03dV)\n";
-//PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA02: ADC1 = %04u (%0.3fV)\n";
 PROGMEM const uchar PM_FORMAT_TA02[]						= "#TA02: ADC1 = %04u (%d.%03dV)\n";
-//PROGMEM const uchar PM_FORMAT_TA03[]						= "#TA03: Temp = %04u (%0.1fC)\n";
 PROGMEM const uchar PM_FORMAT_TA03[]						= "#TA03: Temp = %04u (%d.%1dC)\n";
 PROGMEM const uchar PM_FORMAT_TA11[]						= "#TA11: localFastCtr1ms = %09lu, \tlocalFastTCNT1 = %05u\n";
 PROGMEM const uchar PM_FORMAT_TA12[]						= "#TA12: ppsStampCtr1ms  = %09lu, \tppsStampICR1   = %05u, \tppsStampCtr1ms_last  = %09lu, \tppsStampICR1_last   = %05u\n";
 PROGMEM const uchar PM_FORMAT_TA13[]						= "#TA13: PWM = %03u, \tSub-PWM = %03u\n";
 PROGMEM const uchar PM_FORMAT_TA14[]						= "#TA14: mainRefClkState = 0x%1X\n";
 
-//PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID01: +/- KEY \tmainPwmTerminalAdj = %f, \tpullPwmValBefore    = %03u + fastPwmSubCmpBefore    = %03u\n";
 PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID01: +/- KEY \tmainPwmTerminalAdj = %d.%07d, \tpullPwmValBefore    = %03u + fastPwmSubCmpBefore    = %03u\n";
-//PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID02: +/- KEY \tmainPwmTerminalAdj = %f, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n";
 PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID02: +/- KEY \tmainPwmTerminalAdj = %d.%07d, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n";
 
-PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: Clock int20MHzClockDiff       =   %+04liHz @20MHz\n";
-//PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: Clock localMeanFloatClockDiff = %+03.3fHz @20MHz, \tqrgDev_Hz = %+03.3fHz @10MHz, \tppm = %+02.6f\n";
-PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: Clock localMeanFloatClockDiff = %c%03d.%03dHz @20MHz, \tqrgDev_Hz = %c%03d.%03dHz @10MHz, \tppm = %c%02d.%06d\n";
-//PROGMEM const uchar PM_FORMAT_IA03[]						= "#IA03: QRG   newPwmVal = %03.3f, \tpwmCorSteps         = %+03.3f\n";
-PROGMEM const uchar PM_FORMAT_IA03[]						= "#IA03: QRG   newPwmVal = %03d.%03d, \tpwmCorSteps         = %+03d.%03d\n";
-//PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: PHASE phaseErr  = %03.3f°, \t phaseStepsFrequency = %+03.3f, \tphaseStepsPhase = %+03.3f\n";
+PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: Clock int20MHzClockDiff       = %+04li  Hz @20MHz\n";
+PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: Clock localMeanFloatClockDiff = %c%+03d.%03dHz @20MHz, \tqrgDev_Hz = %c%03d.%03dHz @10MHz, \tppm = %c%02d.%06d\n";
+PROGMEM const uchar PM_FORMAT_IA03[]						= "#IA03: QRG   newPwmVal = %03d.%03d, \tpwmCorSteps         = %+04d.%03d\n";
 PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: PHASE phaseErr  = %03d.%03d°, \t phaseStepsFrequency = %c%03d.%03d, \tphaseStepsPhase = %c%03d.%03d\n";
-//PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_steps = %+03.3f\n";
 PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_steps = %c%03d.%03d\n";
 
 PROGMEM const uchar PM_FORMAT_LC01[]						= "+=== DF4IAH ===+";
 PROGMEM const uchar PM_FORMAT_LC02[]						= "10MHzRefOsc V2x1";
-//PROGMEM const uchar PM_FORMAT_LC11[]						= "%c% 08.3f %c%1X %c%02u ";
-PROGMEM const uchar PM_FORMAT_LC11[]						= "%c %08d.%03d %c%1X %c%02u ";
+PROGMEM const uchar PM_FORMAT_LC11[]						= "%c %03d.%03d %c%1X %c%02u ";
 PROGMEM const uchar PM_FORMAT_LC12[]						= "b ---.--- %c%1X %c%02u ";
-PROGMEM const uchar PM_FORMAT_LC21[]						= "%02u.%02u. U%02u:%02u:%02u ";
-//PROGMEM const uchar PM_FORMAT_LC22[]						= "%c%1u %c%1u %3.1f %c%02u%c%02u ";
-PROGMEM const uchar PM_FORMAT_LC22[]						= "%c%1u %c%1u %3d.%1d %c%02u%c%02u ";
-//PROGMEM const uchar PM_FORMAT_LC23[]						= "%c%07.3f %c%5.3fV ";
-PROGMEM const uchar PM_FORMAT_LC23[]						= "%c%07d.%03d %c%5d.%03dV ";
+PROGMEM const uchar PM_FORMAT_LC21[]						= "%04u%02u%02u U%02u%02u%02u ";
+PROGMEM const uchar PM_FORMAT_LC22[]						= "%c%1u %c%1u %1d.%1d %c%02u%c%02u ";
+PROGMEM const uchar PM_FORMAT_LC23[]						= "%c%03d.%03d %c%1d.%03dV ";
 
 PROGMEM const uchar PM_FORMAT_SC01[]						= "#SC01: Stack-Check: mung-wall address: 0x%04x, lowest-stack: 0x%04x\n";
 PROGMEM const uchar PM_FORMAT_SC02[]						= "#SC02: s=0x%02x,dS=%u,iP=%u\n";
@@ -924,7 +910,7 @@ static void twi_mcp23017_av1624_fw_showStatus(void)
 			case 0:
 			{
 				/* the timestamp */
-				//uint16_t year	=  main_nmeaDate					% 10000;
+				uint16_t year	=  main_nmeaDate					% 10000;
 				uint8_t month	= (main_nmeaDate		/ 10000)	% 100;
 				uint8_t day		=  main_nmeaDate		/ 1000000;
 				uint8_t hour	=  main_nmeaTimeUtcInt	/ 10000;
@@ -932,9 +918,9 @@ static void twi_mcp23017_av1624_fw_showStatus(void)
 				uint8_t seconds	=  main_nmeaTimeUtcInt				% 100;
 				memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_LC21, sizeof(PM_FORMAT_LC21));
 				len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
-				day,
+				year,
 				month,
-				//year % 100,
+				day,
 				hour,
 				minutes,
 				seconds);
@@ -977,7 +963,7 @@ static void twi_mcp23017_av1624_fw_showStatus(void)
 				'P',
 				(int) l_timer, s_flt_frac(l_timer, 3),
 				0xab,
-				mainAdcPullVolts);
+				(int) mainAdcPullVolts, s_flt_frac(mainAdcPullVolts, 3));
 				twi_mcp23017_av1624_fw_gotoPosition(1, 0);
 				twi_mcp23017_av1624_fw_writeString(mainPrepareBuffer, len);
 			}
