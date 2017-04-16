@@ -1134,15 +1134,17 @@ static void twi_smart_lcd_fw_showStatus(void)
 	}
 
 	{
+		float height_f;
 		uint16_t height_int;
-		uint16_t height_frac100;
+		uint8_t height_frac10;
 		uint8_t sreg = SREG;
 		cli();
-		height_int     = (int16_t) main_nmeaAltitudeM;
-		height_frac100 = (int16_t) ((main_nmeaAltitudeM - floorf(main_nmeaAltitudeM)) * 100.0f);
+		height_f = main_nmeaAltitudeM;
 		SREG = sreg;
 
-		twi_smart_lcd_fw_set_pos_height(height_int, height_frac100);
+		height_int    = (int16_t) height_f;
+		height_frac10 = (int8_t) ((height_f - floorf(height_f)) * 10.0f);
+		twi_smart_lcd_fw_set_pos_height(height_int, height_frac10);
 	}
 }
 

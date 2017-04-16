@@ -54,7 +54,7 @@ void twi_smart_lcd_fw_set_sat_dop(uint16_t sat_dop100);
 void twi_smart_lcd_fw_set_pos_state(uint8_t state_fi, uint8_t state_m2);
 void twi_smart_lcd_fw_set_pos_lat(uint8_t lat_sgn, uint8_t lat_deg, uint8_t lat_min_int, uint16_t lat_min_frac10000);
 void twi_smart_lcd_fw_set_pos_lon(uint8_t lon_sgn, uint8_t lon_deg, uint8_t lon_min_int, uint16_t lon_min_frac10000);
-void twi_smart_lcd_fw_set_pos_height(uint16_t height_int, uint8_t height_frac100);
+void twi_smart_lcd_fw_set_pos_height(uint16_t height_int, uint8_t height_frac10);
 
 
 #endif /* DF4IAH_FW_TWI_SMART_LCD_H_ */
