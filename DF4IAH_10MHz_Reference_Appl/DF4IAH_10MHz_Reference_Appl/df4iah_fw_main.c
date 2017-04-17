@@ -133,7 +133,8 @@ PROGMEM const uchar PM_INTERPRETER_UNKNOWN[] 				= "\n*?*  unknown command '%s' 
 
 PROGMEM const uchar PM_FORMAT_VERSION[]						= "\n=== DF4IAH - 10 MHz Reference Oscillator ===\n=== Ver: 20%03d%03d";
 
-//PROGMEM const uchar PM_FORMAT_GPS_CR_LF[]					= "\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_CR_LF[]					= "\r\n";
+PROGMEM const uchar PM_FORMAT_GPS_BAUDRATE[]				= "$PMTK251,9600*17\r\n";
 //PROGMEM const uchar PM_FORMAT_GPS_HOT_RESTART[]			= "$PMTK101*32\r\n";
 PROGMEM const uchar PM_FORMAT_GPS_WARM_RESTART[]			= "$PMTK102*31\r\n";
 //PROGMEM const uchar PM_FORMAT_GPS_COLD_RESTART[]			= "$PMTK103*30\r\n";
@@ -1224,6 +1225,9 @@ static void main_fw_parseNmeaLineData(void) {
 		main_fw_nmeaUtcPlusOneSec();
 		if ((main_nmeaDate >= 010100) && (main_nmeaDate < 311299)) {
 			main_nmeaDate = ((main_nmeaDate - (main_nmeaDate % 100)) * 100) + 2000 + (main_nmeaDate % 100);
+			if ((main_nmeaDate <  1012000) || (main_nmeaDate > 31122099)) {
+				main_nmeaDate = 0;
+			}
 		} else {
 			main_nmeaDate = 0;
 		}
@@ -1617,20 +1621,26 @@ static void doJobs(void)
 		/* activate GPS module for GPS / GALILEO / QZSS as well as GLONASS reception */
 
 		mainGpsInitVal++;
-		if (5 == mainGpsInitVal) {  // XXX init of GPS-Module is here
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WARM_RESTART, sizeof(PM_FORMAT_GPS_WARM_RESTART));
+		if (3 == mainGpsInitVal) {  // talking the first time with this baud rate
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_CR_LF, sizeof(PM_FORMAT_GPS_CR_LF));
+
+		} else if ( 4 == mainGpsInitVal) {
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_BAUDRATE, sizeof(PM_FORMAT_GPS_BAUDRATE));  // setting the baud rate
+
+		} else if ( 5 == mainGpsInitVal) {
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WARM_RESTART, sizeof(PM_FORMAT_GPS_WARM_RESTART));  // XXX init of GPS-Module is here
 
 		} else if (10 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST0_EAST0, sizeof(PM_FORMAT_GPS_WEST0_EAST0));  // disable all GNSS systems
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST0_EAST0, sizeof(PM_FORMAT_GPS_WEST0_EAST0));    // disable all GNSS systems
 
 		} else if (11 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST1_EAST0, sizeof(PM_FORMAT_GPS_WEST1_EAST0));  // activate GPS, QZSS & Galileo
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST1_EAST0, sizeof(PM_FORMAT_GPS_WEST1_EAST0));    // activate GPS, QZSS & Galileo
 
 		} else if (12 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST1_EAST1, sizeof(PM_FORMAT_GPS_WEST1_EAST1));  // activate GLONASS also
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST1_EAST1, sizeof(PM_FORMAT_GPS_WEST1_EAST1));    // activate GLONASS also
 
 		} else if (70 == mainGpsInitVal) {
-			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST1_EAST1, sizeof(PM_FORMAT_GPS_WEST1_EAST1));  // activate GLONASS also (sent every minute)
+			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST1_EAST1, sizeof(PM_FORMAT_GPS_WEST1_EAST1));    // activate GLONASS also (sent every minute)
 			mainGpsInitVal = 10;
 		}
 	}
