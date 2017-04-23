@@ -1115,8 +1115,8 @@ static void twi_smart_lcd_fw_showStatus(void)
 
 		uint8_t  lat_deg = (uint8_t) (lat / 100.0f);
 		uint8_t  lat_min_int = (uint8_t) ((int) lat % 100);
-		uint16_t lat_min_frac1000 = (uint16_t) ((lat - (lat_deg * 100 + lat_min_int)) * 1000.0f);
-		twi_smart_lcd_fw_set_pos_lat(lat_sgn, lat_deg, lat_min_int, lat_min_frac1000);
+		uint16_t lat_min_frac10000 = (uint16_t) ((lat - (lat_deg * 100 + lat_min_int)) * 10000.0f);
+		twi_smart_lcd_fw_set_pos_lat(lat_sgn, lat_deg, lat_min_int, lat_min_frac10000);
 	}
 
 	{
@@ -1130,8 +1130,8 @@ static void twi_smart_lcd_fw_showStatus(void)
 
 		uint16_t lon_deg = (uint16_t) (lon / 100.0f);
 		uint8_t  lon_min_int = (uint16_t) ((int) lon % 100);
-		uint16_t lon_min_frac1000 = (uint16_t) ((lon - (lon_deg * 100 + lon_min_int)) * 1000.0f);
-		twi_smart_lcd_fw_set_pos_lon(lon_sgn, lon_deg, lon_min_int, lon_min_frac1000);
+		uint16_t lon_min_frac10000 = (uint16_t) ((lon - (lon_deg * 100 + lon_min_int)) * 10000.0f);
+		twi_smart_lcd_fw_set_pos_lon(lon_sgn, lon_deg, lon_min_int, lon_min_frac10000);
 	}
 
 	{

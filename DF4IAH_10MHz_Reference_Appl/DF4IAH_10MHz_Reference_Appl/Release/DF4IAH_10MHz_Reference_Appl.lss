@@ -25,11 +25,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  10 .debug_frame  00000bec  00000000  00000000  00019af0  2**2
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_str    00002ec6  00000000  00000000  0001a6dc  2**0
+ 11 .debug_str    00002ea4  00000000  00000000  0001a6dc  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_loc    00005666  00000000  00000000  0001d5a2  2**0
+ 12 .debug_loc    00005666  00000000  00000000  0001d580  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_ranges 000004d0  00000000  00000000  00022c08  2**0
+ 13 .debug_ranges 000004d0  00000000  00000000  00022be6  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -8038,7 +8038,7 @@ static void twi_smart_lcd_fw_showStatus(void)
     3c5a:	b8 01       	movw	r22, r16
     3c5c:	0e 94 95 2f 	call	0x5f2a	; 0x5f2a <__divmodhi4>
     3c60:	5c 01       	movw	r10, r24
-		uint16_t lat_min_frac1000 = (uint16_t) ((lat - (lat_deg * 100 + lat_min_int)) * 1000.0f);
+		uint16_t lat_min_frac10000 = (uint16_t) ((lat - (lat_deg * 100 + lat_min_int)) * 10000.0f);
     3c62:	6c 01       	movw	r12, r24
     3c64:	dd 24       	eor	r13, r13
     3c66:	b4 e6       	ldi	r27, 0x64	; 100
@@ -8057,12 +8057,12 @@ static void twi_smart_lcd_fw_showStatus(void)
     3c82:	b2 01       	movw	r22, r4
     3c84:	0e 94 3c 30 	call	0x6078	; 0x6078 <__subsf3>
     3c88:	20 e0       	ldi	r18, 0x00	; 0
-    3c8a:	30 e0       	ldi	r19, 0x00	; 0
-    3c8c:	4a e7       	ldi	r20, 0x7A	; 122
-    3c8e:	54 e4       	ldi	r21, 0x44	; 68
+    3c8a:	30 e4       	ldi	r19, 0x40	; 64
+    3c8c:	4c e1       	ldi	r20, 0x1C	; 28
+    3c8e:	56 e4       	ldi	r21, 0x46	; 70
     3c90:	0e 94 47 32 	call	0x648e	; 0x648e <__mulsf3>
     3c94:	0e 94 12 31 	call	0x6224	; 0x6224 <__fixunssfsi>
-		twi_smart_lcd_fw_set_pos_lat(lat_sgn, lat_deg, lat_min_int, lat_min_frac1000);
+		twi_smart_lcd_fw_set_pos_lat(lat_sgn, lat_deg, lat_min_int, lat_min_frac10000);
     3c98:	9b 01       	movw	r18, r22
     3c9a:	4a 2d       	mov	r20, r10
     3c9c:	69 2d       	mov	r22, r9
@@ -8106,7 +8106,7 @@ static void twi_smart_lcd_fw_showStatus(void)
     3ce0:	b8 01       	movw	r22, r16
     3ce2:	0e 94 95 2f 	call	0x5f2a	; 0x5f2a <__divmodhi4>
     3ce6:	68 2e       	mov	r6, r24
-		uint16_t lon_min_frac1000 = (uint16_t) ((lon - (lon_deg * 100 + lon_min_int)) * 1000.0f);
+		uint16_t lon_min_frac10000 = (uint16_t) ((lon - (lon_deg * 100 + lon_min_int)) * 10000.0f);
     3ce8:	84 e6       	ldi	r24, 0x64	; 100
     3cea:	88 9d       	mul	r24, r8
     3cec:	80 01       	movw	r16, r0
@@ -8125,12 +8125,12 @@ static void twi_smart_lcd_fw_showStatus(void)
     3d08:	b6 01       	movw	r22, r12
     3d0a:	0e 94 3c 30 	call	0x6078	; 0x6078 <__subsf3>
     3d0e:	20 e0       	ldi	r18, 0x00	; 0
-    3d10:	30 e0       	ldi	r19, 0x00	; 0
-    3d12:	4a e7       	ldi	r20, 0x7A	; 122
-    3d14:	54 e4       	ldi	r21, 0x44	; 68
+    3d10:	30 e4       	ldi	r19, 0x40	; 64
+    3d12:	4c e1       	ldi	r20, 0x1C	; 28
+    3d14:	56 e4       	ldi	r21, 0x46	; 70
     3d16:	0e 94 47 32 	call	0x648e	; 0x648e <__mulsf3>
     3d1a:	0e 94 12 31 	call	0x6224	; 0x6224 <__fixunssfsi>
-		twi_smart_lcd_fw_set_pos_lon(lon_sgn, lon_deg, lon_min_int, lon_min_frac1000);
+		twi_smart_lcd_fw_set_pos_lon(lon_sgn, lon_deg, lon_min_int, lon_min_frac10000);
     3d1e:	9b 01       	movw	r18, r22
     3d20:	46 2d       	mov	r20, r6
     3d22:	68 2d       	mov	r22, r8
