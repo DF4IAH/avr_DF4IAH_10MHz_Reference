@@ -829,190 +829,191 @@ END GROUP
                 0x000003a4       0x47 df4iah_fw_main.o
                 0x000003a4                PM_FORMAT_IA03
  .progmem.data.PM_FORMAT_IA02
-                0x000003eb       0x75 df4iah_fw_main.o
+                0x000003eb       0x74 df4iah_fw_main.o
                 0x000003eb                PM_FORMAT_IA02
  .progmem.data.PM_FORMAT_IA01
-                0x00000460       0x3a df4iah_fw_main.o
-                0x00000460                PM_FORMAT_IA01
+                0x0000045f       0x3a df4iah_fw_main.o
+                0x0000045f                PM_FORMAT_IA01
  .progmem.data.PM_FORMAT_ID02
-                0x0000049a       0x6b df4iah_fw_main.o
-                0x0000049a                PM_FORMAT_ID02
+                0x00000499       0x6b df4iah_fw_main.o
+                0x00000499                PM_FORMAT_ID02
  .progmem.data.PM_FORMAT_ID01
-                0x00000505       0x6b df4iah_fw_main.o
-                0x00000505                PM_FORMAT_ID01
+                0x00000504       0x6b df4iah_fw_main.o
+                0x00000504                PM_FORMAT_ID01
  .progmem.data.PM_FORMAT_TA14
-                0x00000570       0x20 df4iah_fw_main.o
-                0x00000570                PM_FORMAT_TA14
+                0x0000056f       0x20 df4iah_fw_main.o
+                0x0000056f                PM_FORMAT_TA14
  .progmem.data.PM_FORMAT_TA13
-                0x00000590       0x24 df4iah_fw_main.o
-                0x00000590                PM_FORMAT_TA13
+                0x0000058f       0x24 df4iah_fw_main.o
+                0x0000058f                PM_FORMAT_TA13
  .progmem.data.PM_FORMAT_TA12
-                0x000005b4       0x74 df4iah_fw_main.o
-                0x000005b4                PM_FORMAT_TA12
+                0x000005b3       0x74 df4iah_fw_main.o
+                0x000005b3                PM_FORMAT_TA12
  .progmem.data.PM_FORMAT_TA11
-                0x00000628       0x38 df4iah_fw_main.o
-                0x00000628                PM_FORMAT_TA11
+                0x00000627       0x38 df4iah_fw_main.o
+                0x00000627                PM_FORMAT_TA11
  .progmem.data.PM_FORMAT_TA03
-                0x00000660       0x1e df4iah_fw_main.o
-                0x00000660                PM_FORMAT_TA03
+                0x0000065f       0x1e df4iah_fw_main.o
+                0x0000065f                PM_FORMAT_TA03
  .progmem.data.PM_FORMAT_TA02
-                0x0000067e       0x1f df4iah_fw_main.o
-                0x0000067e                PM_FORMAT_TA02
+                0x0000067d       0x1f df4iah_fw_main.o
+                0x0000067d                PM_FORMAT_TA02
  .progmem.data.PM_FORMAT_TA01
-                0x0000069d       0x1f df4iah_fw_main.o
-                0x0000069d                PM_FORMAT_TA01
+                0x0000069c       0x1f df4iah_fw_main.o
+                0x0000069c                PM_FORMAT_TA01
  .progmem.data.PM_FORMAT_GP05
-                0x000006bc       0x43 df4iah_fw_main.o
-                0x000006bc                PM_FORMAT_GP05
+                0x000006bb       0x43 df4iah_fw_main.o
+                0x000006bb                PM_FORMAT_GP05
  .progmem.data.PM_FORMAT_GP04
-                0x000006ff       0x38 df4iah_fw_main.o
-                0x000006ff                PM_FORMAT_GP04
+                0x000006fe       0x38 df4iah_fw_main.o
+                0x000006fe                PM_FORMAT_GP04
  .progmem.data.PM_FORMAT_GP03
-                0x00000737       0x53 df4iah_fw_main.o
-                0x00000737                PM_FORMAT_GP03
+                0x00000736       0x53 df4iah_fw_main.o
+                0x00000736                PM_FORMAT_GP03
  .progmem.data.PM_FORMAT_GP02
-                0x0000078a       0x25 df4iah_fw_main.o
-                0x0000078a                PM_FORMAT_GP02
+                0x00000789       0x25 df4iah_fw_main.o
+                0x00000789                PM_FORMAT_GP02
  .progmem.data.PM_FORMAT_GP01
-                0x000007af       0x28 df4iah_fw_main.o
-                0x000007af                PM_FORMAT_GP01
+                0x000007ae       0x28 df4iah_fw_main.o
+                0x000007ae                PM_FORMAT_GP01
  .progmem.data.PM_FORMAT_GP00
-                0x000007d7       0x10 df4iah_fw_main.o
-                0x000007d7                PM_FORMAT_GP00
+                0x000007d6       0x10 df4iah_fw_main.o
+                0x000007d6                PM_FORMAT_GP00
  .progmem.data.PM_FORMAT_GPS_WEST1_EAST1
-                0x000007e7       0x12 df4iah_fw_main.o
-                0x000007e7                PM_FORMAT_GPS_WEST1_EAST1
+                0x000007e6       0x12 df4iah_fw_main.o
+                0x000007e6                PM_FORMAT_GPS_WEST1_EAST1
  .progmem.data.PM_FORMAT_GPS_WEST1_EAST0
-                0x000007f9       0x12 df4iah_fw_main.o
-                0x000007f9                PM_FORMAT_GPS_WEST1_EAST0
+                0x000007f8       0x12 df4iah_fw_main.o
+                0x000007f8                PM_FORMAT_GPS_WEST1_EAST0
  .progmem.data.PM_FORMAT_GPS_WEST0_EAST0
-                0x0000080b       0x12 df4iah_fw_main.o
-                0x0000080b                PM_FORMAT_GPS_WEST0_EAST0
+                0x0000080a       0x12 df4iah_fw_main.o
+                0x0000080a                PM_FORMAT_GPS_WEST0_EAST0
  .progmem.data.PM_FORMAT_GPS_WARM_RESTART
-                0x0000081d        0xe df4iah_fw_main.o
-                0x0000081d                PM_FORMAT_GPS_WARM_RESTART
+                0x0000081c        0xe df4iah_fw_main.o
+                0x0000081c                PM_FORMAT_GPS_WARM_RESTART
  .progmem.data.PM_FORMAT_GPS_BAUDRATE
-                0x0000082b       0x13 df4iah_fw_main.o
-                0x0000082b                PM_FORMAT_GPS_BAUDRATE
+                0x0000082a       0x13 df4iah_fw_main.o
+                0x0000082a                PM_FORMAT_GPS_BAUDRATE
  .progmem.data.PM_FORMAT_GPS_CR_LF
-                0x0000083e        0x3 df4iah_fw_main.o
-                0x0000083e                PM_FORMAT_GPS_CR_LF
+                0x0000083d        0x3 df4iah_fw_main.o
+                0x0000083d                PM_FORMAT_GPS_CR_LF
  .progmem.data.PM_FORMAT_VERSION
-                0x00000841       0x42 df4iah_fw_main.o
-                0x00000841                PM_FORMAT_VERSION
+                0x00000840       0x42 df4iah_fw_main.o
+                0x00000840                PM_FORMAT_VERSION
  .progmem.data.PM_INTERPRETER_UNKNOWN
-                0x00000883       0x31 df4iah_fw_main.o
-                0x00000883                PM_INTERPRETER_UNKNOWN
+                0x00000882       0x31 df4iah_fw_main.o
+                0x00000882                PM_INTERPRETER_UNKNOWN
  .progmem.data.PM_INTERPRETER_HELP14
-                0x000008b4        0xf df4iah_fw_main.o
-                0x000008b4                PM_INTERPRETER_HELP14
+                0x000008b3        0xf df4iah_fw_main.o
+                0x000008b3                PM_INTERPRETER_HELP14
  .progmem.data.PM_INTERPRETER_HELP13
-                0x000008c3       0x30 df4iah_fw_main.o
-                0x000008c3                PM_INTERPRETER_HELP13
+                0x000008c2       0x30 df4iah_fw_main.o
+                0x000008c2                PM_INTERPRETER_HELP13
  .progmem.data.PM_INTERPRETER_HELP12
-                0x000008f3       0x74 df4iah_fw_main.o
-                0x000008f3                PM_INTERPRETER_HELP12
+                0x000008f2       0x74 df4iah_fw_main.o
+                0x000008f2                PM_INTERPRETER_HELP12
  .progmem.data.PM_INTERPRETER_HELP11
-                0x00000967       0x1f df4iah_fw_main.o
-                0x00000967                PM_INTERPRETER_HELP11
+                0x00000966       0x1f df4iah_fw_main.o
+                0x00000966                PM_INTERPRETER_HELP11
  .progmem.data.PM_INTERPRETER_HELP10
-                0x00000986       0x28 df4iah_fw_main.o
-                0x00000986                PM_INTERPRETER_HELP10
+                0x00000985       0x28 df4iah_fw_main.o
+                0x00000985                PM_INTERPRETER_HELP10
  .progmem.data.PM_INTERPRETER_HELP09
-                0x000009ae       0x55 df4iah_fw_main.o
-                0x000009ae                PM_INTERPRETER_HELP09
+                0x000009ad       0x55 df4iah_fw_main.o
+                0x000009ad                PM_INTERPRETER_HELP09
  .progmem.data.PM_INTERPRETER_HELP08
-                0x00000a03       0x2c df4iah_fw_main.o
-                0x00000a03                PM_INTERPRETER_HELP08
+                0x00000a02       0x2c df4iah_fw_main.o
+                0x00000a02                PM_INTERPRETER_HELP08
  .progmem.data.PM_INTERPRETER_HELP07
-                0x00000a2f       0x3f df4iah_fw_main.o
-                0x00000a2f                PM_INTERPRETER_HELP07
+                0x00000a2e       0x3f df4iah_fw_main.o
+                0x00000a2e                PM_INTERPRETER_HELP07
  .progmem.data.PM_INTERPRETER_HELP06
-                0x00000a6e       0x2b df4iah_fw_main.o
-                0x00000a6e                PM_INTERPRETER_HELP06
+                0x00000a6d       0x2b df4iah_fw_main.o
+                0x00000a6d                PM_INTERPRETER_HELP06
  .progmem.data.PM_INTERPRETER_HELP05
-                0x00000a99       0x17 df4iah_fw_main.o
-                0x00000a99                PM_INTERPRETER_HELP05
+                0x00000a98       0x17 df4iah_fw_main.o
+                0x00000a98                PM_INTERPRETER_HELP05
  .progmem.data.PM_INTERPRETER_HELP03
-                0x00000ab0       0x67 df4iah_fw_main.o
-                0x00000ab0                PM_INTERPRETER_HELP03
+                0x00000aaf       0x67 df4iah_fw_main.o
+                0x00000aaf                PM_INTERPRETER_HELP03
  .progmem.data.PM_INTERPRETER_HELP02
-                0x00000b17       0x6f df4iah_fw_main.o
-                0x00000b17                PM_INTERPRETER_HELP02
+                0x00000b16       0x6f df4iah_fw_main.o
+                0x00000b16                PM_INTERPRETER_HELP02
  .progmem.data.PM_INTERPRETER_HELP01
-                0x00000b86       0x42 df4iah_fw_main.o
-                0x00000b86                PM_INTERPRETER_HELP01
+                0x00000b85       0x42 df4iah_fw_main.o
+                0x00000b85                PM_INTERPRETER_HELP01
  .progmem.data.PM_GPIB_SCM_IDN
-                0x00000bc8        0x6 df4iah_fw_main.o
-                0x00000bc8                PM_GPIB_SCM_IDN
+                0x00000bc7        0x6 df4iah_fw_main.o
+                0x00000bc7                PM_GPIB_SCM_IDN
  .progmem.data.PM_COMMAND_WRITETEMP
-                0x00000bce        0xa df4iah_fw_main.o
-                0x00000bce                PM_COMMAND_WRITETEMP
+                0x00000bcd        0xa df4iah_fw_main.o
+                0x00000bcd                PM_COMMAND_WRITETEMP
  .progmem.data.PM_COMMAND_WRITEPWM
-                0x00000bd8        0x9 df4iah_fw_main.o
-                0x00000bd8                PM_COMMAND_WRITEPWM
+                0x00000bd7        0x9 df4iah_fw_main.o
+                0x00000bd7                PM_COMMAND_WRITEPWM
  .progmem.data.PM_COMMAND_TEST
-                0x00000be1        0x5 df4iah_fw_main.o
-                0x00000be1                PM_COMMAND_TEST
+                0x00000be0        0x5 df4iah_fw_main.o
+                0x00000be0                PM_COMMAND_TEST
  .progmem.data.PM_COMMAND_STACK
-                0x00000be6        0x6 df4iah_fw_main.o
-                0x00000be6                PM_COMMAND_STACK
+                0x00000be5        0x6 df4iah_fw_main.o
+                0x00000be5                PM_COMMAND_STACK
  .progmem.data.PM_COMMAND_SERON
-                0x00000bec        0x6 df4iah_fw_main.o
-                0x00000bec                PM_COMMAND_SERON
+                0x00000beb        0x6 df4iah_fw_main.o
+                0x00000beb                PM_COMMAND_SERON
  .progmem.data.PM_COMMAND_SEROFF
-                0x00000bf2        0x7 df4iah_fw_main.o
-                0x00000bf2                PM_COMMAND_SEROFF
+                0x00000bf1        0x7 df4iah_fw_main.o
+                0x00000bf1                PM_COMMAND_SEROFF
  .progmem.data.PM_COMMAND_SERBAUD
-                0x00000bf9        0x8 df4iah_fw_main.o
-                0x00000bf9                PM_COMMAND_SERBAUD
+                0x00000bf8        0x8 df4iah_fw_main.o
+                0x00000bf8                PM_COMMAND_SERBAUD
  .progmem.data.PM_COMMAND_LEDON
-                0x00000c01        0x6 df4iah_fw_main.o
-                0x00000c01                PM_COMMAND_LEDON
+                0x00000c00        0x6 df4iah_fw_main.o
+                0x00000c00                PM_COMMAND_LEDON
  .progmem.data.PM_COMMAND_LEDOFF
-                0x00000c07        0x7 df4iah_fw_main.o
-                0x00000c07                PM_COMMAND_LEDOFF
+                0x00000c06        0x7 df4iah_fw_main.o
+                0x00000c06                PM_COMMAND_LEDOFF
  .progmem.data.PM_COMMAND_INFO
-                0x00000c0e        0x5 df4iah_fw_main.o
-                0x00000c0e                PM_COMMAND_INFO
+                0x00000c0d        0x5 df4iah_fw_main.o
+                0x00000c0d                PM_COMMAND_INFO
  .progmem.data.PM_COMMAND_HELP
-                0x00000c13        0x5 df4iah_fw_main.o
-                0x00000c13                PM_COMMAND_HELP
+                0x00000c12        0x5 df4iah_fw_main.o
+                0x00000c12                PM_COMMAND_HELP
  .progmem.data.PM_COMMAND_APCON
-                0x00000c18        0x6 df4iah_fw_main.o
-                0x00000c18                PM_COMMAND_APCON
+                0x00000c17        0x6 df4iah_fw_main.o
+                0x00000c17                PM_COMMAND_APCON
  .progmem.data.PM_COMMAND_APCOFF
-                0x00000c1e        0x7 df4iah_fw_main.o
-                0x00000c1e                PM_COMMAND_APCOFF
+                0x00000c1d        0x7 df4iah_fw_main.o
+                0x00000c1d                PM_COMMAND_APCOFF
  .progmem.data.PM_COMMAND_AFCON
-                0x00000c25        0x6 df4iah_fw_main.o
-                0x00000c25                PM_COMMAND_AFCON
+                0x00000c24        0x6 df4iah_fw_main.o
+                0x00000c24                PM_COMMAND_AFCON
  .progmem.data.PM_COMMAND_AFCOFF
-                0x00000c2b        0x7 df4iah_fw_main.o
-                0x00000c2b                PM_COMMAND_AFCOFF
+                0x00000c2a        0x7 df4iah_fw_main.o
+                0x00000c2a                PM_COMMAND_AFCOFF
  .progmem.data.eeprom_defaultValues_content
-                0x00000c32       0xa0 df4iah_fw_main.o
-                0x00000c32                eeprom_defaultValues_content
+                0x00000c31       0xa0 df4iah_fw_main.o
+                0x00000c31                eeprom_defaultValues_content
  .progmem.data.usbDescriptorConfiguration
-                0x00000cd2       0x19 usbdrv_fw/usbdrv.o
-                0x00000cd2                usbDescriptorConfiguration
+                0x00000cd1       0x19 usbdrv_fw/usbdrv.o
+                0x00000cd1                usbDescriptorConfiguration
  .progmem.data.usbDescriptorDevice
-                0x00000ceb       0x12 usbdrv_fw/usbdrv.o
-                0x00000ceb                usbDescriptorDevice
+                0x00000cea       0x12 usbdrv_fw/usbdrv.o
+                0x00000cea                usbDescriptorDevice
  .progmem.data.usbDescriptorStringSerialNumber
-                0x00000cfd       0x10 usbdrv_fw/usbdrv.o
-                0x00000cfd                usbDescriptorStringSerialNumber
+                0x00000cfc       0x10 usbdrv_fw/usbdrv.o
+                0x00000cfc                usbDescriptorStringSerialNumber
  .progmem.data.usbDescriptorStringDevice
-                0x00000d0d       0x2a usbdrv_fw/usbdrv.o
-                0x00000d0d                usbDescriptorStringDevice
+                0x00000d0c       0x2a usbdrv_fw/usbdrv.o
+                0x00000d0c                usbDescriptorStringDevice
  .progmem.data.usbDescriptorStringVendor
-                0x00000d37        0xe usbdrv_fw/usbdrv.o
-                0x00000d37                usbDescriptorStringVendor
+                0x00000d36        0xe usbdrv_fw/usbdrv.o
+                0x00000d36                usbDescriptorStringVendor
  .progmem.data.usbDescriptorString0
-                0x00000d45        0x4 usbdrv_fw/usbdrv.o
-                0x00000d45                usbDescriptorString0
- .progmem.data  0x00000d49       0x4d c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libscanf_flt.a(vfscanf_flt.o)
+                0x00000d44        0x4 usbdrv_fw/usbdrv.o
+                0x00000d44                usbDescriptorString0
+ .progmem.data  0x00000d48       0x4d c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libscanf_flt.a(vfscanf_flt.o)
                 0x00000d96                . = ALIGN (0x2)
+ *fill*         0x00000d95        0x1 
  *(.jumptables)
  *(.jumptables*)
  *(.lowtext)
@@ -2022,25 +2023,25 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0xb929
+.debug_info     0x00000000     0xb919
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_info    0x000005f4      0x133 df4iah_fw_anlgComp.o
  .debug_info    0x00000727      0x3fe df4iah_fw_clkFastCtr.o
  .debug_info    0x00000b25      0x3c0 df4iah_fw_clkPullPwm.o
- .debug_info    0x00000ee5     0x5434 df4iah_fw_main.o
- .debug_info    0x00006319      0xed6 df4iah_fw_memory.o
- .debug_info    0x000071ef      0x8be df4iah_fw_ringbuffer.o
- .debug_info    0x00007aad      0x921 df4iah_fw_serial.o
- .debug_info    0x000083ce      0x87f df4iah_fw_twi.o
- .debug_info    0x00008c4d      0x63d df4iah_fw_twi_mcp23017.o
- .debug_info    0x0000928a      0xa45 df4iah_fw_twi_mcp23017_av1624.o
- .debug_info    0x00009ccf      0x752 df4iah_fw_twi_smart_lcd.o
- .debug_info    0x0000a421      0x925 df4iah_fw_usb.o
- .debug_info    0x0000ad46      0x9d7 usbdrv_fw/usbdrv.o
- .debug_info    0x0000b71d       0xb4 usbdrv_fw/usbdrvasm.o
- .debug_info    0x0000b7d1       0xac C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
- .debug_info    0x0000b87d       0xac C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
+ .debug_info    0x00000ee5     0x5424 df4iah_fw_main.o
+ .debug_info    0x00006309      0xed6 df4iah_fw_memory.o
+ .debug_info    0x000071df      0x8be df4iah_fw_ringbuffer.o
+ .debug_info    0x00007a9d      0x921 df4iah_fw_serial.o
+ .debug_info    0x000083be      0x87f df4iah_fw_twi.o
+ .debug_info    0x00008c3d      0x63d df4iah_fw_twi_mcp23017.o
+ .debug_info    0x0000927a      0xa45 df4iah_fw_twi_mcp23017_av1624.o
+ .debug_info    0x00009cbf      0x752 df4iah_fw_twi_smart_lcd.o
+ .debug_info    0x0000a411      0x925 df4iah_fw_usb.o
+ .debug_info    0x0000ad36      0x9d7 usbdrv_fw/usbdrv.o
+ .debug_info    0x0000b70d       0xb4 usbdrv_fw/usbdrvasm.o
+ .debug_info    0x0000b7c1       0xac C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
+ .debug_info    0x0000b86d       0xac C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.1.130/gcc/dev/atmega328p/avr5\libatmega328p.a(eewr_byte.o)
 
 .debug_abbrev   0x00000000     0x2312
  *(.debug_abbrev)

@@ -164,7 +164,7 @@ PROGMEM const uchar PM_FORMAT_ID01[]						= "#ID01: +/- KEY \tmainPwmTerminalAdj
 PROGMEM const uchar PM_FORMAT_ID02[]						= "#ID02: +/- KEY \tmainPwmTerminalAdj = %d.%07d, \tlocalFastPwmValNext = %03u + localFastPwmSubCmpNext = %03u\n";
 
 PROGMEM const uchar PM_FORMAT_IA01[]						= "#IA01: Clock int20MHzClockDiff       = %+04li  Hz @20MHz\n";
-PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: Clock localMeanFloatClockDiff = %c%+03d.%03dHz @20MHz, \tqrgDev_Hz = %c%03d.%03dHz @10MHz, \tppm = %c%02d.%06d\n";
+PROGMEM const uchar PM_FORMAT_IA02[]						= "#IA02: Clock localMeanFloatClockDiff = %c%03d.%03dHz @20MHz, \tqrgDev_Hz = %c%03d.%03dHz @10MHz, \tppm = %c%02d.%06d\n";
 PROGMEM const uchar PM_FORMAT_IA03[]						= "#IA03: QRG   newPwmVal = %03d.%03d, \tpwmCorSteps         = %+04d.%03d\n";
 PROGMEM const uchar PM_FORMAT_IA11[]						= "#IA11: PHASE phaseErr  = %03d.%03d°, \t phaseStepsFrequency = %c%03d.%03d, \tphaseStepsPhase = %c%03d.%03d\n";
 PROGMEM const uchar PM_FORMAT_IA12[]						= "#IA12: PHASE fastPwmSingleDiff_steps = %c%03d.%03d\n";
