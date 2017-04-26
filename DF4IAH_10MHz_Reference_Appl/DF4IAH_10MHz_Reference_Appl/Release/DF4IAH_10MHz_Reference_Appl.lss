@@ -17,19 +17,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   6 .debug_aranges 00000470  00000000  00000000  00007470  2**3
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_info   0000b929  00000000  00000000  000078e0  2**0
+  7 .debug_info   0000b919  00000000  00000000  000078e0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_abbrev 00002312  00000000  00000000  00013209  2**0
+  8 .debug_abbrev 00002312  00000000  00000000  000131f9  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_line   000045d5  00000000  00000000  0001551b  2**0
+  9 .debug_line   000045d5  00000000  00000000  0001550b  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_frame  00000bec  00000000  00000000  00019af0  2**2
+ 10 .debug_frame  00000bec  00000000  00000000  00019ae0  2**2
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_str    00002ea4  00000000  00000000  0001a6dc  2**0
+ 11 .debug_str    00002ea4  00000000  00000000  0001a6cc  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_loc    00005666  00000000  00000000  0001d580  2**0
+ 12 .debug_loc    00005666  00000000  00000000  0001d570  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_ranges 000004d0  00000000  00000000  00022be6  2**0
+ 13 .debug_ranges 000004d0  00000000  00000000  00022bd6  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -151,7 +151,7 @@ Disassembly of section .text:
       f4:	3e 4c       	sbci	r19, 0xCE	; 206
       f6:	80 ef       	ldi	r24, 0xF0	; 240
       f8:	ff be       	out	0x3f, r15	; 63
-      fa:	01 c4       	rjmp	.+2050   	; 0x8fe <PM_INTERPRETER_HELP12+0xb>
+      fa:	01 c4       	rjmp	.+2050   	; 0x8fe <PM_INTERPRETER_HELP12+0xc>
       fc:	ff 7f       	andi	r31, 0xFF	; 255
       fe:	3f 00       	.word	0x003f	; ????
      100:	00 00       	nop
@@ -257,322 +257,322 @@ Disassembly of section .text:
 000003eb <PM_FORMAT_IA02>:
      3eb:	23 49 41 30 32 3a 20 43 6c 6f 63 6b 20 6c 6f 63     #IA02: Clock loc
      3fb:	61 6c 4d 65 61 6e 46 6c 6f 61 74 43 6c 6f 63 6b     alMeanFloatClock
-     40b:	44 69 66 66 20 3d 20 25 63 25 2b 30 33 64 2e 25     Diff = %c%+03d.%
-     41b:	30 33 64 48 7a 20 40 32 30 4d 48 7a 2c 20 09 71     03dHz @20MHz, .q
-     42b:	72 67 44 65 76 5f 48 7a 20 3d 20 25 63 25 30 33     rgDev_Hz = %c%03
-     43b:	64 2e 25 30 33 64 48 7a 20 40 31 30 4d 48 7a 2c     d.%03dHz @10MHz,
-     44b:	20 09 70 70 6d 20 3d 20 25 63 25 30 32 64 2e 25      .ppm = %c%02d.%
-     45b:	30 36 64 0a 00                                      06d..
+     40b:	44 69 66 66 20 3d 20 25 63 25 30 33 64 2e 25 30     Diff = %c%03d.%0
+     41b:	33 64 48 7a 20 40 32 30 4d 48 7a 2c 20 09 71 72     3dHz @20MHz, .qr
+     42b:	67 44 65 76 5f 48 7a 20 3d 20 25 63 25 30 33 64     gDev_Hz = %c%03d
+     43b:	2e 25 30 33 64 48 7a 20 40 31 30 4d 48 7a 2c 20     .%03dHz @10MHz, 
+     44b:	09 70 70 6d 20 3d 20 25 63 25 30 32 64 2e 25 30     .ppm = %c%02d.%0
+     45b:	36 64 0a 00                                         6d..
 
-00000460 <PM_FORMAT_IA01>:
-     460:	23 49 41 30 31 3a 20 43 6c 6f 63 6b 20 69 6e 74     #IA01: Clock int
-     470:	32 30 4d 48 7a 43 6c 6f 63 6b 44 69 66 66 20 20     20MHzClockDiff  
-     480:	20 20 20 20 20 3d 20 25 2b 30 34 6c 69 20 20 48          = %+04li  H
-     490:	7a 20 40 32 30 4d 48 7a 0a 00                       z @20MHz..
+0000045f <PM_FORMAT_IA01>:
+     45f:	23 49 41 30 31 3a 20 43 6c 6f 63 6b 20 69 6e 74     #IA01: Clock int
+     46f:	32 30 4d 48 7a 43 6c 6f 63 6b 44 69 66 66 20 20     20MHzClockDiff  
+     47f:	20 20 20 20 20 3d 20 25 2b 30 34 6c 69 20 20 48          = %+04li  H
+     48f:	7a 20 40 32 30 4d 48 7a 0a 00                       z @20MHz..
 
-0000049a <PM_FORMAT_ID02>:
-     49a:	23 49 44 30 32 3a 20 2b 2f 2d 20 4b 45 59 20 09     #ID02: +/- KEY .
-     4aa:	6d 61 69 6e 50 77 6d 54 65 72 6d 69 6e 61 6c 41     mainPwmTerminalA
-     4ba:	64 6a 20 3d 20 25 64 2e 25 30 37 64 2c 20 09 6c     dj = %d.%07d, .l
-     4ca:	6f 63 61 6c 46 61 73 74 50 77 6d 56 61 6c 4e 65     ocalFastPwmValNe
-     4da:	78 74 20 3d 20 25 30 33 75 20 2b 20 6c 6f 63 61     xt = %03u + loca
-     4ea:	6c 46 61 73 74 50 77 6d 53 75 62 43 6d 70 4e 65     lFastPwmSubCmpNe
-     4fa:	78 74 20 3d 20 25 30 33 75 0a 00                    xt = %03u..
+00000499 <PM_FORMAT_ID02>:
+     499:	23 49 44 30 32 3a 20 2b 2f 2d 20 4b 45 59 20 09     #ID02: +/- KEY .
+     4a9:	6d 61 69 6e 50 77 6d 54 65 72 6d 69 6e 61 6c 41     mainPwmTerminalA
+     4b9:	64 6a 20 3d 20 25 64 2e 25 30 37 64 2c 20 09 6c     dj = %d.%07d, .l
+     4c9:	6f 63 61 6c 46 61 73 74 50 77 6d 56 61 6c 4e 65     ocalFastPwmValNe
+     4d9:	78 74 20 3d 20 25 30 33 75 20 2b 20 6c 6f 63 61     xt = %03u + loca
+     4e9:	6c 46 61 73 74 50 77 6d 53 75 62 43 6d 70 4e 65     lFastPwmSubCmpNe
+     4f9:	78 74 20 3d 20 25 30 33 75 0a 00                    xt = %03u..
 
-00000505 <PM_FORMAT_ID01>:
-     505:	23 49 44 30 31 3a 20 2b 2f 2d 20 4b 45 59 20 09     #ID01: +/- KEY .
-     515:	6d 61 69 6e 50 77 6d 54 65 72 6d 69 6e 61 6c 41     mainPwmTerminalA
-     525:	64 6a 20 3d 20 25 64 2e 25 30 37 64 2c 20 09 70     dj = %d.%07d, .p
-     535:	75 6c 6c 50 77 6d 56 61 6c 42 65 66 6f 72 65 20     ullPwmValBefore 
-     545:	20 20 20 3d 20 25 30 33 75 20 2b 20 66 61 73 74        = %03u + fast
-     555:	50 77 6d 53 75 62 43 6d 70 42 65 66 6f 72 65 20     PwmSubCmpBefore 
-     565:	20 20 20 3d 20 25 30 33 75 0a 00                       = %03u..
+00000504 <PM_FORMAT_ID01>:
+     504:	23 49 44 30 31 3a 20 2b 2f 2d 20 4b 45 59 20 09     #ID01: +/- KEY .
+     514:	6d 61 69 6e 50 77 6d 54 65 72 6d 69 6e 61 6c 41     mainPwmTerminalA
+     524:	64 6a 20 3d 20 25 64 2e 25 30 37 64 2c 20 09 70     dj = %d.%07d, .p
+     534:	75 6c 6c 50 77 6d 56 61 6c 42 65 66 6f 72 65 20     ullPwmValBefore 
+     544:	20 20 20 3d 20 25 30 33 75 20 2b 20 66 61 73 74        = %03u + fast
+     554:	50 77 6d 53 75 62 43 6d 70 42 65 66 6f 72 65 20     PwmSubCmpBefore 
+     564:	20 20 20 3d 20 25 30 33 75 0a 00                       = %03u..
 
-00000570 <PM_FORMAT_TA14>:
-     570:	23 54 41 31 34 3a 20 6d 61 69 6e 52 65 66 43 6c     #TA14: mainRefCl
-     580:	6b 53 74 61 74 65 20 3d 20 30 78 25 31 58 0a 00     kState = 0x%1X..
+0000056f <PM_FORMAT_TA14>:
+     56f:	23 54 41 31 34 3a 20 6d 61 69 6e 52 65 66 43 6c     #TA14: mainRefCl
+     57f:	6b 53 74 61 74 65 20 3d 20 30 78 25 31 58 0a 00     kState = 0x%1X..
 
-00000590 <PM_FORMAT_TA13>:
-     590:	23 54 41 31 33 3a 20 50 57 4d 20 3d 20 25 30 33     #TA13: PWM = %03
-     5a0:	75 2c 20 09 53 75 62 2d 50 57 4d 20 3d 20 25 30     u, .Sub-PWM = %0
-     5b0:	33 75 0a 00                                         3u..
+0000058f <PM_FORMAT_TA13>:
+     58f:	23 54 41 31 33 3a 20 50 57 4d 20 3d 20 25 30 33     #TA13: PWM = %03
+     59f:	75 2c 20 09 53 75 62 2d 50 57 4d 20 3d 20 25 30     u, .Sub-PWM = %0
+     5af:	33 75 0a 00                                         3u..
 
-000005b4 <PM_FORMAT_TA12>:
-     5b4:	23 54 41 31 32 3a 20 70 70 73 53 74 61 6d 70 43     #TA12: ppsStampC
-     5c4:	74 72 31 6d 73 20 20 3d 20 25 30 39 6c 75 2c 20     tr1ms  = %09lu, 
-     5d4:	09 70 70 73 53 74 61 6d 70 49 43 52 31 20 20 20     .ppsStampICR1   
-     5e4:	3d 20 25 30 35 75 2c 20 09 70 70 73 53 74 61 6d     = %05u, .ppsStam
-     5f4:	70 43 74 72 31 6d 73 5f 6c 61 73 74 20 20 3d 20     pCtr1ms_last  = 
-     604:	25 30 39 6c 75 2c 20 09 70 70 73 53 74 61 6d 70     %09lu, .ppsStamp
-     614:	49 43 52 31 5f 6c 61 73 74 20 20 20 3d 20 25 30     ICR1_last   = %0
-     624:	35 75 0a 00                                         5u..
+000005b3 <PM_FORMAT_TA12>:
+     5b3:	23 54 41 31 32 3a 20 70 70 73 53 74 61 6d 70 43     #TA12: ppsStampC
+     5c3:	74 72 31 6d 73 20 20 3d 20 25 30 39 6c 75 2c 20     tr1ms  = %09lu, 
+     5d3:	09 70 70 73 53 74 61 6d 70 49 43 52 31 20 20 20     .ppsStampICR1   
+     5e3:	3d 20 25 30 35 75 2c 20 09 70 70 73 53 74 61 6d     = %05u, .ppsStam
+     5f3:	70 43 74 72 31 6d 73 5f 6c 61 73 74 20 20 3d 20     pCtr1ms_last  = 
+     603:	25 30 39 6c 75 2c 20 09 70 70 73 53 74 61 6d 70     %09lu, .ppsStamp
+     613:	49 43 52 31 5f 6c 61 73 74 20 20 20 3d 20 25 30     ICR1_last   = %0
+     623:	35 75 0a 00                                         5u..
 
-00000628 <PM_FORMAT_TA11>:
-     628:	23 54 41 31 31 3a 20 6c 6f 63 61 6c 46 61 73 74     #TA11: localFast
-     638:	43 74 72 31 6d 73 20 3d 20 25 30 39 6c 75 2c 20     Ctr1ms = %09lu, 
-     648:	09 6c 6f 63 61 6c 46 61 73 74 54 43 4e 54 31 20     .localFastTCNT1 
-     658:	3d 20 25 30 35 75 0a 00                             = %05u..
+00000627 <PM_FORMAT_TA11>:
+     627:	23 54 41 31 31 3a 20 6c 6f 63 61 6c 46 61 73 74     #TA11: localFast
+     637:	43 74 72 31 6d 73 20 3d 20 25 30 39 6c 75 2c 20     Ctr1ms = %09lu, 
+     647:	09 6c 6f 63 61 6c 46 61 73 74 54 43 4e 54 31 20     .localFastTCNT1 
+     657:	3d 20 25 30 35 75 0a 00                             = %05u..
 
-00000660 <PM_FORMAT_TA03>:
-     660:	23 54 41 30 33 3a 20 54 65 6d 70 20 3d 20 25 30     #TA03: Temp = %0
-     670:	34 75 20 28 25 64 2e 25 31 64 43 29 0a 00           4u (%d.%1dC)..
+0000065f <PM_FORMAT_TA03>:
+     65f:	23 54 41 30 33 3a 20 54 65 6d 70 20 3d 20 25 30     #TA03: Temp = %0
+     66f:	34 75 20 28 25 64 2e 25 31 64 43 29 0a 00           4u (%d.%1dC)..
 
-0000067e <PM_FORMAT_TA02>:
-     67e:	23 54 41 30 32 3a 20 41 44 43 31 20 3d 20 25 30     #TA02: ADC1 = %0
-     68e:	34 75 20 28 25 64 2e 25 30 33 64 56 29 0a 00        4u (%d.%03dV)..
+0000067d <PM_FORMAT_TA02>:
+     67d:	23 54 41 30 32 3a 20 41 44 43 31 20 3d 20 25 30     #TA02: ADC1 = %0
+     68d:	34 75 20 28 25 64 2e 25 30 33 64 56 29 0a 00        4u (%d.%03dV)..
 
-0000069d <PM_FORMAT_TA01>:
-     69d:	23 54 41 30 31 3a 20 41 44 43 30 20 3d 20 25 30     #TA01: ADC0 = %0
-     6ad:	34 75 20 28 25 64 2e 25 30 33 64 56 29 0a 00        4u (%d.%03dV)..
+0000069c <PM_FORMAT_TA01>:
+     69c:	23 54 41 30 31 3a 20 41 44 43 30 20 3d 20 25 30     #TA01: ADC0 = %0
+     6ac:	34 75 20 28 25 64 2e 25 30 33 64 56 29 0a 00        4u (%d.%03dV)..
 
-000006bc <PM_FORMAT_GP05>:
-     6bc:	23 47 50 30 35 3a 20 4c 61 74 20 3d 20 25 63 20     #GP05: Lat = %c 
-     6cc:	25 30 34 64 2e 25 30 34 64 2c 20 4c 6f 6e 20 3d     %04d.%04d, Lon =
-     6dc:	20 25 63 20 25 30 35 64 2e 25 30 34 64 2c 20 48      %c %05d.%04d, H
-     6ec:	65 69 67 68 74 20 3d 20 25 64 2e 25 30 32 64 20     eight = %d.%02d 
-     6fc:	6d 0a 00                                            m..
+000006bb <PM_FORMAT_GP05>:
+     6bb:	23 47 50 30 35 3a 20 4c 61 74 20 3d 20 25 63 20     #GP05: Lat = %c 
+     6cb:	25 30 34 64 2e 25 30 34 64 2c 20 4c 6f 6e 20 3d     %04d.%04d, Lon =
+     6db:	20 25 63 20 25 30 35 64 2e 25 30 34 64 2c 20 48      %c %05d.%04d, H
+     6eb:	65 69 67 68 74 20 3d 20 25 64 2e 25 30 32 64 20     eight = %d.%02d 
+     6fb:	6d 0a 00                                            m..
 
-000006ff <PM_FORMAT_GP04>:
-     6ff:	23 47 50 30 34 3a 20 50 44 4f 50 20 3d 20 25 64     #GP04: PDOP = %d
-     70f:	2e 25 30 32 64 2c 20 48 44 4f 50 20 3d 20 25 64     .%02d, HDOP = %d
-     71f:	2e 25 30 32 64 2c 20 56 44 4f 50 20 3d 20 25 64     .%02d, VDOP = %d
-     72f:	2e 25 30 32 64 2c 0a 00                             .%02d,..
+000006fe <PM_FORMAT_GP04>:
+     6fe:	23 47 50 30 34 3a 20 50 44 4f 50 20 3d 20 25 64     #GP04: PDOP = %d
+     70e:	2e 25 30 32 64 2c 20 48 44 4f 50 20 3d 20 25 64     .%02d, HDOP = %d
+     71e:	2e 25 30 32 64 2c 20 56 44 4f 50 20 3d 20 25 64     .%02d, VDOP = %d
+     72e:	2e 25 30 32 64 2c 0a 00                             .%02d,..
 
-00000737 <PM_FORMAT_GP03>:
-     737:	23 47 50 30 33 3a 20 53 61 74 73 55 73 65 64 20     #GP03: SatsUsed 
-     747:	3d 20 25 30 32 64 2c 20 53 61 74 73 45 70 68 69     = %02d, SatsEphi
-     757:	6d 5f 47 70 73 47 61 6c 69 6c 65 6f 51 7a 73 73     m_GpsGalileoQzss
-     767:	20 3d 20 25 30 32 64 2c 20 53 61 74 73 45 70 68      = %02d, SatsEph
-     777:	69 6d 5f 47 6c 6f 6e 61 73 73 20 3d 20 25 30 32     im_Glonass = %02
-     787:	64 0a 00                                            d..
+00000736 <PM_FORMAT_GP03>:
+     736:	23 47 50 30 33 3a 20 53 61 74 73 55 73 65 64 20     #GP03: SatsUsed 
+     746:	3d 20 25 30 32 64 2c 20 53 61 74 73 45 70 68 69     = %02d, SatsEphi
+     756:	6d 5f 47 70 73 47 61 6c 69 6c 65 6f 51 7a 73 73     m_GpsGalileoQzss
+     766:	20 3d 20 25 30 32 64 2c 20 53 61 74 73 45 70 68      = %02d, SatsEph
+     776:	69 6d 5f 47 6c 6f 6e 61 73 73 20 3d 20 25 30 32     im_Glonass = %02
+     786:	64 0a 00                                            d..
 
-0000078a <PM_FORMAT_GP02>:
-     78a:	23 47 50 30 32 3a 20 4d 6f 64 65 32 20 3d 20 25     #GP02: Mode2 = %
-     79a:	31 64 2c 20 50 6f 73 46 69 78 49 6e 64 20 3d 20     1d, PosFixInd = 
-     7aa:	25 31 64 0a 00                                      %1d..
+00000789 <PM_FORMAT_GP02>:
+     789:	23 47 50 30 32 3a 20 4d 6f 64 65 32 20 3d 20 25     #GP02: Mode2 = %
+     799:	31 64 2c 20 50 6f 73 46 69 78 49 6e 64 20 3d 20     1d, PosFixInd = 
+     7a9:	25 31 64 0a 00                                      %1d..
 
-000007af <PM_FORMAT_GP01>:
-     7af:	23 47 50 30 31 3a 20 44 61 74 65 20 3d 20 25 30     #GP01: Date = %0
-     7bf:	38 6c 64 2c 20 54 69 6d 65 20 3d 20 25 30 36 6c     8ld, Time = %06l
-     7cf:	64 2e 25 30 33 64 0a 00                             d.%03d..
+000007ae <PM_FORMAT_GP01>:
+     7ae:	23 47 50 30 31 3a 20 44 61 74 65 20 3d 20 25 30     #GP01: Date = %0
+     7be:	38 6c 64 2c 20 54 69 6d 65 20 3d 20 25 30 36 6c     8ld, Time = %06l
+     7ce:	64 2e 25 30 33 64 0a 00                             d.%03d..
 
-000007d7 <PM_FORMAT_GP00>:
-     7d7:	0a 23 47 50 30 30 3a 20 3d 3d 3d 3d 3d 3d 3d 00     .#GP00: =======.
+000007d6 <PM_FORMAT_GP00>:
+     7d6:	0a 23 47 50 30 30 3a 20 3d 3d 3d 3d 3d 3d 3d 00     .#GP00: =======.
 
-000007e7 <PM_FORMAT_GPS_WEST1_EAST1>:
-     7e7:	24 50 4d 54 4b 33 35 33 2c 31 2c 31 2a 33 37 0d     $PMTK353,1,1*37.
-     7f7:	0a 00                                               ..
+000007e6 <PM_FORMAT_GPS_WEST1_EAST1>:
+     7e6:	24 50 4d 54 4b 33 35 33 2c 31 2c 31 2a 33 37 0d     $PMTK353,1,1*37.
+     7f6:	0a 00                                               ..
 
-000007f9 <PM_FORMAT_GPS_WEST1_EAST0>:
-     7f9:	24 50 4d 54 4b 33 35 33 2c 31 2c 30 2a 33 36 0d     $PMTK353,1,0*36.
-     809:	0a 00                                               ..
+000007f8 <PM_FORMAT_GPS_WEST1_EAST0>:
+     7f8:	24 50 4d 54 4b 33 35 33 2c 31 2c 30 2a 33 36 0d     $PMTK353,1,0*36.
+     808:	0a 00                                               ..
 
-0000080b <PM_FORMAT_GPS_WEST0_EAST0>:
-     80b:	24 50 4d 54 4b 33 35 33 2c 30 2c 30 2a 33 37 0d     $PMTK353,0,0*37.
-     81b:	0a 00                                               ..
+0000080a <PM_FORMAT_GPS_WEST0_EAST0>:
+     80a:	24 50 4d 54 4b 33 35 33 2c 30 2c 30 2a 33 37 0d     $PMTK353,0,0*37.
+     81a:	0a 00                                               ..
 
-0000081d <PM_FORMAT_GPS_WARM_RESTART>:
-     81d:	24 50 4d 54 4b 31 30 32 2a 33 31 0d 0a 00           $PMTK102*31...
+0000081c <PM_FORMAT_GPS_WARM_RESTART>:
+     81c:	24 50 4d 54 4b 31 30 32 2a 33 31 0d 0a 00           $PMTK102*31...
 
-0000082b <PM_FORMAT_GPS_BAUDRATE>:
-     82b:	24 50 4d 54 4b 32 35 31 2c 39 36 30 30 2a 31 37     $PMTK251,9600*17
-     83b:	0d 0a 00                                            ...
+0000082a <PM_FORMAT_GPS_BAUDRATE>:
+     82a:	24 50 4d 54 4b 32 35 31 2c 39 36 30 30 2a 31 37     $PMTK251,9600*17
+     83a:	0d 0a 00                                            ...
 
-0000083e <PM_FORMAT_GPS_CR_LF>:
-     83e:	0d 0a 00                                            ...
+0000083d <PM_FORMAT_GPS_CR_LF>:
+     83d:	0d 0a 00                                            ...
 
-00000841 <PM_FORMAT_VERSION>:
-     841:	0a 3d 3d 3d 20 44 46 34 49 41 48 20 2d 20 31 30     .=== DF4IAH - 10
-     851:	20 4d 48 7a 20 52 65 66 65 72 65 6e 63 65 20 4f      MHz Reference O
-     861:	73 63 69 6c 6c 61 74 6f 72 20 3d 3d 3d 0a 3d 3d     scillator ===.==
-     871:	3d 20 56 65 72 3a 20 32 30 25 30 33 64 25 30 33     = Ver: 20%03d%03
-     881:	64 00                                               d.
+00000840 <PM_FORMAT_VERSION>:
+     840:	0a 3d 3d 3d 20 44 46 34 49 41 48 20 2d 20 31 30     .=== DF4IAH - 10
+     850:	20 4d 48 7a 20 52 65 66 65 72 65 6e 63 65 20 4f      MHz Reference O
+     860:	73 63 69 6c 6c 61 74 6f 72 20 3d 3d 3d 0a 3d 3d     scillator ===.==
+     870:	3d 20 56 65 72 3a 20 32 30 25 30 33 64 25 30 33     = Ver: 20%03d%03
+     880:	64 00                                               d.
 
-00000883 <PM_INTERPRETER_UNKNOWN>:
-     883:	0a 2a 3f 2a 20 20 75 6e 6b 6e 6f 77 6e 20 63 6f     .*?*  unknown co
-     893:	6d 6d 61 6e 64 20 27 25 73 27 20 72 65 63 65 69     mmand '%s' recei
-     8a3:	76 65 64 2c 20 74 72 79 20 48 45 4c 50 2e 0a 3e     ved, try HELP..>
+00000882 <PM_INTERPRETER_UNKNOWN>:
+     882:	0a 2a 3f 2a 20 20 75 6e 6b 6e 6f 77 6e 20 63 6f     .*?*  unknown co
+     892:	6d 6d 61 6e 64 20 27 25 73 27 20 72 65 63 65 69     mmand '%s' recei
+     8a2:	76 65 64 2c 20 74 72 79 20 48 45 4c 50 2e 0a 3e     ved, try HELP..>
 	...
 
-000008b4 <PM_INTERPRETER_HELP14>:
-     8b4:	0a 3d 3d 3d 3d 3d 3d 3d 3d 3d 3d 3d 0a 3e 00        .===========.>.
+000008b3 <PM_INTERPRETER_HELP14>:
+     8b3:	0a 3d 3d 3d 3d 3d 3d 3d 3d 3d 3d 3d 0a 3e 00        .===========.>.
 
-000008c3 <PM_INTERPRETER_HELP13>:
-     8c3:	0a 2b 2f 2d 20 3c 50 57 4d 20 76 61 6c 75 65 3e     .+/- <PWM value>
-     8d3:	09 09 63 6f 72 72 65 63 74 69 6f 6e 20 76 61 6c     ..correction val
-     8e3:	75 65 20 74 6f 20 62 65 20 61 64 64 65 64 2e 00     ue to be added..
+000008c2 <PM_INTERPRETER_HELP13>:
+     8c2:	0a 2b 2f 2d 20 3c 50 57 4d 20 76 61 6c 75 65 3e     .+/- <PWM value>
+     8d2:	09 09 63 6f 72 72 65 63 74 69 6f 6e 20 76 61 6c     ..correction val
+     8e2:	75 65 20 74 6f 20 62 65 20 61 64 64 65 64 2e 00     ue to be added..
 
-000008f3 <PM_INTERPRETER_HELP12>:
-     8f3:	0a 57 52 49 54 45 50 57 4d 09 09 09 73 74 6f 72     .WRITEPWM...stor
-     903:	65 20 63 75 72 72 65 6e 74 20 50 57 4d 20 61 73     e current PWM as
-     913:	20 64 65 66 61 75 6c 74 20 76 61 6c 75 65 2e 0a      default value..
-     923:	57 52 49 54 45 54 45 4d 50 20 3c 54 45 4d 50 20     WRITETEMP <TEMP 
-     933:	76 61 6c 75 65 3e 09 09 77 72 69 74 65 20 63 75     value>..write cu
-     943:	72 72 65 6e 74 20 74 65 6d 70 65 72 61 74 75 72     rrent temperatur
-     953:	65 20 61 73 20 64 65 66 61 75 6c 74 20 76 61 6c     e as default val
-     963:	75 65 2e 00                                         ue..
+000008f2 <PM_INTERPRETER_HELP12>:
+     8f2:	0a 57 52 49 54 45 50 57 4d 09 09 09 73 74 6f 72     .WRITEPWM...stor
+     902:	65 20 63 75 72 72 65 6e 74 20 50 57 4d 20 61 73     e current PWM as
+     912:	20 64 65 66 61 75 6c 74 20 76 61 6c 75 65 2e 0a      default value..
+     922:	57 52 49 54 45 54 45 4d 50 20 3c 54 45 4d 50 20     WRITETEMP <TEMP 
+     932:	76 61 6c 75 65 3e 09 09 77 72 69 74 65 20 63 75     value>..write cu
+     942:	72 72 65 6e 74 20 74 65 6d 70 65 72 61 74 75 72     rrent temperatur
+     952:	65 20 61 73 20 64 65 66 61 75 6c 74 20 76 61 6c     e as default val
+     962:	75 65 2e 00                                         ue..
 
-00000967 <PM_INTERPRETER_HELP11>:
-     967:	0a 54 45 53 54 09 09 09 09 74 6f 67 67 6c 65 73     .TEST....toggles
-     977:	20 63 6f 75 6e 74 65 72 20 74 65 73 74 2e 00         counter test..
+00000966 <PM_INTERPRETER_HELP11>:
+     966:	0a 54 45 53 54 09 09 09 09 74 6f 67 67 6c 65 73     .TEST....toggles
+     976:	20 63 6f 75 6e 74 65 72 20 74 65 73 74 2e 00         counter test..
 
-00000986 <PM_INTERPRETER_HELP10>:
-     986:	0a 53 54 41 43 4b 09 09 09 09 74 6f 67 67 6c 65     .STACK....toggle
-     996:	73 20 73 74 61 63 6b 20 6d 75 6e 67 2d 77 61 6c     s stack mung-wal
-     9a6:	6c 20 74 65 73 74 2e 00                             l test..
+00000985 <PM_INTERPRETER_HELP10>:
+     985:	0a 53 54 41 43 4b 09 09 09 09 74 6f 67 67 6c 65     .STACK....toggle
+     995:	73 20 73 74 61 63 6b 20 6d 75 6e 67 2d 77 61 6c     s stack mung-wal
+     9a5:	6c 20 74 65 73 74 2e 00                             l test..
 
-000009ae <PM_INTERPRETER_HELP09>:
-     9ae:	0a 53 45 52 4f 46 46 09 09 09 09 73 77 69 74 63     .SEROFF....switc
-     9be:	68 20 73 65 72 69 61 6c 20 63 6f 6d 6d 75 6e 69     h serial communi
-     9ce:	63 61 74 69 6f 6e 20 4f 46 46 2e 0a 53 45 52 4f     cation OFF..SERO
-     9de:	4e 09 09 09 09 73 77 69 74 63 68 20 73 65 72 69     N....switch seri
-     9ee:	61 6c 20 63 6f 6d 6d 75 6e 69 63 61 74 69 6f 6e     al communication
-     9fe:	20 4f 4e 2e 00                                       ON..
+000009ad <PM_INTERPRETER_HELP09>:
+     9ad:	0a 53 45 52 4f 46 46 09 09 09 09 73 77 69 74 63     .SEROFF....switc
+     9bd:	68 20 73 65 72 69 61 6c 20 63 6f 6d 6d 75 6e 69     h serial communi
+     9cd:	63 61 74 69 6f 6e 20 4f 46 46 2e 0a 53 45 52 4f     cation OFF..SERO
+     9dd:	4e 09 09 09 09 73 77 69 74 63 68 20 73 65 72 69     N....switch seri
+     9ed:	61 6c 20 63 6f 6d 6d 75 6e 69 63 61 74 69 6f 6e     al communication
+     9fd:	20 4f 4e 2e 00                                       ON..
 
-00000a03 <PM_INTERPRETER_HELP08>:
-     a03:	0a 53 45 52 42 41 55 44 20 3c 62 61 75 64 3e 09     .SERBAUD <baud>.
-     a13:	09 09 73 65 74 74 69 6e 67 20 73 65 72 69 61 6c     ..setting serial
-     a23:	20 62 61 75 64 20 72 61 74 65 2e 00                  baud rate..
+00000a02 <PM_INTERPRETER_HELP08>:
+     a02:	0a 53 45 52 42 41 55 44 20 3c 62 61 75 64 3e 09     .SERBAUD <baud>.
+     a12:	09 09 73 65 74 74 69 6e 67 20 73 65 72 69 61 6c     ..setting serial
+     a22:	20 62 61 75 64 20 72 61 74 65 2e 00                  baud rate..
 
-00000a2f <PM_INTERPRETER_HELP07>:
-     a2f:	0a 4c 45 44 4f 46 46 09 09 09 09 73 77 69 74 63     .LEDOFF....switc
-     a3f:	68 20 62 61 63 6b 6c 69 67 68 74 20 4f 46 46 2e     h backlight OFF.
-     a4f:	0a 4c 45 44 4f 4e 09 09 09 09 73 77 69 74 63 68     .LEDON....switch
-     a5f:	20 62 61 63 6b 6c 69 67 68 74 20 4f 4e 2e 00         backlight ON..
+00000a2e <PM_INTERPRETER_HELP07>:
+     a2e:	0a 4c 45 44 4f 46 46 09 09 09 09 73 77 69 74 63     .LEDOFF....switc
+     a3e:	68 20 62 61 63 6b 6c 69 67 68 74 20 4f 46 46 2e     h backlight OFF.
+     a4e:	0a 4c 45 44 4f 4e 09 09 09 09 73 77 69 74 63 68     .LEDON....switch
+     a5e:	20 62 61 63 6b 6c 69 67 68 74 20 4f 4e 2e 00         backlight ON..
 
-00000a6e <PM_INTERPRETER_HELP06>:
-     a6e:	0a 49 4e 46 4f 09 09 09 09 74 6f 67 67 6c 65 73     .INFO....toggles
-     a7e:	20 61 64 64 69 74 69 6f 6e 61 6c 20 70 72 69 6e      additional prin
-     a8e:	74 65 64 20 69 6e 66 6f 73 2e 00                    ted infos..
+00000a6d <PM_INTERPRETER_HELP06>:
+     a6d:	0a 49 4e 46 4f 09 09 09 09 74 6f 67 67 6c 65 73     .INFO....toggles
+     a7d:	20 61 64 64 69 74 69 6f 6e 61 6c 20 70 72 69 6e      additional prin
+     a8d:	74 65 64 20 69 6e 66 6f 73 2e 00                    ted infos..
 
-00000a99 <PM_INTERPRETER_HELP05>:
-     a99:	0a 48 45 4c 50 09 09 09 09 74 68 69 73 20 6d 65     .HELP....this me
-     aa9:	73 73 61 67 65 2e 00                                ssage..
+00000a98 <PM_INTERPRETER_HELP05>:
+     a98:	0a 48 45 4c 50 09 09 09 09 74 68 69 73 20 6d 65     .HELP....this me
+     aa8:	73 73 61 67 65 2e 00                                ssage..
 
-00000ab0 <PM_INTERPRETER_HELP03>:
-     ab0:	0a 41 50 43 4f 46 46 09 09 09 09 73 77 69 74 63     .APCOFF....switc
-     ac0:	68 20 41 50 43 20 28 61 75 74 6f 6d 61 74 69 63     h APC (automatic
-     ad0:	20 70 68 61 73 65 20 63 6f 6e 74 72 6f 6c 29 20      phase control) 
-     ae0:	6f 66 66 2e 0a 41 50 43 4f 4e 09 09 09 09 73 77     off..APCON....sw
-     af0:	69 74 63 68 20 41 50 43 20 28 61 75 74 6f 6d 61     itch APC (automa
-     b00:	74 69 63 20 70 68 61 73 65 20 63 6f 6e 74 72 6f     tic phase contro
-     b10:	6c 29 20 6f 6e 2e 00                                l) on..
+00000aaf <PM_INTERPRETER_HELP03>:
+     aaf:	0a 41 50 43 4f 46 46 09 09 09 09 73 77 69 74 63     .APCOFF....switc
+     abf:	68 20 41 50 43 20 28 61 75 74 6f 6d 61 74 69 63     h APC (automatic
+     acf:	20 70 68 61 73 65 20 63 6f 6e 74 72 6f 6c 29 20      phase control) 
+     adf:	6f 66 66 2e 0a 41 50 43 4f 4e 09 09 09 09 73 77     off..APCON....sw
+     aef:	69 74 63 68 20 41 50 43 20 28 61 75 74 6f 6d 61     itch APC (automa
+     aff:	74 69 63 20 70 68 61 73 65 20 63 6f 6e 74 72 6f     tic phase contro
+     b0f:	6c 29 20 6f 6e 2e 00                                l) on..
 
-00000b17 <PM_INTERPRETER_HELP02>:
-     b17:	0a 41 46 43 4f 46 46 09 09 09 09 73 77 69 74 63     .AFCOFF....switc
-     b27:	68 20 41 46 43 20 28 61 75 74 6f 6d 61 74 69 63     h AFC (automatic
-     b37:	20 66 72 65 71 75 65 6e 63 79 20 63 6f 6e 74 72      frequency contr
-     b47:	6f 6c 29 20 6f 66 66 2e 0a 41 46 43 4f 4e 09 09     ol) off..AFCON..
-     b57:	09 09 73 77 69 74 63 68 20 41 46 43 20 28 61 75     ..switch AFC (au
-     b67:	74 6f 6d 61 74 69 63 20 66 72 65 71 75 65 6e 63     tomatic frequenc
-     b77:	79 20 63 6f 6e 74 72 6f 6c 29 20 6f 6e 2e 00        y control) on..
+00000b16 <PM_INTERPRETER_HELP02>:
+     b16:	0a 41 46 43 4f 46 46 09 09 09 09 73 77 69 74 63     .AFCOFF....switc
+     b26:	68 20 41 46 43 20 28 61 75 74 6f 6d 61 74 69 63     h AFC (automatic
+     b36:	20 66 72 65 71 75 65 6e 63 79 20 63 6f 6e 74 72      frequency contr
+     b46:	6f 6c 29 20 6f 66 66 2e 0a 41 46 43 4f 4e 09 09     ol) off..AFCON..
+     b56:	09 09 73 77 69 74 63 68 20 41 46 43 20 28 61 75     ..switch AFC (au
+     b66:	74 6f 6d 61 74 69 63 20 66 72 65 71 75 65 6e 63     tomatic frequenc
+     b76:	79 20 63 6f 6e 74 72 6f 6c 29 20 6f 6e 2e 00        y control) on..
 
-00000b86 <PM_INTERPRETER_HELP01>:
-     b86:	0a 3d 3d 3d 20 48 45 4c 50 20 3d 3d 3d 0a 0a 24     .=== HELP ===..$
-     b96:	20 3c 4e 4d 45 41 2d 4d 65 73 73 61 67 65 3e 09      <NMEA-Message>.
-     ba6:	09 73 65 6e 64 73 20 6d 65 73 73 61 67 65 20 74     .sends message t
-     bb6:	6f 20 74 68 65 20 47 50 53 20 6d 6f 64 75 6c 65     o the GPS module
-     bc6:	2e 00                                               ..
+00000b85 <PM_INTERPRETER_HELP01>:
+     b85:	0a 3d 3d 3d 20 48 45 4c 50 20 3d 3d 3d 0a 0a 24     .=== HELP ===..$
+     b95:	20 3c 4e 4d 45 41 2d 4d 65 73 73 61 67 65 3e 09      <NMEA-Message>.
+     ba5:	09 73 65 6e 64 73 20 6d 65 73 73 61 67 65 20 74     .sends message t
+     bb5:	6f 20 74 68 65 20 47 50 53 20 6d 6f 64 75 6c 65     o the GPS module
+     bc5:	2e 00                                               ..
 
-00000bc8 <PM_GPIB_SCM_IDN>:
-     bc8:	2a 49 44 4e 3f 00                                   *IDN?.
+00000bc7 <PM_GPIB_SCM_IDN>:
+     bc7:	2a 49 44 4e 3f 00                                   *IDN?.
 
-00000bce <PM_COMMAND_WRITETEMP>:
-     bce:	57 52 49 54 45 54 45 4d 50 00                       WRITETEMP.
+00000bcd <PM_COMMAND_WRITETEMP>:
+     bcd:	57 52 49 54 45 54 45 4d 50 00                       WRITETEMP.
 
-00000bd8 <PM_COMMAND_WRITEPWM>:
-     bd8:	57 52 49 54 45 50 57 4d 00                          WRITEPWM.
+00000bd7 <PM_COMMAND_WRITEPWM>:
+     bd7:	57 52 49 54 45 50 57 4d 00                          WRITEPWM.
 
-00000be1 <PM_COMMAND_TEST>:
-     be1:	54 45 53 54 00                                      TEST.
+00000be0 <PM_COMMAND_TEST>:
+     be0:	54 45 53 54 00                                      TEST.
 
-00000be6 <PM_COMMAND_STACK>:
-     be6:	53 54 41 43 4b 00                                   STACK.
+00000be5 <PM_COMMAND_STACK>:
+     be5:	53 54 41 43 4b 00                                   STACK.
 
-00000bec <PM_COMMAND_SERON>:
-     bec:	53 45 52 4f 4e 00                                   SERON.
+00000beb <PM_COMMAND_SERON>:
+     beb:	53 45 52 4f 4e 00                                   SERON.
 
-00000bf2 <PM_COMMAND_SEROFF>:
-     bf2:	53 45 52 4f 46 46 00                                SEROFF.
+00000bf1 <PM_COMMAND_SEROFF>:
+     bf1:	53 45 52 4f 46 46 00                                SEROFF.
 
-00000bf9 <PM_COMMAND_SERBAUD>:
-     bf9:	53 45 52 42 41 55 44 00                             SERBAUD.
+00000bf8 <PM_COMMAND_SERBAUD>:
+     bf8:	53 45 52 42 41 55 44 00                             SERBAUD.
 
-00000c01 <PM_COMMAND_LEDON>:
-     c01:	4c 45 44 4f 4e 00                                   LEDON.
+00000c00 <PM_COMMAND_LEDON>:
+     c00:	4c 45 44 4f 4e 00                                   LEDON.
 
-00000c07 <PM_COMMAND_LEDOFF>:
-     c07:	4c 45 44 4f 46 46 00                                LEDOFF.
+00000c06 <PM_COMMAND_LEDOFF>:
+     c06:	4c 45 44 4f 46 46 00                                LEDOFF.
 
-00000c0e <PM_COMMAND_INFO>:
-     c0e:	49 4e 46 4f 00                                      INFO.
+00000c0d <PM_COMMAND_INFO>:
+     c0d:	49 4e 46 4f 00                                      INFO.
 
-00000c13 <PM_COMMAND_HELP>:
-     c13:	48 45 4c 50 00                                      HELP.
+00000c12 <PM_COMMAND_HELP>:
+     c12:	48 45 4c 50 00                                      HELP.
 
-00000c18 <PM_COMMAND_APCON>:
-     c18:	41 50 43 4f 4e 00                                   APCON.
+00000c17 <PM_COMMAND_APCON>:
+     c17:	41 50 43 4f 4e 00                                   APCON.
 
-00000c1e <PM_COMMAND_APCOFF>:
-     c1e:	41 50 43 4f 46 46 00                                APCOFF.
+00000c1d <PM_COMMAND_APCOFF>:
+     c1d:	41 50 43 4f 46 46 00                                APCOFF.
 
-00000c25 <PM_COMMAND_AFCON>:
-     c25:	41 46 43 4f 4e 00                                   AFCON.
+00000c24 <PM_COMMAND_AFCON>:
+     c24:	41 46 43 4f 4e 00                                   AFCON.
 
-00000c2b <PM_COMMAND_AFCOFF>:
-     c2b:	41 46 43 4f 46 46 00                                AFCOFF.
+00000c2a <PM_COMMAND_AFCOFF>:
+     c2a:	41 46 43 4f 46 46 00                                AFCOFF.
 
-00000c32 <eeprom_defaultValues_content>:
-     c32:	44 46 34 49 41 48 20 31 30 4d 68 7a 2d 52 65 66     DF4IAH 10Mhz-Ref
-     c42:	a0 ab 00 00 01 ff ff ff ff ff ff ff 00 00 0c b0     ................
-     c52:	a5 2c 8f 40 48 e1 8a 3f 00 80 af 43 00 a0 87 3f     .,.@H..?...C...?
-     c62:	ff ff ff ff ff ff ff ff ff ff ff ff 00 00 1c b0     ................
-     c72:	cd cc 94 c0 5c 8f c2 3f b8 1e 05 3d ff ff ff ff     ....\..?...=....
-     c82:	ff ff 71 3d 8a 3f 33 33 13 40 78 00 00 00 2c b0     ..q=.?33.@x...,.
-     c92:	80 25 08 01 00 00 00 00 ff ff ff ff ff ff ff ff     .%..............
-     ca2:	ff ff ff ff ff ff ff ff ff ff ff ff 00 00 3c b0     ..............<.
-     cb2:	00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff     ................
-     cc2:	ff ff ff ff ff ff ff ff ff ff ff ff 00 00 4c b0     ..............L.
+00000c31 <eeprom_defaultValues_content>:
+     c31:	44 46 34 49 41 48 20 31 30 4d 68 7a 2d 52 65 66     DF4IAH 10Mhz-Ref
+     c41:	a0 ab 00 00 01 ff ff ff ff ff ff ff 00 00 0c b0     ................
+     c51:	a5 2c 8f 40 48 e1 8a 3f 00 80 af 43 00 a0 87 3f     .,.@H..?...C...?
+     c61:	ff ff ff ff ff ff ff ff ff ff ff ff 00 00 1c b0     ................
+     c71:	cd cc 94 c0 5c 8f c2 3f b8 1e 05 3d ff ff ff ff     ....\..?...=....
+     c81:	ff ff 71 3d 8a 3f 33 33 13 40 78 00 00 00 2c b0     ..q=.?33.@x...,.
+     c91:	80 25 08 01 00 00 00 00 ff ff ff ff ff ff ff ff     .%..............
+     ca1:	ff ff ff ff ff ff ff ff ff ff ff ff 00 00 3c b0     ..............<.
+     cb1:	00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff     ................
+     cc1:	ff ff ff ff ff ff ff ff ff ff ff ff 00 00 4c b0     ..............L.
 
-00000cd2 <usbDescriptorConfiguration>:
-     cd2:	09 02 19 00 01 01 00 80 69 09 04 00 00 01 ff 00     ........i.......
-     ce2:	00 00 07 05 81 03 08 00 0a                          .........
+00000cd1 <usbDescriptorConfiguration>:
+     cd1:	09 02 19 00 01 01 00 80 69 09 04 00 00 01 ff 00     ........i.......
+     ce1:	00 00 07 05 81 03 08 00 0a                          .........
 
-00000ceb <usbDescriptorDevice>:
-     ceb:	12 01 10 01 ff 00 00 08 c0 16 dc 05 00 01 01 02     ................
-     cfb:	03 01                                               ..
+00000cea <usbDescriptorDevice>:
+     cea:	12 01 10 01 ff 00 00 08 c0 16 dc 05 00 01 01 02     ................
+     cfa:	03 01                                               ..
 
-00000cfd <usbDescriptorStringSerialNumber>:
-     cfd:	10 03 50 00 72 00 6f 00 74 00 6f 00 2d 00 31 00     ..P.r.o.t.o.-.1.
+00000cfc <usbDescriptorStringSerialNumber>:
+     cfc:	10 03 50 00 72 00 6f 00 74 00 6f 00 2d 00 31 00     ..P.r.o.t.o.-.1.
 
-00000d0d <usbDescriptorStringDevice>:
-     d0d:	2a 03 44 00 46 00 34 00 49 00 41 00 48 00 2d 00     *.D.F.4.I.A.H.-.
-     d1d:	31 00 30 00 4d 00 48 00 7a 00 2d 00 52 00 65 00     1.0.M.H.z.-.R.e.
-     d2d:	66 00 2d 00 4f 00 73 00 63 00                       f.-.O.s.c.
+00000d0c <usbDescriptorStringDevice>:
+     d0c:	2a 03 44 00 46 00 34 00 49 00 41 00 48 00 2d 00     *.D.F.4.I.A.H.-.
+     d1c:	31 00 30 00 4d 00 48 00 7a 00 2d 00 52 00 65 00     1.0.M.H.z.-.R.e.
+     d2c:	66 00 2d 00 4f 00 73 00 63 00                       f.-.O.s.c.
 
-00000d37 <usbDescriptorStringVendor>:
-     d37:	0e 03 44 00 46 00 34 00 49 00 41 00 48 00           ..D.F.4.I.A.H.
+00000d36 <usbDescriptorStringVendor>:
+     d36:	0e 03 44 00 46 00 34 00 49 00 41 00 48 00           ..D.F.4.I.A.H.
 
-00000d45 <usbDescriptorString0>:
-     d45:	04 03 09 04                                         ....
+00000d44 <usbDescriptorString0>:
+     d44:	04 03 09 04                                         ....
 
-00000d49 <__c.2437>:
-     d49:	63 64 69 6e 6f 70 73 75 78 58 5b 65 66 67 45 46     cdinopsuxX[efgEF
-     d59:	47 00                                               G.
+00000d48 <__c.2437>:
+     d48:	63 64 69 6e 6f 70 73 75 78 58 5b 65 66 67 45 46     cdinopsuxX[efgEF
+     d58:	47 00                                               G.
 
-00000d5b <pstr_an>:
-     d5b:	61 6e 00                                            an.
+00000d5a <pstr_an>:
+     d5a:	61 6e 00                                            an.
 
-00000d5e <pstr_nfinity>:
-     d5e:	6e 66 69 6e 69 74 79 00                             nfinity.
+00000d5d <pstr_nfinity>:
+     d5d:	6e 66 69 6e 69 74 79 00                             nfinity.
 
-00000d66 <pwr_m10>:
-     d66:	cd cc cc 3d 0a d7 23 3c 17 b7 d1 38 77 cc 2b 32     ...=..#<...8w.+2
-     d76:	95 95 e6 24 1f b1 4f 0a                             ...$..O.
+00000d65 <pwr_m10>:
+     d65:	cd cc cc 3d 0a d7 23 3c 17 b7 d1 38 77 cc 2b 32     ...=..#<...8w.+2
+     d75:	95 95 e6 24 1f b1 4f 0a                             ...$..O.
 
-00000d7e <pwr_p10>:
-     d7e:	00 00 20 41 00 00 c8 42 00 40 1c 46 20 bc be 4c     .. A...B.@.F ..L
-     d8e:	ca 1b 0e 5a ae c5 9d 74                             ...Z...t
+00000d7d <pwr_p10>:
+     d7d:	00 00 20 41 00 00 c8 42 00 40 1c 46 20 bc be 4c     .. A...B.@.F ..L
+     d8d:	ca 1b 0e 5a ae c5 9d 74 00                          ...Z...t.
 
 00000d96 <__ctors_end>:
      d96:	11 24       	eor	r1, r1
@@ -2679,7 +2679,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	if (!main_fw_strncmp(msg, PM_GPIB_SCM_IDN, sizeof(PM_GPIB_SCM_IDN))) {
     173c:	46 e0       	ldi	r20, 0x06	; 6
     173e:	50 e0       	ldi	r21, 0x00	; 0
-    1740:	68 ec       	ldi	r22, 0xC8	; 200
+    1740:	67 ec       	ldi	r22, 0xC7	; 199
     1742:	7b e0       	ldi	r23, 0x0B	; 11
     1744:	8d e8       	ldi	r24, 0x8D	; 141
     1746:	94 e0       	ldi	r25, 0x04	; 4
@@ -2731,7 +2731,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_AFCOFF, sizeof(PM_COMMAND_AFCOFF))) {
     179e:	47 e0       	ldi	r20, 0x07	; 7
     17a0:	50 e0       	ldi	r21, 0x00	; 0
-    17a2:	6b e2       	ldi	r22, 0x2B	; 43
+    17a2:	6a e2       	ldi	r22, 0x2A	; 42
     17a4:	7c e0       	ldi	r23, 0x0C	; 12
     17a6:	8d e8       	ldi	r24, 0x8D	; 141
     17a8:	94 e0       	ldi	r25, 0x04	; 4
@@ -2747,7 +2747,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_AFCON, sizeof(PM_COMMAND_AFCON))) {
     17b8:	46 e0       	ldi	r20, 0x06	; 6
     17ba:	50 e0       	ldi	r21, 0x00	; 0
-    17bc:	65 e2       	ldi	r22, 0x25	; 37
+    17bc:	64 e2       	ldi	r22, 0x24	; 36
     17be:	7c e0       	ldi	r23, 0x0C	; 12
     17c0:	8d e8       	ldi	r24, 0x8D	; 141
     17c2:	94 e0       	ldi	r25, 0x04	; 4
@@ -2764,7 +2764,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_APCOFF, sizeof(PM_COMMAND_APCOFF))) {
     17d6:	47 e0       	ldi	r20, 0x07	; 7
     17d8:	50 e0       	ldi	r21, 0x00	; 0
-    17da:	6e e1       	ldi	r22, 0x1E	; 30
+    17da:	6d e1       	ldi	r22, 0x1D	; 29
     17dc:	7c e0       	ldi	r23, 0x0C	; 12
     17de:	8d e8       	ldi	r24, 0x8D	; 141
     17e0:	94 e0       	ldi	r25, 0x04	; 4
@@ -2780,7 +2780,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_APCON, sizeof(PM_COMMAND_APCON))) {
     17f0:	46 e0       	ldi	r20, 0x06	; 6
     17f2:	50 e0       	ldi	r21, 0x00	; 0
-    17f4:	68 e1       	ldi	r22, 0x18	; 24
+    17f4:	67 e1       	ldi	r22, 0x17	; 23
     17f6:	7c e0       	ldi	r23, 0x0C	; 12
     17f8:	8d e8       	ldi	r24, 0x8D	; 141
     17fa:	94 e0       	ldi	r25, 0x04	; 4
@@ -2800,7 +2800,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP))) {
     180a:	45 e0       	ldi	r20, 0x05	; 5
     180c:	50 e0       	ldi	r21, 0x00	; 0
-    180e:	63 e1       	ldi	r22, 0x13	; 19
+    180e:	62 e1       	ldi	r22, 0x12	; 18
     1810:	7c e0       	ldi	r23, 0x0C	; 12
     1812:	8d e8       	ldi	r24, 0x8D	; 141
     1814:	94 e0       	ldi	r25, 0x04	; 4
@@ -2811,7 +2811,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_VERSION, sizeof(PM_FORMAT_VERSION));
     181c:	22 e4       	ldi	r18, 0x42	; 66
     181e:	30 e0       	ldi	r19, 0x00	; 0
-    1820:	41 e4       	ldi	r20, 0x41	; 65
+    1820:	40 e4       	ldi	r20, 0x40	; 64
     1822:	58 e0       	ldi	r21, 0x08	; 8
     1824:	6d e8       	ldi	r22, 0x8D	; 141
     1826:	73 e0       	ldi	r23, 0x03	; 3
@@ -2846,7 +2846,7 @@ static void doInterpret(uchar msg[], uint8_t len)
     1860:	0e 94 5c 23 	call	0x46b8	; 0x46b8 <ringbuffer_fw_ringBufferWaitAppend>
 		ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP01, sizeof(PM_INTERPRETER_HELP01));
     1864:	22 e4       	ldi	r18, 0x42	; 66
-    1866:	46 e8       	ldi	r20, 0x86	; 134
+    1866:	45 e8       	ldi	r20, 0x85	; 133
     1868:	5b e0       	ldi	r21, 0x0B	; 11
     186a:	61 e0       	ldi	r22, 0x01	; 1
     186c:	80 e0       	ldi	r24, 0x00	; 0
@@ -2870,7 +2870,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_INFO, sizeof(PM_COMMAND_INFO))) {
     1894:	45 e0       	ldi	r20, 0x05	; 5
     1896:	50 e0       	ldi	r21, 0x00	; 0
-    1898:	6e e0       	ldi	r22, 0x0E	; 14
+    1898:	6d e0       	ldi	r22, 0x0D	; 13
     189a:	7c e0       	ldi	r23, 0x0C	; 12
     189c:	8d e8       	ldi	r24, 0x8D	; 141
     189e:	94 e0       	ldi	r25, 0x04	; 4
@@ -2903,7 +2903,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_LEDOFF, sizeof(PM_COMMAND_LEDOFF))) {
     18d0:	47 e0       	ldi	r20, 0x07	; 7
     18d2:	50 e0       	ldi	r21, 0x00	; 0
-    18d4:	67 e0       	ldi	r22, 0x07	; 7
+    18d4:	66 e0       	ldi	r22, 0x06	; 6
     18d6:	7c e0       	ldi	r23, 0x0C	; 12
     18d8:	8d e8       	ldi	r24, 0x8D	; 141
     18da:	94 e0       	ldi	r25, 0x04	; 4
@@ -2924,7 +2924,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_LEDON, sizeof(PM_COMMAND_LEDON))) {
     18ec:	46 e0       	ldi	r20, 0x06	; 6
     18ee:	50 e0       	ldi	r21, 0x00	; 0
-    18f0:	61 e0       	ldi	r22, 0x01	; 1
+    18f0:	60 e0       	ldi	r22, 0x00	; 0
     18f2:	7c e0       	ldi	r23, 0x0C	; 12
     18f4:	8d e8       	ldi	r24, 0x8D	; 141
     18f6:	94 e0       	ldi	r25, 0x04	; 4
@@ -2957,7 +2957,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_SEROFF, sizeof(PM_COMMAND_SEROFF))) {
     1924:	47 e0       	ldi	r20, 0x07	; 7
     1926:	50 e0       	ldi	r21, 0x00	; 0
-    1928:	62 ef       	ldi	r22, 0xF2	; 242
+    1928:	61 ef       	ldi	r22, 0xF1	; 241
     192a:	7b e0       	ldi	r23, 0x0B	; 11
     192c:	8d e8       	ldi	r24, 0x8D	; 141
     192e:	94 e0       	ldi	r25, 0x04	; 4
@@ -2973,7 +2973,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_SERON, sizeof(PM_COMMAND_SERON))) {
     193e:	46 e0       	ldi	r20, 0x06	; 6
     1940:	50 e0       	ldi	r21, 0x00	; 0
-    1942:	6c ee       	ldi	r22, 0xEC	; 236
+    1942:	6b ee       	ldi	r22, 0xEB	; 235
     1944:	7b e0       	ldi	r23, 0x0B	; 11
     1946:	8d e8       	ldi	r24, 0x8D	; 141
     1948:	94 e0       	ldi	r25, 0x04	; 4
@@ -2997,7 +2997,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_memcmp(msg, PM_COMMAND_SERBAUD, sizeof(PM_COMMAND_SERBAUD) - 1)) {
     196c:	47 e0       	ldi	r20, 0x07	; 7
     196e:	50 e0       	ldi	r21, 0x00	; 0
-    1970:	69 ef       	ldi	r22, 0xF9	; 249
+    1970:	68 ef       	ldi	r22, 0xF8	; 248
     1972:	7b e0       	ldi	r23, 0x0B	; 11
     1974:	8d e8       	ldi	r24, 0x8D	; 141
     1976:	94 e0       	ldi	r25, 0x04	; 4
@@ -3076,7 +3076,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_STACK, sizeof(PM_COMMAND_STACK))) {
     1a00:	46 e0       	ldi	r20, 0x06	; 6
     1a02:	50 e0       	ldi	r21, 0x00	; 0
-    1a04:	66 ee       	ldi	r22, 0xE6	; 230
+    1a04:	65 ee       	ldi	r22, 0xE5	; 229
     1a06:	7b e0       	ldi	r23, 0x0B	; 11
     1a08:	8d e8       	ldi	r24, 0x8D	; 141
     1a0a:	94 e0       	ldi	r25, 0x04	; 4
@@ -3100,7 +3100,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_TEST, sizeof(PM_COMMAND_TEST))) {
     1a2e:	45 e0       	ldi	r20, 0x05	; 5
     1a30:	50 e0       	ldi	r21, 0x00	; 0
-    1a32:	61 ee       	ldi	r22, 0xE1	; 225
+    1a32:	60 ee       	ldi	r22, 0xE0	; 224
     1a34:	7b e0       	ldi	r23, 0x0B	; 11
     1a36:	8d e8       	ldi	r24, 0x8D	; 141
     1a38:	94 e0       	ldi	r25, 0x04	; 4
@@ -3136,7 +3136,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_strncmp(msg, PM_COMMAND_WRITEPWM, sizeof(PM_COMMAND_WRITEPWM))) {
     1a74:	49 e0       	ldi	r20, 0x09	; 9
     1a76:	50 e0       	ldi	r21, 0x00	; 0
-    1a78:	68 ed       	ldi	r22, 0xD8	; 216
+    1a78:	67 ed       	ldi	r22, 0xD7	; 215
     1a7a:	7b e0       	ldi	r23, 0x0B	; 11
     1a7c:	8d e8       	ldi	r24, 0x8D	; 141
     1a7e:	94 e0       	ldi	r25, 0x04	; 4
@@ -3180,7 +3180,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 	} else if (!main_fw_memcmp(msg, PM_COMMAND_WRITETEMP, sizeof(PM_COMMAND_WRITETEMP) - 1)) {
     1ac0:	49 e0       	ldi	r20, 0x09	; 9
     1ac2:	50 e0       	ldi	r21, 0x00	; 0
-    1ac4:	6e ec       	ldi	r22, 0xCE	; 206
+    1ac4:	6d ec       	ldi	r22, 0xCD	; 205
     1ac6:	7b e0       	ldi	r23, 0x0B	; 11
     1ac8:	8d e8       	ldi	r24, 0x8D	; 141
     1aca:	94 e0       	ldi	r25, 0x04	; 4
@@ -3339,7 +3339,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_INTERPRETER_UNKNOWN, sizeof(PM_INTERPRETER_UNKNOWN));
     1c08:	21 e3       	ldi	r18, 0x31	; 49
     1c0a:	30 e0       	ldi	r19, 0x00	; 0
-    1c0c:	43 e8       	ldi	r20, 0x83	; 131
+    1c0c:	42 e8       	ldi	r20, 0x82	; 130
     1c0e:	58 e0       	ldi	r21, 0x08	; 8
     1c10:	6d e8       	ldi	r22, 0x8D	; 141
     1c12:	73 e0       	ldi	r23, 0x03	; 3
@@ -3394,7 +3394,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			case 1:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP02, sizeof(PM_INTERPRETER_HELP02));
     1c6c:	2f e6       	ldi	r18, 0x6F	; 111
-    1c6e:	47 e1       	ldi	r20, 0x17	; 23
+    1c6e:	46 e1       	ldi	r20, 0x16	; 22
     1c70:	5b e0       	ldi	r21, 0x0B	; 11
     1c72:	61 e0       	ldi	r22, 0x01	; 1
     1c74:	80 e0       	ldi	r24, 0x00	; 0
@@ -3409,7 +3409,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			case 2:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP03, sizeof(PM_INTERPRETER_HELP03));
     1c84:	27 e6       	ldi	r18, 0x67	; 103
-    1c86:	40 eb       	ldi	r20, 0xB0	; 176
+    1c86:	4f ea       	ldi	r20, 0xAF	; 175
     1c88:	5a e0       	ldi	r21, 0x0A	; 10
     1c8a:	61 e0       	ldi	r22, 0x01	; 1
     1c8c:	80 e0       	ldi	r24, 0x00	; 0
@@ -3429,7 +3429,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			case 4:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP05, sizeof(PM_INTERPRETER_HELP05));
     1c9c:	27 e1       	ldi	r18, 0x17	; 23
-    1c9e:	49 e9       	ldi	r20, 0x99	; 153
+    1c9e:	48 e9       	ldi	r20, 0x98	; 152
     1ca0:	5a e0       	ldi	r21, 0x0A	; 10
     1ca2:	61 e0       	ldi	r22, 0x01	; 1
     1ca4:	80 e0       	ldi	r24, 0x00	; 0
@@ -3444,7 +3444,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			case 5:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP06, sizeof(PM_INTERPRETER_HELP06));
     1cb4:	2b e2       	ldi	r18, 0x2B	; 43
-    1cb6:	4e e6       	ldi	r20, 0x6E	; 110
+    1cb6:	4d e6       	ldi	r20, 0x6D	; 109
     1cb8:	5a e0       	ldi	r21, 0x0A	; 10
     1cba:	61 e0       	ldi	r22, 0x01	; 1
     1cbc:	80 e0       	ldi	r24, 0x00	; 0
@@ -3459,7 +3459,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			case 6:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP07, sizeof(PM_INTERPRETER_HELP07));
     1ccc:	2f e3       	ldi	r18, 0x3F	; 63
-    1cce:	4f e2       	ldi	r20, 0x2F	; 47
+    1cce:	4e e2       	ldi	r20, 0x2E	; 46
     1cd0:	5a e0       	ldi	r21, 0x0A	; 10
     1cd2:	61 e0       	ldi	r22, 0x01	; 1
     1cd4:	80 e0       	ldi	r24, 0x00	; 0
@@ -3474,7 +3474,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			case 7:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP08, sizeof(PM_INTERPRETER_HELP08));
     1ce4:	2c e2       	ldi	r18, 0x2C	; 44
-    1ce6:	43 e0       	ldi	r20, 0x03	; 3
+    1ce6:	42 e0       	ldi	r20, 0x02	; 2
     1ce8:	5a e0       	ldi	r21, 0x0A	; 10
     1cea:	61 e0       	ldi	r22, 0x01	; 1
     1cec:	80 e0       	ldi	r24, 0x00	; 0
@@ -3489,7 +3489,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			case 8:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP09, sizeof(PM_INTERPRETER_HELP09));
     1cfc:	25 e5       	ldi	r18, 0x55	; 85
-    1cfe:	4e ea       	ldi	r20, 0xAE	; 174
+    1cfe:	4d ea       	ldi	r20, 0xAD	; 173
     1d00:	59 e0       	ldi	r21, 0x09	; 9
     1d02:	61 e0       	ldi	r22, 0x01	; 1
     1d04:	80 e0       	ldi	r24, 0x00	; 0
@@ -3504,7 +3504,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			case 9:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP10, sizeof(PM_INTERPRETER_HELP10));
     1d14:	28 e2       	ldi	r18, 0x28	; 40
-    1d16:	46 e8       	ldi	r20, 0x86	; 134
+    1d16:	45 e8       	ldi	r20, 0x85	; 133
     1d18:	59 e0       	ldi	r21, 0x09	; 9
     1d1a:	61 e0       	ldi	r22, 0x01	; 1
     1d1c:	80 e0       	ldi	r24, 0x00	; 0
@@ -3519,7 +3519,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			case 10:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP11, sizeof(PM_INTERPRETER_HELP11));
     1d2c:	2f e1       	ldi	r18, 0x1F	; 31
-    1d2e:	47 e6       	ldi	r20, 0x67	; 103
+    1d2e:	46 e6       	ldi	r20, 0x66	; 102
     1d30:	59 e0       	ldi	r21, 0x09	; 9
     1d32:	61 e0       	ldi	r22, 0x01	; 1
     1d34:	80 e0       	ldi	r24, 0x00	; 0
@@ -3534,7 +3534,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			case 11:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP12, sizeof(PM_INTERPRETER_HELP12));
     1d44:	24 e7       	ldi	r18, 0x74	; 116
-    1d46:	43 ef       	ldi	r20, 0xF3	; 243
+    1d46:	42 ef       	ldi	r20, 0xF2	; 242
     1d48:	58 e0       	ldi	r21, 0x08	; 8
     1d4a:	61 e0       	ldi	r22, 0x01	; 1
     1d4c:	80 e0       	ldi	r24, 0x00	; 0
@@ -3549,7 +3549,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			case 12:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP13, sizeof(PM_INTERPRETER_HELP13));
     1d5c:	20 e3       	ldi	r18, 0x30	; 48
-    1d5e:	43 ec       	ldi	r20, 0xC3	; 195
+    1d5e:	42 ec       	ldi	r20, 0xC2	; 194
     1d60:	58 e0       	ldi	r21, 0x08	; 8
     1d62:	61 e0       	ldi	r22, 0x01	; 1
     1d64:	80 e0       	ldi	r24, 0x00	; 0
@@ -3564,7 +3564,7 @@ static void doInterpret(uchar msg[], uint8_t len)
 			case 13:
 				ringbuffer_fw_ringBufferWaitAppend(false, true, PM_INTERPRETER_HELP14, sizeof(PM_INTERPRETER_HELP14));
     1d74:	2f e0       	ldi	r18, 0x0F	; 15
-    1d76:	44 eb       	ldi	r20, 0xB4	; 180
+    1d76:	43 eb       	ldi	r20, 0xB3	; 179
     1d78:	58 e0       	ldi	r21, 0x08	; 8
     1d7a:	61 e0       	ldi	r22, 0x01	; 1
     1d7c:	80 e0       	ldi	r24, 0x00	; 0
@@ -4321,7 +4321,7 @@ static void calcPhaseResidue(void)
     227a:	21 f4       	brne	.+8      	; 0x2284 <main_fw_giveAway+0x4ce>
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_CR_LF, sizeof(PM_FORMAT_GPS_CR_LF));
     227c:	43 e0       	ldi	r20, 0x03	; 3
-    227e:	6e e3       	ldi	r22, 0x3E	; 62
+    227e:	6d e3       	ldi	r22, 0x3D	; 61
     2280:	78 e0       	ldi	r23, 0x08	; 8
     2282:	05 c0       	rjmp	.+10     	; 0x228e <main_fw_giveAway+0x4d8>
 
@@ -4330,7 +4330,7 @@ static void calcPhaseResidue(void)
     2286:	39 f4       	brne	.+14     	; 0x2296 <main_fw_giveAway+0x4e0>
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_BAUDRATE, sizeof(PM_FORMAT_GPS_BAUDRATE));  // setting the baud rate
     2288:	43 e1       	ldi	r20, 0x13	; 19
-    228a:	6b e2       	ldi	r22, 0x2B	; 43
+    228a:	6a e2       	ldi	r22, 0x2A	; 42
     228c:	78 e0       	ldi	r23, 0x08	; 8
     228e:	81 e0       	ldi	r24, 0x01	; 1
     2290:	0e 94 1d 24 	call	0x483a	; 0x483a <serial_fw_copyAndSendNmea>
@@ -4341,7 +4341,7 @@ static void calcPhaseResidue(void)
     2298:	21 f4       	brne	.+8      	; 0x22a2 <main_fw_giveAway+0x4ec>
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WARM_RESTART, sizeof(PM_FORMAT_GPS_WARM_RESTART));  // XXX init of GPS-Module is here
     229a:	4e e0       	ldi	r20, 0x0E	; 14
-    229c:	6d e1       	ldi	r22, 0x1D	; 29
+    229c:	6c e1       	ldi	r22, 0x1C	; 28
     229e:	78 e0       	ldi	r23, 0x08	; 8
     22a0:	f6 cf       	rjmp	.-20     	; 0x228e <main_fw_giveAway+0x4d8>
 
@@ -4350,7 +4350,7 @@ static void calcPhaseResidue(void)
     22a4:	21 f4       	brne	.+8      	; 0x22ae <main_fw_giveAway+0x4f8>
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST0_EAST0, sizeof(PM_FORMAT_GPS_WEST0_EAST0));    // disable all GNSS systems
     22a6:	42 e1       	ldi	r20, 0x12	; 18
-    22a8:	6b e0       	ldi	r22, 0x0B	; 11
+    22a8:	6a e0       	ldi	r22, 0x0A	; 10
     22aa:	78 e0       	ldi	r23, 0x08	; 8
     22ac:	f0 cf       	rjmp	.-32     	; 0x228e <main_fw_giveAway+0x4d8>
 
@@ -4359,7 +4359,7 @@ static void calcPhaseResidue(void)
     22b0:	21 f4       	brne	.+8      	; 0x22ba <main_fw_giveAway+0x504>
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST1_EAST0, sizeof(PM_FORMAT_GPS_WEST1_EAST0));    // activate GPS, QZSS & Galileo
     22b2:	42 e1       	ldi	r20, 0x12	; 18
-    22b4:	69 ef       	ldi	r22, 0xF9	; 249
+    22b4:	68 ef       	ldi	r22, 0xF8	; 248
     22b6:	77 e0       	ldi	r23, 0x07	; 7
     22b8:	ea cf       	rjmp	.-44     	; 0x228e <main_fw_giveAway+0x4d8>
 
@@ -4368,7 +4368,7 @@ static void calcPhaseResidue(void)
     22bc:	21 f4       	brne	.+8      	; 0x22c6 <main_fw_giveAway+0x510>
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST1_EAST1, sizeof(PM_FORMAT_GPS_WEST1_EAST1));    // activate GLONASS also
     22be:	42 e1       	ldi	r20, 0x12	; 18
-    22c0:	67 ee       	ldi	r22, 0xE7	; 231
+    22c0:	66 ee       	ldi	r22, 0xE6	; 230
     22c2:	77 e0       	ldi	r23, 0x07	; 7
     22c4:	e4 cf       	rjmp	.-56     	; 0x228e <main_fw_giveAway+0x4d8>
 
@@ -4377,7 +4377,7 @@ static void calcPhaseResidue(void)
     22c8:	49 f4       	brne	.+18     	; 0x22dc <main_fw_giveAway+0x526>
 			serial_fw_copyAndSendNmea(true, PM_FORMAT_GPS_WEST1_EAST1, sizeof(PM_FORMAT_GPS_WEST1_EAST1));    // activate GLONASS also (sent every minute)
     22ca:	42 e1       	ldi	r20, 0x12	; 18
-    22cc:	67 ee       	ldi	r22, 0xE7	; 231
+    22cc:	66 ee       	ldi	r22, 0xE6	; 230
     22ce:	77 e0       	ldi	r23, 0x07	; 7
     22d0:	81 e0       	ldi	r24, 0x01	; 1
     22d2:	0e 94 1d 24 	call	0x483a	; 0x483a <serial_fw_copyAndSendNmea>
@@ -4461,7 +4461,7 @@ static void calcPhaseResidue(void)
 		memory_fw_copyBuffer(true, mainPrepareBuffer, PM_FORMAT_GP00, sizeof(PM_FORMAT_GP00) + 1);
     23a8:	21 e1       	ldi	r18, 0x11	; 17
     23aa:	30 e0       	ldi	r19, 0x00	; 0
-    23ac:	47 ed       	ldi	r20, 0xD7	; 215
+    23ac:	46 ed       	ldi	r20, 0xD6	; 214
     23ae:	57 e0       	ldi	r21, 0x07	; 7
     23b0:	6d e0       	ldi	r22, 0x0D	; 13
     23b2:	74 e0       	ldi	r23, 0x04	; 4
@@ -4478,7 +4478,7 @@ static void calcPhaseResidue(void)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP01, sizeof(PM_FORMAT_GP01));
     23c8:	28 e2       	ldi	r18, 0x28	; 40
     23ca:	30 e0       	ldi	r19, 0x00	; 0
-    23cc:	4f ea       	ldi	r20, 0xAF	; 175
+    23cc:	4e ea       	ldi	r20, 0xAE	; 174
     23ce:	57 e0       	ldi	r21, 0x07	; 7
     23d0:	6d e8       	ldi	r22, 0x8D	; 141
     23d2:	73 e0       	ldi	r23, 0x03	; 3
@@ -4529,7 +4529,7 @@ static void calcPhaseResidue(void)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP02, sizeof(PM_FORMAT_GP02));
     243a:	25 e2       	ldi	r18, 0x25	; 37
     243c:	30 e0       	ldi	r19, 0x00	; 0
-    243e:	4a e8       	ldi	r20, 0x8A	; 138
+    243e:	49 e8       	ldi	r20, 0x89	; 137
     2440:	57 e0       	ldi	r21, 0x07	; 7
     2442:	b1 01       	movw	r22, r2
     2444:	81 e0       	ldi	r24, 0x01	; 1
@@ -4560,7 +4560,7 @@ static void calcPhaseResidue(void)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP03, sizeof(PM_FORMAT_GP03));
     247a:	23 e5       	ldi	r18, 0x53	; 83
     247c:	30 e0       	ldi	r19, 0x00	; 0
-    247e:	47 e3       	ldi	r20, 0x37	; 55
+    247e:	46 e3       	ldi	r20, 0x36	; 54
     2480:	57 e0       	ldi	r21, 0x07	; 7
     2482:	b1 01       	movw	r22, r2
     2484:	81 e0       	ldi	r24, 0x01	; 1
@@ -4601,7 +4601,7 @@ static void calcPhaseResidue(void)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP04, sizeof(PM_FORMAT_GP04));
     24d0:	28 e3       	ldi	r18, 0x38	; 56
     24d2:	30 e0       	ldi	r19, 0x00	; 0
-    24d4:	4f ef       	ldi	r20, 0xFF	; 255
+    24d4:	4e ef       	ldi	r20, 0xFE	; 254
     24d6:	56 e0       	ldi	r21, 0x06	; 6
     24d8:	b1 01       	movw	r22, r2
     24da:	81 e0       	ldi	r24, 0x01	; 1
@@ -4691,7 +4691,7 @@ static void calcPhaseResidue(void)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_GP05, sizeof(PM_FORMAT_GP05));
     259a:	23 e4       	ldi	r18, 0x43	; 67
     259c:	30 e0       	ldi	r19, 0x00	; 0
-    259e:	4c eb       	ldi	r20, 0xBC	; 188
+    259e:	4b eb       	ldi	r20, 0xBB	; 187
     25a0:	56 e0       	ldi	r21, 0x06	; 6
     25a2:	b1 01       	movw	r22, r2
     25a4:	81 e0       	ldi	r24, 0x01	; 1
@@ -4835,7 +4835,7 @@ static void calcPhaseResidue(void)
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA01, sizeof(PM_FORMAT_TA01));
     26b4:	2f e1       	ldi	r18, 0x1F	; 31
     26b6:	30 e0       	ldi	r19, 0x00	; 0
-    26b8:	4d e9       	ldi	r20, 0x9D	; 157
+    26b8:	4c e9       	ldi	r20, 0x9C	; 156
     26ba:	56 e0       	ldi	r21, 0x06	; 6
     26bc:	b5 01       	movw	r22, r10
     26be:	81 e0       	ldi	r24, 0x01	; 1
@@ -4877,7 +4877,7 @@ static void calcPhaseResidue(void)
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA02, sizeof(PM_FORMAT_TA02));
     2712:	2f e1       	ldi	r18, 0x1F	; 31
     2714:	30 e0       	ldi	r19, 0x00	; 0
-    2716:	4e e7       	ldi	r20, 0x7E	; 126
+    2716:	4d e7       	ldi	r20, 0x7D	; 125
     2718:	56 e0       	ldi	r21, 0x06	; 6
     271a:	b5 01       	movw	r22, r10
     271c:	81 e0       	ldi	r24, 0x01	; 1
@@ -4919,7 +4919,7 @@ static void calcPhaseResidue(void)
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA03, sizeof(PM_FORMAT_TA03));
     2770:	2e e1       	ldi	r18, 0x1E	; 30
     2772:	30 e0       	ldi	r19, 0x00	; 0
-    2774:	40 e6       	ldi	r20, 0x60	; 96
+    2774:	4f e5       	ldi	r20, 0x5F	; 95
     2776:	56 e0       	ldi	r21, 0x06	; 6
     2778:	b5 01       	movw	r22, r10
     277a:	81 e0       	ldi	r24, 0x01	; 1
@@ -4967,7 +4967,7 @@ static void calcPhaseResidue(void)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA11, sizeof(PM_FORMAT_TA11));
     27d8:	28 e3       	ldi	r18, 0x38	; 56
     27da:	30 e0       	ldi	r19, 0x00	; 0
-    27dc:	48 e2       	ldi	r20, 0x28	; 40
+    27dc:	47 e2       	ldi	r20, 0x27	; 39
     27de:	56 e0       	ldi	r21, 0x06	; 6
     27e0:	6d e8       	ldi	r22, 0x8D	; 141
     27e2:	73 e0       	ldi	r23, 0x03	; 3
@@ -5018,7 +5018,7 @@ static void calcPhaseResidue(void)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA12, sizeof(PM_FORMAT_TA12));
     2822:	24 e7       	ldi	r18, 0x74	; 116
     2824:	30 e0       	ldi	r19, 0x00	; 0
-    2826:	44 eb       	ldi	r20, 0xB4	; 180
+    2826:	43 eb       	ldi	r20, 0xB3	; 179
     2828:	55 e0       	ldi	r21, 0x05	; 5
     282a:	b7 01       	movw	r22, r14
     282c:	81 e0       	ldi	r24, 0x01	; 1
@@ -5067,7 +5067,7 @@ static void calcPhaseResidue(void)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA13, sizeof(PM_FORMAT_TA13));
     2892:	24 e2       	ldi	r18, 0x24	; 36
     2894:	30 e0       	ldi	r19, 0x00	; 0
-    2896:	40 e9       	ldi	r20, 0x90	; 144
+    2896:	4f e8       	ldi	r20, 0x8F	; 143
     2898:	55 e0       	ldi	r21, 0x05	; 5
     289a:	b7 01       	movw	r22, r14
     289c:	81 e0       	ldi	r24, 0x01	; 1
@@ -5101,7 +5101,7 @@ static void calcPhaseResidue(void)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_TA14, sizeof(PM_FORMAT_TA14));
     28d4:	20 e2       	ldi	r18, 0x20	; 32
     28d6:	30 e0       	ldi	r19, 0x00	; 0
-    28d8:	40 e7       	ldi	r20, 0x70	; 112
+    28d8:	4f e6       	ldi	r20, 0x6F	; 111
     28da:	55 e0       	ldi	r21, 0x05	; 5
     28dc:	b7 01       	movw	r22, r14
     28de:	81 e0       	ldi	r24, 0x01	; 1
@@ -5356,7 +5356,7 @@ static void calcPhaseResidue(void)
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA01, sizeof(PM_FORMAT_IA01));
     2aba:	2a e3       	ldi	r18, 0x3A	; 58
     2abc:	30 e0       	ldi	r19, 0x00	; 0
-    2abe:	40 e6       	ldi	r20, 0x60	; 96
+    2abe:	4f e5       	ldi	r20, 0x5F	; 95
     2ac0:	54 e0       	ldi	r21, 0x04	; 4
     2ac2:	6d e8       	ldi	r22, 0x8D	; 141
     2ac4:	73 e0       	ldi	r23, 0x03	; 3
@@ -5402,7 +5402,7 @@ static void calcPhaseResidue(void)
     2b1a:	4b 01       	movw	r8, r22
     2b1c:	5c 01       	movw	r10, r24
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA02, sizeof(PM_FORMAT_IA02));
-    2b1e:	25 e7       	ldi	r18, 0x75	; 117
+    2b1e:	24 e7       	ldi	r18, 0x74	; 116
     2b20:	30 e0       	ldi	r19, 0x00	; 0
     2b22:	4b ee       	ldi	r20, 0xEB	; 235
     2b24:	53 e0       	ldi	r21, 0x03	; 3
@@ -5934,7 +5934,7 @@ static char s_flt_sign(float val)
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA01, sizeof(PM_FORMAT_IA01));
     2ea4:	2a e3       	ldi	r18, 0x3A	; 58
     2ea6:	30 e0       	ldi	r19, 0x00	; 0
-    2ea8:	40 e6       	ldi	r20, 0x60	; 96
+    2ea8:	4f e5       	ldi	r20, 0x5F	; 95
     2eaa:	54 e0       	ldi	r21, 0x04	; 4
     2eac:	6d e8       	ldi	r22, 0x8D	; 141
     2eae:	73 e0       	ldi	r23, 0x03	; 3
@@ -5968,7 +5968,7 @@ static char s_flt_sign(float val)
     2ee4:	0e 94 5c 23 	call	0x46b8	; 0x46b8 <ringbuffer_fw_ringBufferWaitAppend>
 
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA02, sizeof(PM_FORMAT_IA02));
-    2ee8:	25 e7       	ldi	r18, 0x75	; 117
+    2ee8:	24 e7       	ldi	r18, 0x74	; 116
     2eea:	30 e0       	ldi	r19, 0x00	; 0
     2eec:	4b ee       	ldi	r20, 0xEB	; 235
     2eee:	53 e0       	ldi	r21, 0x03	; 3
@@ -8252,7 +8252,7 @@ static void twi_smart_lcd_fw_showStatus(void)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_ID01, sizeof(PM_FORMAT_ID01));
     3dda:	2b e6       	ldi	r18, 0x6B	; 107
     3ddc:	30 e0       	ldi	r19, 0x00	; 0
-    3dde:	45 e0       	ldi	r20, 0x05	; 5
+    3dde:	44 e0       	ldi	r20, 0x04	; 4
     3de0:	55 e0       	ldi	r21, 0x05	; 5
     3de2:	6d e8       	ldi	r22, 0x8D	; 141
     3de4:	73 e0       	ldi	r23, 0x03	; 3
@@ -8302,7 +8302,7 @@ static void twi_smart_lcd_fw_showStatus(void)
 		memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_ID02, sizeof(PM_FORMAT_ID02));
     3e3e:	2b e6       	ldi	r18, 0x6B	; 107
     3e40:	30 e0       	ldi	r19, 0x00	; 0
-    3e42:	4a e9       	ldi	r20, 0x9A	; 154
+    3e42:	49 e9       	ldi	r20, 0x99	; 153
     3e44:	54 e0       	ldi	r21, 0x04	; 4
     3e46:	b5 01       	movw	r22, r10
     3e48:	81 e0       	ldi	r24, 0x01	; 1
@@ -8717,7 +8717,7 @@ static void main_fw_sendInitialHelp(void)
 #if 1
 	ringbuffer_fw_ringBufferWaitAppend(true, true, PM_COMMAND_HELP, sizeof(PM_COMMAND_HELP));
     4132:	25 e0       	ldi	r18, 0x05	; 5
-    4134:	43 e1       	ldi	r20, 0x13	; 19
+    4134:	42 e1       	ldi	r20, 0x12	; 18
     4136:	5c e0       	ldi	r21, 0x0C	; 12
     4138:	61 e0       	ldi	r22, 0x01	; 1
     413a:	81 e0       	ldi	r24, 0x01	; 1
@@ -9171,7 +9171,7 @@ uint16_t memory_fw_getSealMarker(uint8_t blockNr)
     43a8:	33 1f       	adc	r19, r19
     43aa:	9a 95       	dec	r25
     43ac:	e1 f7       	brne	.-8      	; 0x43a6 <memory_fw_manageBlock+0x52>
-    43ae:	2e 5c       	subi	r18, 0xCE	; 206
+    43ae:	2f 5c       	subi	r18, 0xCF	; 207
     43b0:	33 4f       	sbci	r19, 0xF3	; 243
 
 			if (oldCrcBlock != memory_fw_getSealMarker(blockNr)) {
@@ -12747,7 +12747,7 @@ uchar       flags = USB_FLG_MSGPTR_IS_ROM;
     5564:	81 30       	cpi	r24, 0x01	; 1
     5566:	41 f4       	brne	.+16     	; 0x5578 <usbPoll+0xd6>
         GET_DESCRIPTOR(USB_CFG_DESCR_PROPS_DEVICE, usbDescriptorDevice)
-    5568:	8b ee       	ldi	r24, 0xEB	; 235
+    5568:	8a ee       	ldi	r24, 0xEA	; 234
     556a:	9c e0       	ldi	r25, 0x0C	; 12
     556c:	90 93 09 08 	sts	0x0809, r25	; 0x800809 <usbMsgPtr+0x1>
     5570:	80 93 08 08 	sts	0x0808, r24	; 0x800808 <usbMsgPtr>
@@ -12757,7 +12757,7 @@ uchar       flags = USB_FLG_MSGPTR_IS_ROM;
     5578:	82 30       	cpi	r24, 0x02	; 2
     557a:	41 f4       	brne	.+16     	; 0x558c <usbPoll+0xea>
         GET_DESCRIPTOR(USB_CFG_DESCR_PROPS_CONFIGURATION, usbDescriptorConfiguration)
-    557c:	82 ed       	ldi	r24, 0xD2	; 210
+    557c:	81 ed       	ldi	r24, 0xD1	; 209
     557e:	9c e0       	ldi	r25, 0x0C	; 12
     5580:	90 93 09 08 	sts	0x0809, r25	; 0x800809 <usbMsgPtr+0x1>
     5584:	80 93 08 08 	sts	0x0808, r24	; 0x800808 <usbMsgPtr>
@@ -12775,7 +12775,7 @@ uchar       flags = USB_FLG_MSGPTR_IS_ROM;
     5590:	91 11       	cpse	r25, r1
     5592:	08 c0       	rjmp	.+16     	; 0x55a4 <usbPoll+0x102>
             GET_DESCRIPTOR(USB_CFG_DESCR_PROPS_STRING_0, usbDescriptorString0)
-    5594:	85 e4       	ldi	r24, 0x45	; 69
+    5594:	84 e4       	ldi	r24, 0x44	; 68
     5596:	9d e0       	ldi	r25, 0x0D	; 13
     5598:	90 93 09 08 	sts	0x0809, r25	; 0x800809 <usbMsgPtr+0x1>
     559c:	80 93 08 08 	sts	0x0808, r24	; 0x800808 <usbMsgPtr>
@@ -12785,7 +12785,7 @@ uchar       flags = USB_FLG_MSGPTR_IS_ROM;
     55a4:	91 30       	cpi	r25, 0x01	; 1
     55a6:	41 f4       	brne	.+16     	; 0x55b8 <usbPoll+0x116>
             GET_DESCRIPTOR(USB_CFG_DESCR_PROPS_STRING_VENDOR, usbDescriptorStringVendor)
-    55a8:	87 e3       	ldi	r24, 0x37	; 55
+    55a8:	86 e3       	ldi	r24, 0x36	; 54
     55aa:	9d e0       	ldi	r25, 0x0D	; 13
     55ac:	90 93 09 08 	sts	0x0809, r25	; 0x800809 <usbMsgPtr+0x1>
     55b0:	80 93 08 08 	sts	0x0808, r24	; 0x800808 <usbMsgPtr>
@@ -12795,7 +12795,7 @@ uchar       flags = USB_FLG_MSGPTR_IS_ROM;
     55b8:	92 30       	cpi	r25, 0x02	; 2
     55ba:	41 f4       	brne	.+16     	; 0x55cc <usbPoll+0x12a>
             GET_DESCRIPTOR(USB_CFG_DESCR_PROPS_STRING_PRODUCT, usbDescriptorStringDevice)
-    55bc:	8d e0       	ldi	r24, 0x0D	; 13
+    55bc:	8c e0       	ldi	r24, 0x0C	; 12
     55be:	9d e0       	ldi	r25, 0x0D	; 13
     55c0:	90 93 09 08 	sts	0x0809, r25	; 0x800809 <usbMsgPtr+0x1>
     55c4:	80 93 08 08 	sts	0x0808, r24	; 0x800808 <usbMsgPtr>
@@ -12805,7 +12805,7 @@ uchar       flags = USB_FLG_MSGPTR_IS_ROM;
     55cc:	93 30       	cpi	r25, 0x03	; 3
     55ce:	41 f4       	brne	.+16     	; 0x55e0 <usbPoll+0x13e>
             GET_DESCRIPTOR(USB_CFG_DESCR_PROPS_STRING_SERIAL_NUMBER, usbDescriptorStringSerialNumber)
-    55d0:	8d ef       	ldi	r24, 0xFD	; 253
+    55d0:	8c ef       	ldi	r24, 0xFC	; 252
     55d2:	9c e0       	ldi	r25, 0x0C	; 12
     55d4:	90 93 09 08 	sts	0x0809, r25	; 0x800809 <usbMsgPtr+0x1>
     55d8:	80 93 08 08 	sts	0x0808, r24	; 0x800808 <usbMsgPtr>
@@ -13624,12 +13624,12 @@ static inline void  usbResetDataToggling(void)
     5a84:	91 05       	cpc	r25, r1
     5a86:	09 f0       	breq	.+2      	; 0x5a8a <conv_flt+0x58>
     5a88:	38 c0       	rjmp	.+112    	; 0x5afa <conv_flt+0xc8>
-    5a8a:	6b e5       	ldi	r22, 0x5B	; 91
+    5a8a:	6a e5       	ldi	r22, 0x5A	; 90
     5a8c:	86 2e       	mov	r8, r22
     5a8e:	6d e0       	ldi	r22, 0x0D	; 13
     5a90:	96 2e       	mov	r9, r22
     5a92:	04 c0       	rjmp	.+8      	; 0x5a9c <conv_flt+0x6a>
-    5a94:	7e e5       	ldi	r23, 0x5E	; 94
+    5a94:	7d e5       	ldi	r23, 0x5D	; 93
     5a96:	87 2e       	mov	r8, r23
     5a98:	7d e0       	ldi	r23, 0x0D	; 13
     5a9a:	97 2e       	mov	r9, r23
@@ -13656,14 +13656,14 @@ static inline void  usbResetDataToggling(void)
     5ac4:	b5 01       	movw	r22, r10
     5ac6:	c6 01       	movw	r24, r12
     5ac8:	7c d7       	rcall	.+3832   	; 0x69c2 <ungetc>
-    5aca:	91 e6       	ldi	r25, 0x61	; 97
+    5aca:	90 e6       	ldi	r25, 0x60	; 96
     5acc:	89 16       	cp	r8, r25
     5ace:	9d e0       	ldi	r25, 0x0D	; 13
     5ad0:	99 06       	cpc	r9, r25
     5ad2:	09 f0       	breq	.+2      	; 0x5ad6 <conv_flt+0xa4>
     5ad4:	c6 cf       	rjmp	.-116    	; 0x5a62 <conv_flt+0x30>
     5ad6:	05 c0       	rjmp	.+10     	; 0x5ae2 <conv_flt+0xb0>
-    5ad8:	fe e5       	ldi	r31, 0x5E	; 94
+    5ad8:	fd e5       	ldi	r31, 0x5D	; 93
     5ada:	8f 16       	cp	r8, r31
     5adc:	fd e0       	ldi	r31, 0x0D	; 13
     5ade:	9f 06       	cpc	r9, r31
@@ -13840,12 +13840,12 @@ static inline void  usbResetDataToggling(void)
     5c34:	d1 94       	neg	r13
     5c36:	c1 94       	neg	r12
     5c38:	d1 08       	sbc	r13, r1
-    5c3a:	5a e7       	ldi	r21, 0x7A	; 122
+    5c3a:	59 e7       	ldi	r21, 0x79	; 121
     5c3c:	85 2e       	mov	r8, r21
     5c3e:	5d e0       	ldi	r21, 0x0D	; 13
     5c40:	95 2e       	mov	r9, r21
     5c42:	04 c0       	rjmp	.+8      	; 0x5c4c <conv_flt+0x21a>
-    5c44:	42 e9       	ldi	r20, 0x92	; 146
+    5c44:	41 e9       	ldi	r20, 0x91	; 145
     5c46:	84 2e       	mov	r8, r20
     5c48:	4d e0       	ldi	r20, 0x0D	; 13
     5c4a:	94 2e       	mov	r9, r20
@@ -14024,7 +14024,7 @@ static inline void  usbResetDataToggling(void)
     5da0:	9c c0       	rjmp	.+312    	; 0x5eda <vfscanf+0x232>
     5da2:	63 2f       	mov	r22, r19
     5da4:	70 e0       	ldi	r23, 0x00	; 0
-    5da6:	89 e4       	ldi	r24, 0x49	; 73
+    5da6:	88 e4       	ldi	r24, 0x48	; 72
     5da8:	9d e0       	ldi	r25, 0x0D	; 13
     5daa:	39 83       	std	Y+1, r19	; 0x01
     5dac:	3a d5       	rcall	.+2676   	; 0x6822 <strchr_P>
