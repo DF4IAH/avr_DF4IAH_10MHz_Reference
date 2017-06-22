@@ -851,6 +851,7 @@ static void main_fw_sendInitialHelp(void)
 
 static void twi_mcp23017_av1624_fw_showStatus(void)
 {
+	/* Init device when later attached */
 	if (!main_bf.mainIsLcdAttached) {
 		twi_mcp23017_fw_init();
 		twi_mcp23017_av1624_fw_init();
@@ -982,9 +983,13 @@ static void twi_mcp23017_av1624_fw_showStatus(void)
 
 static void twi_smart_lcd_fw_showStatus(void)
 {
-	/* Init device */
+	/* Init device when later attached */
 	if (!main_bf.mainIsSmartAttached) {
 		twi_smart_lcd_fw_init();
+		if (!main_bf.mainIsSmartAttached) {
+			return;
+		}
+		_delay_ms(250);
 	}
 
 	{

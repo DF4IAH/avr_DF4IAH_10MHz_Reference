@@ -44,6 +44,13 @@
 #define TWI_TWSR_S_SLAR_MYADDR_LASTDATA_ACK						0xC8
 
 
+enum C_SMART_LCD_MODE__ENUM {
+	C_SMART_LCD_MODE_UNIQUE											= 0x00,
+	C_SMART_LCD_MODE_SMARTLCD										= 0x10,
+	C_SMART_LCD_MODE_REFOSC											= 0x20,
+};
+
+
 void twi_fw_init(void);
 #if 0
 void twi_fw_close(void);
