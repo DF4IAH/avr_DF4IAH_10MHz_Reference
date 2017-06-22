@@ -3,7 +3,7 @@
  *
  * Created: 25.03.2017 20:11:11
  *  Author: espero
- */ 
+ */
 
 
 #ifndef DF4IAH_FW_TWI_SMART_LCD_H_

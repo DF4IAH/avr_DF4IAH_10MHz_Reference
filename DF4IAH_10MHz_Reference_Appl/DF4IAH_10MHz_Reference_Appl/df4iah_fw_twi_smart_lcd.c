@@ -3,7 +3,7 @@
  *
  * Created: 25.03.2017 20:13:50
  *  Author: DF4IAH
- */ 
+ */
 
 #include <stdbool.h>
 
