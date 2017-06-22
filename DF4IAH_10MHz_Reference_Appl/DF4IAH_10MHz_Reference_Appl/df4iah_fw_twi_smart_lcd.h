@@ -13,14 +13,20 @@
 #include "chipdef.h"
 
 
+/* Smart-LCD address and command-set */
+
 // I2C Address
 #define TWI_SMART_LCD_ADDR									0x22
 
-// commands of the Smart-LCD device
+
+// The unique commands of the Smart-LCD device for all modes
 #define TWI_SMART_LCD_CMD_NOOP								0x00
+#define TWI_SMART_LCD_CMD_GET_VER							0x01
+#define TWI_SMART_LCD_CMD_SET_MODE							0x02
+#define TWI_SMART_LCD_CMD_GET_STATE							0x03
 
-#define TWI_SMART_LCD_CMD_GETVER							0x01
 
+// Mode 0x20 commands (10 MHz-Ref-Osc)
 #define TWI_SMART_LCD_CMD_SHOW_CLK_STATE					0x80
 #define TWI_SMART_LCD_CMD_SHOW_YEAR_MON_DAY					0x81
 #define TWI_SMART_LCD_CMD_SHOW_HR_MIN_SEC					0x82
@@ -43,6 +49,7 @@ void twi_smart_lcd_fw_close(void);
 #endif
 
 uint8_t twi_smart_lcd_fw_get_version(void);
+void twi_smart_lcd_fw_set_mode(uint8_t mode);
 void twi_smart_lcd_fw_set_clkstate_phaseVolt__phaseDeg(uint8_t clk_state, uint16_t phaseVolt1000, int16_t phaseDeg100);
 void twi_smart_lcd_fw_set_date(uint16_t year, uint8_t month, uint8_t day);
 void twi_smart_lcd_fw_set_time(uint8_t hour, uint8_t minute, uint8_t second);

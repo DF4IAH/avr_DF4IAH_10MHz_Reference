@@ -20,19 +20,20 @@ extern uchar mainPrepareBuffer[MAIN_PREPARE_BUFFER_SIZE];
 void twi_smart_lcd_fw_init(void)
 {
 	uint8_t ver = twi_smart_lcd_fw_get_version();
-	(void) ver;
+	if (ver >= 0x11) {  // Smart-LCD detected
+		twi_smart_lcd_fw_set_mode(C_SMART_LCD_MODE_REFOSC);
+	}
 }
-
-#if 0
-void twi_smart_lcd_fw_close(void)
-{
-	// TODO
-}
-#endif
 
 uint8_t twi_smart_lcd_fw_get_version(void)
 {
-	return twi_fw_sendCmdReadData1(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_GETVER);		// within this function the main_bf.mainIsSmartAttached is being set
+	return twi_fw_sendCmdReadData1(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_GET_VER);		// within this function the main_bf.mainIsSmartAttached is being set
+}
+
+void twi_smart_lcd_fw_set_mode(uint8_t mode)
+{
+	mainPrepareBuffer[0] = mode;
+	twi_fw_sendCmdSendData1SendDataVar(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_SET_MODE, 1, (uint8_t*) &mainPrepareBuffer);
 }
 
 void twi_smart_lcd_fw_set_clkstate_phaseVolt__phaseDeg(uint8_t clk_state, uint16_t phaseVolt1000, int16_t phaseDeg100)
