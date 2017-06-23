@@ -57,7 +57,7 @@ void twi_mcp23017_av1624_fw_init(void)
 		return;
 	}
 
-	twi_mcp23017_av1624_fw_waitUntilReady();											// within this function the main_bf.mainIsSmartAttached is being set/cleared
+	twi_mcp23017_av1624_fw_waitUntilReady();
 
 	// set interface width to 8bits - (1)
 	twi_mcp23017_fw_setPortA_DirOut(true);
@@ -145,6 +145,10 @@ void twi_mcp23017_av1624_fw_waitUntilReady(void)
 	const uint8_t lightBF = (main_bf.mainLcdLedMode == LCD_LED_MODE_ON) ?  0x08 : 0x00;
 
 	twi_mcp23017_fw_setPortA_DirOut(false);
+
+	if (!(main_bf.mainIsLcdAttached)) {
+		return;
+	}
 
 	for (;;) {
 		twi_mcp23017_fw_setPortB(0b0010 | lightBF);
