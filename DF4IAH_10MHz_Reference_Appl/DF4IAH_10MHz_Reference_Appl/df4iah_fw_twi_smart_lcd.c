@@ -6,6 +6,7 @@
  */
 
 #include <stdbool.h>
+#include <util/delay.h>
 
 #include "df4iah_fw_main.h"
 #include "df4iah_fw_twi.h"
@@ -20,14 +21,23 @@ extern uchar mainPrepareBuffer[MAIN_PREPARE_BUFFER_SIZE];
 void twi_smart_lcd_fw_init(void)
 {
 	uint8_t ver = twi_smart_lcd_fw_get_version();
-	if (ver >= 0x11) {  // Smart-LCD detected
+	if (ver >= 0x11 || main_bf.mainIsSmartAttached) {		// Smart-LCD detected
 		twi_smart_lcd_fw_set_mode(C_SMART_LCD_MODE_REFOSC);
 	}
 }
 
 uint8_t twi_smart_lcd_fw_get_version(void)
 {
-	return twi_fw_sendCmdReadData1(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_GET_VER);		// within this function the main_bf.mainIsSmartAttached is being set
+	uint8_t ver = twi_fw_sendCmdReadData1(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_GET_VER);	// within this function the main_bf.mainIsSmartAttached is being set;
+
+	for (uint8_t i = 3; i; --i) {
+		if (ver >= 0x10) {
+			return ver;
+		}
+		_delay_ms(10);
+		ver = twi_fw_sendCmdReadData1(TWI_SMART_LCD_ADDR, TWI_SMART_LCD_CMD_GET_VER);
+	}
+	return ver;
 }
 
 void twi_smart_lcd_fw_set_mode(uint8_t mode)

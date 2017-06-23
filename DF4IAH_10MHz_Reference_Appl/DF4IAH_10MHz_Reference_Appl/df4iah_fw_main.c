@@ -616,7 +616,7 @@ static void calcQrg(int32_t int20MHzClockDiff, float meanFloatClockDiff, float q
 			holdOffTime = holdOffTimeStart;
 		}
 
-		if (!main_bf.mainIsAFC) {
+		if (!(main_bf.mainIsAFC)) {
 			return;
 		}
 
@@ -852,10 +852,10 @@ static void main_fw_sendInitialHelp(void)
 static void twi_mcp23017_av1624_fw_showStatus(void)
 {
 	/* Init device when later attached */
-	if (!main_bf.mainIsLcdAttached) {
+	if (!(main_bf.mainIsLcdAttached)) {
 		twi_mcp23017_fw_init();
 		twi_mcp23017_av1624_fw_init();
-		if (!main_bf.mainIsLcdAttached) {
+		if (!(main_bf.mainIsLcdAttached)) {
 			return;
 		}
 	}
@@ -984,12 +984,13 @@ static void twi_mcp23017_av1624_fw_showStatus(void)
 static void twi_smart_lcd_fw_showStatus(void)
 {
 	/* Init device when later attached */
-	if (!main_bf.mainIsSmartAttached) {
-		twi_smart_lcd_fw_init();
-		if (!main_bf.mainIsSmartAttached) {
+	if (!(main_bf.mainIsSmartAttached)) {
+		(void) twi_smart_lcd_fw_get_version();
+		if (!(main_bf.mainIsSmartAttached)) {
 			return;
+		} else {
+			twi_smart_lcd_fw_init();
 		}
-		_delay_ms(250);
 	}
 
 	{
@@ -1773,7 +1774,7 @@ static void doJobs(void)
 			localPpm = (local20MHzClockDiff / 20.0f);
 		}
 
-		if (main_bf.mainIsTimerTest && (!main_bf.mainIsAFC)) {
+		if (main_bf.mainIsTimerTest && (!(main_bf.mainIsAFC))) {
 			/* monitoring frequency even when AFC is switched off */
 			memory_fw_copyBuffer(true, mainFormatBuffer, PM_FORMAT_IA01, sizeof(PM_FORMAT_IA01));
 			int len = sprintf((char*) mainPrepareBuffer, (char*) mainFormatBuffer,
@@ -1959,7 +1960,8 @@ int main(void)
 		twi_fw_init();
 		twi_mcp23017_fw_init();
 		twi_mcp23017_av1624_fw_init();
-		twi_smart_lcd_fw_init();
+		_delay_ms(500);
+		twi_smart_lcd_fw_init();							// talk to Smart-LCD at least one second after power-on
 
 		/* check CRC of all blocks and update with default values if the data is non-valid */
 		memory_fw_manageNonVolatileData();

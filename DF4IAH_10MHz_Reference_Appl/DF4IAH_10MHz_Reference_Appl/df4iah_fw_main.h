@@ -14,7 +14,7 @@
 
 /* VERSION: YYM, MDD */
 #define VERSION_HIGH										170
-#define VERSION_LOW											416
+#define VERSION_LOW											623
 
 
 /* GPS NMEA */
@@ -94,6 +94,9 @@
 
 typedef struct main_bf_struct
 {
+     uint8_t  mainIsLcdAttached;
+     uint8_t  mainIsSmartAttached;
+
      uint8_t  mainIsAFC										: 1;
      uint8_t  mainIsAPC										: 1;
      uint8_t  mainIsTimerTest								: 1;
@@ -101,9 +104,7 @@ typedef struct main_bf_struct
      uint8_t  mainIsUsbCommTest 							: 1;
      uint8_t  mainStopAvr		 							: 1;
      uint8_t  mainStackCheck								: 1;
-     uint8_t  mainIsLcdAttached								: 1;
-     uint8_t  mainIsSmartAttached							: 1;
-//   uint8_t  mainReserved01								: 0; // fill to 8 bits
+     uint8_t  mainReserved01								: 1; // fill to 8 bits
 
      uint8_t  mainHelpConcatNr								: 4;
      uint8_t  mainLcdLedMode								: 3;

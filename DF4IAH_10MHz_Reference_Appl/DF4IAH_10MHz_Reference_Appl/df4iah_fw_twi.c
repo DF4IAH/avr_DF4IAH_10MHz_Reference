@@ -81,12 +81,17 @@ static void s_delay(void)
 
 void twi_fw_waitUntilDone(uint8_t extraDelay)
 {
-	while (twiState.doStart || twiState.isProcessing) {
+	uint8_t loop = 100UL;
+	while (--loop && (twiState.doStart || twiState.isProcessing)) {
 		s_delay();
 	}
 
+	if (!loop) {
+		return;
+	}
+
 	/* Give some more time for the TWI slave to process the data */
-	for (int cnt = extraDelay; cnt; --cnt) {
+	for (uint8_t cnt = extraDelay; cnt; --cnt) {
 		s_delay();
 	}
 }
