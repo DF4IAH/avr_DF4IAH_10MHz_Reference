@@ -281,18 +281,17 @@ volatile main_bf_t main_bf									= {
 									/* mainIsSerComm		= */	false,
 									/* mainIsUsbCommTest	= */	false,
 									/* mainStopAvr			= */	false,
-									/* mainStackCheck		= */	false,
 									/* mainIsLcdAttached    = */	false,
 									/* mainIsSmartAttached  = */	false,
-									/* mainReserved01		= */	// false,
 
+									/* mainStackCheck		= */	false,
 									/* mainHelpConcatNr		= */	0,
 									/* mainLcdLedMode		= */	0,
-									/* mainReserved11		= */	false
+//									/* mainReserved11		= */	false,
 															  };
 
 /* df4iah_fw_clkPullPwm */
-uint8_t pullCoef_b02_pwm_initial							= 0;
+uint8_t pullCoef_b02_pwm_initial							= DEFAULT_PWM_COUNT;
 uint8_t pullCoef_b02_pwm_initial_sub						= 0;
 
 /* df4iah_fw_clkFastCtr (20 MHz clock) */
@@ -325,8 +324,8 @@ uint8_t  usbRingBufferSendSemaphore 						= 0;  // semaphore is free
 uint8_t  usbRingBufferRcvSemaphore 							= 0;  // semaphore is free
 
 /* df4iah_fw_serial */
-uint16_t serialCoef_b03_serial_baud							= 0;
-uint16_t serialCoef_b03_bitsParityStopbits					= 0;
+uint16_t serialCoef_b03_serial_baud							= DEFAULT_BAUDRATE;
+uint16_t serialCoef_b03_bitsParityStopbits					= (DEFAULT_PARITY_N0_E2_O3 << DEFAULT_PARITY_N0_E2_O3_BITPOS) | (DEFAULT_STOPBITS << DEFAULT_STOPBITS_BITPOS) | (DEFAULT_DATABITS << DEFAULT_DATABITS_BITPOS);
 uint16_t serialCoef_b03_gps_comm_mode						= 0;
 uint8_t  serialCtxtRxBufferLen								= 0;
 uint8_t  serialCtxtTxBufferLen								= 0;

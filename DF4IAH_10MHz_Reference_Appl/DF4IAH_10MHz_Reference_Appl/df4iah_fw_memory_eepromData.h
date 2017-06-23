@@ -70,8 +70,8 @@
 				<< DEFAULT_PARITY_N0_E2_O3_BITPOS)	|																						\
 		(DEFAULT_STOPBITS																													\
 				<< DEFAULT_STOPBITS_BITPOS)			|																						\
-		DEFAULT_DATABITS																													\
-				<< DEFAULT_DATABITS_BITPOS,			/* b03_serial_bitsParityStopbits */														\
+		(DEFAULT_DATABITS																													\
+				<< DEFAULT_DATABITS_BITPOS),		/* b03_serial_bitsParityStopbits */														\
 		0x0000,										/* b03_gps_comm_mode */																	\
 		0x0000,										/* b03_last_fix */																		\
 		0xffff,						\
