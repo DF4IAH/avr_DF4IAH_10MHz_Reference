@@ -118,7 +118,7 @@ ISR(ADC_vect, ISR_BLOCK)
 	{
 	case 0x01:
 		/* store PHASE value */
-		acAdcCh[1] = adVal;
+		acAdcCh[ADC_CH_PHASE] = adVal;
 
 		/* switch to ADC input channel 0 - PWM analog value */
 		acAdcConvertNowState = 0x10;
@@ -138,7 +138,7 @@ ISR(ADC_vect, ISR_BLOCK)
 
 	case 0x00:
 		/* store PWM analog value */
-		acAdcCh[0] = adVal;
+		acAdcCh[ADC_CH_PWMPULL] = adVal;
 
 		/* switch to ADC input channel for temperature */
 		acAdcConvertNowState = 0x18;
@@ -159,7 +159,7 @@ ISR(ADC_vect, ISR_BLOCK)
 		break;
 
 	case 0x08:
-		acAdcCh[2] = adVal;
+		acAdcCh[ADC_CH_TEMP] = adVal;
 		// no break
 	default:
 		/* switch to ADC input channel 1 - PHASE value */

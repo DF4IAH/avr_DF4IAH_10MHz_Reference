@@ -13,8 +13,8 @@
 #include "chipdef.h"
 
 /* VERSION: YYM, MDD */
-#define VERSION_HIGH										170
-#define VERSION_LOW											624
+#define VERSION_HIGH										171
+#define VERSION_LOW											212
 
 
 /* GPS NMEA */
@@ -72,9 +72,9 @@
 
 #define MAIN_STACK_CHECK_SIZE								0x0220
 
-// ADC 0 = 0.035211V; ADC 1023 = 4.843 V
-// s: 213 Delta-ADC / 1 Delta-V; ADC 0312 = 1.5 V, ofs: +35.211 mV
-#define ADC_STEPS_1V										213.0f
+// ADC 0 = 0.035211V; ADC 1023 = 4.60 V
+// s: 222 Delta-ADC / 1 Delta-V; Ofs: +35.211 mV
+#define ADC_STEPS_1V										222.0f
 #define ADC_OFS_0ADC_V										0.035211f
 #define ADC_PHASE_ADC_CENTER								269
 #define ADC_PHASE_VOLTS_CENTER								1.30f
